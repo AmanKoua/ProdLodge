@@ -3,7 +3,7 @@ import {useRef} from "react";
 
 import AudioController from "./AudioController";
 import CSS from "csstype";
-import tempSong from '../assets/midnight.mp3';
+import tempSong from '../assets/kazukii.mp3';
 
 // Fetch song globals
 let aCTX : AudioContext;

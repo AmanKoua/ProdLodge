@@ -2,6 +2,14 @@ import CSS from "csstype";
 import playButton from "../assets/playButton.png";
 import pauseButton from "../assets/pauseButton.png";
 import {useRef} from 'react';
+import {useEffect} from 'react';
+
+let audioControllerElement : HTMLDivElement;
+let audioControllerRef : any;
+let eventListenerAttached : boolean = false;
+
+let audioControlImageElement : HTMLImageElement;
+let audioControlImageRef : any;
 
 interface Props{
     isPlaying: boolean;
@@ -15,9 +23,34 @@ interface Props{
 
 const AudioController = ({isPlaying, isExpanded, setIsPlaying, setIsExpanded, playSong, stopSong, startVisualizer}: Props) => {
 
-    const audioControllerRef = useRef(null);
+    audioControllerRef = useRef<HTMLDivElement | null>(null);
+    audioControllerElement = audioControllerRef.current;
 
-    audioControllerRef.current
+    useEffect(()=>{ // attach eventHandler to AudioControllerDiv
+        const handleImageClick = (event : MouseEvent) => {
+            // console.log(event.target);
+            if(event.target === audioControllerRef.current){
+                // console.log("CLICKED THE DIV!"); // works
+
+                let x = event.clientX;
+                let left = audioControllerElement.getBoundingClientRect().left;
+                let right = audioControllerElement.getBoundingClientRect().right;
+                let width = right-left;
+                let position = ((x-left) / width) * 100; // position percentage
+
+                console.log(position);
+
+            }
+            else{
+
+            }
+        }
+
+        if(audioControllerRef.current){
+            audioControllerRef.current.addEventListener("click", handleImageClick);
+        }
+
+    }, []);
 
     const AudioControllerStyle: CSS.Properties = {
         position: "absolute",
@@ -32,6 +65,7 @@ const AudioController = ({isPlaying, isExpanded, setIsPlaying, setIsExpanded, pl
         width: "30px",
         marginTop: "5px",
         marginLeft: "5px",
+        zIndex : "5",
     };
 
     const ExpandButtonStyle: CSS.Properties = {
@@ -67,10 +101,11 @@ const AudioController = ({isPlaying, isExpanded, setIsPlaying, setIsExpanded, pl
             <div style={ExpandButtonStyle} onClick={()=>{setIsExpanded(!isExpanded)}}>
                 {expansionText}
             </div>
-            <img src={imgSrc} style={imgStyle} onClick={handleImageClick} />
+            <img ref={audioControlImageRef} src={imgSrc} style={imgStyle} onClick={handleImageClick} />
         </div>
         </>
     );
+
 };
 
 export default AudioController;
