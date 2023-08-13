@@ -275,6 +275,7 @@ const AudioBox = () => {
         height: "300px",
         border: "1px solid black",
         transition: "all 0.3s",
+        overflow: "hidden",
     };
 
     AudioBoxStyle.height = isExpanded ? "465px" : "40px";
@@ -298,18 +299,26 @@ const AudioBox = () => {
 
     let audioModules : JSX.Element;
 
-    if(isExpanded){
-        audioModules = 
-        (
-            <>
-                <AudioModuleContainer></AudioModuleContainer>
-                <AudioModuleContainer></AudioModuleContainer>
-            </>
-        );
-    }
-    else{
-        audioModules = <></>;
-    }
+    audioModules = 
+    (
+        <>
+            <AudioModuleContainer></AudioModuleContainer>
+            <AudioModuleContainer></AudioModuleContainer>
+        </>
+    );
+
+    // if(isExpanded){ // cannot only be displayed when expanded because audio processing needs to be persistent
+    //     audioModules = 
+    //     (
+    //         <>
+    //             <AudioModuleContainer></AudioModuleContainer>
+    //             <AudioModuleContainer></AudioModuleContainer>
+    //         </>
+    //     );
+    // }
+    // else{
+    //     audioModules = <></>;
+    // }
 
     return (
     <>
