@@ -81,6 +81,7 @@ const AudioController = ({isPlaying, isExpanded, songTime, songDuration, setIsPl
         width: "10%",
         height: "15px",
         border: "1px solid black",
+        borderRadius: "6px",
         fontSize: "10px",
         textAlign: "center",
         backgroundColor: "lavender",
@@ -97,8 +98,17 @@ const AudioController = ({isPlaying, isExpanded, songTime, songDuration, setIsPl
         zIndex: "10", // needs to be above canvas!
     }
 
-    // SongTimeDivStyle.width = `${songTimeWidth}%`;
-    SongTimeDivStyle.width = `${(songTime / songDuration) * 100 }%`;
+    const getSongTimeDivWidth = (): number => {
+        let SongTimeDivStyleWidth = (songTime / songDuration) * 100;
+
+        if(SongTimeDivStyleWidth > 100){
+            SongTimeDivStyleWidth = 100;
+        }
+
+        return SongTimeDivStyleWidth;
+    }
+
+    SongTimeDivStyle.width = `${getSongTimeDivWidth()}%`;
 
     const handleImageClick = async () =>{
         if(!isPlaying){

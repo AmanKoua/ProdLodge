@@ -1,9 +1,12 @@
 import { useState } from "react";
 import {useRef} from "react";
+import CSS from "csstype";
+
 
 import AudioController from "./AudioController";
-import CSS from "csstype";
-import tempSong from '../assets/kazukii.mp3';
+import AudioModuleContainer from "./AudioModuleContainer";
+
+import tempSong from '../assets/telepathy.mp3';
 
 console.log("AudioBox Rerender!");
 
@@ -274,7 +277,7 @@ const AudioBox = () => {
         transition: "all 0.3s",
     };
 
-    AudioBoxStyle.height = isExpanded ? "300px" : "40px";
+    AudioBoxStyle.height = isExpanded ? "465px" : "40px";
 
     const CanvasStyle: CSS.Properties = {
         position: "absolute",
@@ -283,9 +286,35 @@ const AudioBox = () => {
         height: "40px",
     };
 
+    const ModuleContainerStyle: CSS.Properties = {
+        margin: "1%",
+        display: "flex",
+        justifyContent: "left",
+        width: "98%",
+        height: "200px",
+        backgroundColor: "#3d8bf2",
+        opacity: "75%",
+    }
+
+    let audioModules : JSX.Element;
+
+    if(isExpanded){
+        audioModules = 
+        (
+            <>
+                <AudioModuleContainer></AudioModuleContainer>
+                <AudioModuleContainer></AudioModuleContainer>
+            </>
+        );
+    }
+    else{
+        audioModules = <></>;
+    }
+
     return (
     <>
         <div style={AudioBoxStyle}>
+            {audioModules}
             <canvas style={CanvasStyle} ref={canvasRef}></canvas>
             <AudioController
                 isPlaying={isPlaying}
