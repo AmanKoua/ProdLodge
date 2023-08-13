@@ -321,7 +321,11 @@ const AudioBox = () => {
 
     setAudioModulesData(tempAudioModulesData);
 
-    console.log(tempAudioModulesData);
+    // console.log(tempAudioModulesData);
+  };
+
+  const setModuleType = (type: string, index: number[]): void => {
+    // yet to be implemented
   };
 
   const generateAudioSettingsFragment = (): JSX.Element => {
@@ -332,10 +336,11 @@ const AudioBox = () => {
         {audioModulesData.map((item, idx) => {
           return (
             <AudioModuleContainer
-              moduleCount={item.length}
-              modules={new Array()}
+              containerIndex={idx}
+              modules={item}
               key={idx}
               addModule={addModule}
+              setModuleType={setModuleType}
             ></AudioModuleContainer>
           );
         })}
