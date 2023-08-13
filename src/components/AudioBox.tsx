@@ -5,11 +5,14 @@ import AudioController from "./AudioController";
 import CSS from "csstype";
 import tempSong from '../assets/kazukii.mp3';
 
+console.log("AudioBox Rerender!");
+
 // Fetch song globals
 let aCTX : AudioContext;
 let song;
 let tempSongBuffer : ArrayBuffer;
 let songBuffer : AudioBuffer;
+let songDuration : number;
 
 // Initialize buffer source globals
 let source : AudioBufferSourceNode | undefined = undefined;
@@ -18,17 +21,19 @@ let source : AudioBufferSourceNode | undefined = undefined;
 let analyser : AnalyserNode | undefined = undefined;
 let bufferLength : number;
 let dataArr: Uint8Array;
+let prevDataArr: Uint8Array;
 let canvas: HTMLCanvasElement;
 let canvasCtx: CanvasRenderingContext2D ;
 
 // Canvas and song time variables
 let canvasRef: any;
 let animationFrameHandler: number | undefined = undefined;
-let songTime: number = 0;
 
 // Props and state
 let isPlaying: boolean;
 let setIsPlaying: (val: boolean) => void;
+let songTime: number = 0;
+let setSongTime : (val : number) => void;
 let ctxInitialized: boolean;
 let setCtxInitialized: (val : boolean) => void;
 let songTimeInterval: number;
@@ -41,8 +46,6 @@ let fetchSong = async function(){ // fetch song
         return;
     }
 
-    ctxInitialized = true;
-
     // Fetching song
     aCTX = new AudioContext(); // has to be created after a user gesture, AKA after pressing song start!
 
@@ -51,13 +54,23 @@ let fetchSong = async function(){ // fetch song
 
     await aCTX.decodeAudioData(tempSongBuffer, (decodedBuffer) => {
         songBuffer = decodedBuffer;
+        songDuration = songBuffer.duration;
     })
 
-    initializeBufferSource();
+    if(!ctxInitialized){
+        initializeBufferSource();
+    }
+
+    ctxInitialized = true;
 
 }
 
 let initializeBufferSource = function(){
+
+    if(ctxInitialized){
+        return;
+    }
+
     // Initializing buffer source
     if(source === undefined){
         source = aCTX.createBufferSource();
@@ -72,11 +85,13 @@ let initializeBufferSource = function(){
 
     source.connect(analyser);
     source.connect(aCTX.destination);
+
+    ctxInitialized = true;
 }
 
 let trackSongTime = function(){
     songTimeInterval = setInterval(()=>{
-        songTime += 0.1;
+        setSongTime(songTime + 0.1);
     }, 100);
 }
 
@@ -84,10 +99,15 @@ let clearTrackSongTime = function(){
     clearInterval(songTimeInterval);
 }
 
-let playSong = async function(){
+let playSong = async function(seekTime : number | null){
+
+    if(seekTime != null && seekTime < 0){
+        seekTime = 0;
+    }
+
     if(!ctxInitialized){
         await fetchSong();
-        setCtxInitialized(true);
+        ctxInitialized = true;
     }
 
     if(source != undefined){ // disconnect, create new source, and connect to destination
@@ -95,16 +115,41 @@ let playSong = async function(){
         source = aCTX.createBufferSource();
         source.buffer = songBuffer;
         source.connect(analyser!);
+        analyser!.disconnect();
         source.connect(aCTX.destination);
+
+        if(seekTime != null){
+            setSongTime(songDuration * seekTime);
+        }
+
         source.start(0, songTime);
+        cancelAnimationFrame(animationFrameHandler!);
         animationFrameHandler = requestAnimationFrame(draw);
+        clearTrackSongTime();
         trackSongTime();    
     }
+    else{
+        source = aCTX.createBufferSource();
+        source.buffer = songBuffer;
+        source.connect(analyser!);
+        analyser!.disconnect();
+        source.connect(aCTX.destination);
+
+        if(seekTime != null){
+            setSongTime(songDuration * seekTime);
+        }
+
+        source.start(0, songTime);
+        cancelAnimationFrame(animationFrameHandler!);
+        animationFrameHandler = requestAnimationFrame(draw);
+        clearTrackSongTime();
+        trackSongTime();  
+    }
+
 }
 
 const stopSong = function(){
     if(source != undefined){
-
         if(animationFrameHandler != undefined){
             cancelAnimationFrame(animationFrameHandler);
             animationFrameHandler = undefined;
@@ -139,13 +184,11 @@ const visualize = function(){
 const startVisualizer = ()=>{
     if(!visualizing){
         visualize();
-        setIsVisualizing(true);
+        visualizing = true;
     }
 }
 
 function draw() {
-
-    // console.log("DRAWING BOIO!");
 
 	animationFrameHandler = requestAnimationFrame(draw);    
 	analyser!.getByteTimeDomainData(dataArr);
@@ -153,12 +196,13 @@ function draw() {
 	canvasCtx.fillStyle = "rgb(255, 255, 255)";
 	canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
 
-	canvasCtx.lineWidth = 2;
+	canvasCtx.lineWidth = 1;
 	canvasCtx.strokeStyle = "rgb(0, 0, 0)";
 
+    // oscilloscope
 	canvasCtx.beginPath();
 
-	const sliceWidth = (canvas.width * 1.0) / bufferLength;
+	const sliceWidth = ((canvas.width * 1.0) / bufferLength);
 	let x = 0;
 
 	for (let i = 0; i < bufferLength; i++) {
@@ -176,6 +220,39 @@ function draw() {
 
 	canvasCtx.lineTo(canvas.width, canvas.height / 2);
 	canvasCtx.stroke();
+
+    /*
+    // Line visualizer
+	canvasCtx.beginPath();
+
+	const sliceWidth = ((canvas.width * 1.0) / bufferLength);
+	let x = 0;
+
+    if(prevDataArr == undefined){
+        console.log("redefined");
+        prevDataArr = new Uint8Array(dataArr.length);
+        prevDataArr = dataArr;
+    }
+
+	for (let i = 0; i < bufferLength; i++) {
+		const v = dataArr[i] / 128.0;
+        const vPrev = prevDataArr[i] / 128.0;
+		const y = (v * canvas.height);
+        const yPrev = (vPrev * canvas.height);
+        const yDelta = (y - yPrev);
+        const newY = y - (yDelta);
+
+        canvasCtx.moveTo(x, canvas.height);
+        canvasCtx.lineTo(x, canvas.height - newY); // greater values reach farther down.
+
+        prevDataArr[i] = newY * 128.0;
+		x += sliceWidth;
+	}
+
+	canvasCtx.stroke();
+    // prevDataArr = Uint8Array.from(dataArr);
+    */
+    
 }
 
 const AudioBox = () => {
@@ -183,7 +260,7 @@ const AudioBox = () => {
     const [isExpanded, setIsExpanded] = useState(false);
     [visualizing, setIsVisualizing] = useState(false);
     [isPlaying, setIsPlaying] = useState(false); // need to make these global!
-    [ctxInitialized, setCtxInitialized] = useState(false);
+    [songTime, setSongTime] = useState(0.00);
     canvasRef = useRef(null); // provides direct access to DOM
 
     const AudioBoxStyle: CSS.Properties = {

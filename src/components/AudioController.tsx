@@ -16,7 +16,7 @@ interface Props{
     isExpanded: boolean;
     setIsPlaying: (val : boolean) => void;
     setIsExpanded: (val: boolean) => void;
-    playSong: () => void;
+    playSong: (val : number | null) => void;
     stopSong: () => void;
     startVisualizer: () => void;
 }
@@ -26,19 +26,19 @@ const AudioController = ({isPlaying, isExpanded, setIsPlaying, setIsExpanded, pl
     audioControllerRef = useRef<HTMLDivElement | null>(null);
     audioControllerElement = audioControllerRef.current;
 
-    useEffect(()=>{ // attach eventHandler to AudioControllerDiv
-        const handleImageClick = (event : MouseEvent) => {
+    useEffect(()=> { // attach eventHandler to AudioControllerDiv
+        const handleAudioControllerClick = async (event : MouseEvent) => {
             // console.log(event.target);
             if(event.target === audioControllerRef.current){
-                // console.log("CLICKED THE DIV!"); // works
-
                 let x = event.clientX;
                 let left = audioControllerElement.getBoundingClientRect().left;
                 let right = audioControllerElement.getBoundingClientRect().right;
                 let width = right-left;
-                let position = ((x-left) / width) * 100; // position percentage
+                let position = ((x-left) / width); // position percentage
 
-                console.log(position);
+                // console.log(position);
+                await playSong(position);
+                setIsPlaying(true);
 
             }
             else{
@@ -47,7 +47,7 @@ const AudioController = ({isPlaying, isExpanded, setIsPlaying, setIsExpanded, pl
         }
 
         if(audioControllerRef.current){
-            audioControllerRef.current.addEventListener("click", handleImageClick);
+            audioControllerRef.current.addEventListener("click", handleAudioControllerClick);
         }
 
     }, []);
@@ -82,11 +82,11 @@ const AudioController = ({isPlaying, isExpanded, setIsPlaying, setIsExpanded, pl
 
     const handleImageClick = async () =>{
         if(!isPlaying){
-            await playSong();
+            await playSong(null);
         }
         else{
             stopSong();
-            startVisualizer();
+            // startVisualizer();
         }
         setIsPlaying(!isPlaying);
         startVisualizer();
