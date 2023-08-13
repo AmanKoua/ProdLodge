@@ -12,28 +12,36 @@ const BlankAudioModule = () => {
         height: "185px",
         border: "1px solid black",
         borderRadius: "10px",
-        backgroundColor: "red",
+        // backgroundColor: "green",
         opacity: "100%",
     }
 
     const AddButtonStyle : CSS.Properties = {
         position: "absolute",
-        marginTop: "30%",
+        marginTop: "0%",
         marginLeft: "36%",
-        width: "25%",
+        width: "28%",
         height: "25%",
     }
 
     const AddModuleTextStyle : CSS.Properties = {
         fontSize: "20px",
+        width: "60%",
+        marginLeft: "20%",
+        marginTop: "10%",
+        textAlign: "center",
+        // backgroundColor: "green",
     }
 
     const CenterDivStyle : CSS.Properties = {
         position: "absolute",
-        marginLeft: "12.5%",
-        width: "75%",
-        height: "100%",
-        backgroundColor: "black",
+        marginLeft: "25%",
+        marginTop: "15%",
+        alignContent: "center",
+        width: "50%",
+        height: "70%",
+        // backgroundColor: "blue",
+        opacity: "80%",
         zIndex: "50",
     }
 

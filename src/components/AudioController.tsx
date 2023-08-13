@@ -10,7 +10,6 @@ let audioControllerRef : any;
 let eventListenerAttached : boolean = false;
 let audioControllerElementWidth : number;
 
-
 let audioControlImageElement : HTMLImageElement;
 let audioControlImageRef : any;
 

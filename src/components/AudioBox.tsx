@@ -6,7 +6,7 @@ import CSS from "csstype";
 import AudioController from "./AudioController";
 import AudioModuleContainer from "./AudioModuleContainer";
 
-import tempSong from '../assets/telepathy.mp3';
+import tempSong from '../assets/kazukii.mp3';
 
 console.log("AudioBox Rerender!");
 
@@ -37,11 +37,17 @@ let isPlaying: boolean;
 let setIsPlaying: (val: boolean) => void;
 let songTime: number = 0;
 let setSongTime : (val : number) => void;
+let songTimeInterval: number;
+
 let ctxInitialized: boolean;
 let setCtxInitialized: (val : boolean) => void;
-let songTimeInterval: number;
 let visualizing: boolean;
 let setIsVisualizing: (val: boolean) => void;
+
+let audioModuleContainerCount: number;
+let setAudioModuleContainerCount: (val: number) => void;
+let audioModuleCount: number;
+let setAudioModuleCount: (val : number) => void;
 
 let fetchSong = async function(){ // fetch song 
 
@@ -264,6 +270,9 @@ const AudioBox = () => {
     [visualizing, setIsVisualizing] = useState(false);
     [isPlaying, setIsPlaying] = useState(false); // need to make these global!
     [songTime, setSongTime] = useState(0.00);
+    [audioModuleContainerCount, setAudioModuleContainerCount] = useState(1);
+    [audioModuleCount, setAudioModuleCount] = useState(1);
+
     canvasRef = useRef(null); // provides direct access to DOM
 
     const AudioBoxStyle: CSS.Properties = {
@@ -297,33 +306,30 @@ const AudioBox = () => {
         opacity: "75%",
     }
 
-    let audioModules : JSX.Element;
+    const generateAudioSettingsFragment = (): JSX.Element =>{
 
-    audioModules = 
-    (
-        <>
-            <AudioModuleContainer></AudioModuleContainer>
-            <AudioModuleContainer></AudioModuleContainer>
-        </>
-    );
+        let audioSettingsFragment : JSX.Element;
 
-    // if(isExpanded){ // cannot only be displayed when expanded because audio processing needs to be persistent
-    //     audioModules = 
-    //     (
-    //         <>
-    //             <AudioModuleContainer></AudioModuleContainer>
-    //             <AudioModuleContainer></AudioModuleContainer>
-    //         </>
-    //     );
-    // }
-    // else{
-    //     audioModules = <></>;
-    // }
+        let tempArr : boolean[] = new Array(audioModuleContainerCount); // array needed to map over elements in TSX
+        tempArr.fill(true);
+
+        audioSettingsFragment = 
+        (
+            <>
+                {tempArr.map((temp, idx)=>{
+                    return <AudioModuleContainer moduleCount={1} modules={new Array} key={idx}></AudioModuleContainer>
+                })}
+            </>
+        );
+
+        return audioSettingsFragment;
+
+    }
 
     return (
     <>
         <div style={AudioBoxStyle}>
-            {audioModules}
+            {generateAudioSettingsFragment()}
             <canvas style={CanvasStyle} ref={canvasRef}></canvas>
             <AudioController
                 isPlaying={isPlaying}
