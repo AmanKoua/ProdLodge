@@ -43,11 +43,12 @@ let setCtxInitialized: (val: boolean) => void;
 let visualizing: boolean;
 let setIsVisualizing: (val: boolean) => void;
 
-// keeping track of the number of audio modules / containers
 let audioModuleCount: number;
 let setAudioModuleCount: (val: number) => void;
-let audioModuleContainerCounts: number[]; // keep track of the number of modules in each container
-let setAudioModuleContainerCounts: (val: number[]) => void;
+// let audioModuleContainerCounts: number[]; // keep track of the number of modules in each container
+// let setAudioModuleContainerCounts: (val: number[]) => void;
+let audioModulesData: Object[][];
+let setAudioModulesData: (val: Object[][]) => void;
 
 let fetchSong = async function () {
   // fetch song
@@ -260,12 +261,15 @@ function draw() {
 }
 
 const AudioBox = () => {
+  let tempModuleData: Object[][] = [[{ type: "Blank" }]];
+
   const [isExpanded, setIsExpanded] = useState(false);
   [visualizing, setIsVisualizing] = useState(false);
   [isPlaying, setIsPlaying] = useState(false); // need to make these global!
   [songTime, setSongTime] = useState(0.0);
   [audioModuleCount, setAudioModuleCount] = useState(1);
-  [audioModuleContainerCounts, setAudioModuleContainerCounts] = useState([1]);
+  // [audioModuleContainerCounts, setAudioModuleContainerCounts] = useState([1]);
+  [audioModulesData, setAudioModulesData] = useState(tempModuleData); // Initial module will be the blank module
 
   canvasRef = useRef(null); // provides direct access to DOM
 
@@ -281,8 +285,10 @@ const AudioBox = () => {
     overflow: "hidden",
   };
 
-//   AudioBoxStyle.height = isExpanded ? "465px" : "40px";
-  AudioBoxStyle.height = isExpanded ? `${audioModuleContainerCounts.length * 255}px` : "40px";
+  //   AudioBoxStyle.height = isExpanded ? "465px" : "40px";
+  AudioBoxStyle.height = isExpanded
+    ? `${audioModulesData.length * 255}px`
+    : "40px";
 
   const CanvasStyle: CSS.Properties = {
     position: "absolute",
@@ -302,33 +308,31 @@ const AudioBox = () => {
   };
 
   const addModule = (): void => {
+    let tempAudioModulesData: Object[][] = audioModulesData;
 
-    let tempModuleCount: number = audioModuleCount + 1;
-    setAudioModuleCount(tempModuleCount);
-
-    let tempModuleContainerCounts = audioModuleContainerCounts;
-    
-    if(tempModuleContainerCounts[tempModuleContainerCounts.length - 1] < 3){ // limit of 3 modules per audio module container
-        tempModuleContainerCounts[tempModuleContainerCounts.length - 1]++; // add one more module to the module container
-        setAudioModuleContainerCounts(tempModuleContainerCounts);
-    }
-    else{
-        tempModuleContainerCounts.push(1); // create new module container
-        setAudioModuleContainerCounts(tempModuleContainerCounts);
+    if (tempAudioModulesData[tempAudioModulesData.length - 1].length < 3) {
+      // if last arr is holding less than 3 modules
+      tempAudioModulesData[tempAudioModulesData.length - 1].push({
+        type: "New",
+      });
+    } else {
+      tempAudioModulesData.push([{ type: "New" }]);
     }
 
+    setAudioModulesData(tempAudioModulesData);
+
+    console.log(tempAudioModulesData);
   };
 
   const generateAudioSettingsFragment = (): JSX.Element => {
-
     let audioSettingsFragment: JSX.Element;
 
     audioSettingsFragment = (
       <>
-        {audioModuleContainerCounts.map((moduleCount, idx) => {
+        {audioModulesData.map((item, idx) => {
           return (
             <AudioModuleContainer
-              moduleCount={moduleCount}
+              moduleCount={item.length}
               modules={new Array()}
               key={idx}
               addModule={addModule}
