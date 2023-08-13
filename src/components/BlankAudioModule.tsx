@@ -2,7 +2,11 @@ import React from 'react'
 import CSS from "csstype";
 import addButton from "../assets/addModule1.png";
 
-const BlankAudioModule = () => {
+interface Props{
+    addModule: () => void;
+}
+
+const BlankAudioModule = ({addModule}:Props) => {
 
     const BlankAudioModuleStyle : CSS.Properties = {
         position: "relative",
@@ -35,7 +39,7 @@ const BlankAudioModule = () => {
 
     const CenterDivStyle : CSS.Properties = {
         position: "absolute",
-        marginLeft: "25%",
+        marginLeft: "24%",
         marginTop: "15%",
         alignContent: "center",
         width: "50%",
@@ -49,7 +53,7 @@ const BlankAudioModule = () => {
         <div style={BlankAudioModuleStyle}>
             <div style={CenterDivStyle}>
                 <h1 style={AddModuleTextStyle}>Add Module</h1>
-                <img src={addButton} style={AddButtonStyle}></img>
+                <img src={addButton} style={AddButtonStyle} onClick={()=>{addModule()}}></img>
             </div>
         </div>
     )

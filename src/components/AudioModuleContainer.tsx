@@ -5,9 +5,10 @@ import CSS from "csstype";
 interface Props{
     moduleCount: number;
     modules: any[]; // pass in data required to reconstruct module interfaces
+    addModule: () => void;
 }
 
-const AudioModuleContainer = ({moduleCount, modules}: Props) => {
+const AudioModuleContainer = ({moduleCount, modules, addModule}: Props) => {
 
     const AudioModuleContainerStyle: CSS.Properties = {
         margin: "1%",
@@ -15,7 +16,7 @@ const AudioModuleContainer = ({moduleCount, modules}: Props) => {
         justifyContent: "left",
         width: "98%",
         height: "200px",
-        backgroundColor: "#3d8bf2",
+        // backgroundColor: "#3d8bf2",
         opacity: "75%",
     }
 
@@ -30,7 +31,7 @@ const AudioModuleContainer = ({moduleCount, modules}: Props) => {
         (
             <>
                 {tempArr.map((temp, idx)=>{
-                    return <BlankAudioModule key={idx}></BlankAudioModule>
+                    return <BlankAudioModule key={idx} addModule={addModule}></BlankAudioModule>
                 })}
             </>
         );
