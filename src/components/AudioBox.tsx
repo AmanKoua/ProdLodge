@@ -29,7 +29,7 @@ let canvasCtx: CanvasRenderingContext2D ;
 let canvasRef: any;
 let animationFrameHandler: number | undefined = undefined;
 
-// Props and state
+// Props and state // Don't use state for local varaibles, becasuse this will cause a re-render
 let isPlaying: boolean;
 let setIsPlaying: (val: boolean) => void;
 let songTime: number = 0;
@@ -290,6 +290,8 @@ const AudioBox = () => {
             <AudioController
                 isPlaying={isPlaying}
                 isExpanded={isExpanded}
+                songTime={songTime}
+                songDuration={songDuration}
                 setIsPlaying={setIsPlaying}
                 setIsExpanded={setIsExpanded}
                 playSong={playSong}

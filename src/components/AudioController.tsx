@@ -3,10 +3,13 @@ import playButton from "../assets/playButton.png";
 import pauseButton from "../assets/pauseButton.png";
 import {useRef} from 'react';
 import {useEffect} from 'react';
+import {useState} from 'react';
 
 let audioControllerElement : HTMLDivElement;
 let audioControllerRef : any;
 let eventListenerAttached : boolean = false;
+let audioControllerElementWidth : number;
+
 
 let audioControlImageElement : HTMLImageElement;
 let audioControlImageRef : any;
@@ -14,6 +17,8 @@ let audioControlImageRef : any;
 interface Props{
     isPlaying: boolean;
     isExpanded: boolean;
+    songTime: number;
+    songDuration: number;
     setIsPlaying: (val : boolean) => void;
     setIsExpanded: (val: boolean) => void;
     playSong: (val : number | null) => void;
@@ -21,8 +26,9 @@ interface Props{
     startVisualizer: () => void;
 }
 
-const AudioController = ({isPlaying, isExpanded, setIsPlaying, setIsExpanded, playSong, stopSong, startVisualizer}: Props) => {
+const AudioController = ({isPlaying, isExpanded, songTime, songDuration, setIsPlaying, setIsExpanded, playSong, stopSong, startVisualizer}: Props) => {
 
+    const [songTimeWidth, setSongTimeWidth] = useState(0);
     audioControllerRef = useRef<HTMLDivElement | null>(null);
     audioControllerElement = audioControllerRef.current;
 
@@ -37,6 +43,7 @@ const AudioController = ({isPlaying, isExpanded, setIsPlaying, setIsExpanded, pl
                 let position = ((x-left) / width); // position percentage
 
                 // console.log(position);
+                setSongTimeWidth(position * 100);
                 await playSong(position);
                 setIsPlaying(true);
 
@@ -80,6 +87,19 @@ const AudioController = ({isPlaying, isExpanded, setIsPlaying, setIsExpanded, pl
         opacity: "75%",
     };
 
+    const SongTimeDivStyle: CSS.Properties = {
+        position: "absolute",
+        bottom: "0px",
+        width: "50%",
+        height: "4px",
+        backgroundColor: "#3d8bf2",
+        opacity: "35%",
+        zIndex: "10", // needs to be above canvas!
+    }
+
+    // SongTimeDivStyle.width = `${songTimeWidth}%`;
+    SongTimeDivStyle.width = `${(songTime / songDuration) * 100 }%`;
+
     const handleImageClick = async () =>{
         if(!isPlaying){
             await playSong(null);
@@ -101,6 +121,7 @@ const AudioController = ({isPlaying, isExpanded, setIsPlaying, setIsExpanded, pl
             <div style={ExpandButtonStyle} onClick={()=>{setIsExpanded(!isExpanded)}}>
                 {expansionText}
             </div>
+            <div style={SongTimeDivStyle}></div>
             <img ref={audioControlImageRef} src={imgSrc} style={imgStyle} onClick={handleImageClick} />
         </div>
         </>
