@@ -47,7 +47,7 @@ const NewAudioModule = ({ moduleIndex, setModuleType }: Props) => {
   };
 
   const handleSelectionChange = (event: any) => {
-    console.log(event.target.value, moduleIndex);
+    // console.log(event.target.value, moduleIndex); // works
   };
 
   return (

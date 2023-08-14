@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useRef } from "react";
+import { useEffect } from "react";
 import CSS from "csstype";
 
 import AudioController from "./AudioController";
@@ -8,6 +9,18 @@ import AudioModuleContainer from "./AudioModuleContainer";
 import tempSong from "../assets/kazukii.mp3";
 
 console.log("AudioBox Rerender!");
+
+/*
+
+How to refactor the following code:
+
+- Use an effect to fetch the song. The audio context
+  must be initialzed after some user gesture (i.e a
+  click to play the song).
+
+- 
+
+*/
 
 // Fetch song globals
 let aCTX: AudioContext;
@@ -43,10 +56,6 @@ let setCtxInitialized: (val: boolean) => void;
 let visualizing: boolean;
 let setIsVisualizing: (val: boolean) => void;
 
-let audioModuleCount: number;
-let setAudioModuleCount: (val: number) => void;
-// let audioModuleContainerCounts: number[]; // keep track of the number of modules in each container
-// let setAudioModuleContainerCounts: (val: number[]) => void;
 let audioModulesData: Object[][];
 let setAudioModulesData: (val: Object[][]) => void;
 
@@ -119,41 +128,26 @@ let playSong = async function (seekTime: number | null) {
     ctxInitialized = true;
   }
 
+  // disconnect, create new source, and connect to destination
   if (source != undefined) {
-    // disconnect, create new source, and connect to destination
     source.disconnect();
-    source = aCTX.createBufferSource();
-    source.buffer = songBuffer;
-    source.connect(analyser!);
-    analyser!.disconnect();
-    source.connect(aCTX.destination);
-
-    if (seekTime != null) {
-      setSongTime(songDuration * seekTime);
-    }
-
-    source.start(0, songTime);
-    cancelAnimationFrame(animationFrameHandler!);
-    animationFrameHandler = requestAnimationFrame(draw);
-    clearTrackSongTime();
-    trackSongTime();
-  } else {
-    source = aCTX.createBufferSource();
-    source.buffer = songBuffer;
-    source.connect(analyser!);
-    analyser!.disconnect();
-    source.connect(aCTX.destination);
-
-    if (seekTime != null) {
-      setSongTime(songDuration * seekTime);
-    }
-
-    source.start(0, songTime);
-    cancelAnimationFrame(animationFrameHandler!);
-    animationFrameHandler = requestAnimationFrame(draw);
-    clearTrackSongTime();
-    trackSongTime();
   }
+
+  source = aCTX.createBufferSource();
+  source.buffer = songBuffer;
+  source.connect(analyser!);
+  // analyser!.disconnect(); // not sure what I was doing here
+  source.connect(aCTX.destination);
+
+  if (seekTime != null) {
+    setSongTime(songDuration * seekTime);
+  }
+
+  source.start(0, songTime);
+  cancelAnimationFrame(animationFrameHandler!);
+  animationFrameHandler = requestAnimationFrame(draw);
+  clearTrackSongTime();
+  trackSongTime();
 };
 
 const stopSong = function () {
@@ -165,6 +159,13 @@ const stopSong = function () {
 
     source.stop();
     clearTrackSongTime();
+  }
+};
+
+const startVisualizer = () => {
+  if (!visualizing) {
+    visualize();
+    visualizing = true;
   }
 };
 
@@ -186,13 +187,6 @@ const visualize = function () {
 
   // draw an oscilloscope of the current audio source
   draw();
-};
-
-const startVisualizer = () => {
-  if (!visualizing) {
-    visualize();
-    visualizing = true;
-  }
 };
 
 function draw() {
@@ -267,8 +261,6 @@ const AudioBox = () => {
   [visualizing, setIsVisualizing] = useState(false);
   [isPlaying, setIsPlaying] = useState(false); // need to make these global!
   [songTime, setSongTime] = useState(0.0);
-  [audioModuleCount, setAudioModuleCount] = useState(1);
-  // [audioModuleContainerCounts, setAudioModuleContainerCounts] = useState([1]);
   [audioModulesData, setAudioModulesData] = useState(tempModuleData); // Initial module will be the blank module
 
   canvasRef = useRef(null); // provides direct access to DOM
