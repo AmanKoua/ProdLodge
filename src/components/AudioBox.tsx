@@ -13,12 +13,40 @@ console.log("AudioBox Rerender!");
 /*
 
 How to refactor the following code:
+  
+- Use state to determine when the user has first
+  interacted with the page. After first interaction,
+  set this variable equal to true. In an effect, whose
+  dependency is the state of whether or not a user
+  has interacted with the page, initialze the audioContext
+  and set it as State. 
+  
+- fetch & Decode the audioBuffer and store it
+  as state. Save decoded audioBuffer as state.
+  save song duration as state. Initialize the 
+  audioBufferSourceNode and
+  the analyser node and set them as state. set the dependency
+  to the audioContext (whose state) will update once 
+  it's been initialzed.
 
-- Use an effect to fetch the song. The audio context
-  must be initialzed after some user gesture (i.e a
-  click to play the song).
+- Use an effect to connect all audioNodes. Loop through AudioNodes 
+  array (kept as state) and connect the component to the 
+  next component. The penultimate Node will connect to the
+  audio destination. For cleanup, disconnect all nodes. 
+  Set dependency to the array of AudioNodes kept as state.
 
-- 
+- Use an effect to recreate the initial audioBufferSourceNode
+  kept in the audioNodes array. At the end, set the sate (
+  reconnecting all of the nodes.) After creation, start the buffer.
+  set dependency to is a startPlaying state (ignore stop playing.)
+
+- Keep song time as state. Use an effect to track the song 
+  time. Keep the tracking setInterval as state so it can be
+  cleared when a component pauses a song. For cleanup, clear 
+  the interval set during the effect. Dependency is none; 
+  it needs to re-run each re-render.
+
+- still need to handle canvas animation
 
 */
 
