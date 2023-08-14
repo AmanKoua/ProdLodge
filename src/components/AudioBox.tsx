@@ -15,17 +15,18 @@ console.log("AudioBox Rerender!");
 How to refactor the following code:
   
 - Use state to determine when the user has first
-  interacted with the page. After first interaction,
+  clicked play After first interaction,
   set this variable equal to true. In an effect, whose
-  dependency is the state of whether or not a user
-  has interacted with the page, initialze the audioContext
+  dependency is the state of whether a user has
+  interacted with the page, initialze the audioContext
   and set it as State. 
   
 - fetch & Decode the audioBuffer and store it
   as state. Save decoded audioBuffer as state.
   save song duration as state. Initialize the 
   audioBufferSourceNode and
-  the analyser node and set them as state. set the dependency
+  the analyser node and set them as state in the
+  audioNode array. set the dependency
   to the audioContext (whose state) will update once 
   it's been initialzed.
 
@@ -38,7 +39,8 @@ How to refactor the following code:
 - Use an effect to recreate the initial audioBufferSourceNode
   kept in the audioNodes array. At the end, set the sate (
   reconnecting all of the nodes.) After creation, start the buffer.
-  set dependency to is a startPlaying state (ignore stop playing.)
+  set dependency to is an isPlaying state. If is paused, return
+  early.
 
 - Keep song time as state. Use an effect to track the song 
   time. Keep the tracking setInterval as state so it can be
@@ -46,7 +48,25 @@ How to refactor the following code:
   the interval set during the effect. Dependency is none; 
   it needs to re-run each re-render.
 
-- still need to handle canvas animation
+- Keep an array as state which contains the actual audio
+  nodes used by the web audio API. Alongside this, keep
+  an array of array of objects that contains the information
+  representing the audioNodes in the UI. This is necessary
+  because the module "cards" contain the blank and the new
+  cards (which are obviously not audioNodes) the audioModule
+  container needs to be updated whenever the cards are updated.
+
+-------------------- Cavnas Suff! ---------------------------
+
+- Keep the dataArr as state, once it's initialized, it will
+  never need to be reinitialized. Initialize this only once.
+  Need to get a reference to the canvas every time it renders.
+  On each rerender, will need to attach the analyzer to the
+  canvas.
+
+- What needs to be kept as state, dataArr, canvas, canvasCTX.
+  dataArr only needs to be retrieved once. canvas and canvasCTX
+  will need to be retrieved each-rerender.
 
 */
 
@@ -191,10 +211,13 @@ const stopSong = function () {
 };
 
 const startVisualizer = () => {
-  if (!visualizing) {
-    visualize();
-    visualizing = true;
-  }
+  /* 
+    Todo : refactor as an effect
+  */
+  // if (!visualizing) {
+  //   visualize();
+  //   visualizing = true;
+  // }
 };
 
 const visualize = function () {
@@ -248,38 +271,6 @@ function draw() {
 
   canvasCtx.lineTo(canvas.width, canvas.height / 2);
   canvasCtx.stroke();
-
-  /*
-    // Line visualizer
-	canvasCtx.beginPath();
-
-	const sliceWidth = ((canvas.width * 1.0) / bufferLength);
-	let x = 0;
-
-    if(prevDataArr == undefined){
-        console.log("redefined");
-        prevDataArr = new Uint8Array(dataArr.length);
-        prevDataArr = dataArr;
-    }
-
-	for (let i = 0; i < bufferLength; i++) {
-		const v = dataArr[i] / 128.0;
-        const vPrev = prevDataArr[i] / 128.0;
-		const y = (v * canvas.height);
-        const yPrev = (vPrev * canvas.height);
-        const yDelta = (y - yPrev);
-        const newY = y - (yDelta);
-
-        canvasCtx.moveTo(x, canvas.height);
-        canvasCtx.lineTo(x, canvas.height - newY); // greater values reach farther down.
-
-        prevDataArr[i] = newY * 128.0;
-		x += sliceWidth;
-	}
-
-	canvasCtx.stroke();
-    // prevDataArr = Uint8Array.from(dataArr);
-    */
 }
 
 const AudioBox = () => {
@@ -327,6 +318,11 @@ const AudioBox = () => {
     opacity: "75%",
   };
 
+  /*
+    Adds a modul to the audioModulesData. This variable
+    is for storing information regarding the displayed
+    cards. it is NOT for storing individual audio nodes
+  */
   const addModule = (): void => {
     let tempAudioModulesData: Object[][] = audioModulesData;
 
@@ -344,10 +340,18 @@ const AudioBox = () => {
     // console.log(tempAudioModulesData);
   };
 
+  /*
+    New node will be able to select it's type and it will 
+    switch to that type of module (and create the corresponding
+    audio node)
+  */
   const setModuleType = (type: string, index: number[]): void => {
     // yet to be implemented
   };
 
+  /*
+    Generate the UI for audio modules that are displayed
+  */
   const generateAudioSettingsFragment = (): JSX.Element => {
     let audioSettingsFragment: JSX.Element;
 
