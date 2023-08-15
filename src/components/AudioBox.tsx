@@ -33,15 +33,19 @@ let audioNodesChanged: boolean;
 let setAudioNodesChanged: (val: any) => void;
 
 // Visualize globals
-let bufferLength: number;
-let dataArr: Uint8Array;
-let prevDataArr: Uint8Array;
-let canvas: HTMLCanvasElement;
-let canvasCtx: CanvasRenderingContext2D;
+let bufferLength: number | undefined;
+let setBufferLength: (val: any) => void;
+let dataArr: Uint8Array | undefined;
+let setDataArr: (val: any) => void;
+let canvas: HTMLCanvasElement | undefined;
+let setCanvas: (val: any) => void;
+let canvasCtx: CanvasRenderingContext2D | undefined;
+let setCanvasCtx: (Val: any) => void;
 
 // Canvas and song time variables
 let canvasRef: any;
-let animationFrameHandler: number | undefined = undefined;
+let animationFrameHandler: number | undefined;
+let setAnimationFrameHandler: (val: any) => void;
 
 // Props and state // Don't use state for local varaibles, becasuse this will cause a re-render
 let isPlaying: boolean;
@@ -56,113 +60,27 @@ let setHasUserGestured: (val: boolean) => void;
 
 let ctxInitialized: boolean;
 let setCtxInitialized: (val: boolean) => void;
-let visualizing: boolean;
+let isVisualizing: boolean;
 let setIsVisualizing: (val: boolean) => void;
 
 let audioModulesData: Object[][];
 let setAudioModulesData: (val: Object[][]) => void;
 
-let fetchSong = async function () {
-  // fetch song
-
-  if (ctxInitialized) {
-    // dont fetch the song multiple times
-    return;
-  }
-
-  // Fetching song
-  aCtx = new AudioContext(); // has to be created after a user gesture, AKA after pressing song start!
-
-  song = await fetch(tempSong);
-  tempSongBuffer = await song.arrayBuffer();
-
-  await aCtx.decodeAudioData(tempSongBuffer, (decodedBuffer) => {
-    songBuffer = decodedBuffer;
-    songDuration = songBuffer.duration;
-  });
-
-  if (!ctxInitialized) {
-    initializeBufferSource();
-  }
-
-  ctxInitialized = true;
-};
-
-let initializeBufferSource = function () {
-  if (ctxInitialized) {
-    return;
-  }
-
-  // Initializing buffer source
-  if (source === undefined) {
-    source = aCtx!.createBufferSource();
-  }
-
-  // console.log("Initializing source");
-  source.buffer = songBuffer!;
-
-  if (analyser === undefined) {
-    analyser = aCtx!.createAnalyser();
-  }
-
-  // source.connect(analyser);
-  // source.connect(aCtx!.destination);
-
-  ctxInitialized = true;
-};
-
-let trackSongTime = function () {
-  songTimeInterval = setInterval(() => {
-    setSongTime(songTime + 0.1);
-  }, 100);
-};
-
-let clearTrackSongTime = function () {
-  clearInterval(songTimeInterval);
-};
-
 let playSong = async function (seekTime: number | null) {
-  setIsPlaying(!isPlaying);
-  return;
-
-  // TODO : Testing playing effect!
-
-  if (seekTime != null && seekTime < 0) {
-    seekTime = 0;
-  }
-
-  if (seekTime != null) {
-    setSongTime(songDuration * seekTime);
-  }
-
-  audioNodes![0][0].start(0, songTime);
-
-  cancelAnimationFrame(animationFrameHandler!);
-  animationFrameHandler = requestAnimationFrame(draw); // TODO : Refactor canvas!
-  clearTrackSongTime();
-  trackSongTime();
+  setIsPlaying(true);
 };
 
 const stopSong = function () {
-  if (source != undefined) {
-    if (animationFrameHandler != undefined) {
-      cancelAnimationFrame(animationFrameHandler);
-      animationFrameHandler = undefined;
-    }
-
-    // source.stop();
-    audioNodes![0][0].stop();
-    clearTrackSongTime();
-  }
+  setIsPlaying(false);
 };
 
 const startVisualizer = () => {
   /* 
     Todo : refactor as an effect
   */
-  if (!visualizing) {
+  if (!isVisualizing) {
     visualize();
-    visualizing = true;
+    setIsVisualizing(true);
   }
 };
 
@@ -179,8 +97,8 @@ const visualize = function () {
   // analyser.getByteTimeDomainData(dataArr);
 
   // Get a canvas defined with ID "oscilloscope"
-  canvas = canvasRef.current!;
-  canvasCtx = canvas.getContext("2d")!;
+  // canvas = canvasRef.current!;
+  // canvasCtx = canvas.getContext("2d")!;
 
   // draw an oscilloscope of the current audio source
   // draw();
@@ -223,7 +141,7 @@ const AudioBox = () => {
   let tempModuleData: Object[][] = [[{ type: "Blank" }]];
 
   const [isExpanded, setIsExpanded] = useState(false);
-  [visualizing, setIsVisualizing] = useState(false);
+  [isVisualizing, setIsVisualizing] = useState(false);
   [isPlaying, setIsPlaying] = useState(false); // need to make these global!
   [audioModulesData, setAudioModulesData] = useState(tempModuleData); // Initial module will be the blank module
   [hasUserGestured, setHasUserGestured] = useState(false); // Keep track of first gesture required to initialize audioCtx
@@ -234,8 +152,13 @@ const AudioBox = () => {
   [source, setSource] = useState(undefined);
   [audioNodes, setAudioNodes] = useState(undefined);
   [audioNodesChanged, setAudioNodesChanged] = useState(false);
+  [dataArr, setDataArr] = useState(undefined);
   [songTime, setSongTime] = useState(0.0);
   [songTimeInterval, setSongTimeInterval] = useState(undefined);
+  [canvas, setCanvas] = useState(undefined);
+  [canvasCtx, setCanvasCtx] = useState(undefined);
+  [animationFrameHandler, setAnimationFrameHandler] = useState(undefined);
+  [bufferLength, setBufferLength] = useState(undefined);
 
   canvasRef = useRef(null); // provides direct access to DOM
 
@@ -282,6 +205,7 @@ const AudioBox = () => {
       let tempAnalyserNode: AnalyserNode = aCtx!.createAnalyser();
 
       tempAudioSourceNode.buffer = songBuffer;
+      tempAnalyserNode.fftSize = 2048;
 
       let tempAudioNodesArr: AudioNode[][] = [
         [tempAudioSourceNode],
@@ -397,6 +321,89 @@ const AudioBox = () => {
       clearInterval(songTimeInterval);
     };
   }, [isPlaying]);
+
+  useEffect(() => {
+    // initialize visualizer
+
+    if (!isVisualizing) {
+      return;
+    }
+
+    if (audioNodes === undefined) {
+      console.log("audio nodes undefined!");
+      return;
+    }
+
+    console.log("initializing visualizer!");
+
+    let tempDataArrSize =
+      audioNodes[audioNodes.length - 1][0].frequencyBinCount;
+    let tempDataArr = new Uint8Array(tempDataArrSize);
+
+    setBufferLength(tempDataArrSize);
+    setDataArr(tempDataArr);
+
+    setTimeout(() => {
+      audioNodes![audioNodes!.length - 1][0].getByteTimeDomainData(dataArr);
+    }, 10);
+
+    setCanvas(canvasRef.current!);
+
+    setTimeout(() => {
+      setCanvasCtx(canvas!.getContext("2d"));
+    }, 10);
+  }, [isVisualizing]);
+
+  useEffect(() => {
+    // draw visualizations!
+    if (
+      canvas === undefined ||
+      canvasCtx === undefined ||
+      audioNodes === undefined ||
+      dataArr === undefined ||
+      bufferLength === undefined
+    ) {
+      console.log("Drawing visualizatons dependencies undefined!");
+      return;
+    }
+
+    console.log("Starting visualizer!");
+
+    let draw = () => {
+      setAnimationFrameHandler(requestAnimationFrame(draw));
+      audioNodes![audioNodes!.length - 1][0].getByteTimeDomainData(dataArr);
+
+      canvasCtx!.fillStyle = "rgb(255, 255, 255)";
+      canvasCtx!.fillRect(0, 0, canvas!.width, canvas!.height);
+
+      canvasCtx!.lineWidth = 1;
+      canvasCtx!.strokeStyle = "rgb(0, 0, 0)";
+
+      // oscilloscope
+
+      canvasCtx!.beginPath();
+      const sliceWidth = (canvas!.width * 1.0) / bufferLength!;
+      let x = 0;
+
+      for (let i = 0; i < bufferLength!; i++) {
+        const v = dataArr![i] / 128.0;
+        const y = (v * canvas!.height) / 2;
+
+        if (i === 0) {
+          canvasCtx!.moveTo(x, y);
+        } else {
+          canvasCtx!.lineTo(x, y);
+        }
+
+        x += sliceWidth;
+      }
+
+      canvasCtx!.lineTo(canvas!.width, canvas!.height / 2);
+      canvasCtx!.stroke();
+    };
+
+    draw(); // call draw once!
+  }, [canvasCtx]);
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
