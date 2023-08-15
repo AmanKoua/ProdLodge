@@ -14,37 +14,47 @@ let audioControlImageElement: HTMLImageElement;
 let audioControlImageRef: any;
 
 interface Props {
+  hasUserGestured: boolean;
   isPlaying: boolean;
   isExpanded: boolean;
   songTime: number;
   songDuration: number;
+  areAudioNodesReady: boolean;
   setIsPlaying: (val: boolean) => void;
   setIsExpanded: (val: boolean) => void;
   playSong: (val: number | null) => void;
   stopSong: () => void;
+  setSongTime: (val: number) => void;
   startVisualizer: () => void;
 }
 
 const AudioController = ({
+  hasUserGestured,
   isPlaying,
   isExpanded,
   songTime,
   songDuration,
+  areAudioNodesReady,
   setIsPlaying,
   setIsExpanded,
   playSong,
   stopSong,
+  setSongTime,
   startVisualizer,
 }: Props) => {
-  const [songTimeWidth, setSongTimeWidth] = useState(0);
+  // const [songTimeWidth, setSongTimeWidth] = useState(0);
   const [isHover, setIsHover] = useState(false);
   audioControllerRef = useRef<HTMLDivElement | null>(null);
   audioControllerElement = audioControllerRef.current;
 
   useEffect(() => {
     // attach eventHandler to AudioControllerDiv
+
+    if (!hasUserGestured || !areAudioNodesReady) {
+      return;
+    }
+
     const handleAudioControllerClick = async (event: MouseEvent) => {
-      // console.log(event.target);
       if (event.target === audioControllerRef.current) {
         let x = event.clientX;
         let left = audioControllerElement.getBoundingClientRect().left;
@@ -53,9 +63,13 @@ const AudioController = ({
         let position = (x - left) / width; // position percentage
 
         // console.log(position);
-        setSongTimeWidth(position * 100);
-        await playSong(position);
-        setIsPlaying(true);
+        // setSongTimeWidth(position * 100);
+        setIsPlaying(false);
+        setSongTime(songDuration * position);
+        setTimeout(() => {
+          // wait for 1 millisecond to allow song time to update
+          setIsPlaying(true);
+        }, 1);
       } else {
       }
     };
@@ -66,7 +80,9 @@ const AudioController = ({
         handleAudioControllerClick
       );
     }
-  }, []);
+
+    startVisualizer();
+  }, [songDuration]);
 
   const AudioControllerStyle: CSS.Properties = {
     position: "absolute",
@@ -120,6 +136,11 @@ const AudioController = ({
   SongTimeDivStyle.width = `${getSongTimeDivWidth()}%`;
 
   const handleImageClick = async () => {
+    if (!hasUserGestured || !areAudioNodesReady) {
+      // wait unitl audio nodes are initialized!
+      return;
+    }
+
     if (!isPlaying) {
       await playSong(null);
     } else {

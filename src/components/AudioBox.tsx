@@ -1,269 +1,175 @@
 import { useState } from "react";
 import { useRef } from "react";
-import { useEffect } from "react";
 import CSS from "csstype";
 
 import AudioController from "./AudioController";
 import AudioModuleContainer from "./AudioModuleContainer";
+import {
+  useInitAudioCtx,
+  useFetchSongAndInitNodes,
+  useReconnectNodes,
+  usePlayAndResume,
+  usePauseSong,
+  useTrackSongTime,
+  useInitVisualizer,
+  useInitCanvas,
+  useDraw,
+} from "../webAudioHooks";
 
 import tempSong from "../assets/kazukii.mp3";
 
 console.log("AudioBox Rerender!");
 
-/*
+// Audio context
+let aCtx: AudioContext | undefined;
+let setACtx: (val: any) => void;
 
-How to refactor the following code:
-
-- Use an effect to fetch the song. The audio context
-  must be initialzed after some user gesture (i.e a
-  click to play the song).
-
-- 
-
-*/
-
-// Fetch song globals
-let aCTX: AudioContext;
-let song;
-let tempSongBuffer: ArrayBuffer;
-let songBuffer: AudioBuffer;
+// song buffer & song info
+let songBuffer: AudioBuffer | undefined;
+let setSongBuffer: (val: any) => void;
 let songDuration: number;
+let setSongDuration: (val: any) => void;
 
-// Initialize buffer source globals
-let source: AudioBufferSourceNode | undefined = undefined;
+// AudioNodes (actual audio nodes)
+let audioNodes: AudioNode[][] | undefined;
+let setAudioNodes: (val: any) => void;
+let audioNodesChanged: boolean;
+let setAudioNodesChanged: (val: any) => void;
 
-// Visualize globals
-let analyser: AnalyserNode | undefined = undefined;
-let bufferLength: number;
-let dataArr: Uint8Array;
-let prevDataArr: Uint8Array;
-let canvas: HTMLCanvasElement;
-let canvasCtx: CanvasRenderingContext2D;
-
-// Canvas and song time variables
-let canvasRef: any;
-let animationFrameHandler: number | undefined = undefined;
-
-// Props and state // Don't use state for local varaibles, becasuse this will cause a re-render
-let isPlaying: boolean;
-let setIsPlaying: (val: boolean) => void;
-let songTime: number = 0;
-let setSongTime: (val: number) => void;
-let songTimeInterval: number;
-
-let ctxInitialized: boolean;
-let setCtxInitialized: (val: boolean) => void;
-let visualizing: boolean;
-let setIsVisualizing: (val: boolean) => void;
-
+// audioModules (data required for creating UI for audio nodes)
 let audioModulesData: Object[][];
 let setAudioModulesData: (val: Object[][]) => void;
 
-let fetchSong = async function () {
-  // fetch song
+// Canvas and context
+let canvas: HTMLCanvasElement | undefined;
+let setCanvas: (val: any) => void;
+let canvasCtx: CanvasRenderingContext2D | undefined;
+let setCanvasCtx: (Val: any) => void;
+let animationFrameHandler: number | undefined;
+let setAnimationFrameHandler: (val: any) => void;
+let canvasRef: any;
 
-  if (ctxInitialized) {
-    // dont fetch the song multiple times
-    return;
-  }
+// Visualizer data and properties
+let bufferLength: number | undefined;
+let setBufferLength: (val: any) => void;
+let dataArr: Uint8Array | undefined;
+let setDataArr: (val: any) => void;
 
-  // Fetching song
-  aCTX = new AudioContext(); // has to be created after a user gesture, AKA after pressing song start!
+// Song information / time tracking
+let songTime: number = 0;
+let setSongTime: (val: number) => void;
+let songTimeInterval: number | undefined;
+let setSongTimeInterval: (val: any) => void;
 
-  song = await fetch(tempSong);
-  tempSongBuffer = await song.arrayBuffer();
-
-  await aCTX.decodeAudioData(tempSongBuffer, (decodedBuffer) => {
-    songBuffer = decodedBuffer;
-    songDuration = songBuffer.duration;
-  });
-
-  if (!ctxInitialized) {
-    initializeBufferSource();
-  }
-
-  ctxInitialized = true;
-};
-
-let initializeBufferSource = function () {
-  if (ctxInitialized) {
-    return;
-  }
-
-  // Initializing buffer source
-  if (source === undefined) {
-    source = aCTX.createBufferSource();
-  }
-
-  // console.log("Initializing source");
-  source.buffer = songBuffer;
-
-  if (analyser === undefined) {
-    analyser = aCTX.createAnalyser();
-  }
-
-  source.connect(analyser);
-  source.connect(aCTX.destination);
-
-  ctxInitialized = true;
-};
-
-let trackSongTime = function () {
-  songTimeInterval = setInterval(() => {
-    setSongTime(songTime + 0.1);
-  }, 100);
-};
-
-let clearTrackSongTime = function () {
-  clearInterval(songTimeInterval);
-};
+// Page status
+let hasUserGestured: boolean;
+let setHasUserGestured: (val: boolean) => void;
+let areAudioNodesReady: boolean;
+let setAreAudioNodesReady: (val: boolean) => void;
+let isVisualizing: boolean;
+let setIsVisualizing: (val: boolean) => void;
+let isPlaying: boolean;
+let setIsPlaying: (val: boolean) => void;
+let isExpanded: boolean;
+let setIsExpanded: (val: boolean) => void;
 
 let playSong = async function (seekTime: number | null) {
-  if (seekTime != null && seekTime < 0) {
-    seekTime = 0;
-  }
-
-  if (!ctxInitialized) {
-    await fetchSong();
-    ctxInitialized = true;
-  }
-
-  // disconnect, create new source, and connect to destination
-  if (source != undefined) {
-    source.disconnect();
-  }
-
-  source = aCTX.createBufferSource();
-  source.buffer = songBuffer;
-  source.connect(analyser!);
-  // analyser!.disconnect(); // not sure what I was doing here
-  source.connect(aCTX.destination);
-
-  if (seekTime != null) {
-    setSongTime(songDuration * seekTime);
-  }
-
-  source.start(0, songTime);
-  cancelAnimationFrame(animationFrameHandler!);
-  animationFrameHandler = requestAnimationFrame(draw);
-  clearTrackSongTime();
-  trackSongTime();
+  setIsPlaying(true);
 };
 
 const stopSong = function () {
-  if (source != undefined) {
-    if (animationFrameHandler != undefined) {
-      cancelAnimationFrame(animationFrameHandler);
-      animationFrameHandler = undefined;
-    }
-
-    source.stop();
-    clearTrackSongTime();
-  }
+  setIsPlaying(false);
 };
 
 const startVisualizer = () => {
-  if (!visualizing) {
-    visualize();
-    visualizing = true;
+  if (!isVisualizing) {
+    setIsVisualizing(true);
   }
 };
-
-const visualize = function () {
-  if (analyser === undefined) {
-    analyser = aCTX.createAnalyser();
-    source!.connect(analyser);
-  }
-
-  analyser.fftSize = 2048;
-
-  bufferLength = analyser.frequencyBinCount;
-  dataArr = new Uint8Array(bufferLength);
-  analyser.getByteTimeDomainData(dataArr);
-
-  // Get a canvas defined with ID "oscilloscope"
-  canvas = canvasRef.current!;
-  canvasCtx = canvas.getContext("2d")!;
-
-  // draw an oscilloscope of the current audio source
-  draw();
-};
-
-function draw() {
-  animationFrameHandler = requestAnimationFrame(draw);
-  analyser!.getByteTimeDomainData(dataArr);
-
-  canvasCtx.fillStyle = "rgb(255, 255, 255)";
-  canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
-
-  canvasCtx.lineWidth = 1;
-  canvasCtx.strokeStyle = "rgb(0, 0, 0)";
-
-  // oscilloscope
-  canvasCtx.beginPath();
-
-  const sliceWidth = (canvas.width * 1.0) / bufferLength;
-  let x = 0;
-
-  for (let i = 0; i < bufferLength; i++) {
-    const v = dataArr[i] / 128.0;
-    const y = (v * canvas.height) / 2;
-
-    if (i === 0) {
-      canvasCtx.moveTo(x, y);
-    } else {
-      canvasCtx.lineTo(x, y);
-    }
-
-    x += sliceWidth;
-  }
-
-  canvasCtx.lineTo(canvas.width, canvas.height / 2);
-  canvasCtx.stroke();
-
-  /*
-    // Line visualizer
-	canvasCtx.beginPath();
-
-	const sliceWidth = ((canvas.width * 1.0) / bufferLength);
-	let x = 0;
-
-    if(prevDataArr == undefined){
-        console.log("redefined");
-        prevDataArr = new Uint8Array(dataArr.length);
-        prevDataArr = dataArr;
-    }
-
-	for (let i = 0; i < bufferLength; i++) {
-		const v = dataArr[i] / 128.0;
-        const vPrev = prevDataArr[i] / 128.0;
-		const y = (v * canvas.height);
-        const yPrev = (vPrev * canvas.height);
-        const yDelta = (y - yPrev);
-        const newY = y - (yDelta);
-
-        canvasCtx.moveTo(x, canvas.height);
-        canvasCtx.lineTo(x, canvas.height - newY); // greater values reach farther down.
-
-        prevDataArr[i] = newY * 128.0;
-		x += sliceWidth;
-	}
-
-	canvasCtx.stroke();
-    // prevDataArr = Uint8Array.from(dataArr);
-    */
-}
 
 const AudioBox = () => {
   let tempModuleData: Object[][] = [[{ type: "Blank" }]];
+  canvasRef = useRef(null); // reference to canvas
 
-  const [isExpanded, setIsExpanded] = useState(false);
-  [visualizing, setIsVisualizing] = useState(false);
+  [isExpanded, setIsExpanded] = useState(false);
+  [isVisualizing, setIsVisualizing] = useState(false);
   [isPlaying, setIsPlaying] = useState(false); // need to make these global!
-  [songTime, setSongTime] = useState(0.0);
   [audioModulesData, setAudioModulesData] = useState(tempModuleData); // Initial module will be the blank module
+  [hasUserGestured, setHasUserGestured] = useState(false); // Keep track of first gesture required to initialize audioCtx
+  [areAudioNodesReady, setAreAudioNodesReady] = useState(false);
 
-  canvasRef = useRef(null); // provides direct access to DOM
+  [aCtx, setACtx] = useState(undefined); // aCtx and setACtx type are the way they are beause an audioCtx cannot be initialized on render.
+  [songBuffer, setSongBuffer] = useState(undefined);
+  [songDuration, setSongDuration] = useState(0);
+  [audioNodes, setAudioNodes] = useState(undefined);
+  [audioNodesChanged, setAudioNodesChanged] = useState(false);
+  [dataArr, setDataArr] = useState(undefined);
+  [songTime, setSongTime] = useState(0.0);
+  [songTimeInterval, setSongTimeInterval] = useState(undefined);
+  [canvas, setCanvas] = useState(undefined);
+  [canvasCtx, setCanvasCtx] = useState(undefined);
+  [animationFrameHandler, setAnimationFrameHandler] = useState(undefined);
+  [bufferLength, setBufferLength] = useState(undefined);
+
+  /////////////////////////////////// Web audio Api effects! ////////////////////////////////////////////////////
+
+  useInitAudioCtx(hasUserGestured, setACtx);
+
+  useFetchSongAndInitNodes(
+    aCtx,
+    tempSong,
+    setSongBuffer,
+    setSongDuration,
+    setAudioNodes,
+    setAreAudioNodesReady
+  );
+
+  useReconnectNodes(aCtx, audioNodes, audioNodesChanged, setAudioNodesChanged);
+
+  usePlayAndResume(
+    aCtx,
+    audioNodes,
+    songBuffer,
+    isPlaying,
+    songTime,
+    setSongTime,
+    setAudioNodes,
+    setAudioNodesChanged
+  );
+
+  usePauseSong(isPlaying, audioNodes);
+
+  useTrackSongTime(
+    isPlaying,
+    songTime,
+    songTimeInterval,
+    setSongTime,
+    setSongTimeInterval
+  );
+
+  useInitVisualizer(
+    isVisualizing,
+    audioNodes,
+    canvasRef,
+    dataArr,
+    setBufferLength,
+    setDataArr,
+    setCanvas,
+    setCanvasCtx
+  );
+
+  useInitCanvas(canvasRef);
+
+  useDraw(
+    canvas,
+    canvasCtx,
+    audioNodes,
+    dataArr,
+    bufferLength,
+    setAnimationFrameHandler
+  );
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   const AudioBoxStyle: CSS.Properties = {
     position: "relative",
@@ -299,6 +205,22 @@ const AudioBox = () => {
     opacity: "75%",
   };
 
+  const handleUserGesture = (): void => {
+    // used to assertain when user has 1st interacted with page (for audioContext creation)
+    if (!hasUserGestured) {
+      // wait for audioCtx to initialize before setting to true!
+      setHasUserGestured(true);
+    } else {
+      // ignore if already true.
+      return;
+    }
+  };
+
+  /*
+    Adds a modul to the audioModulesData. This variable
+    is for storing information regarding the displayed
+    cards. it is NOT for storing individual audio nodes
+  */
   const addModule = (): void => {
     let tempAudioModulesData: Object[][] = audioModulesData;
 
@@ -316,10 +238,18 @@ const AudioBox = () => {
     // console.log(tempAudioModulesData);
   };
 
+  /*
+    New node will be able to select it's type and it will 
+    switch to that type of module (and create the corresponding
+    audio node)
+  */
   const setModuleType = (type: string, index: number[]): void => {
     // yet to be implemented
   };
 
+  /*
+    Generate the UI for audio modules that are displayed
+  */
   const generateAudioSettingsFragment = (): JSX.Element => {
     let audioSettingsFragment: JSX.Element;
 
@@ -344,18 +274,21 @@ const AudioBox = () => {
 
   return (
     <>
-      <div style={AudioBoxStyle}>
+      <div style={AudioBoxStyle} onClick={handleUserGesture}>
         {generateAudioSettingsFragment()}
         <canvas style={CanvasStyle} ref={canvasRef}></canvas>
         <AudioController
+          hasUserGestured={hasUserGestured}
           isPlaying={isPlaying}
           isExpanded={isExpanded}
           songTime={songTime}
           songDuration={songDuration}
+          areAudioNodesReady={areAudioNodesReady}
           setIsPlaying={setIsPlaying}
           setIsExpanded={setIsExpanded}
           playSong={playSong}
           stopSong={stopSong}
+          setSongTime={setSongTime}
           startVisualizer={startVisualizer}
         ></AudioController>
       </div>
