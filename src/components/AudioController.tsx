@@ -14,10 +14,12 @@ let audioControlImageElement: HTMLImageElement;
 let audioControlImageRef: any;
 
 interface Props {
+  hasUserGestured: boolean;
   isPlaying: boolean;
   isExpanded: boolean;
   songTime: number;
   songDuration: number;
+  areAudioNodesReady: boolean;
   setIsPlaying: (val: boolean) => void;
   setIsExpanded: (val: boolean) => void;
   playSong: (val: number | null) => void;
@@ -27,10 +29,12 @@ interface Props {
 }
 
 const AudioController = ({
+  hasUserGestured,
   isPlaying,
   isExpanded,
   songTime,
   songDuration,
+  areAudioNodesReady,
   setIsPlaying,
   setIsExpanded,
   playSong,
@@ -45,8 +49,12 @@ const AudioController = ({
 
   useEffect(() => {
     // attach eventHandler to AudioControllerDiv
+
+    if (!hasUserGestured || !areAudioNodesReady) {
+      return;
+    }
+
     const handleAudioControllerClick = async (event: MouseEvent) => {
-      // console.log(event.target);
       if (event.target === audioControllerRef.current) {
         let x = event.clientX;
         let left = audioControllerElement.getBoundingClientRect().left;
@@ -72,6 +80,8 @@ const AudioController = ({
         handleAudioControllerClick
       );
     }
+
+    startVisualizer();
   }, [songDuration]);
 
   const AudioControllerStyle: CSS.Properties = {
@@ -126,6 +136,11 @@ const AudioController = ({
   SongTimeDivStyle.width = `${getSongTimeDivWidth()}%`;
 
   const handleImageClick = async () => {
+    if (!hasUserGestured || !areAudioNodesReady) {
+      // wait unitl audio nodes are initialized!
+      return;
+    }
+
     if (!isPlaying) {
       await playSong(null);
     } else {

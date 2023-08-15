@@ -20,7 +20,8 @@ export let useFetchSongAndInitNodes = (
   tempSong: string,
   setSongBuffer: (val: any) => void,
   setSongDuration: (val: any) => void,
-  setAudioNodes: (val: any) => void
+  setAudioNodes: (val: any) => void,
+  setAreAudioNodesReady: (val: boolean) => void
 ) => {
   useEffect(() => {
     // Fetch song data and initialize primary nodes
@@ -61,6 +62,7 @@ export let useFetchSongAndInitNodes = (
       ];
 
       setAudioNodes(tempAudioNodesArr);
+      setAreAudioNodesReady(true);
     };
 
     fetchSong();
@@ -133,7 +135,7 @@ export let usePlayAndResume = (
       return;
     }
 
-    if (aCtx === undefined) {
+    if (aCtx === undefined || audioNodes === undefined) {
       return;
     }
 

@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useRef } from "react";
-import { useEffect } from "react";
 import CSS from "csstype";
 
 import AudioController from "./AudioController";
@@ -64,6 +63,8 @@ let setSongTimeInterval: (val: any) => void;
 // Page status
 let hasUserGestured: boolean;
 let setHasUserGestured: (val: boolean) => void;
+let areAudioNodesReady: boolean;
+let setAreAudioNodesReady: (val: boolean) => void;
 let isVisualizing: boolean;
 let setIsVisualizing: (val: boolean) => void;
 let isPlaying: boolean;
@@ -94,6 +95,7 @@ const AudioBox = () => {
   [isPlaying, setIsPlaying] = useState(false); // need to make these global!
   [audioModulesData, setAudioModulesData] = useState(tempModuleData); // Initial module will be the blank module
   [hasUserGestured, setHasUserGestured] = useState(false); // Keep track of first gesture required to initialize audioCtx
+  [areAudioNodesReady, setAreAudioNodesReady] = useState(false);
 
   [aCtx, setACtx] = useState(undefined); // aCtx and setACtx type are the way they are beause an audioCtx cannot be initialized on render.
   [songBuffer, setSongBuffer] = useState(undefined);
@@ -117,7 +119,8 @@ const AudioBox = () => {
     tempSong,
     setSongBuffer,
     setSongDuration,
-    setAudioNodes
+    setAudioNodes,
+    setAreAudioNodesReady
   );
 
   useReconnectNodes(aCtx, audioNodes, audioNodesChanged, setAudioNodesChanged);
@@ -202,6 +205,7 @@ const AudioBox = () => {
   const handleUserGesture = (): void => {
     // used to assertain when user has 1st interacted with page (for audioContext creation)
     if (!hasUserGestured) {
+      // wait for audioCtx to initialize before setting to true!
       setHasUserGestured(true);
     } else {
       // ignore if already true.
@@ -271,10 +275,12 @@ const AudioBox = () => {
         {generateAudioSettingsFragment()}
         <canvas style={CanvasStyle} ref={canvasRef}></canvas>
         <AudioController
+          hasUserGestured={hasUserGestured}
           isPlaying={isPlaying}
           isExpanded={isExpanded}
           songTime={songTime}
           songDuration={songDuration}
+          areAudioNodesReady={areAudioNodesReady}
           setIsPlaying={setIsPlaying}
           setIsExpanded={setIsExpanded}
           playSong={playSong}
