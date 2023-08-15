@@ -10,78 +10,29 @@ import tempSong from "../assets/kazukii.mp3";
 
 console.log("AudioBox Rerender!");
 
-/*
-
-How to refactor the following code:
-  
-- Use state to determine when the user has first
-  clicked play After first interaction,
-  set this variable equal to true. In an effect, whose
-  dependency is the state of whether a user has
-  interacted with the page, initialze the audioContext
-  and set it as State. 
-  
-- fetch & Decode the audioBuffer and store it
-  as state. Save decoded audioBuffer as state.
-  save song duration as state. Initialize the 
-  audioBufferSourceNode and
-  the analyser node and set them as state in the
-  audioNode array. set the dependency
-  to the audioContext (whose state) will update once 
-  it's been initialzed.
-
-- Use an effect to connect all audioNodes. Loop through AudioNodes 
-  array (kept as state) and connect the component to the 
-  next component. The penultimate Node will connect to the
-  audio destination. For cleanup, disconnect all nodes. 
-  Set dependency to the array of AudioNodes kept as state.
-
-- Use an effect to recreate the initial audioBufferSourceNode
-  kept in the audioNodes array. At the end, set the sate (
-  reconnecting all of the nodes.) After creation, start the buffer.
-  set dependency to is an isPlaying state. If is paused, return
-  early.
-
-- Keep song time as state. Use an effect to track the song 
-  time. Keep the tracking setInterval as state so it can be
-  cleared when a component pauses a song. For cleanup, clear 
-  the interval set during the effect. Dependency is none; 
-  it needs to re-run each re-render.
-
-- Keep an array as state which contains the actual audio
-  nodes used by the web audio API. Alongside this, keep
-  an array of array of objects that contains the information
-  representing the audioNodes in the UI. This is necessary
-  because the module "cards" contain the blank and the new
-  cards (which are obviously not audioNodes) the audioModule
-  container needs to be updated whenever the cards are updated.
-
--------------------- Cavnas Suff! ---------------------------
-
-- Keep the dataArr as state, once it's initialized, it will
-  never need to be reinitialized. Initialize this only once.
-  Need to get a reference to the canvas every time it renders.
-  On each rerender, will need to attach the analyzer to the
-  canvas.
-
-- What needs to be kept as state, dataArr, canvas, canvasCTX.
-  dataArr only needs to be retrieved once. canvas and canvasCTX
-  will need to be retrieved each-rerender.
-
-*/
-
 // Fetch song globals
-let aCTX: AudioContext;
-let song;
+let aCtx: AudioContext | undefined;
+let setACtx: (val: any) => void;
+let song: any;
+let setSong: (val: any) => void;
 let tempSongBuffer: ArrayBuffer;
-let songBuffer: AudioBuffer;
+let setTempSongBuffer: (val: any) => void;
+let songBuffer: AudioBuffer | undefined;
+let setSongBuffer: (val: any) => void;
 let songDuration: number;
+let setSongDuration: (val: any) => void;
 
 // Initialize buffer source globals
 let source: AudioBufferSourceNode | undefined = undefined;
+let setSource: (val: any) => void;
+let analyser: AnalyserNode | undefined = undefined;
+let setAnalyser: (val: any) => void;
+let audioNodes: AudioNode[][] | undefined;
+let setAudioNodes: (val: any) => void;
+let audioNodesChanged: boolean;
+let setAudioNodesChanged: (val: any) => void;
 
 // Visualize globals
-let analyser: AnalyserNode | undefined = undefined;
 let bufferLength: number;
 let dataArr: Uint8Array;
 let prevDataArr: Uint8Array;
@@ -98,6 +49,9 @@ let setIsPlaying: (val: boolean) => void;
 let songTime: number = 0;
 let setSongTime: (val: number) => void;
 let songTimeInterval: number;
+
+let hasUserGestured: boolean;
+let setHasUserGestured: (val: boolean) => void;
 
 let ctxInitialized: boolean;
 let setCtxInitialized: (val: boolean) => void;
@@ -116,12 +70,12 @@ let fetchSong = async function () {
   }
 
   // Fetching song
-  aCTX = new AudioContext(); // has to be created after a user gesture, AKA after pressing song start!
+  aCtx = new AudioContext(); // has to be created after a user gesture, AKA after pressing song start!
 
   song = await fetch(tempSong);
   tempSongBuffer = await song.arrayBuffer();
 
-  await aCTX.decodeAudioData(tempSongBuffer, (decodedBuffer) => {
+  await aCtx.decodeAudioData(tempSongBuffer, (decodedBuffer) => {
     songBuffer = decodedBuffer;
     songDuration = songBuffer.duration;
   });
@@ -140,18 +94,18 @@ let initializeBufferSource = function () {
 
   // Initializing buffer source
   if (source === undefined) {
-    source = aCTX.createBufferSource();
+    source = aCtx!.createBufferSource();
   }
 
   // console.log("Initializing source");
-  source.buffer = songBuffer;
+  source.buffer = songBuffer!;
 
   if (analyser === undefined) {
-    analyser = aCTX.createAnalyser();
+    analyser = aCtx!.createAnalyser();
   }
 
-  source.connect(analyser);
-  source.connect(aCTX.destination);
+  // source.connect(analyser);
+  // source.connect(aCtx!.destination);
 
   ctxInitialized = true;
 };
@@ -167,33 +121,23 @@ let clearTrackSongTime = function () {
 };
 
 let playSong = async function (seekTime: number | null) {
+  setIsPlaying(!isPlaying);
+  return;
+
+  // TODO : Testing playing effect!
+
   if (seekTime != null && seekTime < 0) {
     seekTime = 0;
   }
-
-  if (!ctxInitialized) {
-    await fetchSong();
-    ctxInitialized = true;
-  }
-
-  // disconnect, create new source, and connect to destination
-  if (source != undefined) {
-    source.disconnect();
-  }
-
-  source = aCTX.createBufferSource();
-  source.buffer = songBuffer;
-  source.connect(analyser!);
-  // analyser!.disconnect(); // not sure what I was doing here
-  source.connect(aCTX.destination);
 
   if (seekTime != null) {
     setSongTime(songDuration * seekTime);
   }
 
-  source.start(0, songTime);
+  audioNodes![0][0].start(0, songTime);
+
   cancelAnimationFrame(animationFrameHandler!);
-  animationFrameHandler = requestAnimationFrame(draw);
+  animationFrameHandler = requestAnimationFrame(draw); // TODO : Refactor canvas!
   clearTrackSongTime();
   trackSongTime();
 };
@@ -205,7 +149,8 @@ const stopSong = function () {
       animationFrameHandler = undefined;
     }
 
-    source.stop();
+    // source.stop();
+    audioNodes![0][0].stop();
     clearTrackSongTime();
   }
 };
@@ -214,30 +159,30 @@ const startVisualizer = () => {
   /* 
     Todo : refactor as an effect
   */
-  // if (!visualizing) {
-  //   visualize();
-  //   visualizing = true;
-  // }
+  if (!visualizing) {
+    visualize();
+    visualizing = true;
+  }
 };
 
 const visualize = function () {
   if (analyser === undefined) {
-    analyser = aCTX.createAnalyser();
-    source!.connect(analyser);
+    // analyser = aCtx!.createAnalyser();
+    // source!.connect(analyser);
   }
 
-  analyser.fftSize = 2048;
+  // analyser.fftSize = 2048;
 
-  bufferLength = analyser.frequencyBinCount;
-  dataArr = new Uint8Array(bufferLength);
-  analyser.getByteTimeDomainData(dataArr);
+  // bufferLength = analyser.frequencyBinCount;
+  // dataArr = new Uint8Array(bufferLength);
+  // analyser.getByteTimeDomainData(dataArr);
 
   // Get a canvas defined with ID "oscilloscope"
   canvas = canvasRef.current!;
   canvasCtx = canvas.getContext("2d")!;
 
   // draw an oscilloscope of the current audio source
-  draw();
+  // draw();
 };
 
 function draw() {
@@ -281,8 +226,153 @@ const AudioBox = () => {
   [isPlaying, setIsPlaying] = useState(false); // need to make these global!
   [songTime, setSongTime] = useState(0.0);
   [audioModulesData, setAudioModulesData] = useState(tempModuleData); // Initial module will be the blank module
+  [hasUserGestured, setHasUserGestured] = useState(false); // Keep track of first gesture required to initialize audioCtx
+
+  [aCtx, setACtx] = useState(undefined); // aCtx and setACtx type are the way they are beause an audioCtx cannot be initialized on render.
+  [songBuffer, setSongBuffer] = useState(undefined);
+  [songDuration, setSongDuration] = useState(0);
+  [source, setSource] = useState(undefined);
+  [audioNodes, setAudioNodes] = useState(undefined);
+  [audioNodesChanged, setAudioNodesChanged] = useState(false);
 
   canvasRef = useRef(null); // provides direct access to DOM
+
+  /////////////////////////////////// Web audio Api effects! ////////////////////////////////////////////////////
+
+  useEffect(() => {
+    // initialze audio context on first gesture
+    if (!hasUserGestured) {
+      return;
+    }
+
+    console.log("audio context init!");
+    setACtx(new AudioContext());
+  }, [hasUserGestured]);
+
+  useEffect(() => {
+    // Fetch song data and initialize primary nodes
+    if (aCtx === undefined) {
+      return;
+    }
+
+    console.log("fetching song!!!!");
+
+    let song;
+    let tempSongBuffer;
+
+    let fetchSong = async () => {
+      // Fetch song store songBuffer and songDuration as state
+      song = await fetch(tempSong);
+      tempSongBuffer = await song.arrayBuffer();
+
+      await aCtx!.decodeAudioData(tempSongBuffer, async (decodedBuffer) => {
+        setSongBuffer(decodedBuffer);
+        setSongDuration(decodedBuffer.duration);
+        await createPrimaryNodes(decodedBuffer);
+      });
+    };
+
+    let createPrimaryNodes = async (songBuffer: AudioBuffer) => {
+      // create audioBufferSourceNode and analyserNode
+      console.log("creating primary nodes!");
+      let tempAudioSourceNode: AudioBufferSourceNode =
+        aCtx!.createBufferSource();
+      let tempAnalyserNode: AnalyserNode = aCtx!.createAnalyser();
+
+      tempAudioSourceNode.buffer = songBuffer;
+
+      let tempAudioNodesArr: AudioNode[][] = [
+        [tempAudioSourceNode],
+        [tempAnalyserNode],
+      ];
+
+      setAudioNodes(tempAudioNodesArr);
+    };
+
+    fetchSong();
+  }, [aCtx]);
+
+  useEffect(() => {
+    // disconnect and reconnect all audioNodes
+    if (audioNodes === undefined) {
+      return;
+    }
+
+    if (!audioNodesChanged) {
+      return;
+    }
+
+    console.log("connecting nodes!");
+
+    if (audioNodes.length == 2) {
+      audioNodes[0][0].connect(aCtx!.destination); // connect to destination
+      audioNodes[0][0].connect(audioNodes[1][0]); // connect to analyser
+      // audioNodes[0][0].start(0, 100);
+    } else {
+      // TODO : Implement here!
+      // loop through audioNodes and connect them one by one
+      // last one connects to dest any analyser.
+    }
+
+    setAudioNodesChanged(false);
+
+    return () => {
+      // cleanup function disconnects all audio nodes
+      if (audioNodes === undefined) {
+        return;
+      }
+      if (!audioNodesChanged) {
+        return;
+      }
+
+      for (let i = 0; i < audioNodes.length; i++) {
+        for (let j = 0; j < audioNodes[i].length; j++) {
+          audioNodes[i][j].disconnect();
+        }
+      }
+    };
+  }, [audioNodes, audioNodesChanged]);
+
+  useEffect(() => {
+    // Play (resume (requires recreation of source node))
+    if (!isPlaying) {
+      return;
+    }
+
+    if (aCtx === undefined) {
+      return;
+    }
+
+    // audioNodes![0][0].start(0, 100);
+
+    console.log("play / resume!");
+
+    let tempAudioNodes = audioNodes; // I suspect that this is NOT seen as a different array upon mutation because the reference is the same
+    let tempAudioSourceNode: AudioBufferSourceNode = aCtx!.createBufferSource();
+
+    tempAudioSourceNode.buffer = songBuffer!;
+    tempAudioNodes![0][0] = tempAudioSourceNode;
+
+    setAudioNodes(tempAudioNodes);
+    setAudioNodesChanged(true);
+
+    console.log(audioNodes);
+    audioNodes![0][0].connect(aCtx.destination);
+    audioNodes![0][0].start(0, 100);
+    console.log("STARTED PLAYING!");
+
+    // setTimeout(() => {
+    //   setAudioNodesChanged(true);
+    // }, 3000);
+
+    // setTimeout(() => {
+    //   console.log(audioNodes);
+    //   audioNodes![0][0].start(0, 100);
+    //   console.log("STARTED PLAYING!");
+    // }, 1000);
+  }, [isPlaying]);
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   const AudioBoxStyle: CSS.Properties = {
     position: "relative",
@@ -316,6 +406,15 @@ const AudioBox = () => {
     height: "200px",
     backgroundColor: "#3d8bf2",
     opacity: "75%",
+  };
+
+  const handleUserGesture = (): void => {
+    if (!hasUserGestured) {
+      setHasUserGestured(true);
+    } else {
+      // ignore if already true.
+      return;
+    }
   };
 
   /*
@@ -376,7 +475,7 @@ const AudioBox = () => {
 
   return (
     <>
-      <div style={AudioBoxStyle}>
+      <div style={AudioBoxStyle} onClick={handleUserGesture}>
         {generateAudioSettingsFragment()}
         <canvas style={CanvasStyle} ref={canvasRef}></canvas>
         <AudioController

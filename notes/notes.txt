@@ -1,0 +1,55 @@
+How to refactor the following code:
+  
+- Use state to determine when the user has first
+  clicked play After first interaction,
+  set this variable equal to true. In an effect, whose
+  dependency is the state of whether a user has
+  interacted with the page, initialze the audioContext
+  and set it as State. 
+  
+- fetch & Decode the audioBuffer and store it
+  as state. Save decoded audioBuffer as state.
+  save song duration as state. Initialize the 
+  audioBufferSourceNode and
+  the analyser node and set them as state in the
+  audioNode array. set the dependency
+  to the audioContext (whose state) will update once 
+  it's been initialzed.
+
+- Use an effect to connect all audioNodes. Loop through AudioNodes 
+  array (kept as state) and connect the component to the 
+  next component. The penultimate Node will connect to the
+  audio destination. For cleanup, disconnect all nodes. 
+  Set dependency to the array of AudioNodes kept as state.
+
+- Use an effect to recreate the initial audioBufferSourceNode
+  kept in the audioNodes array. At the end, set the sate (
+  reconnecting all of the nodes.) After creation, start the buffer.
+  set dependency to is an isPlaying state. If is paused, return
+  early.
+
+- Keep song time as state. Use an effect to track the song 
+  time. Keep the tracking setInterval as state so it can be
+  cleared when a component pauses a song. For cleanup, clear 
+  the interval set during the effect. Dependency is none; 
+  it needs to re-run each re-render.
+
+- Keep an array as state which contains the actual audio
+  nodes used by the web audio API. Alongside this, keep
+  an array of array of objects that contains the information
+  representing the audioNodes in the UI. This is necessary
+  because the module "cards" contain the blank and the new
+  cards (which are obviously not audioNodes) the audioModule
+  container needs to be updated whenever the cards are updated.
+
+-------------------- Cavnas Suff! ---------------------------
+
+- Keep the dataArr as state, once it's initialized, it will
+  never need to be reinitialized. Initialize this only once.
+  Need to get a reference to the canvas every time it renders.
+  On each rerender, will need to attach the analyzer to the
+  canvas.
+
+- What needs to be kept as state, dataArr, canvas, canvasCTX.
+  dataArr only needs to be retrieved once. canvas and canvasCTX
+  will need to be retrieved each-rerender.
