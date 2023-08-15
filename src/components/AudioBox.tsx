@@ -12,6 +12,7 @@ import {
   usePauseSong,
   useTrackSongTime,
   useInitVisualizer,
+  useInitCanvas,
   useDraw,
 } from "../webAudioHooks";
 
@@ -156,6 +157,8 @@ const AudioBox = () => {
     setCanvas,
     setCanvasCtx
   );
+
+  useInitCanvas(canvasRef);
 
   useDraw(
     canvas,

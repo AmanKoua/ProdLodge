@@ -221,6 +221,20 @@ export let useTrackSongTime = (
   }, [isPlaying]);
 };
 
+export let useInitCanvas = (canvasRef: any) => {
+  // Initialize canvas so that audioModuelContainer does not bleed through
+  useEffect(() => {
+    let canvasCtx = canvasRef.current.getContext("2d");
+    canvasCtx!.fillStyle = "rgb(255, 255, 255)";
+    canvasCtx!.fillRect(
+      0,
+      0,
+      canvasRef.current.width,
+      canvasRef.current.height
+    );
+  }, []);
+};
+
 export let useInitVisualizer = (
   isVisualizing: boolean,
   audioNodes: AudioNode[][] | undefined,
