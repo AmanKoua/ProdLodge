@@ -13,6 +13,7 @@ import {
   usePauseSong,
   useTrackSongTime,
   useInitVisualizer,
+  useDraw,
 } from "../webAudioHooks";
 
 import tempSong from "../assets/kazukii.mp3";
@@ -35,7 +36,7 @@ let setAudioNodes: (val: any) => void;
 let audioNodesChanged: boolean;
 let setAudioNodesChanged: (val: any) => void;
 
-// audioModuls (data required for creating UI for audio nodes)
+// audioModules (data required for creating UI for audio nodes)
 let audioModulesData: Object[][];
 let setAudioModulesData: (val: Object[][]) => void;
 
@@ -67,6 +68,8 @@ let isVisualizing: boolean;
 let setIsVisualizing: (val: boolean) => void;
 let isPlaying: boolean;
 let setIsPlaying: (val: boolean) => void;
+let isExpanded: boolean;
+let setIsExpanded: (val: boolean) => void;
 
 let playSong = async function (seekTime: number | null) {
   setIsPlaying(true);
@@ -84,8 +87,9 @@ const startVisualizer = () => {
 
 const AudioBox = () => {
   let tempModuleData: Object[][] = [[{ type: "Blank" }]];
+  canvasRef = useRef(null); // reference to canvas
 
-  const [isExpanded, setIsExpanded] = useState(false);
+  [isExpanded, setIsExpanded] = useState(false);
   [isVisualizing, setIsVisualizing] = useState(false);
   [isPlaying, setIsPlaying] = useState(false); // need to make these global!
   [audioModulesData, setAudioModulesData] = useState(tempModuleData); // Initial module will be the blank module
@@ -94,7 +98,6 @@ const AudioBox = () => {
   [aCtx, setACtx] = useState(undefined); // aCtx and setACtx type are the way they are beause an audioCtx cannot be initialized on render.
   [songBuffer, setSongBuffer] = useState(undefined);
   [songDuration, setSongDuration] = useState(0);
-  // [source, setSource] = useState(undefined);
   [audioNodes, setAudioNodes] = useState(undefined);
   [audioNodesChanged, setAudioNodesChanged] = useState(false);
   [dataArr, setDataArr] = useState(undefined);
@@ -105,11 +108,7 @@ const AudioBox = () => {
   [animationFrameHandler, setAnimationFrameHandler] = useState(undefined);
   [bufferLength, setBufferLength] = useState(undefined);
 
-  canvasRef = useRef(null); // provides direct access to DOM
-
   /////////////////////////////////// Web audio Api effects! ////////////////////////////////////////////////////
-
-  // refactor into extracted hooks!
 
   useInitAudioCtx(hasUserGestured, setACtx);
 
@@ -155,56 +154,14 @@ const AudioBox = () => {
     setCanvasCtx
   );
 
-  useEffect(() => {
-    // draw visualizations!
-    if (
-      canvas === undefined ||
-      canvasCtx === undefined ||
-      audioNodes === undefined ||
-      dataArr === undefined ||
-      bufferLength === undefined
-    ) {
-      console.log("Drawing visualizatons dependencies undefined!");
-      return;
-    }
-
-    console.log("Starting visualizer!");
-
-    let draw = () => {
-      setAnimationFrameHandler(requestAnimationFrame(draw));
-      audioNodes![audioNodes!.length - 1][0].getByteTimeDomainData(dataArr);
-
-      canvasCtx!.fillStyle = "rgb(255, 255, 255)";
-      canvasCtx!.fillRect(0, 0, canvas!.width, canvas!.height);
-
-      canvasCtx!.lineWidth = 1;
-      canvasCtx!.strokeStyle = "rgb(0, 0, 0)";
-
-      // oscilloscope
-
-      canvasCtx!.beginPath();
-      const sliceWidth = (canvas!.width * 1.0) / bufferLength!;
-      let x = 0;
-
-      for (let i = 0; i < bufferLength!; i++) {
-        const v = dataArr![i] / 128.0;
-        const y = (v * canvas!.height) / 2;
-
-        if (i === 0) {
-          canvasCtx!.moveTo(x, y);
-        } else {
-          canvasCtx!.lineTo(x, y);
-        }
-
-        x += sliceWidth;
-      }
-
-      canvasCtx!.lineTo(canvas!.width, canvas!.height / 2);
-      canvasCtx!.stroke();
-    };
-
-    draw(); // call draw once!
-  }, [canvasCtx]);
+  useDraw(
+    canvas,
+    canvasCtx,
+    audioNodes,
+    dataArr,
+    bufferLength,
+    setAnimationFrameHandler
+  );
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

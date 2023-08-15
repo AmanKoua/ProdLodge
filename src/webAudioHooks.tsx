@@ -261,3 +261,66 @@ export let useInitVisualizer = (
     }, 10);
   }, [isVisualizing]);
 };
+
+export let useDraw = (
+  canvas: HTMLCanvasElement | undefined,
+  canvasCtx: CanvasRenderingContext2D | undefined,
+  audioNodes: AudioNode[][] | undefined,
+  dataArr: Uint8Array | undefined,
+  bufferLength: number | undefined,
+  setAnimationFrameHandler: (val: any) => void
+) => {
+  useEffect(() => {
+    // draw visualizations!
+    if (
+      canvas === undefined ||
+      canvasCtx === undefined ||
+      audioNodes === undefined ||
+      dataArr === undefined ||
+      bufferLength === undefined
+    ) {
+      console.log("Drawing visualizatons dependencies undefined!");
+      return;
+    }
+
+    console.log("Starting visualizer!");
+
+    // let canvas = canvasRef.current;
+    // let canvasCtx = canvas.getContext("2d");
+
+    let draw = () => {
+      setAnimationFrameHandler(requestAnimationFrame(draw));
+      audioNodes![audioNodes!.length - 1][0].getByteTimeDomainData(dataArr);
+
+      canvasCtx!.fillStyle = "rgb(255, 255, 255)";
+      canvasCtx!.fillRect(0, 0, canvas!.width, canvas!.height);
+
+      canvasCtx!.lineWidth = 1;
+      canvasCtx!.strokeStyle = "rgb(0, 0, 0)";
+
+      // oscilloscope
+
+      canvasCtx!.beginPath();
+      const sliceWidth = (canvas!.width * 1.0) / bufferLength!;
+      let x = 0;
+
+      for (let i = 0; i < bufferLength!; i++) {
+        const v = dataArr![i] / 128.0;
+        const y = (v * canvas!.height) / 2;
+
+        if (i === 0) {
+          canvasCtx!.moveTo(x, y);
+        } else {
+          canvasCtx!.lineTo(x, y);
+        }
+
+        x += sliceWidth;
+      }
+
+      canvasCtx!.lineTo(canvas!.width, canvas!.height / 2);
+      canvasCtx!.stroke();
+    };
+
+    draw(); // call draw once!
+  }, [canvasCtx]);
+};
