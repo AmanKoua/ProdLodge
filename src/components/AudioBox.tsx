@@ -48,7 +48,8 @@ let isPlaying: boolean;
 let setIsPlaying: (val: boolean) => void;
 let songTime: number = 0;
 let setSongTime: (val: number) => void;
-let songTimeInterval: number;
+let songTimeInterval: number | undefined;
+let setSongTimeInterval: (val: any) => void;
 
 let hasUserGestured: boolean;
 let setHasUserGestured: (val: boolean) => void;
@@ -224,7 +225,6 @@ const AudioBox = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   [visualizing, setIsVisualizing] = useState(false);
   [isPlaying, setIsPlaying] = useState(false); // need to make these global!
-  [songTime, setSongTime] = useState(0.0);
   [audioModulesData, setAudioModulesData] = useState(tempModuleData); // Initial module will be the blank module
   [hasUserGestured, setHasUserGestured] = useState(false); // Keep track of first gesture required to initialize audioCtx
 
@@ -234,6 +234,8 @@ const AudioBox = () => {
   [source, setSource] = useState(undefined);
   [audioNodes, setAudioNodes] = useState(undefined);
   [audioNodesChanged, setAudioNodesChanged] = useState(false);
+  [songTime, setSongTime] = useState(0.0);
+  [songTimeInterval, setSongTimeInterval] = useState(undefined);
 
   canvasRef = useRef(null); // provides direct access to DOM
 
@@ -307,7 +309,6 @@ const AudioBox = () => {
     if (audioNodes.length == 2) {
       audioNodes[0][0].connect(aCtx!.destination); // connect to destination
       audioNodes[0][0].connect(audioNodes[1][0]); // connect to analyser
-      // audioNodes[0][0].start(0, 100);
     } else {
       // TODO : Implement here!
       // loop through audioNodes and connect them one by one
@@ -334,7 +335,7 @@ const AudioBox = () => {
   }, [audioNodes, audioNodesChanged]);
 
   useEffect(() => {
-    // Play (resume (requires recreation of source node))
+    // Play (resume requires recreation of source node)
     if (!isPlaying) {
       return;
     }
@@ -342,8 +343,6 @@ const AudioBox = () => {
     if (aCtx === undefined) {
       return;
     }
-
-    // audioNodes![0][0].start(0, 100);
 
     console.log("play / resume!");
 
@@ -354,22 +353,49 @@ const AudioBox = () => {
     tempAudioNodes![0][0] = tempAudioSourceNode;
 
     setAudioNodes(tempAudioNodes);
-    setAudioNodesChanged(true);
+    setAudioNodesChanged(true); // required to trigger above effect because audioNodes is a FREAKING DEEP COPY and reference does not change when mutated
 
-    console.log(audioNodes);
-    audioNodes![0][0].connect(aCtx.destination);
-    audioNodes![0][0].start(0, 100);
-    console.log("STARTED PLAYING!");
+    audioNodes![0][0].start(0, songTime);
+  }, [isPlaying]);
 
-    // setTimeout(() => {
-    //   setAudioNodesChanged(true);
-    // }, 3000);
+  useEffect(() => {
+    // pause when pause button clicked!
+    if (isPlaying || audioNodes === undefined) {
+      return;
+    }
 
-    // setTimeout(() => {
-    //   console.log(audioNodes);
-    //   audioNodes![0][0].start(0, 100);
-    //   console.log("STARTED PLAYING!");
-    // }, 1000);
+    audioNodes[0][0].stop();
+  }, [isPlaying]);
+
+  useEffect(() => {
+    // track song time (set and clear tracking setInterval)
+
+    if (songTimeInterval === undefined && !isPlaying) {
+      return;
+    }
+
+    console.log("tracking song time!");
+
+    if (isPlaying) {
+      if (songTimeInterval != undefined) {
+        clearInterval(songTimeInterval);
+      }
+      songTimeInterval = setInterval(() => {
+        // console.log(songTime);
+        setSongTime(songTime + 0.1);
+      }, 100);
+      setSongTimeInterval(songTimeInterval);
+    } else {
+      clearInterval(songTimeInterval);
+    }
+
+    return () => {
+      if (songTimeInterval === undefined) {
+        return;
+      }
+
+      clearInterval(songTimeInterval);
+    };
   }, [isPlaying]);
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -409,6 +435,7 @@ const AudioBox = () => {
   };
 
   const handleUserGesture = (): void => {
+    // used to assertain when user has 1st interacted with page (for audioContext creation)
     if (!hasUserGestured) {
       setHasUserGestured(true);
     } else {
@@ -487,6 +514,7 @@ const AudioBox = () => {
           setIsExpanded={setIsExpanded}
           playSong={playSong}
           stopSong={stopSong}
+          setSongTime={setSongTime}
           startVisualizer={startVisualizer}
         ></AudioController>
       </div>

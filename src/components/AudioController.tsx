@@ -22,6 +22,7 @@ interface Props {
   setIsExpanded: (val: boolean) => void;
   playSong: (val: number | null) => void;
   stopSong: () => void;
+  setSongTime: (val: number) => void;
   startVisualizer: () => void;
 }
 
@@ -34,9 +35,10 @@ const AudioController = ({
   setIsExpanded,
   playSong,
   stopSong,
+  setSongTime,
   startVisualizer,
 }: Props) => {
-  const [songTimeWidth, setSongTimeWidth] = useState(0);
+  // const [songTimeWidth, setSongTimeWidth] = useState(0);
   const [isHover, setIsHover] = useState(false);
   audioControllerRef = useRef<HTMLDivElement | null>(null);
   audioControllerElement = audioControllerRef.current;
@@ -53,9 +55,13 @@ const AudioController = ({
         let position = (x - left) / width; // position percentage
 
         // console.log(position);
-        setSongTimeWidth(position * 100);
-        await playSong(position);
-        setIsPlaying(true);
+        // setSongTimeWidth(position * 100);
+        setIsPlaying(false);
+        setSongTime(songDuration * position);
+        setTimeout(() => {
+          // wait for 1 millisecond to allow song time to update
+          setIsPlaying(true);
+        }, 1);
       } else {
       }
     };
@@ -66,7 +72,7 @@ const AudioController = ({
         handleAudioControllerClick
       );
     }
-  }, []);
+  }, [songDuration]);
 
   const AudioControllerStyle: CSS.Properties = {
     position: "absolute",
