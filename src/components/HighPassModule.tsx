@@ -61,7 +61,7 @@ const HighPassModule = ({ data, position, editAudioNodeData }: Props) => {
     // backgroundColor: "green",
   };
 
-  const FreqSliderStyle: CSS.Properties = {
+  const SliderStyle: CSS.Properties = {
     width: "80%",
     marginLeft: "10%",
     marginTop: "0%",
@@ -74,19 +74,37 @@ const HighPassModule = ({ data, position, editAudioNodeData }: Props) => {
     editAudioNodeData(data, position);
   };
 
+  const handleResonanceSliderChange = (event: any) => {
+    let tempData = data;
+    tempData.resonance = event.target.value;
+    editAudioNodeData(data, position);
+  };
+
   return (
     <div style={AudioModuleStyle}>
       <div style={CenterDivStyle}>
         <h1 style={ModuleNameTextStyle}>HighPass</h1>
         <div style={CenterAttributeTextDivStyle}>
-          <p style={AttributeTextStyle}>Frequency</p>
+          <p style={AttributeTextStyle}>Frequency : {data.frequency}</p>
         </div>
         <input
           type={"range"}
+          value={data.frequency}
           min={20}
           max={21000}
-          style={FreqSliderStyle}
+          style={SliderStyle}
           onChange={handleSliderChange}
+        ></input>
+        <div style={CenterAttributeTextDivStyle}>
+          <p style={AttributeTextStyle}>Resonance : {data.resonance}</p>
+        </div>
+        <input
+          type={"range"}
+          min={-25}
+          max={25}
+          style={SliderStyle}
+          value={data.resonance}
+          onChange={handleResonanceSliderChange}
         ></input>
       </div>
     </div>

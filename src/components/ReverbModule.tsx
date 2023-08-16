@@ -8,7 +8,7 @@ interface Props {
 
 const ReverbModule = ({ data, position, editAudioNodeData }: Props) => {
   // console.log(data);
-  const NewAudioModuleStyle: CSS.Properties = {
+  const AudioModuleStyle: CSS.Properties = {
     position: "relative",
     marginTop: "1%",
     marginLeft: "2.5%",
@@ -42,7 +42,7 @@ const ReverbModule = ({ data, position, editAudioNodeData }: Props) => {
   };
 
   return (
-    <div style={NewAudioModuleStyle}>
+    <div style={AudioModuleStyle}>
       <div style={CenterDivStyle}>
         <h1 style={SelectModuleTextStyle}>Reverb</h1>
       </div>

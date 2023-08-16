@@ -335,7 +335,7 @@ const AudioBox = () => {
       case "Highpass":
         tempAudioNode = aCtx!.createBiquadFilter();
         tempAudioNode.type = "highpass";
-        tempAudioNode.frequency.value = 300;
+        tempAudioNode.frequency.value = 20;
         insertNode(tempAudioNodes, tempAudioNode);
         setAudioNodes(tempAudioNodes);
         setTimeout(() => {
@@ -345,7 +345,7 @@ const AudioBox = () => {
       case "Lowpass":
         tempAudioNode = aCtx!.createBiquadFilter();
         tempAudioNode.type = "lowpass";
-        tempAudioNode.frequency.value = 1000;
+        tempAudioNode.frequency.value = 21000;
         insertNode(tempAudioNodes, tempAudioNode);
         setAudioNodes(tempAudioNodes);
         setTimeout(() => {
@@ -366,6 +366,7 @@ const AudioBox = () => {
   const editAudioNodeData = (data: Object, moduleIndex: number[]) => {
     let tempAudioNodes = audioNodes;
 
+    // Offset row and column to account for structure of audioNodes array
     let row = moduleIndex[0] + 1;
     let column = moduleIndex[1];
 
@@ -376,7 +377,10 @@ const AudioBox = () => {
     // console.log(tempAudioNodes![moduleIndex[0] + 1][moduleIndex[1]]);
     // console.log(tempAudioNodes, row, column);
 
-    tempAudioNodes![row][column].frequency.value = data.frequency;
+    if (data.type === "Highpass" || data.type === "Lowpass") {
+      tempAudioNodes![row][column].frequency.value = data.frequency;
+      tempAudioNodes![row][column].Q.value = data.resonance;
+    }
 
     setAudioNodes(tempAudioNodes);
 
@@ -394,9 +398,11 @@ const AudioBox = () => {
     tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].type = type;
 
     if (type === "Highpass") {
-      tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].frequency = 300;
+      tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].frequency = 20;
+      tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].resonance = 0;
     } else if (type === "Lowpass") {
-      tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].frequency = 1000;
+      tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].frequency = 21000;
+      tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].resonance = 0;
     }
 
     addAudioNode(tempAudioModulesData[moduleIndex[0]][moduleIndex[1]]);
