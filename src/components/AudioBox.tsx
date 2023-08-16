@@ -430,7 +430,6 @@ const AudioBox = () => {
       ];
     }
 
-    console.log(tempAudioNodes);
     setAudioNodes(tempAudioNodes);
     setTimeout(() => {
       setAudioNodesChanged(true);

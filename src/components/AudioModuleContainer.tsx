@@ -35,20 +35,6 @@ const AudioModuleContainer = ({
     opacity: "75%",
   };
 
-  const generateAudioModulesFragment = (): JSX.Element => {
-    let audioModulesFragment: JSX.Element;
-
-    audioModulesFragment = (
-      <>
-        {modules.map((AudioNodeData, idx) => {
-          return generateModuleFromData(AudioNodeData, idx, containerIndex);
-        })}
-      </>
-    );
-
-    return audioModulesFragment;
-  };
-
   const generateModuleFromData = (
     data: Object,
     idx: number,
@@ -74,6 +60,7 @@ const AudioModuleContainer = ({
             data={data}
             position={[containerIdx, idx]}
             editAudioNodeData={editAudioNodeData}
+            deleteAudioModuleAndNode={deleteAudioModuleAndNode}
             key={idx}
           ></HighPassModule>
         );
@@ -93,6 +80,7 @@ const AudioModuleContainer = ({
             data={data}
             position={[containerIdx, idx]}
             editAudioNodeData={editAudioNodeData}
+            deleteAudioModuleAndNode={deleteAudioModuleAndNode}
             key={idx}
           ></ReverbModule>
         );
@@ -103,11 +91,24 @@ const AudioModuleContainer = ({
     return <></>;
   };
 
+  const generateAudioModulesFragment = (): JSX.Element => {
+    let audioModulesFragment: JSX.Element;
+
+    audioModulesFragment = (
+      <>
+        {modules.map((AudioNodeData, idx) => {
+          return generateModuleFromData(AudioNodeData, idx, containerIndex);
+        })}
+      </>
+    );
+
+    return audioModulesFragment;
+  };
+
   return (
     <>
       <div style={AudioModuleContainerStyle}>
         {generateAudioModulesFragment()}
-        {/* <BlankAudioModule></BlankAudioModule> */}
       </div>
     </>
   );

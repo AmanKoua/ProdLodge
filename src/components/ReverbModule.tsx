@@ -5,9 +5,15 @@ interface Props {
   data: Object;
   position: number[];
   editAudioNodeData: (data: Object, moduleIndex: number[]) => void;
+  deleteAudioModuleAndNode: (position: number[]) => void;
 }
 
-const ReverbModule = ({ data, position, editAudioNodeData }: Props) => {
+const ReverbModule = ({
+  data,
+  position,
+  editAudioNodeData,
+  deleteAudioModuleAndNode,
+}: Props) => {
   // console.log(data);
 
   const DeleteButtonStyle: CSS.Properties = {
@@ -51,12 +57,20 @@ const ReverbModule = ({ data, position, editAudioNodeData }: Props) => {
     // backgroundColor: "green",
   };
 
+  const handleDeleteIconClick = (event: any) => {
+    deleteAudioModuleAndNode(position);
+  };
+
   return (
     <div style={AudioModuleStyle}>
       <div style={CenterDivStyle}>
         <h1 style={SelectModuleTextStyle}>Reverb</h1>
         <br></br>
-        <img src={deleteButton} style={DeleteButtonStyle}></img>
+        <img
+          src={deleteButton}
+          style={DeleteButtonStyle}
+          onClick={handleDeleteIconClick}
+        ></img>
       </div>
     </div>
   );

@@ -5,9 +5,15 @@ interface Props {
   data: Object;
   position: number[];
   editAudioNodeData: (data: Object, moduleIndex: number[]) => void;
+  deleteAudioModuleAndNode: (position: number[]) => void;
 }
 
-const HighPassModule = ({ data, position, editAudioNodeData }: Props) => {
+const HighPassModule = ({
+  data,
+  position,
+  deleteAudioModuleAndNode,
+  editAudioNodeData,
+}: Props) => {
   // console.log(data);
 
   const DeleteButtonStyle: CSS.Properties = {
@@ -89,6 +95,10 @@ const HighPassModule = ({ data, position, editAudioNodeData }: Props) => {
     editAudioNodeData(data, position);
   };
 
+  const handleDeleteIconClick = (event: any) => {
+    deleteAudioModuleAndNode(position);
+  };
+
   return (
     <div style={AudioModuleStyle}>
       <div style={CenterDivStyle}>
@@ -116,7 +126,11 @@ const HighPassModule = ({ data, position, editAudioNodeData }: Props) => {
           onChange={handleResonanceSliderChange}
         ></input>
         <br></br>
-        <img src={deleteButton} style={DeleteButtonStyle}></img>
+        <img
+          src={deleteButton}
+          style={DeleteButtonStyle}
+          onClick={handleDeleteIconClick}
+        ></img>
       </div>
     </div>
   );
