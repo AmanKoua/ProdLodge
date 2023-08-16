@@ -1,13 +1,28 @@
 import CSS from "csstype";
+import deleteButton from "../assets/delete.png";
 
 interface Props {
   data: Object;
   position: number[];
   editAudioNodeData: (data: Object, moduleIndex: number[]) => void;
+  deleteAudioModuleAndNode: (position: number[]) => void;
 }
 
-const LowPassModule = ({ data, position, editAudioNodeData }: Props) => {
+const LowPassModule = ({
+  data,
+  position,
+  deleteAudioModuleAndNode,
+  editAudioNodeData,
+}: Props) => {
   // console.log(data);
+
+  const DeleteButtonStyle: CSS.Properties = {
+    marginLeft: "45%",
+    marginTop: "4%",
+    position: "absolute",
+    width: "10%",
+    height: "13%",
+  };
 
   const AudioModuleStyle: CSS.Properties = {
     position: "relative",
@@ -81,6 +96,10 @@ const LowPassModule = ({ data, position, editAudioNodeData }: Props) => {
     editAudioNodeData(data, position);
   };
 
+  const handleDeleteIconClick = (event: any) => {
+    deleteAudioModuleAndNode(position);
+  };
+
   return (
     <div style={AudioModuleStyle}>
       <div style={CenterDivStyle}>
@@ -107,6 +126,12 @@ const LowPassModule = ({ data, position, editAudioNodeData }: Props) => {
           value={data.resonance}
           onChange={handleResonanceSliderChange}
         ></input>
+        <br></br>
+        <img
+          src={deleteButton}
+          style={DeleteButtonStyle}
+          onClick={handleDeleteIconClick}
+        ></img>
       </div>
     </div>
   );

@@ -10,6 +10,7 @@ interface Props {
   containerIndex: number;
   modules: Object[]; // pass in data required to reconstruct module interfaces
   addModule: () => void;
+  deleteAudioModuleAndNode: (position: number[]) => void;
   setModuleType: (type: string, index: number[]) => void;
   editAudioNodeData: (data: Object, moduleIndex: number[]) => void;
 }
@@ -18,6 +19,7 @@ const AudioModuleContainer = ({
   containerIndex,
   modules,
   addModule,
+  deleteAudioModuleAndNode,
   setModuleType,
   editAudioNodeData,
 }: Props) => {
@@ -81,6 +83,7 @@ const AudioModuleContainer = ({
             data={data}
             position={[containerIdx, idx]}
             editAudioNodeData={editAudioNodeData}
+            deleteAudioModuleAndNode={deleteAudioModuleAndNode}
             key={idx}
           ></LowPassModule>
         );

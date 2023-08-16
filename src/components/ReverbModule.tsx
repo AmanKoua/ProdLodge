@@ -1,4 +1,5 @@
 import CSS from "csstype";
+import deleteButton from "../assets/delete.png";
 
 interface Props {
   data: Object;
@@ -8,6 +9,15 @@ interface Props {
 
 const ReverbModule = ({ data, position, editAudioNodeData }: Props) => {
   // console.log(data);
+
+  const DeleteButtonStyle: CSS.Properties = {
+    marginLeft: "39%",
+    marginTop: "0%",
+    position: "absolute",
+    width: "20%",
+    height: "20%",
+  };
+
   const AudioModuleStyle: CSS.Properties = {
     position: "relative",
     marginTop: "1%",
@@ -45,6 +55,8 @@ const ReverbModule = ({ data, position, editAudioNodeData }: Props) => {
     <div style={AudioModuleStyle}>
       <div style={CenterDivStyle}>
         <h1 style={SelectModuleTextStyle}>Reverb</h1>
+        <br></br>
+        <img src={deleteButton} style={DeleteButtonStyle}></img>
       </div>
     </div>
   );
