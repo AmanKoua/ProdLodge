@@ -96,21 +96,30 @@ export let useReconnectNodes = (
       let analyserNode = audioNodes[audioNodes.length - 1][0]; // analyserNode
       for (let i = 1; i < audioNodes.length - 1; i++) {
         for (let j = 0; j < audioNodes[i].length; j++) {
-          console.log(i, j);
+          // console.log(i, j);
 
-          if (i === audioNodes.length - 2 && j === audioNodes[i].length - 1) {
-            // if last node that is NOT AudioBufferSourceNode or analyser node
-            currentNode.connect(audioNodes[i][j]);
-            audioNodes[i][j].connect(aCtx!.destination);
-            audioNodes[i][j].connect(analyserNode);
-            break;
-          }
+          // if (i === audioNodes.length - 2 && j === audioNodes[i].length - 1) {
+          //   // if last node that is NOT AudioBufferSourceNode or analyser node
+          //   currentNode.connect(audioNodes[i][j]);
+          //   audioNodes[i][j].connect(aCtx!.destination);
+          //   audioNodes[i][j].connect(analyserNode);
+          //   break;
+          // }
 
+          // currentNode.connect(audioNodes[i][j]);
+          // currentNode = audioNodes[i][j];
+          // continue;
+
+          // ----------- Trying a different technique! -------------
+
+          currentNode.disconnect();
           currentNode.connect(audioNodes[i][j]);
           currentNode = audioNodes[i][j];
-          continue;
         }
       }
+      currentNode.disconnect();
+      currentNode.connect(aCtx!.destination);
+      currentNode.connect(analyserNode);
     }
 
     setAudioNodesChanged(false);

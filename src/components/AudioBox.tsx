@@ -304,7 +304,7 @@ const AudioBox = () => {
       case "Highpass":
         tempAudioNode = aCtx!.createBiquadFilter();
         tempAudioNode.type = "highpass";
-        tempAudioNode.frequency.value = 1000;
+        tempAudioNode.frequency.value = 300;
         insertNode(tempAudioNodes, tempAudioNode);
         setAudioNodes(tempAudioNodes);
         setTimeout(() => {
@@ -314,7 +314,7 @@ const AudioBox = () => {
       case "Lowpass":
         tempAudioNode = aCtx!.createBiquadFilter();
         tempAudioNode.type = "lowpass";
-        tempAudioNode.frequency.value = 100;
+        tempAudioNode.frequency.value = 300;
         insertNode(tempAudioNodes, tempAudioNode);
         setAudioNodes(tempAudioNodes);
         setTimeout(() => {
