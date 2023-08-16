@@ -221,7 +221,7 @@ const AudioBox = () => {
   };
 
   /*
-    Adds a modul to the audioModulesData. This variable
+    Adds a module to the audioModulesData. This variable
     is for storing information regarding the displayed
     cards. it is NOT for storing individual audio nodes
   */
@@ -241,22 +241,24 @@ const AudioBox = () => {
       return;
     }
 
-    if (tempAudioModulesData[tempAudioModulesData.length - 1].length < 3) {
+    lastIndex = tempAudioModulesData.length - 1;
+
+    if (tempAudioModulesData[lastIndex].length < 3) {
       // if last arr is holding less than 3 modules
-      tempAudioModulesData[tempAudioModulesData.length - 1].push({
+      tempAudioModulesData[lastIndex].push({
         type: "New",
       });
     } else {
       tempAudioModulesData.push([{ type: "New" }]);
     }
 
-    setAudioModulesData(tempAudioModulesData);
-
     // console.log(tempAudioModulesData);
+
+    setAudioModulesData(tempAudioModulesData);
   };
 
   const addAudioNode = (data: Object) => {
-    // add the audioNode to process audioData
+    // add the audioNode to process audio data (2nd subarray only allows 2 audioNodes to synchronize with audioModules)
 
     if (audioNodes === undefined) {
       console.log("cannot add node to undefined audio nodes");
@@ -270,27 +272,50 @@ const AudioBox = () => {
       // splice into appropriate position
       for (let i = 1; i < tempAudioNodes!.length - 1; i++) {
         if (i === tempAudioNodes!.length - 2) {
-          // if on last on and still not inserted
+          // if on last sub-array and still not inserted
 
-          if (tempAudioNodes![tempAudioNodes!.length - 2].length < 3) {
-            tempAudioNodes![tempAudioNodes!.length - 2].push(tempAudioNode);
-            break;
+          if (i === 1) {
+            // If on 1st array that is not reserved for audioBufferSourceNode
+            if (tempAudioNodes![tempAudioNodes!.length - 2].length < 2) {
+              tempAudioNodes![tempAudioNodes!.length - 2].push(tempAudioNode);
+              break;
+            } else {
+              tempAudioNodes!.splice(tempAudioNodes!.length - 1, 0, []);
+              tempAudioNodes![tempAudioNodes!.length - 2].push(tempAudioNode);
+              break;
+            }
           } else {
-            tempAudioNodes!.splice(tempAudioNodes!.length - 1, 0, []);
-            tempAudioNodes![tempAudioNodes!.length - 2].push(tempAudioNode);
-            break;
+            if (tempAudioNodes![tempAudioNodes!.length - 2].length < 3) {
+              tempAudioNodes![tempAudioNodes!.length - 2].push(tempAudioNode);
+              break;
+            } else {
+              tempAudioNodes!.splice(tempAudioNodes!.length - 1, 0, []);
+              tempAudioNodes![tempAudioNodes!.length - 2].push(tempAudioNode);
+              break;
+            }
           }
         }
 
-        if (tempAudioNodes![i].length < 3) {
-          // insert an audioNodeHere
-          tempAudioNodes![i].push(tempAudioNode!);
-          break;
+        if (i === 1) {
+          // If on 1st array that is not reserved for audioBufferSourceNode
+          if (tempAudioNodes![i].length < 2) {
+            // insert an audioNodeHere
+            tempAudioNodes![i].push(tempAudioNode!);
+            break;
+          } else {
+            continue;
+          }
         } else {
-          continue;
+          if (tempAudioNodes![i].length < 3) {
+            // insert an audioNodeHere
+            tempAudioNodes![i].push(tempAudioNode!);
+            break;
+          } else {
+            continue;
+          }
         }
       }
-      console.log(tempAudioNodes);
+      // console.log(tempAudioNodes);
       return tempAudioNodes;
     };
 
@@ -304,7 +329,9 @@ const AudioBox = () => {
 
     let tempAudioNode: AudioNode;
 
-    switch (data.type) {
+    switch (
+      data.type // crete audioNode based on module Object type and information
+    ) {
       case "Highpass":
         tempAudioNode = aCtx!.createBiquadFilter();
         tempAudioNode.type = "highpass";
