@@ -9,7 +9,7 @@ interface Props {
 const LowPassModule = ({ data, position, editAudioNodeData }: Props) => {
   // console.log(data);
 
-  const NewAudioModuleStyle: CSS.Properties = {
+  const AudioModuleStyle: CSS.Properties = {
     position: "relative",
     marginTop: "1%",
     marginLeft: "2.5%",
@@ -63,16 +63,9 @@ const LowPassModule = ({ data, position, editAudioNodeData }: Props) => {
   const AttributeTextStyle: CSS.Properties = {
     fontSize: "10px",
     width: "60%",
-    marginLeft: "35%",
+    marginLeft: "20%",
     textAlign: "center",
     // backgroundColor: "green",
-  };
-
-  const handleDivClick = () => {
-    // temp function to test audioNode modification
-    // let tempData = data;
-    // tempData.frequency = data.frequency + 1000;
-    // editAudioNodeData(data, position);
   };
 
   const handleSliderChange = (event: any) => {
@@ -83,16 +76,16 @@ const LowPassModule = ({ data, position, editAudioNodeData }: Props) => {
   };
 
   return (
-    <div style={NewAudioModuleStyle} onClick={handleDivClick}>
+    <div style={AudioModuleStyle}>
       <div style={CenterDivStyle}>
         <h1 style={ModuleNameTextStyle}>LowPass</h1>
         <div style={CenterAttributeTextDivStyle}>
-          <text style={AttributeTextStyle}>Frequency</text>
+          <p style={AttributeTextStyle}>Frequency</p>
         </div>
         <input
           type={"range"}
-          min={5}
-          max={24000}
+          min={20}
+          max={21000}
           style={FreqSliderStyle}
           onChange={handleSliderChange}
         ></input>
