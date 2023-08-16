@@ -16,7 +16,7 @@ import {
   useDraw,
 } from "../webAudioHooks";
 
-import tempSong from "../assets/telepathy.mp3";
+import tempSong from "../assets/songs/myRemix.mp3";
 
 console.log("AudioBox Rerender!");
 
@@ -27,6 +27,8 @@ let setACtx: (val: any) => void;
 // song buffer & song info
 let songBuffer: AudioBuffer | undefined;
 let setSongBuffer: (val: any) => void;
+let impulseBuffer: AudioBuffer | undefined;
+let setImpulseBuffer: (val: any) => void;
 let songDuration: number;
 let setSongDuration: (val: any) => void;
 
@@ -100,6 +102,7 @@ const AudioBox = () => {
 
   [aCtx, setACtx] = useState(undefined); // aCtx and setACtx type are the way they are beause an audioCtx cannot be initialized on render.
   [songBuffer, setSongBuffer] = useState(undefined);
+  [impulseBuffer, setImpulseBuffer] = useState(undefined);
   [songDuration, setSongDuration] = useState(0);
   [audioNodes, setAudioNodes] = useState(undefined);
   [audioNodesChanged, setAudioNodesChanged] = useState(false);
@@ -118,6 +121,7 @@ const AudioBox = () => {
   useFetchSongAndInitNodes(
     aCtx,
     tempSong,
+    setImpulseBuffer,
     setSongBuffer,
     setSongDuration,
     setAudioNodes,
@@ -321,6 +325,14 @@ const AudioBox = () => {
           setAudioNodesChanged(true);
         }, 10);
         break;
+      case "Reverb":
+        tempAudioNode = aCtx!.createConvolver();
+        tempAudioNode.buffer = impulseBuffer;
+        insertNode(tempAudioNodes, tempAudioNode);
+        setAudioNodes(tempAudioNodes);
+        setTimeout(() => {
+          setAudioNodesChanged(true);
+        }, 10);
     }
   };
 

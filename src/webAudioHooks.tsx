@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import impulseResponse from "./assets/impulseResponses/impulse.wav";
 
 export let useInitAudioCtx = (
   hasUserGestured: boolean,
@@ -18,6 +19,7 @@ export let useInitAudioCtx = (
 export let useFetchSongAndInitNodes = (
   aCtx: AudioContext | undefined,
   tempSong: string,
+  setImpulseBuffer: (val: any) => void,
   setSongBuffer: (val: any) => void,
   setSongDuration: (val: any) => void,
   setAudioNodes: (val: any) => void,
@@ -33,6 +35,14 @@ export let useFetchSongAndInitNodes = (
 
     let song;
     let tempSongBuffer;
+
+    let fetchImpulseResponses = async () => {
+      let response = await fetch(impulseResponse);
+      let arrayBuffer = await response.arrayBuffer();
+      await aCtx.decodeAudioData(arrayBuffer, (decodedBuffer) => {
+        setImpulseBuffer(decodedBuffer);
+      });
+    };
 
     let fetchSong = async () => {
       // Fetch song store songBuffer and songDuration as state
@@ -66,6 +76,7 @@ export let useFetchSongAndInitNodes = (
     };
 
     fetchSong();
+    fetchImpulseResponses();
   }, [aCtx]);
 };
 
