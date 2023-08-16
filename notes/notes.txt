@@ -1,4 +1,13 @@
 - For the audioNodes, allow the first subArray (that is not the audioSourceNodeBuffer)
   to only contain 2 items. all other "rows" can contain up to 3 item. This will allow
   it to align with the audioModules array (representative of the cards displayed by 
-  the audioModules)
+  the audioModules).
+
+- To delete an audioModule / audioNode. First, the delete button is clicked. delete
+  the audioModule form the audioModules array. Delete the audioNode from the audioNodes
+  array. If after deletion, the subarray is empty, delete the subarrray. Else, ensure that 
+  there are no gaps in the subarray. This logic has to be implemented differently for each
+  module.
+
+- To enable / disable an audiOnde, simply connect to the audioNode that is next (use
+  continue in the connectAudioNodes effect essentially).

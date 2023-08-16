@@ -16,7 +16,7 @@ import {
   useDraw,
 } from "../webAudioHooks";
 
-import tempSong from "../assets/songs/myRemix.mp3";
+import tempSong from "../assets/songs/yves.mp3";
 
 console.log("AudioBox Rerender!");
 
@@ -252,7 +252,7 @@ const AudioBox = () => {
       tempAudioModulesData.push([{ type: "New" }]);
     }
 
-    // console.log(tempAudioModulesData);
+    console.log(tempAudioModulesData);
 
     setAudioModulesData(tempAudioModulesData);
   };
@@ -361,6 +361,8 @@ const AudioBox = () => {
           setAudioNodesChanged(true);
         }, 10);
     }
+
+    console.log(audioNodes);
   };
 
   const editAudioNodeData = (data: Object, moduleIndex: number[]) => {
