@@ -96,8 +96,9 @@ const AudioBox = () => {
   [isExpanded, setIsExpanded] = useState(false);
   [isVisualizing, setIsVisualizing] = useState(false);
   [isPlaying, setIsPlaying] = useState(false); // need to make these global!
-  [audioModulesData, setAudioModulesData] = useState(tempModuleData); // Initial module will be the blank module
   [hasUserGestured, setHasUserGestured] = useState(false); // Keep track of first gesture required to initialize audioCtx
+
+  [audioModulesData, setAudioModulesData] = useState(tempModuleData); // Initial module will be the blank module
   [areAudioNodesReady, setAreAudioNodesReady] = useState(false);
 
   [aCtx, setACtx] = useState(undefined); // aCtx and setACtx type are the way they are beause an audioCtx cannot be initialized on render.
@@ -187,7 +188,6 @@ const AudioBox = () => {
     overflow: "hidden",
   };
 
-  //   AudioBoxStyle.height = isExpanded ? "465px" : "40px";
   AudioBoxStyle.height = isExpanded
     ? `${audioModulesData.length * 255}px`
     : "40px";
@@ -345,7 +345,7 @@ const AudioBox = () => {
       case "Lowpass":
         tempAudioNode = aCtx!.createBiquadFilter();
         tempAudioNode.type = "lowpass";
-        tempAudioNode.frequency.value = 300;
+        tempAudioNode.frequency.value = 1000;
         insertNode(tempAudioNodes, tempAudioNode);
         setAudioNodes(tempAudioNodes);
         setTimeout(() => {
@@ -363,6 +363,27 @@ const AudioBox = () => {
     }
   };
 
+  const editAudioNodeData = (data: Object, moduleIndex: number[]) => {
+    let tempAudioNodes = audioNodes;
+
+    let row = moduleIndex[0] + 1;
+    let column = moduleIndex[1];
+
+    if (row === 1) {
+      column -= 1;
+    }
+
+    // console.log(tempAudioNodes![moduleIndex[0] + 1][moduleIndex[1]]);
+    // console.log(tempAudioNodes, row, column);
+
+    tempAudioNodes![row][column].frequency.value = data.frequency;
+
+    setAudioNodes(tempAudioNodes);
+
+    // data object contains configuration information for a given audioNode
+    // moduleIndex [row, column] contains the index of the audioModule whose data is being changed.
+  };
+
   /*
     New node will be able to select it's type and it will 
     switch to that type of module (and create the corresponding
@@ -371,6 +392,12 @@ const AudioBox = () => {
   const setModuleType = (type: string, moduleIndex: number[]): void => {
     let tempAudioModulesData: Object[][] = audioModulesData;
     tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].type = type;
+
+    if (type === "Highpass") {
+      tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].frequency = 300;
+    } else if (type === "Lowpass") {
+      tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].frequency = 1000;
+    }
 
     addAudioNode(tempAudioModulesData[moduleIndex[0]][moduleIndex[1]]);
     setAudioModulesData(tempAudioModulesData);
@@ -394,6 +421,7 @@ const AudioBox = () => {
               key={idx}
               addModule={addModule}
               setModuleType={setModuleType}
+              editAudioNodeData={editAudioNodeData}
             ></AudioModuleContainer>
           );
         })}

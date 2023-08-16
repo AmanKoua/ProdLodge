@@ -1,11 +1,11 @@
 import CSS from "csstype";
 
 interface Props {
-  moduleIndex: number[]; // moduleContainerIndex, moduleIndex
+  position: number[]; // moduleContainerIndex, moduleIndex
   setModuleType: (type: string, index: number[]) => void;
 }
 
-const NewAudioModule = ({ moduleIndex, setModuleType }: Props) => {
+const NewAudioModule = ({ position, setModuleType }: Props) => {
   const NewAudioModuleStyle: CSS.Properties = {
     position: "relative",
     marginTop: "1%",
@@ -46,8 +46,8 @@ const NewAudioModule = ({ moduleIndex, setModuleType }: Props) => {
   };
 
   const handleSelectionChange = (event: any) => {
-    // console.log(event.target.value, moduleIndex); // works
-    setModuleType(event.target.value, moduleIndex);
+    // console.log(event.target.value, position); // works
+    setModuleType(event.target.value, position);
   };
 
   return (

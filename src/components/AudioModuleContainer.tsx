@@ -11,6 +11,7 @@ interface Props {
   modules: Object[]; // pass in data required to reconstruct module interfaces
   addModule: () => void;
   setModuleType: (type: string, index: number[]) => void;
+  editAudioNodeData: (data: Object, moduleIndex: number[]) => void;
 }
 
 const AudioModuleContainer = ({
@@ -18,6 +19,7 @@ const AudioModuleContainer = ({
   modules,
   addModule,
   setModuleType,
+  editAudioNodeData,
 }: Props) => {
   //   console.log(modules);
 
@@ -46,7 +48,7 @@ const AudioModuleContainer = ({
   };
 
   const generateModuleFromData = (
-    data: any,
+    data: Object,
     idx: number,
     containerIdx: number
   ): JSX.Element => {
@@ -59,17 +61,38 @@ const AudioModuleContainer = ({
       case "New":
         return (
           <NewAudioModule
-            moduleIndex={[containerIdx, idx]}
+            position={[containerIdx, idx]}
             setModuleType={setModuleType}
             key={idx}
           ></NewAudioModule>
         );
       case "Highpass":
-        return <HighPassModule key={idx}></HighPassModule>;
+        return (
+          <HighPassModule
+            data={data}
+            position={[containerIdx, idx]}
+            editAudioNodeData={editAudioNodeData}
+            key={idx}
+          ></HighPassModule>
+        );
       case "Lowpass":
-        return <LowPassModule key={idx}></LowPassModule>;
+        return (
+          <LowPassModule
+            data={data}
+            position={[containerIdx, idx]}
+            editAudioNodeData={editAudioNodeData}
+            key={idx}
+          ></LowPassModule>
+        );
       case "Reverb":
-        return <ReverbModule key={idx}></ReverbModule>;
+        return (
+          <ReverbModule
+            data={data}
+            position={[containerIdx, idx]}
+            editAudioNodeData={editAudioNodeData}
+            key={idx}
+          ></ReverbModule>
+        );
       default:
         console.log("Unsupported module added!");
     }

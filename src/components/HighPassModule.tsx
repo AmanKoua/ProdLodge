@@ -1,6 +1,14 @@
 import CSS from "csstype";
 
-const HighPassModule = () => {
+interface Props {
+  data: Object;
+  position: number[];
+  editAudioNodeData: (data: Object, moduleIndex: number[]) => void;
+}
+
+const HighPassModule = ({ data, position, editAudioNodeData }: Props) => {
+  // console.log(data);
+
   const NewAudioModuleStyle: CSS.Properties = {
     position: "relative",
     marginTop: "1%",

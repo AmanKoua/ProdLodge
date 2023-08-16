@@ -1,6 +1,13 @@
 import CSS from "csstype";
 
-const ReverbModule = () => {
+interface Props {
+  data: Object;
+  position: number[];
+  editAudioNodeData: (data: Object, moduleIndex: number[]) => void;
+}
+
+const ReverbModule = ({ data, position, editAudioNodeData }: Props) => {
+  // console.log(data);
   const NewAudioModuleStyle: CSS.Properties = {
     position: "relative",
     marginTop: "1%",
