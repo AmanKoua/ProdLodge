@@ -16,7 +16,7 @@ import {
   useDraw,
 } from "../webAudioHooks";
 
-import tempSong from "../assets/kazukii.mp3";
+import tempSong from "../assets/telepathy.mp3";
 
 console.log("AudioBox Rerender!");
 
@@ -224,6 +224,19 @@ const AudioBox = () => {
   const addModule = (): void => {
     let tempAudioModulesData: Object[][] = audioModulesData;
 
+    // If last module is already a new module, dont allow for further module addition (until module type is created)
+
+    let lastIndex = tempAudioModulesData.length - 1;
+
+    if (
+      // if last module is new module (unspecified), dont add another one
+      tempAudioModulesData[lastIndex][
+        tempAudioModulesData[lastIndex].length - 1
+      ].type === "New"
+    ) {
+      return;
+    }
+
     if (tempAudioModulesData[tempAudioModulesData.length - 1].length < 3) {
       // if last arr is holding less than 3 modules
       tempAudioModulesData[tempAudioModulesData.length - 1].push({
@@ -238,13 +251,92 @@ const AudioBox = () => {
     // console.log(tempAudioModulesData);
   };
 
+  const addAudioNode = (data: Object) => {
+    // add the audioNode to process audioData
+
+    if (audioNodes === undefined) {
+      console.log("cannot add node to undefined audio nodes");
+      return;
+    }
+
+    const insertNode = (
+      tempAudioNodes: AudioNode[][] | undefined,
+      tempAudioNode: AudioNode
+    ) => {
+      // splice into appropriate position
+      for (let i = 1; i < tempAudioNodes!.length - 1; i++) {
+        if (i === tempAudioNodes!.length - 2) {
+          // if on last on and still not inserted
+
+          if (tempAudioNodes![tempAudioNodes!.length - 2].length < 3) {
+            tempAudioNodes![tempAudioNodes!.length - 2].push(tempAudioNode);
+            break;
+          } else {
+            tempAudioNodes!.splice(tempAudioNodes!.length - 1, 0, []);
+            tempAudioNodes![tempAudioNodes!.length - 2].push(tempAudioNode);
+            break;
+          }
+        }
+
+        if (tempAudioNodes![i].length < 3) {
+          // insert an audioNodeHere
+          tempAudioNodes![i].push(tempAudioNode!);
+          break;
+        } else {
+          continue;
+        }
+      }
+      console.log(tempAudioNodes);
+      return tempAudioNodes;
+    };
+
+    let tempAudioNodes = audioNodes;
+
+    if (audioNodes!.length === 2) {
+      // if only audioBufferSource and analyser, create empty array for extra nodes
+      tempAudioNodes?.splice(1, 0, []);
+      // console.log(tempAudioNodes);
+    }
+
+    let tempAudioNode: AudioNode;
+
+    switch (data.type) {
+      case "Highpass":
+        tempAudioNode = aCtx!.createBiquadFilter();
+        tempAudioNode.type = "highpass";
+        tempAudioNode.frequency.value = 1000;
+        insertNode(tempAudioNodes, tempAudioNode);
+        setAudioNodes(tempAudioNodes);
+        setTimeout(() => {
+          setAudioNodesChanged(true);
+        }, 10);
+        break;
+      case "Lowpass":
+        tempAudioNode = aCtx!.createBiquadFilter();
+        tempAudioNode.type = "lowpass";
+        tempAudioNode.frequency.value = 100;
+        insertNode(tempAudioNodes, tempAudioNode);
+        setAudioNodes(tempAudioNodes);
+        setTimeout(() => {
+          setAudioNodesChanged(true);
+        }, 10);
+        break;
+    }
+  };
+
   /*
     New node will be able to select it's type and it will 
     switch to that type of module (and create the corresponding
     audio node)
   */
-  const setModuleType = (type: string, index: number[]): void => {
-    // yet to be implemented
+  const setModuleType = (type: string, moduleIndex: number[]): void => {
+    let tempAudioModulesData: Object[][] = audioModulesData;
+    tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].type = type;
+
+    addAudioNode(tempAudioModulesData[moduleIndex[0]][moduleIndex[1]]);
+    setAudioModulesData(tempAudioModulesData);
+
+    // console.log(audioModulesData, audioNodes);
   };
 
   /*
