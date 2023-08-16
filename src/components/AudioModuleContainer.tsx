@@ -1,6 +1,9 @@
 import React from "react";
 import BlankAudioModule from "./BlankAudioModule";
 import NewAudioModule from "./NewAudioModule";
+import HighPassModule from "./HighPassModule";
+import LowPassModule from "./LowPassModule";
+import ReverbModule from "./ReverbModule";
 import CSS from "csstype";
 
 interface Props {
@@ -61,6 +64,14 @@ const AudioModuleContainer = ({
             key={idx}
           ></NewAudioModule>
         );
+      case "Highpass":
+        return <HighPassModule key={idx}></HighPassModule>;
+      case "Lowpass":
+        return <LowPassModule key={idx}></LowPassModule>;
+      case "Reverb":
+        return <ReverbModule key={idx}></ReverbModule>;
+      default:
+        console.log("Unsupported module added!");
     }
 
     return <></>;

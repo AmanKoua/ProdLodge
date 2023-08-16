@@ -1,4 +1,3 @@
-import React from "react";
 import CSS from "csstype";
 
 interface Props {
@@ -48,6 +47,7 @@ const NewAudioModule = ({ moduleIndex, setModuleType }: Props) => {
 
   const handleSelectionChange = (event: any) => {
     // console.log(event.target.value, moduleIndex); // works
+    setModuleType(event.target.value, moduleIndex);
   };
 
   return (

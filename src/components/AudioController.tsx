@@ -7,10 +7,6 @@ import { useState } from "react";
 
 let audioControllerElement: HTMLDivElement;
 let audioControllerRef: any;
-let eventListenerAttached: boolean = false;
-let audioControllerElementWidth: number;
-
-let audioControlImageElement: HTMLImageElement;
 let audioControlImageRef: any;
 
 interface Props {

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import impulseResponse from "./assets/impulseResponses/impulse.wav";
 
 export let useInitAudioCtx = (
   hasUserGestured: boolean,
@@ -18,6 +19,7 @@ export let useInitAudioCtx = (
 export let useFetchSongAndInitNodes = (
   aCtx: AudioContext | undefined,
   tempSong: string,
+  setImpulseBuffer: (val: any) => void,
   setSongBuffer: (val: any) => void,
   setSongDuration: (val: any) => void,
   setAudioNodes: (val: any) => void,
@@ -33,6 +35,14 @@ export let useFetchSongAndInitNodes = (
 
     let song;
     let tempSongBuffer;
+
+    let fetchImpulseResponses = async () => {
+      let response = await fetch(impulseResponse);
+      let arrayBuffer = await response.arrayBuffer();
+      await aCtx.decodeAudioData(arrayBuffer, (decodedBuffer) => {
+        setImpulseBuffer(decodedBuffer);
+      });
+    };
 
     let fetchSong = async () => {
       // Fetch song store songBuffer and songDuration as state
@@ -66,6 +76,7 @@ export let useFetchSongAndInitNodes = (
     };
 
     fetchSong();
+    fetchImpulseResponses();
   }, [aCtx]);
 };
 
@@ -85,15 +96,41 @@ export let useReconnectNodes = (
       return;
     }
 
-    console.log("connecting nodes!");
+    console.log("connecting nodes! -------------------", audioNodes);
 
     if (audioNodes.length == 2) {
       audioNodes[0][0].connect(aCtx!.destination); // connect to destination
       audioNodes[0][0].connect(audioNodes[1][0]); // connect to analyser
     } else {
-      // TODO : Implement here!
       // loop through audioNodes and connect them one by one
-      // last one connects to dest any analyser.
+      let currentNode = audioNodes[0][0]; // start with audioSourceBufferNode;
+      let analyserNode = audioNodes[audioNodes.length - 1][0]; // analyserNode
+      for (let i = 1; i < audioNodes.length - 1; i++) {
+        for (let j = 0; j < audioNodes[i].length; j++) {
+          // console.log(i, j);
+
+          // if (i === audioNodes.length - 2 && j === audioNodes[i].length - 1) {
+          //   // if last node that is NOT AudioBufferSourceNode or analyser node
+          //   currentNode.connect(audioNodes[i][j]);
+          //   audioNodes[i][j].connect(aCtx!.destination);
+          //   audioNodes[i][j].connect(analyserNode);
+          //   break;
+          // }
+
+          // currentNode.connect(audioNodes[i][j]);
+          // currentNode = audioNodes[i][j];
+          // continue;
+
+          // ----------- Trying a different technique! -------------
+
+          currentNode.disconnect();
+          currentNode.connect(audioNodes[i][j]);
+          currentNode = audioNodes[i][j];
+        }
+      }
+      currentNode.disconnect();
+      currentNode.connect(aCtx!.destination);
+      currentNode.connect(analyserNode);
     }
 
     setAudioNodesChanged(false);
@@ -106,11 +143,11 @@ export let useReconnectNodes = (
     //   if (audioNodes === undefined) {
     //     return;
     //   }
-    //   if (!audioNodesChanged) {
+    //   if (audioNodesChanged) {
     //     return;
     //   }
 
-    //   for (let i = 0; i < audioNodes.length; i++) {
+    //   for (let i = 0; i < audioNodes.length - 1; i++) {
     //     for (let j = 0; j < audioNodes[i].length; j++) {
     //       audioNodes[i][j].disconnect();
     //     }
