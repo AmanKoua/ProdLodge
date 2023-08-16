@@ -96,7 +96,7 @@ export let useReconnectNodes = (
       return;
     }
 
-    console.log("connecting nodes! -------------------", audioNodes);
+    // console.log("connecting nodes! -------------------", audioNodes);
 
     if (audioNodes.length == 2) {
       audioNodes[0][0].connect(aCtx!.destination); // connect to destination
