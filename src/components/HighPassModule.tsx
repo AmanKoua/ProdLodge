@@ -1,12 +1,23 @@
 import CSS from "csstype";
+import deleteButton from "../assets/delete.png";
+import moveLeftButton from "../assets/moveLeft.png";
+import moveRightButton from "../assets/moveRight.png";
 
 interface Props {
   data: Object;
   position: number[];
   editAudioNodeData: (data: Object, moduleIndex: number[]) => void;
+  deleteAudioModuleAndNode: (position: number[]) => void;
+  moveAudioModuleAndNode: (position: number[], isLeft: boolean) => void;
 }
 
-const HighPassModule = ({ data, position, editAudioNodeData }: Props) => {
+const HighPassModule = ({
+  data,
+  position,
+  deleteAudioModuleAndNode,
+  editAudioNodeData,
+  moveAudioModuleAndNode,
+}: Props) => {
   // console.log(data);
 
   const AudioModuleStyle: CSS.Properties = {
@@ -47,7 +58,7 @@ const HighPassModule = ({ data, position, editAudioNodeData }: Props) => {
     marginTop: "0%",
     alignContent: "center",
     width: "70%",
-    height: "15%",
+    height: "8%",
     opacity: "80%",
     zIndex: "50",
     // backgroundColor: "blue",
@@ -61,10 +72,34 @@ const HighPassModule = ({ data, position, editAudioNodeData }: Props) => {
     // backgroundColor: "green",
   };
 
-  const FreqSliderStyle: CSS.Properties = {
+  const SliderStyle: CSS.Properties = {
     width: "80%",
     marginLeft: "10%",
     marginTop: "0%",
+  };
+
+  const DeleteButtonStyle: CSS.Properties = {
+    marginLeft: "45%",
+    marginTop: "4%",
+    position: "absolute",
+    width: "10%",
+    height: "13%",
+  };
+
+  const MoveLeftButtonStyle: CSS.Properties = {
+    marginLeft: "0%",
+    marginTop: "0%",
+    position: "absolute",
+    width: "10%",
+    height: "10%",
+  };
+
+  const MoveRightButtonStyle: CSS.Properties = {
+    marginLeft: "92%",
+    marginTop: "0%",
+    position: "absolute",
+    width: "10%",
+    height: "10%",
   };
 
   const handleSliderChange = (event: any) => {
@@ -74,20 +109,66 @@ const HighPassModule = ({ data, position, editAudioNodeData }: Props) => {
     editAudioNodeData(data, position);
   };
 
+  const handleResonanceSliderChange = (event: any) => {
+    let tempData = data;
+    tempData.resonance = event.target.value;
+    editAudioNodeData(data, position);
+  };
+
+  const handleDeleteIconClick = (event: any) => {
+    deleteAudioModuleAndNode(position);
+  };
+
+  const handleLeftButtonClick = () => {
+    moveAudioModuleAndNode(position, true);
+  };
+
+  const handleRightButtonClick = () => {
+    moveAudioModuleAndNode(position, false);
+  };
+
   return (
     <div style={AudioModuleStyle}>
       <div style={CenterDivStyle}>
+        <img
+          src={moveLeftButton}
+          style={MoveLeftButtonStyle}
+          onClick={handleLeftButtonClick}
+        ></img>
+        <img
+          src={moveRightButton}
+          style={MoveRightButtonStyle}
+          onClick={handleRightButtonClick}
+        ></img>
         <h1 style={ModuleNameTextStyle}>HighPass</h1>
         <div style={CenterAttributeTextDivStyle}>
-          <p style={AttributeTextStyle}>Frequency</p>
+          <p style={AttributeTextStyle}>Frequency : {data.frequency}</p>
         </div>
         <input
           type={"range"}
+          value={data.frequency}
           min={20}
           max={21000}
-          style={FreqSliderStyle}
+          style={SliderStyle}
           onChange={handleSliderChange}
         ></input>
+        <div style={CenterAttributeTextDivStyle}>
+          <p style={AttributeTextStyle}>Resonance : {data.resonance}</p>
+        </div>
+        <input
+          type={"range"}
+          min={-25}
+          max={25}
+          style={SliderStyle}
+          value={data.resonance}
+          onChange={handleResonanceSliderChange}
+        ></input>
+        <br></br>
+        <img
+          src={deleteButton}
+          style={DeleteButtonStyle}
+          onClick={handleDeleteIconClick}
+        ></img>
       </div>
     </div>
   );

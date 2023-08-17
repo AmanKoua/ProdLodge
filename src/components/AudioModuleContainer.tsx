@@ -10,16 +10,20 @@ interface Props {
   containerIndex: number;
   modules: Object[]; // pass in data required to reconstruct module interfaces
   addModule: () => void;
+  deleteAudioModuleAndNode: (position: number[]) => void;
   setModuleType: (type: string, index: number[]) => void;
   editAudioNodeData: (data: Object, moduleIndex: number[]) => void;
+  moveAudioModuleAndNode: (position: number[], isLeft: boolean) => void;
 }
 
 const AudioModuleContainer = ({
   containerIndex,
   modules,
   addModule,
+  deleteAudioModuleAndNode,
   setModuleType,
   editAudioNodeData,
+  moveAudioModuleAndNode,
 }: Props) => {
   //   console.log(modules);
 
@@ -31,20 +35,6 @@ const AudioModuleContainer = ({
     height: "200px",
     // backgroundColor: "#3d8bf2",
     opacity: "75%",
-  };
-
-  const generateAudioModulesFragment = (): JSX.Element => {
-    let audioModulesFragment: JSX.Element;
-
-    audioModulesFragment = (
-      <>
-        {modules.map((AudioNodeData, idx) => {
-          return generateModuleFromData(AudioNodeData, idx, containerIndex);
-        })}
-      </>
-    );
-
-    return audioModulesFragment;
   };
 
   const generateModuleFromData = (
@@ -72,6 +62,8 @@ const AudioModuleContainer = ({
             data={data}
             position={[containerIdx, idx]}
             editAudioNodeData={editAudioNodeData}
+            deleteAudioModuleAndNode={deleteAudioModuleAndNode}
+            moveAudioModuleAndNode={moveAudioModuleAndNode}
             key={idx}
           ></HighPassModule>
         );
@@ -81,6 +73,8 @@ const AudioModuleContainer = ({
             data={data}
             position={[containerIdx, idx]}
             editAudioNodeData={editAudioNodeData}
+            deleteAudioModuleAndNode={deleteAudioModuleAndNode}
+            moveAudioModuleAndNode={moveAudioModuleAndNode}
             key={idx}
           ></LowPassModule>
         );
@@ -90,6 +84,8 @@ const AudioModuleContainer = ({
             data={data}
             position={[containerIdx, idx]}
             editAudioNodeData={editAudioNodeData}
+            deleteAudioModuleAndNode={deleteAudioModuleAndNode}
+            moveAudioModuleAndNode={moveAudioModuleAndNode}
             key={idx}
           ></ReverbModule>
         );
@@ -100,11 +96,24 @@ const AudioModuleContainer = ({
     return <></>;
   };
 
+  const generateAudioModulesFragment = (): JSX.Element => {
+    let audioModulesFragment: JSX.Element;
+
+    audioModulesFragment = (
+      <>
+        {modules.map((AudioNodeData, idx) => {
+          return generateModuleFromData(AudioNodeData, idx, containerIndex);
+        })}
+      </>
+    );
+
+    return audioModulesFragment;
+  };
+
   return (
     <>
       <div style={AudioModuleContainerStyle}>
         {generateAudioModulesFragment()}
-        {/* <BlankAudioModule></BlankAudioModule> */}
       </div>
     </>
   );
