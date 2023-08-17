@@ -34,14 +34,14 @@ const ReverbModule = ({
 
   const CenterDivStyle: CSS.Properties = {
     position: "absolute",
-    marginLeft: "24%",
-    marginTop: "15%",
+    marginLeft: "5%",
+    marginTop: "5%",
     alignContent: "center",
-    width: "50%",
-    height: "70%",
-    // backgroundColor: "blue",
+    width: "90%",
+    height: "90%",
     opacity: "80%",
     zIndex: "50",
+    // backgroundColor: "blue",
   };
 
   const SelectModuleTextStyle: CSS.Properties = {
@@ -54,11 +54,11 @@ const ReverbModule = ({
   };
 
   const DeleteButtonStyle: CSS.Properties = {
-    marginLeft: "39%",
-    marginTop: "0%",
+    marginLeft: "44%",
+    marginTop: "28%",
     position: "absolute",
-    width: "20%",
-    height: "20%",
+    width: "10%",
+    height: "13%",
   };
 
   const MoveLeftButtonStyle: CSS.Properties = {
