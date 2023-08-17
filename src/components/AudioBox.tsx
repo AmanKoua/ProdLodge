@@ -17,7 +17,7 @@ import {
   useDraw,
 } from "../webAudioHooks";
 
-import tempSong from "../assets/songs/telepathy.mp3";
+import tempSong from "../assets/songs/ewing.mp3";
 
 console.log("AudioBox Rerender!");
 
@@ -436,6 +436,69 @@ const AudioBox = () => {
     }, 10);
   };
 
+  const moveAudioModuleAndNode = (position: number[], isLeft: boolean) => {
+    if (position[0] === 0 && position[1] === 1 && isLeft === true) {
+      console.log("Not moving left!");
+      return; // do not move into blank audioModule space
+    }
+
+    if (
+      position[0] === audioModules.length - 1 &&
+      position[1] === audioModules[position[0]].length - 1 &&
+      isLeft === false
+    ) {
+      // dont move last module right!
+      console.log("Not moving right!");
+      return;
+    } else if (
+      audioModules[position[0]].length - 1 > position[1] &&
+      audioModules[position[0]][position[1] + 1].type === "New" &&
+      isLeft === false
+    ) {
+      console.log("Not moving past new module!");
+      return;
+    } else if (
+      audioModules.length - 1 > position[0] &&
+      audioModules[position[0] + 1][0].type === "New" &&
+      position[1] === 2 &&
+      isLeft === false
+    ) {
+      console.log("Not moving past new module on new line!");
+      return;
+    }
+
+    if (isLeft) {
+      if (position[1] === 0) {
+        let temp = audioModules[position[0] - 1][2];
+        audioModules[position[0] - 1][2] =
+          audioModules[position[0]][position[1]];
+        audioModules[position[0]][position[1]] = temp;
+      } else {
+        let temp = audioModules[position[0]][position[1] - 1];
+        audioModules[position[0]][position[1] - 1] =
+          audioModules[position[0]][position[1]];
+        audioModules[position[0]][position[1]] = temp;
+      }
+    } else {
+      if (position[1] === 2) {
+        let temp = audioModules[position[0] + 1][0];
+        audioModules[position[0] + 1][0] =
+          audioModules[position[0]][position[1]];
+        audioModules[position[0]][position[1]] = temp;
+      } else {
+        let temp = audioModules[position[0]][position[1] + 1];
+        audioModules[position[0]][position[1] + 1] =
+          audioModules[position[0]][position[1]];
+        audioModules[position[0]][position[1]] = temp;
+      }
+    }
+
+    // let tempAudioModules = [...audioModules];
+
+    console.log("Moving left / right!");
+    console.log(position, isLeft);
+  };
+
   const editAudioNodeData = (data: Object, moduleIndex: number[]) => {
     let tempAudioNodes = audioNodes;
 
@@ -502,6 +565,7 @@ const AudioBox = () => {
               deleteAudioModuleAndNode={deleteAudioModuleAndNode}
               setModuleType={setModuleType}
               editAudioNodeData={editAudioNodeData}
+              moveAudioModuleAndNode={moveAudioModuleAndNode}
             ></AudioModuleContainer>
           );
         })}

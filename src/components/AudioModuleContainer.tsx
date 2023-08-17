@@ -13,6 +13,7 @@ interface Props {
   deleteAudioModuleAndNode: (position: number[]) => void;
   setModuleType: (type: string, index: number[]) => void;
   editAudioNodeData: (data: Object, moduleIndex: number[]) => void;
+  moveAudioModuleAndNode: (position: number[], isLeft: boolean) => void;
 }
 
 const AudioModuleContainer = ({
@@ -22,6 +23,7 @@ const AudioModuleContainer = ({
   deleteAudioModuleAndNode,
   setModuleType,
   editAudioNodeData,
+  moveAudioModuleAndNode,
 }: Props) => {
   //   console.log(modules);
 
@@ -61,6 +63,7 @@ const AudioModuleContainer = ({
             position={[containerIdx, idx]}
             editAudioNodeData={editAudioNodeData}
             deleteAudioModuleAndNode={deleteAudioModuleAndNode}
+            moveAudioModuleAndNode={moveAudioModuleAndNode}
             key={idx}
           ></HighPassModule>
         );
@@ -71,6 +74,7 @@ const AudioModuleContainer = ({
             position={[containerIdx, idx]}
             editAudioNodeData={editAudioNodeData}
             deleteAudioModuleAndNode={deleteAudioModuleAndNode}
+            moveAudioModuleAndNode={moveAudioModuleAndNode}
             key={idx}
           ></LowPassModule>
         );
@@ -81,6 +85,7 @@ const AudioModuleContainer = ({
             position={[containerIdx, idx]}
             editAudioNodeData={editAudioNodeData}
             deleteAudioModuleAndNode={deleteAudioModuleAndNode}
+            moveAudioModuleAndNode={moveAudioModuleAndNode}
             key={idx}
           ></ReverbModule>
         );
