@@ -437,6 +437,8 @@ const AudioBox = () => {
   };
 
   const moveAudioModuleAndNode = (position: number[], isLeft: boolean) => {
+    // moving audioModules
+
     if (position[0] === 0 && position[1] === 1 && isLeft === true) {
       console.log("Not moving left!");
       return; // do not move into blank audioModule space
@@ -467,36 +469,78 @@ const AudioBox = () => {
       return;
     }
 
+    let tempAudioModules = audioModules;
+
     if (isLeft) {
       if (position[1] === 0) {
-        let temp = audioModules[position[0] - 1][2];
-        audioModules[position[0] - 1][2] =
-          audioModules[position[0]][position[1]];
-        audioModules[position[0]][position[1]] = temp;
+        let temp = tempAudioModules[position[0] - 1][2];
+        tempAudioModules[position[0] - 1][2] =
+          tempAudioModules[position[0]][position[1]];
+        tempAudioModules[position[0]][position[1]] = temp;
       } else {
-        let temp = audioModules[position[0]][position[1] - 1];
-        audioModules[position[0]][position[1] - 1] =
-          audioModules[position[0]][position[1]];
-        audioModules[position[0]][position[1]] = temp;
+        let temp = tempAudioModules[position[0]][position[1] - 1];
+        tempAudioModules[position[0]][position[1] - 1] =
+          tempAudioModules[position[0]][position[1]];
+        tempAudioModules[position[0]][position[1]] = temp;
       }
     } else {
       if (position[1] === 2) {
-        let temp = audioModules[position[0] + 1][0];
-        audioModules[position[0] + 1][0] =
-          audioModules[position[0]][position[1]];
-        audioModules[position[0]][position[1]] = temp;
+        let temp = tempAudioModules[position[0] + 1][0];
+        tempAudioModules[position[0] + 1][0] =
+          tempAudioModules[position[0]][position[1]];
+        tempAudioModules[position[0]][position[1]] = temp;
       } else {
-        let temp = audioModules[position[0]][position[1] + 1];
-        audioModules[position[0]][position[1] + 1] =
-          audioModules[position[0]][position[1]];
-        audioModules[position[0]][position[1]] = temp;
+        let temp = tempAudioModules[position[0]][position[1] + 1];
+        tempAudioModules[position[0]][position[1] + 1] =
+          tempAudioModules[position[0]][position[1]];
+        tempAudioModules[position[0]][position[1]] = temp;
       }
     }
 
-    // let tempAudioModules = [...audioModules];
+    setAudioModules(audioModules);
 
-    console.log("Moving left / right!");
-    console.log(position, isLeft);
+    // moving audioNodes
+    /*
+      Operating under the assumption that if audioModules can be moved,
+      then audioNodes can be moved as well. Will not re-conduct the checks
+      performed above for the audioNodes
+    */
+
+    let tempAudioNodes = [...audioNodes!];
+
+    // Offset row and column to account for structure of audioNodes array
+    let row = position[0] + 1;
+    let column = position[1];
+
+    if (row === 1) {
+      column -= 1;
+    }
+
+    if (isLeft) {
+      if (column === 0) {
+        let tempAudioNode =
+          tempAudioNodes[row - 1][tempAudioNodes[row - 1].length - 1];
+        tempAudioNodes[row - 1][tempAudioNodes[row - 1].length - 1] =
+          tempAudioNodes[row][column];
+        tempAudioNodes[row][column] = tempAudioNode;
+      } else {
+        let tempAudioNode = tempAudioNodes[row][column - 1];
+        tempAudioNodes[row][column - 1] = tempAudioNodes[row][column];
+        tempAudioNodes[row][column] = tempAudioNode;
+      }
+    } else {
+      if (column === tempAudioNodes[row].length - 1) {
+        let tempAudioNode = tempAudioNodes[row + 1][0];
+        tempAudioNodes[row + 1][0] = tempAudioNodes[row][column];
+        tempAudioNodes[row][column] = tempAudioNode;
+      } else {
+        let tempAudioNode = tempAudioNodes[row][column + 1];
+        tempAudioNodes[row][column + 1] = tempAudioNodes[row][column];
+        tempAudioNodes[row][column] = tempAudioNode;
+      }
+    }
+
+    setAudioNodes(tempAudioNodes);
   };
 
   const editAudioNodeData = (data: Object, moduleIndex: number[]) => {
