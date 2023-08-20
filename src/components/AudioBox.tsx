@@ -574,18 +574,18 @@ const AudioBox = () => {
     setAudioNodes(tempAudioNodes);
   };
 
-  const editAudioNodeData = (data: Object, moduleIndex: number[]) => {
+  const editAudioNodeData = (data: Object, position: number[]) => {
     let tempAudioNodes = audioNodes;
 
     // Offset row and column to account for structure of audioNodes array
-    let row = moduleIndex[0] + 1;
-    let column = moduleIndex[1];
+    let row = position[0] + 1;
+    let column = position[1];
 
     if (row === 1) {
       column -= 1;
     }
 
-    // console.log(tempAudioNodes![moduleIndex[0] + 1][moduleIndex[1]]);
+    // console.log(tempAudioNodes![position[0] + 1][position[1]]);
     // console.log(tempAudioNodes, row, column);
 
     if (data.type === "Highpass" || data.type === "Lowpass") {
@@ -596,7 +596,13 @@ const AudioBox = () => {
     setAudioNodes(tempAudioNodes);
 
     // data object contains configuration information for a given audioNode
-    // moduleIndex [row, column] contains the index of the audioModule whose data is being changed.
+    // position [row, column] contains the index of the audioModule whose data is being changed.
+  };
+
+  let editAudioModuleData = (data: Object, position: number[]) => {
+    let tempAudioModules = [...audioModules];
+    tempAudioModules[position[0]][position[1]] = data;
+    setAudioModules(tempAudioModules);
   };
 
   /*
@@ -606,8 +612,17 @@ const AudioBox = () => {
   */
   const setModuleType = (type: string, moduleIndex: number[]): void => {
     let tempAudioModulesData: Object[][] = audioModules;
-    tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].type = type;
 
+    // settings for all audioModules
+    tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].type = type;
+    tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].isEnabled = true;
+
+    // module specific settings
+    /*
+      AudioModule freq and resonance are initially set here,
+      but then their values are set from the audioNodes that
+      they represent.
+    */
     if (type === "Highpass") {
       tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].frequency = 20;
       tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].resonance = 0;
@@ -618,12 +633,11 @@ const AudioBox = () => {
 
     addAudioNode(tempAudioModulesData[moduleIndex[0]][moduleIndex[1]]);
     setAudioModules(tempAudioModulesData);
-
-    // console.log(audioModules, audioNodes);
   };
 
   const saveConfiguration = () => {
     let config = JSON.stringify(audioModules); // this object, when loaded into the loadConfiguration method will work.
+    console.log(config);
   };
 
   const loadConfiguration = () => {

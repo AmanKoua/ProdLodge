@@ -101,8 +101,8 @@ const AudioModuleContainer = ({
 
     audioModulesFragment = (
       <>
-        {modules.map((AudioNodeData, idx) => {
-          return generateModuleFromData(AudioNodeData, idx, containerIndex);
+        {modules.map((AudioModuleData, idx) => {
+          return generateModuleFromData(AudioModuleData, idx, containerIndex);
         })}
       </>
     );

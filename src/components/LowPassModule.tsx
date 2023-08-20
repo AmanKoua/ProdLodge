@@ -80,11 +80,21 @@ const LowPassModule = ({
   };
 
   const DeleteButtonStyle: CSS.Properties = {
-    marginLeft: "45%",
+    marginLeft: "60%",
     marginTop: "4%",
     position: "absolute",
     width: "10%",
     height: "13%",
+  };
+
+  const IsEnabledButton: CSS.Properties = {
+    marginLeft: "30%",
+    marginTop: "4%",
+    position: "absolute",
+    width: "10%",
+    height: "13%",
+    borderRadius: "25px", // turn div into a circle
+    backgroundColor: data.isEnabled ? "#16fa19" : "red",
   };
 
   const MoveLeftButtonStyle: CSS.Properties = {
@@ -104,7 +114,13 @@ const LowPassModule = ({
   };
 
   const handleFreqSliderChange = (event: any) => {
-    // HELL YEAH!
+    /*
+    The way that information is propagates through the audioModules
+    state is be directly mutating the state variable WITHOUT calling
+    setState. tempData is a reference to the state varaible, and so 
+    changing it automatically changes the sate. If this becomes a problem,
+    it can be changed later, but it seems to work fine.
+    */
     let tempData = data;
     tempData.frequency = event.target.value;
     editAudioNodeData(data, position);
@@ -118,6 +134,10 @@ const LowPassModule = ({
 
   const handleDeleteIconClick = (event: any) => {
     deleteAudioModuleAndNode(position);
+  };
+
+  const handleToggleEnabledButtonClick = (event: any) => {
+    data.isEnabled = !data.isEnabled;
   };
 
   const handleLeftButtonClick = () => {
@@ -170,6 +190,10 @@ const LowPassModule = ({
           style={DeleteButtonStyle}
           onClick={handleDeleteIconClick}
         ></img>
+        <div
+          style={IsEnabledButton}
+          onClick={handleToggleEnabledButtonClick}
+        ></div>
       </div>
     </div>
   );
