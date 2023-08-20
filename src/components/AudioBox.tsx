@@ -4,6 +4,7 @@ import CSS from "csstype";
 
 import AudioController from "./AudioController";
 import AudioModuleContainer from "./AudioModuleContainer";
+import AudioSettingsDrawer from "./AudioSettingsDrawer";
 
 import {
   useInitAudioCtx,
@@ -17,7 +18,7 @@ import {
   useDraw,
 } from "../webAudioHooks";
 
-import tempSong from "../assets/songs/ewing.mp3";
+import tempSong from "../assets/songs/telepathy.mp3";
 
 console.log("AudioBox Rerender!");
 
@@ -75,6 +76,10 @@ let isPlaying: boolean;
 let setIsPlaying: (val: boolean) => void;
 let isExpanded: boolean;
 let setIsExpanded: (val: boolean) => void;
+let isSettingsHover: boolean;
+let setIsSettingsHover: (val: boolean) => void;
+let isSettingsExpanded: boolean;
+let setIsSettingsExpanded: (val: boolean) => void;
 
 let playSong = async function (seekTime: number | null) {
   setIsPlaying(true);
@@ -95,6 +100,8 @@ const AudioBox = () => {
   canvasRef = useRef(null); // reference to canvas
 
   [isExpanded, setIsExpanded] = useState(false);
+  [isSettingsHover, setIsSettingsHover] = useState(false);
+  [isSettingsExpanded, setIsSettingsExpanded] = useState(false);
   [isVisualizing, setIsVisualizing] = useState(false);
   [isPlaying, setIsPlaying] = useState(false); // need to make these global!
   [hasUserGestured, setHasUserGestured] = useState(false); // Keep track of first gesture required to initialize audioCtx
@@ -130,7 +137,13 @@ const AudioBox = () => {
     setAreAudioNodesReady
   );
 
-  useReconnectNodes(aCtx, audioNodes, audioNodesChanged, setAudioNodesChanged);
+  useReconnectNodes(
+    aCtx,
+    audioNodes,
+    audioModules,
+    audioNodesChanged,
+    setAudioNodesChanged
+  );
 
   usePlayAndResume(
     aCtx,
@@ -187,25 +200,37 @@ const AudioBox = () => {
     border: "1px solid black",
     transition: "all 0.3s",
     overflow: "hidden",
+    // background: "red",
   };
 
-  AudioBoxStyle.height = isExpanded ? `${audioModules.length * 255}px` : "40px";
+  AudioBoxStyle.height = isExpanded
+    ? `${audioModules.length * 255 + 100}px`
+    : "40px";
 
   const CanvasStyle: CSS.Properties = {
     position: "absolute",
     bottom: "0px",
     width: "100%",
     height: "40px",
+    transition: "all 0.3s", // for expansion and contraction
   };
 
-  const ModuleContainerStyle: CSS.Properties = {
-    margin: "1%",
-    display: "flex",
-    justifyContent: "left",
-    width: "98%",
-    height: "200px",
-    backgroundColor: "#3d8bf2",
-    opacity: "75%",
+  CanvasStyle.height = isExpanded ? "100px" : "40px";
+
+  const SettingButtonStyle: CSS.Properties = {
+    writingMode: "vertical-rl",
+    position: "absolute",
+    marginLeft: "98%",
+    marginTop: "15%",
+    width: "2%",
+    height: "65px",
+    border: "1px solid black",
+    borderRadius: "6px",
+    fontSize: "10px",
+    textAlign: "center",
+    backgroundColor: "lavender",
+    opacity: isSettingsHover ? "100%" : "45%",
+    zIndex: "10",
   };
 
   const handleUserGesture = (): void => {
@@ -217,6 +242,18 @@ const AudioBox = () => {
       // ignore if already true.
       return;
     }
+  };
+
+  const handleUserClickSettingsButton = () => {
+    setIsSettingsExpanded(!isSettingsExpanded);
+  };
+
+  const handleMouseEnterSettingsButton = () => {
+    setIsSettingsHover(true);
+  };
+
+  const handleMouseLeaveSettingsButton = () => {
+    setIsSettingsHover(false);
   };
 
   /*
@@ -543,18 +580,18 @@ const AudioBox = () => {
     setAudioNodes(tempAudioNodes);
   };
 
-  const editAudioNodeData = (data: Object, moduleIndex: number[]) => {
+  const editAudioNodeData = (data: Object, position: number[]) => {
     let tempAudioNodes = audioNodes;
 
     // Offset row and column to account for structure of audioNodes array
-    let row = moduleIndex[0] + 1;
-    let column = moduleIndex[1];
+    let row = position[0] + 1;
+    let column = position[1];
 
     if (row === 1) {
       column -= 1;
     }
 
-    // console.log(tempAudioNodes![moduleIndex[0] + 1][moduleIndex[1]]);
+    // console.log(tempAudioNodes![position[0] + 1][position[1]]);
     // console.log(tempAudioNodes, row, column);
 
     if (data.type === "Highpass" || data.type === "Lowpass") {
@@ -565,7 +602,16 @@ const AudioBox = () => {
     setAudioNodes(tempAudioNodes);
 
     // data object contains configuration information for a given audioNode
-    // moduleIndex [row, column] contains the index of the audioModule whose data is being changed.
+    // position [row, column] contains the index of the audioModule whose data is being changed.
+  };
+
+  let editAudioModuleData = () => {
+    setAudioNodesChanged(true); // trigger the reconnection process, whereby an audioNode will be reconnected / skipped.
+    /*
+      Not required, because audioModule data is being mutated directly
+      within their respective audioModules as the data (passed as prop)
+      is passed by reference.
+    */
   };
 
   /*
@@ -575,8 +621,17 @@ const AudioBox = () => {
   */
   const setModuleType = (type: string, moduleIndex: number[]): void => {
     let tempAudioModulesData: Object[][] = audioModules;
-    tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].type = type;
 
+    // settings for all audioModules
+    tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].type = type;
+    tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].isEnabled = true;
+
+    // module specific settings
+    /*
+      AudioModule freq and resonance are initially set here,
+      but then their values are set from the audioNodes that
+      they represent.
+    */
     if (type === "Highpass") {
       tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].frequency = 20;
       tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].resonance = 0;
@@ -587,8 +642,59 @@ const AudioBox = () => {
 
     addAudioNode(tempAudioModulesData[moduleIndex[0]][moduleIndex[1]]);
     setAudioModules(tempAudioModulesData);
+  };
 
-    // console.log(audioModules, audioNodes);
+  const saveConfiguration = () => {
+    let config = JSON.stringify(audioModules); // this object, when loaded into the loadConfiguration method will work.
+    console.log(config);
+  };
+
+  const loadConfiguration = () => {
+    // works!
+    /*
+    load any configuration that was saved with saveConfiguration()
+    */
+    let testConfig = [
+      [
+        { type: "Blank" },
+        { type: "Highpass", frequency: 20, resonance: 0 },
+        { type: "Lowpass", frequency: 21000, resonance: 0 },
+      ],
+      [
+        { type: "Reverb" },
+        { type: "Highpass", frequency: 20, resonance: 0 },
+        { type: "Lowpass", frequency: 21000, resonance: 0 },
+      ],
+      [{ type: "New" }],
+    ];
+
+    setAudioModules(testConfig);
+
+    let tempAudioNodes = [...audioNodes!];
+
+    while (tempAudioNodes.length > 2) {
+      tempAudioNodes?.splice(1, 1); // delete all previous audioNodes
+    }
+
+    setAudioNodes(tempAudioNodes); // set cleared audioNodes before adding configured ones
+
+    let addNewAudioNodes = () => {
+      for (let i = 0; i < testConfig.length; i++) {
+        for (let j = 0; j < testConfig[i].length; j++) {
+          if (i === 0 && j === 0) {
+            continue;
+          }
+
+          if (testConfig[i][j].type === "New") {
+            // dont add the new module as an audioNode
+            break;
+          }
+          addAudioNode(testConfig[i][j]); // add configured audio nodes
+        }
+      }
+    };
+
+    setTimeout(addNewAudioNodes, 10); // need a slight delay to allow the audio nodes state to set before adding nodes
   };
 
   /*
@@ -609,6 +715,7 @@ const AudioBox = () => {
               deleteAudioModuleAndNode={deleteAudioModuleAndNode}
               setModuleType={setModuleType}
               editAudioNodeData={editAudioNodeData}
+              setAudioNodesChanged={setAudioNodesChanged}
               moveAudioModuleAndNode={moveAudioModuleAndNode}
             ></AudioModuleContainer>
           );
@@ -622,17 +729,32 @@ const AudioBox = () => {
   return (
     <>
       <div style={AudioBoxStyle} onClick={handleUserGesture}>
+        <div
+          style={SettingButtonStyle}
+          onMouseEnter={handleMouseEnterSettingsButton}
+          onMouseLeave={handleMouseLeaveSettingsButton}
+          onClick={handleUserClickSettingsButton}
+        >
+          Settings
+        </div>
+        <AudioSettingsDrawer
+          isSettingsExpanded={isSettingsExpanded}
+          saveConfiguration={saveConfiguration}
+          loadConfiguration={loadConfiguration}
+        ></AudioSettingsDrawer>
         {generateAudioSettingsFragment()}
         <canvas style={CanvasStyle} ref={canvasRef}></canvas>
         <AudioController
           hasUserGestured={hasUserGestured}
           isPlaying={isPlaying}
           isExpanded={isExpanded}
+          isSettingsExpanded={isSettingsExpanded}
           songTime={songTime}
           songDuration={songDuration}
           areAudioNodesReady={areAudioNodesReady}
           setIsPlaying={setIsPlaying}
           setIsExpanded={setIsExpanded}
+          setIsSettingsExpanded={setIsSettingsExpanded}
           playSong={playSong}
           stopSong={stopSong}
           setSongTime={setSongTime}

@@ -7,6 +7,7 @@ interface Props {
   data: Object;
   position: number[];
   editAudioNodeData: (data: Object, moduleIndex: number[]) => void;
+  setAudioNodesChanged: (val: boolean) => void;
   deleteAudioModuleAndNode: (position: number[]) => void;
   moveAudioModuleAndNode: (position: number[], isLeft: boolean) => void;
 }
@@ -15,6 +16,7 @@ const HighPassModule = ({
   data,
   position,
   deleteAudioModuleAndNode,
+  setAudioNodesChanged,
   editAudioNodeData,
   moveAudioModuleAndNode,
 }: Props) => {
@@ -30,6 +32,7 @@ const HighPassModule = ({
     borderRadius: "10px",
     // backgroundColor: "green",
     opacity: "100%",
+    opacity: data.isEnabled ? "100%" : "35%",
   };
 
   const CenterDivStyle: CSS.Properties = {
@@ -79,11 +82,21 @@ const HighPassModule = ({
   };
 
   const DeleteButtonStyle: CSS.Properties = {
-    marginLeft: "45%",
+    marginLeft: "60%",
     marginTop: "4%",
     position: "absolute",
     width: "10%",
     height: "13%",
+  };
+
+  const IsEnabledButton: CSS.Properties = {
+    marginLeft: "30%",
+    marginTop: "4%",
+    position: "absolute",
+    width: "10%",
+    height: "13%",
+    borderRadius: "25px", // turn div into a circle
+    backgroundColor: data.isEnabled ? "#16fa19" : "red",
   };
 
   const MoveLeftButtonStyle: CSS.Properties = {
@@ -117,6 +130,11 @@ const HighPassModule = ({
 
   const handleDeleteIconClick = (event: any) => {
     deleteAudioModuleAndNode(position);
+  };
+
+  const handleToggleEnabledButtonClick = (event: any) => {
+    data.isEnabled = !data.isEnabled;
+    setAudioNodesChanged(true);
   };
 
   const handleLeftButtonClick = () => {
@@ -169,6 +187,10 @@ const HighPassModule = ({
           style={DeleteButtonStyle}
           onClick={handleDeleteIconClick}
         ></img>
+        <div
+          style={IsEnabledButton}
+          onClick={handleToggleEnabledButtonClick}
+        ></div>
       </div>
     </div>
   );

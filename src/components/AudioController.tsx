@@ -13,11 +13,13 @@ interface Props {
   hasUserGestured: boolean;
   isPlaying: boolean;
   isExpanded: boolean;
+  isSettingsExpanded: boolean;
   songTime: number;
   songDuration: number;
   areAudioNodesReady: boolean;
   setIsPlaying: (val: boolean) => void;
   setIsExpanded: (val: boolean) => void;
+  setIsSettingsExpanded: (val: boolean) => void;
   playSong: (val: number | null) => void;
   stopSong: () => void;
   setSongTime: (val: number) => void;
@@ -28,11 +30,13 @@ const AudioController = ({
   hasUserGestured,
   isPlaying,
   isExpanded,
+  isSettingsExpanded,
   songTime,
   songDuration,
   areAudioNodesReady,
   setIsPlaying,
   setIsExpanded,
+  setIsSettingsExpanded,
   playSong,
   stopSong,
   setSongTime,
@@ -57,6 +61,10 @@ const AudioController = ({
         let right = audioControllerElement.getBoundingClientRect().right;
         let width = right - left;
         let position = (x - left) / width; // position percentage
+
+        if (position < 0) {
+          position = 0;
+        }
 
         // console.log(position);
         // setSongTimeWidth(position * 100);
@@ -86,8 +94,11 @@ const AudioController = ({
     width: "100%",
     height: "40px",
     border: "1px solid black",
-    // zIndex: -1,
+    transition: "all 0.3s", // for expansion and contraction
+    zIndex: "2",
   };
+
+  AudioControllerStyle.height = isExpanded ? "100px" : "40px";
 
   const imgStyle: CSS.Properties = {
     width: "30px",
@@ -164,6 +175,9 @@ const AudioController = ({
         <div
           style={ExpandButtonStyle}
           onClick={() => {
+            if (isExpanded) {
+              setIsSettingsExpanded(false);
+            }
             setIsExpanded(!isExpanded);
           }}
           onMouseEnter={handleMouseEnterExpandButton}
