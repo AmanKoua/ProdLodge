@@ -7,6 +7,7 @@ interface Props {
   data: Object;
   position: number[];
   editAudioNodeData: (data: Object, moduleIndex: number[]) => void;
+  setAudioNodesChanged: (val: boolean) => void;
   deleteAudioModuleAndNode: (position: number[]) => void;
   moveAudioModuleAndNode: (position: number[], isLeft: boolean) => void;
 }
@@ -15,6 +16,7 @@ const ReverbModule = ({
   data,
   position,
   editAudioNodeData,
+  setAudioNodesChanged,
   deleteAudioModuleAndNode,
   moveAudioModuleAndNode,
 }: Props) => {
@@ -30,6 +32,7 @@ const ReverbModule = ({
     borderRadius: "10px",
     // backgroundColor: "green",
     opacity: "100%",
+    opacity: data.isEnabled ? "100%" : "35%",
   };
 
   const CenterDivStyle: CSS.Properties = {
@@ -54,11 +57,21 @@ const ReverbModule = ({
   };
 
   const DeleteButtonStyle: CSS.Properties = {
-    marginLeft: "44%",
+    marginLeft: "55%",
     marginTop: "28%",
     position: "absolute",
     width: "10%",
     height: "13%",
+  };
+
+  const IsEnabledButton: CSS.Properties = {
+    marginLeft: "30%",
+    marginTop: "28%",
+    position: "absolute",
+    width: "10%",
+    height: "13%",
+    borderRadius: "25px", // turn div into a circle
+    backgroundColor: data.isEnabled ? "#16fa19" : "red",
   };
 
   const MoveLeftButtonStyle: CSS.Properties = {
@@ -79,6 +92,11 @@ const ReverbModule = ({
 
   const handleDeleteIconClick = (event: any) => {
     deleteAudioModuleAndNode(position);
+  };
+
+  const handleToggleEnabledButtonClick = (event: any) => {
+    data.isEnabled = !data.isEnabled;
+    setAudioNodesChanged(true);
   };
 
   const handleLeftButtonClick = () => {
@@ -109,6 +127,10 @@ const ReverbModule = ({
           style={DeleteButtonStyle}
           onClick={handleDeleteIconClick}
         ></img>
+        <div
+          style={IsEnabledButton}
+          onClick={handleToggleEnabledButtonClick}
+        ></div>
       </div>
     </div>
   );
