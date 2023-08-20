@@ -83,6 +83,7 @@ export let useFetchSongAndInitNodes = (
 export let useReconnectNodes = (
   aCtx: AudioContext | undefined,
   audioNodes: AudioNode[][] | undefined,
+  audioModules: Object[][],
   audioNodesChanged: boolean,
   setAudioNodesChanged: (val: any) => void
 ) => {
@@ -98,6 +99,9 @@ export let useReconnectNodes = (
 
     // console.log("connecting nodes! -------------------", audioNodes);
 
+    let audioModuleRow: number;
+    let audioModuleColumn: number;
+
     if (audioNodes.length == 2) {
       audioNodes[0][0].connect(aCtx!.destination); // connect to destination
       audioNodes[0][0].connect(audioNodes[1][0]); // connect to analyser
@@ -106,22 +110,22 @@ export let useReconnectNodes = (
       let currentNode = audioNodes[0][0]; // start with audioSourceBufferNode;
       let analyserNode = audioNodes[audioNodes.length - 1][0]; // analyserNode
       for (let i = 1; i < audioNodes.length - 1; i++) {
+        // row
         for (let j = 0; j < audioNodes[i].length; j++) {
-          // console.log(i, j);
+          // column
 
-          // if (i === audioNodes.length - 2 && j === audioNodes[i].length - 1) {
-          //   // if last node that is NOT AudioBufferSourceNode or analyser node
-          //   currentNode.connect(audioNodes[i][j]);
-          //   audioNodes[i][j].connect(aCtx!.destination);
-          //   audioNodes[i][j].connect(analyserNode);
-          //   break;
-          // }
+          // convert audioNode location to audioModule location
+          audioModuleRow = i - 1;
+          audioModuleColumn = j;
 
-          // currentNode.connect(audioNodes[i][j]);
-          // currentNode = audioNodes[i][j];
-          // continue;
+          if (audioModuleRow === 0) {
+            audioModuleColumn += 1;
+          }
 
-          // ----------- Trying a different technique! -------------
+          if (!audioModules[audioModuleRow][audioModuleColumn].isEnabled) {
+            // if audioModule is not enabled, skip connection!
+            continue;
+          }
 
           currentNode.disconnect();
           currentNode.connect(audioNodes[i][j]);

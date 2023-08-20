@@ -137,7 +137,13 @@ const AudioBox = () => {
     setAreAudioNodesReady
   );
 
-  useReconnectNodes(aCtx, audioNodes, audioNodesChanged, setAudioNodesChanged);
+  useReconnectNodes(
+    aCtx,
+    audioNodes,
+    audioModules,
+    audioNodesChanged,
+    setAudioNodesChanged
+  );
 
   usePlayAndResume(
     aCtx,
@@ -599,10 +605,13 @@ const AudioBox = () => {
     // position [row, column] contains the index of the audioModule whose data is being changed.
   };
 
-  let editAudioModuleData = (data: Object, position: number[]) => {
-    let tempAudioModules = [...audioModules];
-    tempAudioModules[position[0]][position[1]] = data;
-    setAudioModules(tempAudioModules);
+  let editAudioModuleData = () => {
+    setAudioNodesChanged(true); // trigger the reconnection process, whereby an audioNode will be reconnected / skipped.
+    /*
+      Not required, because audioModule data is being mutated directly
+      within their respective audioModules as the data (passed as prop)
+      is passed by reference.
+    */
   };
 
   /*
@@ -706,6 +715,7 @@ const AudioBox = () => {
               deleteAudioModuleAndNode={deleteAudioModuleAndNode}
               setModuleType={setModuleType}
               editAudioNodeData={editAudioNodeData}
+              setAudioNodesChanged={setAudioNodesChanged}
               moveAudioModuleAndNode={moveAudioModuleAndNode}
             ></AudioModuleContainer>
           );

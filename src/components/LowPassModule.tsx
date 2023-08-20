@@ -7,6 +7,7 @@ interface Props {
   data: Object;
   position: number[];
   editAudioNodeData: (data: Object, moduleIndex: number[]) => void;
+  setAudioNodesChanged: (val: boolean) => void;
   deleteAudioModuleAndNode: (position: number[]) => void;
   moveAudioModuleAndNode: (position: number[], isLeft: boolean) => void;
 }
@@ -15,6 +16,7 @@ const LowPassModule = ({
   data,
   position,
   deleteAudioModuleAndNode,
+  setAudioNodesChanged,
   editAudioNodeData,
   moveAudioModuleAndNode,
 }: Props) => {
@@ -29,7 +31,7 @@ const LowPassModule = ({
     border: "1px solid black",
     borderRadius: "10px",
     // backgroundColor: "green",
-    opacity: "100%",
+    opacity: data.isEnabled ? "100%" : "35%",
   };
 
   const CenterDivStyle: CSS.Properties = {
@@ -138,6 +140,7 @@ const LowPassModule = ({
 
   const handleToggleEnabledButtonClick = (event: any) => {
     data.isEnabled = !data.isEnabled;
+    setAudioNodesChanged(true);
   };
 
   const handleLeftButtonClick = () => {
