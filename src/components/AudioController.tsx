@@ -13,11 +13,13 @@ interface Props {
   hasUserGestured: boolean;
   isPlaying: boolean;
   isExpanded: boolean;
+  isSettingsExpanded: boolean;
   songTime: number;
   songDuration: number;
   areAudioNodesReady: boolean;
   setIsPlaying: (val: boolean) => void;
   setIsExpanded: (val: boolean) => void;
+  setIsSettingsExpanded: (val: boolean) => void;
   playSong: (val: number | null) => void;
   stopSong: () => void;
   setSongTime: (val: number) => void;
@@ -28,11 +30,13 @@ const AudioController = ({
   hasUserGestured,
   isPlaying,
   isExpanded,
+  isSettingsExpanded,
   songTime,
   songDuration,
   areAudioNodesReady,
   setIsPlaying,
   setIsExpanded,
+  setIsSettingsExpanded,
   playSong,
   stopSong,
   setSongTime,
@@ -91,7 +95,7 @@ const AudioController = ({
     height: "40px",
     border: "1px solid black",
     transition: "all 0.3s", // for expansion and contraction
-    // zIndex: -1,
+    zIndex: "2",
   };
 
   AudioControllerStyle.height = isExpanded ? "100px" : "40px";
@@ -171,6 +175,9 @@ const AudioController = ({
         <div
           style={ExpandButtonStyle}
           onClick={() => {
+            if (isExpanded) {
+              setIsSettingsExpanded(false);
+            }
             setIsExpanded(!isExpanded);
           }}
           onMouseEnter={handleMouseEnterExpandButton}
