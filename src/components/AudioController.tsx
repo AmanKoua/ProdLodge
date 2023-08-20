@@ -58,6 +58,10 @@ const AudioController = ({
         let width = right - left;
         let position = (x - left) / width; // position percentage
 
+        if (position < 0) {
+          position = 0;
+        }
+
         // console.log(position);
         // setSongTimeWidth(position * 100);
         setIsPlaying(false);
@@ -86,8 +90,11 @@ const AudioController = ({
     width: "100%",
     height: "40px",
     border: "1px solid black",
+    transition: "all 0.3s", // for expansion and contraction
     // zIndex: -1,
   };
+
+  AudioControllerStyle.height = isExpanded ? "100px" : "40px";
 
   const imgStyle: CSS.Properties = {
     width: "30px",

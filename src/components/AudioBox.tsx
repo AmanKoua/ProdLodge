@@ -17,7 +17,7 @@ import {
   useDraw,
 } from "../webAudioHooks";
 
-import tempSong from "../assets/songs/ewing.mp3";
+import tempSong from "../assets/songs/ewing2.mp3";
 
 console.log("AudioBox Rerender!");
 
@@ -189,14 +189,19 @@ const AudioBox = () => {
     overflow: "hidden",
   };
 
-  AudioBoxStyle.height = isExpanded ? `${audioModules.length * 255}px` : "40px";
+  AudioBoxStyle.height = isExpanded
+    ? `${audioModules.length * 255 + 100}px`
+    : "40px";
 
   const CanvasStyle: CSS.Properties = {
     position: "absolute",
     bottom: "0px",
     width: "100%",
     height: "40px",
+    transition: "all 0.3s", // for expansion and contraction
   };
+
+  CanvasStyle.height = isExpanded ? "100px" : "40px";
 
   const ModuleContainerStyle: CSS.Properties = {
     margin: "1%",
