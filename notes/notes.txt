@@ -11,3 +11,16 @@
 
 - To enable / disable an audiOnde, simply connect to the audioNode that is next (use
   continue in the connectAudioNodes effect essentially).
+
+-----------------------------------------------------------------------------------------
+
+How to enable multiple Tracks 
+
+- For each track, there will be a set of audioModules. When a user clicks a track, the audioModules
+  will switch in the expanded audioBox area
+
+- Each audioSettings track needs setAudioModules (to change modules), a copy of the audioModulesJSON arr
+  to change by reference. Might need a currentSelectedTrack state variable in order to keep track of 
+  which track is selected (to save the current audioModules configuration between track changed).
+
+  I need setAudioModules, setAudioModulesJSON, and setCurrentTrackIdx,

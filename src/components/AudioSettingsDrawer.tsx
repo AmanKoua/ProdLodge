@@ -3,7 +3,13 @@ import AudioSettingsTrack from "./AudioSettingsTrack";
 
 interface Props {
   settingsTracksData: Object[] | undefined;
+  audioModulesJSON: string[];
+  audioModules: Object[][];
   isSettingsExpanded: boolean;
+  currentTrackIdx: number;
+  setAudioModulesJSON: (val: string[]) => void;
+  setAudioModules: (val: Object[][]) => void;
+  setCurrentTrackIdx: (val: any) => void;
   setSettingsTracksData: (val: any) => void;
   saveConfiguration: () => void;
   loadConfiguration: () => void;
@@ -12,7 +18,13 @@ interface Props {
 
 const AudioSettingsDrawer = ({
   settingsTracksData,
+  audioModulesJSON,
+  audioModules,
   isSettingsExpanded,
+  currentTrackIdx,
+  setAudioModulesJSON,
+  setAudioModules,
+  setCurrentTrackIdx,
   setSettingsTracksData,
   saveConfiguration,
   loadConfiguration,
@@ -23,7 +35,6 @@ const AudioSettingsDrawer = ({
     marginLeft: "95%",
     width: "70%",
     height: "72%",
-    // backgroundColor: "whitesmoke",
     backgroundColor: "#e1f5fa",
     opacity: "95%",
     transition: "all 0.3s", // for expansion and contraction
@@ -72,7 +83,13 @@ const AudioSettingsDrawer = ({
           return (
             <AudioSettingsTrack
               settingsTracksData={settingsTracksData}
+              audioModulesJSON={audioModulesJSON}
+              audioModules={audioModules}
               idx={idx}
+              currentTrackIdx={currentTrackIdx}
+              setAudioModulesJSON={setAudioModulesJSON}
+              setAudioModules={setAudioModules}
+              setCurrentTrackIdx={setCurrentTrackIdx}
               editAudioNodeData={editAudioNodeData}
               setSettingsTracksData={setSettingsTracksData}
               key={idx}

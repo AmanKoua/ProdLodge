@@ -54,14 +54,14 @@ let aCtx: AudioContext | undefined;
 let setACtx: (val: any) => void;
 
 // song buffer, song info, and audio buffers
+let currentTrackIdx: number;
+let setCurrentTrackIdx: (val: any) => void;
 let currentTrack: AudioBuffer | undefined;
 let setCurrentTrack: (val: any) => void;
 let trackBuffers: AudioBuffer[] | undefined;
 let setTrackBuffers: (val: any) => void;
 let settingsTracksData: Object[] | undefined;
 let setSettingsTracksData: (val: any) => void;
-let trackNamesAndIndices: string[] | undefined;
-// let setTrackNamesAndIndices: (val: any) => void;
 // let impulseBuffer: AudioBuffer | undefined;
 // let setImpulseBuffer: (val: any) => void;
 let impulseBuffers: AudioBuffer[] | undefined;
@@ -79,7 +79,6 @@ let tracks: Object = {
 };
 
 let tracksJSON = JSON.stringify(tracks);
-trackNamesAndIndices = Object.keys(tracks);
 
 let impulses: Object = {
   // impulse0: impulse0,
@@ -114,6 +113,8 @@ let setAudioNodesChanged: (val: any) => void;
 // audioModules (data required for creating UI for audio nodes)
 let audioModules: Object[][];
 let setAudioModules: (val: Object[][]) => void;
+let audioModulesJSON: string[];
+let setAudioModulesJSON: (val: string[]) => void;
 
 // Canvas and context
 let canvas: HTMLCanvasElement | undefined;
@@ -178,10 +179,12 @@ const AudioBox = () => {
   [hasUserGestured, setHasUserGestured] = useState(false); // Keep track of first gesture required to initialize audioCtx
 
   [audioModules, setAudioModules] = useState(tempModuleData); // Initial module will be the blank module
+  [audioModulesJSON, setAudioModulesJSON] = useState(['[[{"type":"Blank"}]]']); // JSON array, kept as state, to keep track of audioModule present for each track.
   [areAudioNodesReady, setAreAudioNodesReady] = useState(false);
 
   [aCtx, setACtx] = useState(undefined); // aCtx and setACtx type are the way they are beause an audioCtx cannot be initialized on render.
   // [songBuffer, setSongBuffer] = useState(undefined);
+  [currentTrackIdx, setCurrentTrackIdx] = useState(0);
   [currentTrack, setCurrentTrack] = useState(undefined);
   [trackBuffers, setTrackBuffers] = useState(undefined);
   [settingsTracksData, setSettingsTracksData] = useState(undefined);
@@ -210,9 +213,11 @@ const AudioBox = () => {
     setSettingsTracksData,
     setImpulseBuffers,
     setCurrentTrack,
+    setCurrentTrackIdx,
     setSongDuration,
     setAudioNodes,
-    setAreAudioNodesReady
+    setAreAudioNodesReady,
+    setAudioModulesJSON
   );
 
   useReconnectNodes(
@@ -747,6 +752,9 @@ const AudioBox = () => {
 
   const loadConfiguration = () => {
     // works!
+
+    console.log(audioModulesJSON);
+
     /*
     load any configuration that was saved with saveConfiguration()
     */
@@ -835,7 +843,13 @@ const AudioBox = () => {
         </div>
         <AudioSettingsDrawer
           settingsTracksData={settingsTracksData}
+          audioModulesJSON={audioModulesJSON}
+          audioModules={audioModules}
           isSettingsExpanded={isSettingsExpanded}
+          currentTrackIdx={currentTrackIdx}
+          setAudioModulesJSON={setAudioModulesJSON}
+          setAudioModules={setAudioModules}
+          setCurrentTrackIdx={setCurrentTrackIdx}
           setSettingsTracksData={setSettingsTracksData}
           saveConfiguration={saveConfiguration}
           loadConfiguration={loadConfiguration}

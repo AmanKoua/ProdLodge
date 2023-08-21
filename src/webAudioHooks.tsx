@@ -24,12 +24,14 @@ export let useFetchAudioAndInitNodes = (
   setSettingsTracksData: (val: any) => void,
   setImpulseBuffers: (val: any) => void,
   setCurrentTrack: (val: any) => void,
+  setCurrentTrackIdx: (val: number) => void,
   setSongDuration: (val: any) => void,
   setAudioNodes: (val: any) => void,
-  setAreAudioNodesReady: (val: boolean) => void
+  setAreAudioNodesReady: (val: boolean) => void,
+  setAudioModulesJSON: (val: string[]) => void
 ) => {
   useEffect(() => {
-    // Fetch song data and initialize primary nodes
+    // Fetch audio data and initialize primary nodes
     if (aCtx === undefined) {
       return;
     }
@@ -64,6 +66,7 @@ export let useFetchAudioAndInitNodes = (
       let tempTrackBuffers: AudioBuffer[] = [];
       let tempTracksKeys: string[] = Object.keys(tempTracks);
       let tempSettingsTracksData: Object[] = [];
+      let tempAudioModulesJSON: string[] = ['[[{"type":"Blank"}]]'];
 
       for (let i = 0; i < tempTracksKeys.length; i++) {
         console.log("track fetched!");
@@ -73,6 +76,7 @@ export let useFetchAudioAndInitNodes = (
           let tempTracksData = {};
 
           if (tempTracksKeys[i] === "master") {
+            setCurrentTrackIdx(i);
             setCurrentTrack(decodedBuffer);
             tempTracksData.isEnabled = true;
           } else {
@@ -85,11 +89,15 @@ export let useFetchAudioAndInitNodes = (
           tempTracksData.name = tempTracksKeys[i];
           tempTracksData.idx = i;
           tempSettingsTracksData.push(tempTracksData);
+          if (i !== 0) {
+            tempAudioModulesJSON.push('[[{"type":"Blank"}]]');
+          }
         });
       }
       setTrackBuffers(tempTrackBuffers!);
       setSongDuration(tempTrackBuffers![0].duration);
       setSettingsTracksData(tempSettingsTracksData);
+      setAudioModulesJSON(tempAudioModulesJSON);
       await createPrimaryNodes(tempTrackBuffers![0]);
     };
 
@@ -146,7 +154,9 @@ export let useReconnectNodes = (
       return;
     }
 
-    // console.log("connecting nodes! -------------------", audioNodes);
+    return;
+
+    console.log("connecting nodes! -------------------", audioModules);
 
     let audioModuleRow: number;
     let audioModuleColumn: number;
@@ -233,7 +243,7 @@ export let usePlayAndResume = (
       return;
     }
 
-    console.log("play / resume!");
+    // console.log("play / resume!");
 
     let tempAudioNodes = audioNodes; // I suspect that this is NOT seen as a different array upon mutation because the reference is the same
     let tempAudioSourceNode: AudioBufferSourceNode = aCtx!.createBufferSource();
@@ -286,7 +296,7 @@ export let useTrackSongTime = (
       return;
     }
 
-    console.log("tracking song time!");
+    // console.log("tracking song time!");
 
     if (isPlaying) {
       if (songTimeInterval != undefined) {

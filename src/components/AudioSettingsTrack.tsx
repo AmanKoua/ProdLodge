@@ -3,14 +3,26 @@ import CSS from "csstype";
 
 interface Props {
   settingsTracksData: Object[] | undefined;
+  audioModulesJSON: string[];
+  audioModules: Object[][];
   idx: number;
+  currentTrackIdx: number;
+  setAudioModulesJSON: (val: string[]) => void;
+  setAudioModules: (val: Object[][]) => void;
+  setCurrentTrackIdx: (val: any) => void;
   editAudioNodeData: (data: Object, position: number[]) => void;
   setSettingsTracksData: (val: any) => void;
 }
 
 const AudioSettingsTrack = ({
   settingsTracksData,
+  audioModulesJSON,
+  audioModules,
   idx,
+  currentTrackIdx,
+  setAudioModulesJSON,
+  setAudioModules,
+  setCurrentTrackIdx,
   editAudioNodeData,
   setSettingsTracksData,
 }: Props) => {
@@ -22,6 +34,7 @@ const AudioSettingsTrack = ({
     width: "100%",
     height: "35px",
     border: "1px solid black",
+    opacity: settingsTracksData![idx].isEnabled ? "100%" : "40%",
     // backgroundColor: "blanchedalmond",
   };
 
@@ -43,16 +56,49 @@ const AudioSettingsTrack = ({
     zIndex: "1",
   };
 
-  const handleTrackChange = (event: any) => {
+  const sleep = (time: number) => {
+    return new Promise((res, rej) => {
+      setTimeout(() => {
+        res();
+      }, time * 1000);
+    });
+  };
+
+  const handleTrackChange = async (event: any) => {
     if (event.target != AudioSettingsTrackDiv.current) {
       return;
+    }
+
+    // console.log(idx);
+    // console.log(currentTrackIdx);
+    // console.log(audioModules);
+    // console.log(audioModulesJSON);
+
+    if (currentTrackIdx != idx) {
+      // save modules before switching over
+      let tempAudioModulesJSON = [...audioModulesJSON];
+      tempAudioModulesJSON[currentTrackIdx] = JSON.stringify(audioModules);
+      setAudioModulesJSON(tempAudioModulesJSON);
+      setCurrentTrackIdx(idx);
+      setTimeout(() => {
+        setAudioModules(JSON.parse(audioModulesJSON[idx]));
+      }, 10);
+
+      // console.log(idx + " -------- ");
+      // console.log(currentTrackIdx + " -------- ");
+      // console.log(JSON.parse(audioModulesJSON[idx]));
+      // console.log(audioModules + " -------- ");
+      // console.log(audioModulesJSON + " -------- ");
     }
 
     let tempObject = {
       type: "TrackChange",
       track: idx,
     };
-    editAudioNodeData(tempObject, []);
+
+    setTimeout(() => {
+      editAudioNodeData(tempObject, []);
+    }, 10);
   };
 
   let handleToggleEnabledButtonClick = () => {
