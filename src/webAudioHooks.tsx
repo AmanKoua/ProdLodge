@@ -22,7 +22,7 @@ export let useFetchAudioAndInitNodes = (
   impulsesJSON: string,
   setTrackBuffers: (val: any) => void,
   setImpulseBuffers: (val: any) => void,
-  // setSongBuffer: (val: any) => void,
+  setCurrentTrack: (val: any) => void,
   setSongDuration: (val: any) => void,
   setAudioNodes: (val: any) => void,
   setAreAudioNodesReady: (val: boolean) => void
@@ -68,6 +68,9 @@ export let useFetchAudioAndInitNodes = (
         let response = await fetch(tempTracks[tempTracksKeys[i]]);
         let arrayBuffer = await response.arrayBuffer();
         await aCtx.decodeAudioData(arrayBuffer, (decodedBuffer) => {
+          if (tempTracksKeys[i] === "master") {
+            setCurrentTrack(decodedBuffer);
+          }
           tempTrackBuffers.push(decodedBuffer);
         });
       }
@@ -195,7 +198,7 @@ export let useReconnectNodes = (
 export let usePlayAndResume = (
   aCtx: AudioContext | undefined,
   audioNodes: AudioNode[][] | undefined,
-  songBuffer: AudioBuffer | undefined,
+  trackBuffer: AudioBuffer | undefined,
   isPlaying: boolean,
   songTime: number = 0,
   setSongTime: (val: number) => void,
@@ -211,7 +214,7 @@ export let usePlayAndResume = (
     if (
       aCtx === undefined ||
       audioNodes === undefined ||
-      songBuffer === undefined
+      trackBuffer === undefined
     ) {
       return;
     }
@@ -221,7 +224,7 @@ export let usePlayAndResume = (
     let tempAudioNodes = audioNodes; // I suspect that this is NOT seen as a different array upon mutation because the reference is the same
     let tempAudioSourceNode: AudioBufferSourceNode = aCtx!.createBufferSource();
 
-    tempAudioSourceNode.buffer = songBuffer!;
+    tempAudioSourceNode.buffer = trackBuffer!;
     tempAudioNodes![0][0] = tempAudioSourceNode;
 
     setAudioNodes(tempAudioNodes);

@@ -6,6 +6,7 @@ interface Props {
   isSettingsExpanded: boolean;
   saveConfiguration: () => void;
   loadConfiguration: () => void;
+  editAudioNodeData: (data: Object, position: number[]) => void;
 }
 
 const AudioSettingsDrawer = ({
@@ -13,6 +14,7 @@ const AudioSettingsDrawer = ({
   isSettingsExpanded,
   saveConfiguration,
   loadConfiguration,
+  editAudioNodeData,
 }: Props) => {
   const SettingsDrawerStyle: CSS.Properties = {
     position: "absolute",
@@ -64,6 +66,8 @@ const AudioSettingsDrawer = ({
             <AudioSettingsTrack
               trackName={track}
               idx={idx}
+              editAudioNodeData={editAudioNodeData}
+              key={idx}
             ></AudioSettingsTrack>
           );
         })}

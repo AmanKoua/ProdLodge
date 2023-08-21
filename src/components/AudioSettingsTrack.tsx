@@ -4,9 +4,10 @@ import CSS from "csstype";
 interface Props {
   trackName: string;
   idx: number;
+  editAudioNodeData: (data: Object, position: number[]) => void;
 }
 
-const AudioSettingsTrack = ({ trackName, idx }: Props) => {
+const AudioSettingsTrack = ({ trackName, idx, editAudioNodeData }: Props) => {
   const AudioSettingsTrackStyle: CSS.Properties = {
     position: "relative",
     marginTop: "8px",
@@ -15,7 +16,19 @@ const AudioSettingsTrack = ({ trackName, idx }: Props) => {
     // backgroundColor: "blanchedalmond",
   };
 
-  return <div style={AudioSettingsTrackStyle}>{trackName}</div>;
+  const handleTrackChange = () => {
+    let tempObject = {
+      type: "TrackChange",
+      track: idx,
+    };
+    editAudioNodeData(tempObject, []);
+  };
+
+  return (
+    <div style={AudioSettingsTrackStyle} onClick={handleTrackChange}>
+      {trackName}
+    </div>
+  );
 };
 
 export default AudioSettingsTrack;

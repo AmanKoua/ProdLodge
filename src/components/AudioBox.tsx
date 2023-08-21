@@ -54,8 +54,8 @@ let aCtx: AudioContext | undefined;
 let setACtx: (val: any) => void;
 
 // song buffer, song info, and audio buffers
-// let songBuffer: AudioBuffer | undefined;
-// let setSongBuffer: (val: any) => void;
+let currentTrack: AudioBuffer | undefined;
+let setCurrentTrack: (val: any) => void;
 let trackBuffers: AudioBuffer[] | undefined;
 let setTrackBuffers: (val: any) => void;
 let trackNamesAndIndices: string[] | undefined;
@@ -180,6 +180,7 @@ const AudioBox = () => {
 
   [aCtx, setACtx] = useState(undefined); // aCtx and setACtx type are the way they are beause an audioCtx cannot be initialized on render.
   // [songBuffer, setSongBuffer] = useState(undefined);
+  [currentTrack, setCurrentTrack] = useState(undefined);
   [trackBuffers, setTrackBuffers] = useState(undefined);
   // [impulseBuffer, setImpulseBuffer] = useState(undefined);
   [impulseBuffers, setImpulseBuffers] = useState(undefined);
@@ -204,6 +205,7 @@ const AudioBox = () => {
     impulsesJSON,
     setTrackBuffers,
     setImpulseBuffers,
+    setCurrentTrack,
     setSongDuration,
     setAudioNodes,
     setAreAudioNodesReady
@@ -220,7 +222,8 @@ const AudioBox = () => {
   usePlayAndResume(
     aCtx,
     audioNodes,
-    trackBuffers ? trackBuffers[5] : undefined, // track selection here!
+    // trackBuffers ? trackBuffers[5] : undefined, // track selection here!
+    currentTrack ? currentTrack : undefined,
     isPlaying,
     songTime,
     setSongTime,
@@ -671,9 +674,18 @@ const AudioBox = () => {
       tempAudioNodes![row][column].Q.value = data.resonance;
     } else if (data.type === "Reverb") {
       tempAudioNodes![row][column].buffer = impulseBuffers![data.impulse];
+    } else if (data.type === "TrackChange") {
+      setCurrentTrack(trackBuffers![data.track]);
     }
 
     setAudioNodes(tempAudioNodes);
+
+    if (data.type === "TrackChange") {
+      setIsPlaying(false);
+      setTimeout(() => {
+        setIsPlaying(true);
+      }, 10);
+    }
 
     // data object contains configuration information for a given audioNode
     // position [row, column] contains the index of the audioModule whose data is being changed.
@@ -818,6 +830,7 @@ const AudioBox = () => {
           isSettingsExpanded={isSettingsExpanded}
           saveConfiguration={saveConfiguration}
           loadConfiguration={loadConfiguration}
+          editAudioNodeData={editAudioNodeData}
         ></AudioSettingsDrawer>
         {generateAudioModuleContainers()}
         <canvas style={CanvasStyle} ref={canvasRef}></canvas>
