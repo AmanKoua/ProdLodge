@@ -1,15 +1,15 @@
-import React from "react";
-import { useState } from "react";
-import { useRef } from "react";
 import CSS from "csstype";
+import AudioSettingsTrack from "./AudioSettingsTrack";
 
 interface Props {
+  trackNamesAndIndices: string[] | undefined;
   isSettingsExpanded: boolean;
   saveConfiguration: () => void;
   loadConfiguration: () => void;
 }
 
 const AudioSettingsDrawer = ({
+  trackNamesAndIndices,
   isSettingsExpanded,
   saveConfiguration,
   loadConfiguration,
@@ -23,14 +23,16 @@ const AudioSettingsDrawer = ({
     backgroundColor: "#e1f5fa",
     opacity: "95%",
     transition: "all 0.3s", // for expansion and contraction
+    overflow: "scroll",
+    overflowX: "hidden",
     zIndex: "1",
   };
 
   const ConfigurationsDivStyle: CSS.Properties = {
-    position: "absolute",
+    position: "relative",
     marginLeft: "0%",
     width: "100%",
-    height: "15%",
+    height: "30px",
     // backgroundColor: "green",
     transition: "all 0.3s", // for expansion and contraction
     zIndex: "1",
@@ -54,6 +56,23 @@ const AudioSettingsDrawer = ({
 
   SettingsDrawerStyle.marginLeft = isSettingsExpanded ? "30%" : "100%";
 
+  let generateAudioSettingsTracks = (): JSX.Element => {
+    let AudioSettingsTracks: JSX.Element = (
+      <>
+        {trackNamesAndIndices!.map((track, idx) => {
+          return (
+            <AudioSettingsTrack
+              trackName={track}
+              idx={idx}
+            ></AudioSettingsTrack>
+          );
+        })}
+      </>
+    );
+
+    return AudioSettingsTracks;
+  };
+
   return (
     <div style={SettingsDrawerStyle}>
       <div style={ConfigurationsDivStyle}>
@@ -64,6 +83,7 @@ const AudioSettingsDrawer = ({
           Load Configuration
         </div>
       </div>
+      {generateAudioSettingsTracks()}
     </div>
   );
 };

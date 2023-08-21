@@ -58,6 +58,8 @@ let setACtx: (val: any) => void;
 // let setSongBuffer: (val: any) => void;
 let trackBuffers: AudioBuffer[] | undefined;
 let setTrackBuffers: (val: any) => void;
+let trackNamesAndIndices: string[] | undefined;
+// let setTrackNamesAndIndices: (val: any) => void;
 // let impulseBuffer: AudioBuffer | undefined;
 // let setImpulseBuffer: (val: any) => void;
 let impulseBuffers: AudioBuffer[] | undefined;
@@ -75,6 +77,7 @@ let tracks: Object = {
 };
 
 let tracksJSON = JSON.stringify(tracks);
+trackNamesAndIndices = Object.keys(tracks);
 
 let impulses: Object = {
   // impulse0: impulse0,
@@ -773,7 +776,7 @@ const AudioBox = () => {
   /*
     Generate the UI for audio modules that are displayed
   */
-  const generateAudioSettingsFragment = (): JSX.Element => {
+  const generateAudioModuleContainers = (): JSX.Element => {
     let audioSettingsFragment: JSX.Element;
 
     audioSettingsFragment = (
@@ -811,11 +814,12 @@ const AudioBox = () => {
           Settings
         </div>
         <AudioSettingsDrawer
+          trackNamesAndIndices={trackNamesAndIndices}
           isSettingsExpanded={isSettingsExpanded}
           saveConfiguration={saveConfiguration}
           loadConfiguration={loadConfiguration}
         ></AudioSettingsDrawer>
-        {generateAudioSettingsFragment()}
+        {generateAudioModuleContainers()}
         <canvas style={CanvasStyle} ref={canvasRef}></canvas>
         <AudioController
           hasUserGestured={hasUserGestured}
