@@ -47,6 +47,32 @@ const ReverbModule = ({
     // backgroundColor: "blue",
   };
 
+  const CenterAttributeTextDivStyle: CSS.Properties = {
+    position: "relative",
+    marginLeft: "15%",
+    marginTop: "0%",
+    alignContent: "center",
+    width: "70%",
+    height: "8%",
+    opacity: "80%",
+    zIndex: "50",
+    // backgroundColor: "blue",
+  };
+
+  const AttributeTextStyle: CSS.Properties = {
+    fontSize: "10px",
+    width: "60%",
+    marginLeft: "20%",
+    textAlign: "center",
+    // backgroundColor: "green",
+  };
+
+  const SliderStyle: CSS.Properties = {
+    width: "80%",
+    marginLeft: "10%",
+    marginTop: "0%",
+  };
+
   const SelectModuleTextStyle: CSS.Properties = {
     fontSize: "20px",
     width: "60%",
@@ -99,6 +125,12 @@ const ReverbModule = ({
     setAudioNodesChanged(true);
   };
 
+  const handleImpulseSliderChange = (event: any) => {
+    let tempData = data;
+    tempData.impulse = event.target.value;
+    editAudioNodeData(data, position);
+  };
+
   const handleLeftButtonClick = () => {
     moveAudioModuleAndNode(position, true);
   };
@@ -121,6 +153,17 @@ const ReverbModule = ({
           onClick={handleRightButtonClick}
         ></img>
         <h1 style={SelectModuleTextStyle}>Reverb</h1>
+        <div style={CenterAttributeTextDivStyle}>
+          <p style={AttributeTextStyle}>size : {data.impulse}</p>
+        </div>
+        <input
+          type={"range"}
+          min={0}
+          max={17}
+          style={SliderStyle}
+          value={data.impulse}
+          onChange={handleImpulseSliderChange}
+        ></input>
         <br></br>
         <img
           src={deleteButton}

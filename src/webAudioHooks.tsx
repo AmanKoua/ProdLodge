@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import impulseResponse from "./assets/impulseResponses/impulse.wav";
+// import impulseResponse from "./assets/impulseResponses/1.wav";
 
 export let useInitAudioCtx = (
   hasUserGestured: boolean,
@@ -16,11 +16,13 @@ export let useInitAudioCtx = (
   }, [hasUserGestured]);
 };
 
-export let useFetchSongAndInitNodes = (
+export let useFetchAudioAndInitNodes = (
   aCtx: AudioContext | undefined,
-  tempSong: string,
-  setImpulseBuffer: (val: any) => void,
-  setSongBuffer: (val: any) => void,
+  tracksJSON: string,
+  impulsesJSON: string,
+  setTrackBuffers: (val: any) => void,
+  setImpulseBuffers: (val: any) => void,
+  // setSongBuffer: (val: any) => void,
   setSongDuration: (val: any) => void,
   setAudioNodes: (val: any) => void,
   setAreAudioNodesReady: (val: boolean) => void
@@ -31,30 +33,60 @@ export let useFetchSongAndInitNodes = (
       return;
     }
 
-    console.log("fetching song!!!!");
+    console.log("fetching audio!");
+
+    let tempTracks = JSON.parse(tracksJSON);
+    let tempImpulses = JSON.parse(impulsesJSON);
+
+    // console.log(tempTracks);
+    // console.log(tempImpulses);
 
     let song;
     let tempSongBuffer;
 
     let fetchImpulseResponses = async () => {
-      let response = await fetch(impulseResponse);
-      let arrayBuffer = await response.arrayBuffer();
-      await aCtx.decodeAudioData(arrayBuffer, (decodedBuffer) => {
-        setImpulseBuffer(decodedBuffer);
-      });
+      let tempImpulseBuffers: AudioBuffer[] = [];
+      let tempImpulsesKeys: string[] = Object.keys(tempImpulses);
+
+      for (let i = 0; i < tempImpulsesKeys.length; i++) {
+        console.log("impulse fetched!");
+        let response = await fetch(tempImpulses[tempImpulsesKeys[i]]);
+        let arrayBuffer = await response.arrayBuffer();
+        await aCtx.decodeAudioData(arrayBuffer, (decodedBuffer) => {
+          tempImpulseBuffers.push(decodedBuffer);
+        });
+      }
+      setImpulseBuffers(tempImpulseBuffers!);
     };
 
-    let fetchSong = async () => {
-      // Fetch song store songBuffer and songDuration as state
-      song = await fetch(tempSong);
-      tempSongBuffer = await song.arrayBuffer();
+    let fetchTracks = async () => {
+      let tempTrackBuffers: AudioBuffer[] = [];
+      let tempTracksKeys: string[] = Object.keys(tempTracks);
 
-      await aCtx!.decodeAudioData(tempSongBuffer, async (decodedBuffer) => {
-        setSongBuffer(decodedBuffer);
-        setSongDuration(decodedBuffer.duration);
-        await createPrimaryNodes(decodedBuffer);
-      });
+      for (let i = 0; i < tempTracksKeys.length; i++) {
+        console.log("track fetched!");
+        let response = await fetch(tempTracks[tempTracksKeys[i]]);
+        let arrayBuffer = await response.arrayBuffer();
+        await aCtx.decodeAudioData(arrayBuffer, (decodedBuffer) => {
+          tempTrackBuffers.push(decodedBuffer);
+        });
+      }
+      setTrackBuffers(tempTrackBuffers!);
+      setSongDuration(tempTrackBuffers![0].duration);
+      await createPrimaryNodes(tempTrackBuffers![0]);
     };
+
+    // let fetchMaster = async () => {
+    //   // Fetch song store songBuffer and songDuration as state
+    //   song = await fetch(tempTracks.master);
+    //   tempSongBuffer = await song.arrayBuffer();
+
+    //   await aCtx!.decodeAudioData(tempSongBuffer, async (decodedBuffer) => {
+    //     setSongBuffer(decodedBuffer);
+    //     setSongDuration(decodedBuffer.duration);
+    //     await createPrimaryNodes(decodedBuffer);
+    //   });
+    // };
 
     let createPrimaryNodes = async (songBuffer: AudioBuffer) => {
       // create audioBufferSourceNode and analyserNode
@@ -75,8 +107,8 @@ export let useFetchSongAndInitNodes = (
       setAreAudioNodesReady(true);
     };
 
-    fetchSong();
     fetchImpulseResponses();
+    fetchTracks();
   }, [aCtx]);
 };
 
@@ -176,7 +208,11 @@ export let usePlayAndResume = (
       return;
     }
 
-    if (aCtx === undefined || audioNodes === undefined) {
+    if (
+      aCtx === undefined ||
+      audioNodes === undefined ||
+      songBuffer === undefined
+    ) {
       return;
     }
 

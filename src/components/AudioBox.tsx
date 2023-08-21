@@ -8,7 +8,7 @@ import AudioSettingsDrawer from "./AudioSettingsDrawer";
 
 import {
   useInitAudioCtx,
-  useFetchSongAndInitNodes,
+  useFetchAudioAndInitNodes,
   useReconnectNodes,
   usePlayAndResume,
   usePauseSong,
@@ -18,7 +18,34 @@ import {
   useDraw,
 } from "../webAudioHooks";
 
-import tempSong from "../assets/songs/telepathy.mp3";
+import tempSong from "../assets/songs/telepathy.mp3"; // when only 1 track was supported
+
+import bass from "../assets/songs/stems/bass.mp3";
+import chords from "../assets/songs/stems/chords.mp3";
+import drums from "../assets/songs/stems/drums.mp3";
+import leads from "../assets/songs/stems/leads.mp3";
+import reverb from "../assets/songs/stems/reverb.mp3";
+import master from "../assets/songs/stems/master.mp3"; // change this to change master song
+
+// import impulse0 from "../assets/impulseResponses/0.wav";
+import impulse1 from "../assets/impulseResponses/1.wav";
+import impulse2 from "../assets/impulseResponses/2.wav";
+import impulse3 from "../assets/impulseResponses/3.wav";
+import impulse4 from "../assets/impulseResponses/4.wav";
+import impulse5 from "../assets/impulseResponses/5.wav";
+import impulse6 from "../assets/impulseResponses/6.wav";
+import impulse7 from "../assets/impulseResponses/7.wav";
+import impulse8 from "../assets/impulseResponses/8.wav";
+import impulse9 from "../assets/impulseResponses/9.wav";
+import impulse10 from "../assets/impulseResponses/10.wav";
+import impulse11 from "../assets/impulseResponses/11.wav";
+import impulse12 from "../assets/impulseResponses/12.wav";
+import impulse13 from "../assets/impulseResponses/13.wav";
+import impulse14 from "../assets/impulseResponses/14.wav";
+import impulse15 from "../assets/impulseResponses/15.wav";
+import impulse16 from "../assets/impulseResponses/16.wav";
+import impulse17 from "../assets/impulseResponses/17.wav";
+import impulse18 from "../assets/impulseResponses/18.wav";
 
 console.log("AudioBox Rerender!");
 
@@ -26,13 +53,52 @@ console.log("AudioBox Rerender!");
 let aCtx: AudioContext | undefined;
 let setACtx: (val: any) => void;
 
-// song buffer & song info
-let songBuffer: AudioBuffer | undefined;
-let setSongBuffer: (val: any) => void;
-let impulseBuffer: AudioBuffer | undefined;
-let setImpulseBuffer: (val: any) => void;
+// song buffer, song info, and audio buffers
+// let songBuffer: AudioBuffer | undefined;
+// let setSongBuffer: (val: any) => void;
+let trackBuffers: AudioBuffer[] | undefined;
+let setTrackBuffers: (val: any) => void;
+// let impulseBuffer: AudioBuffer | undefined;
+// let setImpulseBuffer: (val: any) => void;
+let impulseBuffers: AudioBuffer[] | undefined;
+let setImpulseBuffers: (val: any) => void;
 let songDuration: number;
 let setSongDuration: (val: any) => void;
+
+let tracks: Object = {
+  bass: bass,
+  chords: chords,
+  drums: drums,
+  leads: leads,
+  reverb: reverb,
+  master: master,
+};
+
+let tracksJSON = JSON.stringify(tracks);
+
+let impulses: Object = {
+  // impulse0: impulse0,
+  impulse1: impulse1,
+  impulse2: impulse2,
+  impulse3: impulse3,
+  impulse4: impulse4,
+  impulse5: impulse5,
+  impulse6: impulse6,
+  impulse7: impulse7,
+  impulse8: impulse8,
+  impulse9: impulse9,
+  impulse10: impulse10,
+  impulse11: impulse11,
+  impulse12: impulse12,
+  impulse13: impulse13,
+  impulse14: impulse14,
+  impulse15: impulse15,
+  impulse16: impulse16,
+  impulse17: impulse17,
+  impulse18: impulse18,
+};
+
+let impulsesJSON = JSON.stringify(impulses);
 
 // AudioNodes (actual audio nodes)
 let audioNodes: AudioNode[][] | undefined;
@@ -110,8 +176,10 @@ const AudioBox = () => {
   [areAudioNodesReady, setAreAudioNodesReady] = useState(false);
 
   [aCtx, setACtx] = useState(undefined); // aCtx and setACtx type are the way they are beause an audioCtx cannot be initialized on render.
-  [songBuffer, setSongBuffer] = useState(undefined);
-  [impulseBuffer, setImpulseBuffer] = useState(undefined);
+  // [songBuffer, setSongBuffer] = useState(undefined);
+  [trackBuffers, setTrackBuffers] = useState(undefined);
+  // [impulseBuffer, setImpulseBuffer] = useState(undefined);
+  [impulseBuffers, setImpulseBuffers] = useState(undefined);
   [songDuration, setSongDuration] = useState(0);
   [audioNodes, setAudioNodes] = useState(undefined);
   [audioNodesChanged, setAudioNodesChanged] = useState(false);
@@ -127,11 +195,12 @@ const AudioBox = () => {
 
   useInitAudioCtx(hasUserGestured, setACtx);
 
-  useFetchSongAndInitNodes(
+  useFetchAudioAndInitNodes(
     aCtx,
-    tempSong,
-    setImpulseBuffer,
-    setSongBuffer,
+    tracksJSON,
+    impulsesJSON,
+    setTrackBuffers,
+    setImpulseBuffers,
     setSongDuration,
     setAudioNodes,
     setAreAudioNodesReady
@@ -148,7 +217,7 @@ const AudioBox = () => {
   usePlayAndResume(
     aCtx,
     audioNodes,
-    songBuffer,
+    trackBuffers ? trackBuffers[5] : undefined, // track selection here!
     isPlaying,
     songTime,
     setSongTime,
@@ -388,7 +457,7 @@ const AudioBox = () => {
         break;
       case "Reverb":
         tempAudioNode = aCtx!.createConvolver();
-        tempAudioNode.buffer = impulseBuffer;
+        tempAudioNode.buffer = impulseBuffers[0];
         insertAudioNode(tempAudioNodes, tempAudioNode);
         setAudioNodes(tempAudioNodes);
         setTimeout(() => {
@@ -597,6 +666,8 @@ const AudioBox = () => {
     if (data.type === "Highpass" || data.type === "Lowpass") {
       tempAudioNodes![row][column].frequency.value = data.frequency;
       tempAudioNodes![row][column].Q.value = data.resonance;
+    } else if (data.type === "Reverb") {
+      tempAudioNodes![row][column].buffer = impulseBuffers![data.impulse];
     }
 
     setAudioNodes(tempAudioNodes);
@@ -638,6 +709,8 @@ const AudioBox = () => {
     } else if (type === "Lowpass") {
       tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].frequency = 21000;
       tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].resonance = 0;
+    } else if (type === "Reverb") {
+      tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].impulse = 0;
     }
 
     addAudioNode(tempAudioModulesData[moduleIndex[0]][moduleIndex[1]]);
