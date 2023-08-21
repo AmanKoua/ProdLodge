@@ -2,16 +2,18 @@ import CSS from "csstype";
 import AudioSettingsTrack from "./AudioSettingsTrack";
 
 interface Props {
-  trackNamesAndIndices: string[] | undefined;
+  settingsTracksData: Object[] | undefined;
   isSettingsExpanded: boolean;
+  setSettingsTracksData: (val: any) => void;
   saveConfiguration: () => void;
   loadConfiguration: () => void;
   editAudioNodeData: (data: Object, position: number[]) => void;
 }
 
 const AudioSettingsDrawer = ({
-  trackNamesAndIndices,
+  settingsTracksData,
   isSettingsExpanded,
+  setSettingsTracksData,
   saveConfiguration,
   loadConfiguration,
   editAudioNodeData,
@@ -59,14 +61,20 @@ const AudioSettingsDrawer = ({
   SettingsDrawerStyle.marginLeft = isSettingsExpanded ? "30%" : "100%";
 
   let generateAudioSettingsTracks = (): JSX.Element => {
+    if (settingsTracksData === undefined) {
+      return <></>;
+    }
+
     let AudioSettingsTracks: JSX.Element = (
       <>
-        {trackNamesAndIndices!.map((track, idx) => {
+        {settingsTracksData!.map((trackData, idx) => {
+          // CHANGE CODE HERE!
           return (
             <AudioSettingsTrack
-              trackName={track}
+              settingsTracksData={settingsTracksData}
               idx={idx}
               editAudioNodeData={editAudioNodeData}
+              setSettingsTracksData={setSettingsTracksData}
               key={idx}
             ></AudioSettingsTrack>
           );

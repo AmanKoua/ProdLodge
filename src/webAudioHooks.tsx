@@ -21,6 +21,7 @@ export let useFetchAudioAndInitNodes = (
   tracksJSON: string,
   impulsesJSON: string,
   setTrackBuffers: (val: any) => void,
+  setSettingsTracksData: (val: any) => void,
   setImpulseBuffers: (val: any) => void,
   setCurrentTrack: (val: any) => void,
   setSongDuration: (val: any) => void,
@@ -62,20 +63,33 @@ export let useFetchAudioAndInitNodes = (
     let fetchTracks = async () => {
       let tempTrackBuffers: AudioBuffer[] = [];
       let tempTracksKeys: string[] = Object.keys(tempTracks);
+      let tempSettingsTracksData: Object[] = [];
 
       for (let i = 0; i < tempTracksKeys.length; i++) {
         console.log("track fetched!");
         let response = await fetch(tempTracks[tempTracksKeys[i]]);
         let arrayBuffer = await response.arrayBuffer();
         await aCtx.decodeAudioData(arrayBuffer, (decodedBuffer) => {
+          let tempTracksData = {};
+
           if (tempTracksKeys[i] === "master") {
             setCurrentTrack(decodedBuffer);
+            tempTracksData.isEnabled = true;
+          } else {
+            tempTracksData.isEnabled = false;
           }
           tempTrackBuffers.push(decodedBuffer);
+
+          // TODO : Finished work here!
+
+          tempTracksData.name = tempTracksKeys[i];
+          tempTracksData.idx = i;
+          tempSettingsTracksData.push(tempTracksData);
         });
       }
       setTrackBuffers(tempTrackBuffers!);
       setSongDuration(tempTrackBuffers![0].duration);
+      setSettingsTracksData(tempSettingsTracksData);
       await createPrimaryNodes(tempTrackBuffers![0]);
     };
 

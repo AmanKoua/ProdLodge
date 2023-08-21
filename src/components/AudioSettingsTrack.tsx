@@ -2,12 +2,18 @@ import React from "react";
 import CSS from "csstype";
 
 interface Props {
-  trackName: string;
+  settingsTracksData: Object[] | undefined;
   idx: number;
   editAudioNodeData: (data: Object, position: number[]) => void;
+  setSettingsTracksData: (val: any) => void;
 }
 
-const AudioSettingsTrack = ({ trackName, idx, editAudioNodeData }: Props) => {
+const AudioSettingsTrack = ({
+  settingsTracksData,
+  idx,
+  editAudioNodeData,
+  setSettingsTracksData,
+}: Props) => {
   let isEnaled = true;
 
   const AudioSettingsTrackStyle: CSS.Properties = {
@@ -21,6 +27,7 @@ const AudioSettingsTrack = ({ trackName, idx, editAudioNodeData }: Props) => {
   const TrackNameStyle: CSS.Properties = {
     // backgroundColor: "green",
     float: "left",
+    marginLeft: "15px",
     width: "15%",
   };
 
@@ -31,7 +38,7 @@ const AudioSettingsTrack = ({ trackName, idx, editAudioNodeData }: Props) => {
     width: "20px",
     height: "20px",
     borderRadius: "25px", // turn div into a circle
-    backgroundColor: "Red",
+    backgroundColor: settingsTracksData![idx].isEnabled ? "#16fa19" : "red",
     zIndex: "1",
   };
 
@@ -43,11 +50,15 @@ const AudioSettingsTrack = ({ trackName, idx, editAudioNodeData }: Props) => {
     editAudioNodeData(tempObject, []);
   };
 
-  let handleToggleEnabledButtonClick = () => {};
+  let handleToggleEnabledButtonClick = () => {
+    console.log(settingsTracksData![idx]);
+    settingsTracksData![idx].isEnabled = !settingsTracksData![idx].isEnabled;
+    // Will not use setSettingsTracksData because settingsTracksData is modified by reference
+  };
 
   return (
     <div style={AudioSettingsTrackStyle} onClick={handleTrackChange}>
-      <p style={TrackNameStyle}>{trackName}</p>
+      <p style={TrackNameStyle}>{settingsTracksData![idx].name}</p>
       <div
         style={IsEnabledButton}
         onClick={handleToggleEnabledButtonClick}

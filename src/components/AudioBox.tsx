@@ -58,6 +58,8 @@ let currentTrack: AudioBuffer | undefined;
 let setCurrentTrack: (val: any) => void;
 let trackBuffers: AudioBuffer[] | undefined;
 let setTrackBuffers: (val: any) => void;
+let settingsTracksData: Object[] | undefined;
+let setSettingsTracksData: (val: any) => void;
 let trackNamesAndIndices: string[] | undefined;
 // let setTrackNamesAndIndices: (val: any) => void;
 // let impulseBuffer: AudioBuffer | undefined;
@@ -182,6 +184,7 @@ const AudioBox = () => {
   // [songBuffer, setSongBuffer] = useState(undefined);
   [currentTrack, setCurrentTrack] = useState(undefined);
   [trackBuffers, setTrackBuffers] = useState(undefined);
+  [settingsTracksData, setSettingsTracksData] = useState(undefined);
   // [impulseBuffer, setImpulseBuffer] = useState(undefined);
   [impulseBuffers, setImpulseBuffers] = useState(undefined);
   [songDuration, setSongDuration] = useState(0);
@@ -204,6 +207,7 @@ const AudioBox = () => {
     tracksJSON,
     impulsesJSON,
     setTrackBuffers,
+    setSettingsTracksData,
     setImpulseBuffers,
     setCurrentTrack,
     setSongDuration,
@@ -681,6 +685,10 @@ const AudioBox = () => {
     setAudioNodes(tempAudioNodes);
 
     if (data.type === "TrackChange") {
+      if (!isPlaying) {
+        setIsPlaying(true);
+      }
+
       setIsPlaying(false);
       setTimeout(() => {
         setIsPlaying(true);
@@ -826,8 +834,9 @@ const AudioBox = () => {
           Settings
         </div>
         <AudioSettingsDrawer
-          trackNamesAndIndices={trackNamesAndIndices}
+          settingsTracksData={settingsTracksData}
           isSettingsExpanded={isSettingsExpanded}
+          setSettingsTracksData={setSettingsTracksData}
           saveConfiguration={saveConfiguration}
           loadConfiguration={loadConfiguration}
           editAudioNodeData={editAudioNodeData}
