@@ -31,7 +31,6 @@ const ReverbModule = ({
     border: "1px solid black",
     borderRadius: "10px",
     // backgroundColor: "green",
-    opacity: "100%",
     opacity: data.isEnabled ? "100%" : "35%",
   };
 
