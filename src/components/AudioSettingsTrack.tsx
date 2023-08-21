@@ -1,4 +1,4 @@
-import React from "react";
+import { useRef } from "react";
 import CSS from "csstype";
 
 interface Props {
@@ -14,13 +14,14 @@ const AudioSettingsTrack = ({
   editAudioNodeData,
   setSettingsTracksData,
 }: Props) => {
-  let isEnaled = true;
+  let AudioSettingsTrackDiv = useRef(null);
 
   const AudioSettingsTrackStyle: CSS.Properties = {
     position: "relative",
     marginTop: "8px",
     width: "100%",
     height: "35px",
+    border: "1px solid black",
     // backgroundColor: "blanchedalmond",
   };
 
@@ -42,7 +43,11 @@ const AudioSettingsTrack = ({
     zIndex: "1",
   };
 
-  const handleTrackChange = () => {
+  const handleTrackChange = (event: any) => {
+    if (event.target != AudioSettingsTrackDiv.current) {
+      return;
+    }
+
     let tempObject = {
       type: "TrackChange",
       track: idx,
@@ -57,7 +62,11 @@ const AudioSettingsTrack = ({
   };
 
   return (
-    <div style={AudioSettingsTrackStyle} onClick={handleTrackChange}>
+    <div
+      style={AudioSettingsTrackStyle}
+      onClick={handleTrackChange}
+      ref={AudioSettingsTrackDiv}
+    >
       <p style={TrackNameStyle}>{settingsTracksData![idx].name}</p>
       <div
         style={IsEnabledButton}
