@@ -227,7 +227,9 @@ const AudioBox = () => {
   useReconnectNodes(
     aCtx,
     audioNodes,
+    analyserNode,
     audioModules,
+    currentTrackIdx,
     audioNodesChanged,
     setAudioNodesChanged
   );
@@ -235,7 +237,7 @@ const AudioBox = () => {
   usePlayAndResume(
     aCtx,
     audioNodes,
-    // currentTrack ? currentTrack : undefined,
+    trackBuffers,
     isPlaying,
     songTime,
     setSongTime,
@@ -255,9 +257,9 @@ const AudioBox = () => {
 
   useInitVisualizer(
     isVisualizing,
-    audioNodes,
+    // audioNodes,
+    analyserNode,
     canvasRef,
-    dataArr,
     setBufferLength,
     setDataArr,
     setCanvas,
@@ -269,7 +271,7 @@ const AudioBox = () => {
   useDraw(
     canvas,
     canvasCtx,
-    audioNodes,
+    analyserNode,
     dataArr,
     bufferLength,
     setAnimationFrameHandler

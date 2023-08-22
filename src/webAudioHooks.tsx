@@ -158,9 +158,10 @@ export let useFetchAudioAndInitNodes = (
 
 export let useReconnectNodes = (
   aCtx: AudioContext | undefined,
-  audioNodes: AudioNode[][] | undefined,
-  analyserNode: AudioNode | undefined, // TODO : STOPPED HERE FOR THE DAY! --------------
+  audioNodes: AudioNode[][][] | undefined,
+  analyserNode: AudioNode | undefined,
   audioModules: Object[][],
+  currentTrackIdx: number,
   audioNodesChanged: boolean,
   setAudioNodesChanged: (val: any) => void
 ) => {
@@ -174,50 +175,70 @@ export let useReconnectNodes = (
       return;
     }
 
-    // console.log("connecting nodes! -------------------", audioModules);
+    let tempAudioNodes = audioNodes[currentTrackIdx]; // 2d audioNodes structure now
 
-    let audioModuleRow: number;
-    let audioModuleColumn: number;
-
-    if (audioNodes.length == 2) {
-      audioNodes[0][0].connect(aCtx!.destination); // connect to destination
-      audioNodes[0][0].connect(audioNodes[1][0]); // connect to analyser
+    if (tempAudioNodes.length === 2) {
+      // only audioBufferSourceNode and gainNode
+      tempAudioNodes[0][0].disconnect();
+      tempAudioNodes[0][0].connect(tempAudioNodes[1][0]);
+      tempAudioNodes[1][0].disconnect();
+      tempAudioNodes[1][0].connect(analyserNode!);
+      tempAudioNodes[1][0].connect(aCtx!.destination);
     } else {
-      // loop through audioNodes and connect them one by one
-      let currentNode = audioNodes[0][0]; // start with audioSourceBufferNode;
-      let analyserNode = audioNodes[audioNodes.length - 1][0]; // analyserNode
-      for (let i = 1; i < audioNodes.length - 1; i++) {
-        // row
-        for (let j = 0; j < audioNodes[i].length; j++) {
-          // column
-
-          // convert audioNode location to audioModule location
-          audioModuleRow = i - 1;
-          audioModuleColumn = j;
-
-          if (audioModuleRow === 0) {
-            audioModuleColumn += 1;
-          }
-
-          // console.log(JSON.stringify(audioModules));
-
-          if (!audioModules[audioModuleRow][audioModuleColumn].isEnabled) {
-            // this line breaks IF audioNodes are not reset along with audioModules when a track is changed
-            // if audioModule is not enabled, skip connection!
-            continue;
-          }
-
-          currentNode.disconnect();
-          currentNode.connect(audioNodes[i][j]);
-          currentNode = audioNodes[i][j];
-        }
-      }
-      currentNode.disconnect();
-      currentNode.connect(aCtx!.destination);
-      currentNode.connect(analyserNode);
+      let currentNode: AudioNode = tempAudioNodes[0][0]; // audioBufferSourceNode
+      // TO BE IMPLEMENTED!
     }
 
     setAudioNodesChanged(false);
+
+    // console.log("connecting nodes! -------------------", audioNodes);
+
+    // OLD Code ------------------------------------------------------------------------
+
+    // let audioModuleRow: number;
+    // let audioModuleColumn: number;
+
+    // if (audioNodes.length == 2) {
+    //   audioNodes[0][0].connect(aCtx!.destination); // connect to destination
+    //   audioNodes[0][0].connect(audioNodes[1][0]); // connect to analyser
+    // } else {
+    //   // loop through audioNodes and connect them one by one
+    //   let currentNode = audioNodes[0][0]; // start with audioSourceBufferNode;
+    //   let analyserNode = audioNodes[audioNodes.length - 1][0]; // analyserNode
+    //   for (let i = 1; i < audioNodes.length - 1; i++) {
+    //     // row
+    //     for (let j = 0; j < audioNodes[i].length; j++) {
+    //       // column
+
+    //       // convert audioNode location to audioModule location
+    //       audioModuleRow = i - 1;
+    //       audioModuleColumn = j;
+
+    //       if (audioModuleRow === 0) {
+    //         audioModuleColumn += 1;
+    //       }
+
+    //       // console.log(JSON.stringify(audioModules));
+
+    //       if (!audioModules[audioModuleRow][audioModuleColumn].isEnabled) {
+    //         // this line breaks IF audioNodes are not reset along with audioModules when a track is changed
+    //         // if audioModule is not enabled, skip connection!
+    //         continue;
+    //       }
+
+    //       currentNode.disconnect();
+    //       currentNode.connect(audioNodes[i][j]);
+    //       currentNode = audioNodes[i][j];
+    //     }
+    //   }
+    //   currentNode.disconnect();
+    //   currentNode.connect(aCtx!.destination);
+    //   currentNode.connect(analyserNode);
+    // }
+
+    // setAudioNodesChanged(false);
+
+    // -----------------------------------------------------------------------------------------
 
     /*
       For some reason, the cleanup function breaks when the hook is extracted into this file but works fine when implemented in audioBox.tsx directly.
@@ -242,8 +263,8 @@ export let useReconnectNodes = (
 
 export let usePlayAndResume = (
   aCtx: AudioContext | undefined,
-  audioNodes: AudioNode[][] | undefined,
-  // trackBuffer: AudioBuffer | undefined,
+  audioNodes: AudioNode[][][] | undefined,
+  trackBuffers: AudioBuffer[] | undefined,
   isPlaying: boolean,
   songTime: number = 0,
   setSongTime: (val: number) => void,
@@ -259,40 +280,59 @@ export let usePlayAndResume = (
     if (
       aCtx === undefined ||
       audioNodes === undefined ||
-      trackBuffer === undefined
+      trackBuffers === undefined
     ) {
       return;
     }
 
-    // console.log("play / resume!");
+    console.log("play / resume!");
 
     let tempAudioNodes = audioNodes; // I suspect that this is NOT seen as a different array upon mutation because the reference is the same
-    let tempAudioSourceNode: AudioBufferSourceNode = aCtx!.createBufferSource();
 
-    tempAudioSourceNode.buffer = trackBuffer!;
-    tempAudioNodes![0][0] = tempAudioSourceNode;
+    for (let i = 0; i < audioNodes.length; i++) {
+      let tempAudioSourceNode: AudioBufferSourceNode =
+        aCtx!.createBufferSource();
+      tempAudioSourceNode.buffer = trackBuffers![i];
+
+      tempAudioNodes[i][0][0] = tempAudioSourceNode;
+    }
 
     setAudioNodes(tempAudioNodes);
-    setAudioNodesChanged(true); // required to trigger above effect because audioNodes is a FREAKING DEEP COPY and reference does not change when mutated
+    setAudioNodesChanged(true); // trigger the reconnection process
+
+    // let tempAudioNodes = audioNodes; // I suspect that this is NOT seen as a different array upon mutation because the reference is the same
+    // let tempAudioSourceNode: AudioBufferSourceNode = aCtx!.createBufferSource();
+
+    // tempAudioSourceNode.buffer = trackBuffer!;
+    // tempAudioNodes![0][0] = tempAudioSourceNode;
+
+    // setAudioNodes(tempAudioNodes);
+    // setAudioNodesChanged(true); // required to trigger above effect because audioNodes is a FREAKING DEEP COPY and reference does not change when mutated
 
     if (songTime < 0) {
       setSongTime(0);
     }
 
-    audioNodes![0][0].start(0, songTime);
+    for (let i = 0; i < audioNodes.length; i++) {
+      // will need to check that they all start at the same time...
+      audioNodes![i][0][0].start(0, songTime);
+    }
   }, [isPlaying]);
 };
 
 export let usePauseSong = (
   isPlaying: boolean,
-  audioNodes: AudioNode[][] | undefined
+  audioNodes: AudioNode[][][] | undefined
 ) => {
   useEffect(() => {
     // pause when pause button clicked!
     if (isPlaying || audioNodes === undefined) {
       return;
     }
-    audioNodes[0][0].stop();
+
+    for (let i = 0; i < audioNodes.length; i++) {
+      audioNodes[i][0][0].stop();
+    }
   }, [isPlaying]);
 };
 
@@ -362,9 +402,9 @@ export let useInitCanvas = (canvasRef: any) => {
 
 export let useInitVisualizer = (
   isVisualizing: boolean,
-  audioNodes: AudioNode[][] | undefined,
+  // audioNodes: AudioNode[][] | undefined,
+  analyserNode: AudioNode | undefined,
   canvasRef: any,
-  dataArr: Uint8Array | undefined,
   setBufferLength: (val: any) => void,
   setDataArr: (val: any) => void,
   setCanvas: (val: any) => void,
@@ -377,22 +417,21 @@ export let useInitVisualizer = (
       return;
     }
 
-    if (audioNodes === undefined) {
+    if (analyserNode === undefined) {
       console.log("canvas init dependencies undefined!");
       return;
     }
 
     console.log("initializing visualizer!");
 
-    let tempDataArrSize =
-      audioNodes[audioNodes.length - 1][0].frequencyBinCount;
+    let tempDataArrSize = analyserNode.frequencyBinCount;
     let tempDataArr = new Uint8Array(tempDataArrSize);
 
     setBufferLength(tempDataArrSize);
     setDataArr(tempDataArr);
 
     setTimeout(() => {
-      audioNodes![audioNodes!.length - 1][0].getByteTimeDomainData(tempDataArr);
+      analyserNode.getByteTimeDomainData(tempDataArr);
     }, 10);
 
     setCanvas(canvasRef.current!);
@@ -406,7 +445,7 @@ export let useInitVisualizer = (
 export let useDraw = (
   canvas: HTMLCanvasElement | undefined,
   canvasCtx: CanvasRenderingContext2D | undefined,
-  audioNodes: AudioNode[][] | undefined,
+  analyserNode: AudioNode | undefined,
   dataArr: Uint8Array | undefined,
   bufferLength: number | undefined,
   setAnimationFrameHandler: (val: any) => void
@@ -416,7 +455,7 @@ export let useDraw = (
     if (
       canvas === undefined ||
       canvasCtx === undefined ||
-      audioNodes === undefined ||
+      analyserNode === undefined ||
       dataArr === undefined ||
       bufferLength === undefined
     ) {
@@ -431,7 +470,7 @@ export let useDraw = (
 
     let draw = () => {
       setAnimationFrameHandler(requestAnimationFrame(draw));
-      audioNodes![audioNodes!.length - 1][0].getByteTimeDomainData(dataArr);
+      analyserNode.getByteTimeDomainData(dataArr);
 
       canvasCtx!.fillStyle = "rgb(255, 255, 255)";
       canvasCtx!.fillRect(0, 0, canvas!.width, canvas!.height);
