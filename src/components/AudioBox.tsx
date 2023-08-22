@@ -295,7 +295,7 @@ const AudioBox = () => {
   };
 
   AudioBoxStyle.height = isExpanded
-    ? `${audioModules.length * 255 + 100}px`
+    ? `${audioModules.length * (215 - audioModules.length) + 100}px`
     : "40px";
 
   const CanvasStyle: CSS.Properties = {
