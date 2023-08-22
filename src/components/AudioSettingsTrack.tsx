@@ -32,10 +32,11 @@ const AudioSettingsTrack = ({
 
   const AudioSettingsTrackStyle: CSS.Properties = {
     position: "relative",
-    marginTop: "8px",
+    marginTop: "12px",
     width: "100%",
     height: "35px",
-    border: "1px solid black",
+    borderRadius: "100px",
+    border: currentTrackIdx === idx ? "3px solid black" : "1px solid black",
     opacity: settingsTracksData![idx].isEnabled ? "100%" : "40%",
     // backgroundColor: "blanchedalmond",
   };
@@ -47,6 +48,15 @@ const AudioSettingsTrack = ({
     width: "15%",
   };
 
+  const AudioModulesCountStyle: CSS.Properties = {
+    // backgroundColor: "green",
+    float: "left",
+    marginLeft: "15px",
+    marginTop: "4px",
+    width: settingsTracksData![idx].moduleCount === 0 ? "0%" : "20%",
+    // backgroundColor: "red",
+  };
+
   const IsEnabledButton: CSS.Properties = {
     position: "absolute",
     marginLeft: "15%",
@@ -56,6 +66,14 @@ const AudioSettingsTrack = ({
     borderRadius: "25px", // turn div into a circle
     backgroundColor: settingsTracksData![idx].isEnabled ? "#16fa19" : "red",
     zIndex: "1",
+  };
+
+  const generateModuleCountText = (): string => {
+    if (settingsTracksData![idx].moduleCount === 0) {
+      return "";
+    } else {
+      return `Modules : ${settingsTracksData![idx].moduleCount} `;
+    }
   };
 
   const handleTrackChange = async (event: any) => {
@@ -111,6 +129,7 @@ const AudioSettingsTrack = ({
         style={IsEnabledButton}
         onClick={handleToggleEnabledButtonClick}
       ></div>
+      <div style={AudioModulesCountStyle}>{generateModuleCountText()}</div>
     </div>
   );
 };

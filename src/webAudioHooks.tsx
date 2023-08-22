@@ -82,6 +82,7 @@ export let useFetchAudioAndInitNodes = (
           tempTrackBuffers.push(decodedBuffer);
 
           tempTracksData.name = tempTracksKeys[i];
+          tempTracksData.moduleCount = 0;
           tempTracksData.idx = i;
           tempSettingsTracksData.push(tempTracksData);
           if (i !== 0) {

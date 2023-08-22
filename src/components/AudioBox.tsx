@@ -381,6 +381,7 @@ const AudioBox = () => {
 
     // console.log(tempAudioModulesData);
     setAudioModules(tempAudioModulesData);
+    settingsTracksData![currentTrackIdx].moduleCount += 1;
   };
 
   const insertAudioNode = (
@@ -588,6 +589,7 @@ const AudioBox = () => {
       insertAudioNode(audioNodes, tempAudioNodesLinearArr[i], currentTrackIdx);
     }
 
+    settingsTracksData![currentTrackIdx].moduleCount -= 1;
     setAudioNodes(audioNodes);
     setTimeout(() => {
       setAudioNodesChanged(true);

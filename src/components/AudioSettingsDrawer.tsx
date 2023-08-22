@@ -39,7 +39,8 @@ const AudioSettingsDrawer = ({
     marginLeft: "95%",
     width: "70%",
     height: "72%",
-    backgroundColor: "#e1f5fa",
+    // backgroundColor: "#e1f5fa",
+    backgroundColor: "#d4e6fc",
     opacity: "95%",
     transition: "all 0.3s", // for expansion and contraction
     overflow: "scroll",
