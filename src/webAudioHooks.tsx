@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import impulseResponse from "./assets/impulseResponses/impulse.wav";
 
 export let useInitAudioCtx = (
   hasUserGestured: boolean,
@@ -16,80 +15,143 @@ export let useInitAudioCtx = (
   }, [hasUserGestured]);
 };
 
-export let useFetchSongAndInitNodes = (
+export let useFetchAudioAndInitNodes = (
   aCtx: AudioContext | undefined,
-  tempSong: string,
-  setImpulseBuffer: (val: any) => void,
-  setSongBuffer: (val: any) => void,
+  tracksJSON: string,
+  impulsesJSON: string,
+  setTrackBuffers: (val: any) => void,
+  setSettingsTracksData: (val: any) => void,
+  setImpulseBuffers: (val: any) => void,
+  // setCurrentTrack: (val: any) => void,
+  setCurrentTrackIdx: (val: number) => void,
   setSongDuration: (val: any) => void,
   setAudioNodes: (val: any) => void,
-  setAreAudioNodesReady: (val: boolean) => void
+  setAnalyserNode: (val: any) => void,
+  setAreAudioNodesReady: (val: boolean) => void,
+  setAudioModulesJSON: (val: string[]) => void
 ) => {
   useEffect(() => {
-    // Fetch song data and initialize primary nodes
+    // Fetch audio data and initialize primary nodes
     if (aCtx === undefined) {
       return;
     }
 
-    console.log("fetching song!!!!");
+    console.log("fetching audio!");
 
-    let song;
-    let tempSongBuffer;
+    let tempTracks = JSON.parse(tracksJSON);
+    let tempImpulses = JSON.parse(impulsesJSON);
+
+    // console.log(tempTracks);
+    // console.log(tempImpulses);
 
     let fetchImpulseResponses = async () => {
-      let response = await fetch(impulseResponse);
-      let arrayBuffer = await response.arrayBuffer();
-      await aCtx.decodeAudioData(arrayBuffer, (decodedBuffer) => {
-        setImpulseBuffer(decodedBuffer);
-      });
+      let tempImpulseBuffers: AudioBuffer[] = [];
+      let tempImpulsesKeys: string[] = Object.keys(tempImpulses);
+
+      for (let i = 0; i < tempImpulsesKeys.length; i++) {
+        console.log("impulse fetched!");
+        let response = await fetch(tempImpulses[tempImpulsesKeys[i]]);
+        let arrayBuffer = await response.arrayBuffer();
+        await aCtx.decodeAudioData(arrayBuffer, (decodedBuffer) => {
+          tempImpulseBuffers.push(decodedBuffer);
+        });
+      }
+      setImpulseBuffers(tempImpulseBuffers!);
     };
 
-    let fetchSong = async () => {
-      // Fetch song store songBuffer and songDuration as state
-      song = await fetch(tempSong);
-      tempSongBuffer = await song.arrayBuffer();
+    let fetchTracks = async () => {
+      let tempTrackBuffers: AudioBuffer[] = [];
+      let tempTracksKeys: string[] = Object.keys(tempTracks);
+      let tempSettingsTracksData: Object[] = [];
+      let tempAudioModulesJSON: string[] = ['[[{"type":"Blank"}]]'];
 
-      await aCtx!.decodeAudioData(tempSongBuffer, async (decodedBuffer) => {
-        setSongBuffer(decodedBuffer);
-        setSongDuration(decodedBuffer.duration);
-        await createPrimaryNodes(decodedBuffer);
-      });
+      for (let i = 0; i < tempTracksKeys.length; i++) {
+        console.log("track fetched!");
+        let response = await fetch(tempTracks[tempTracksKeys[i]]);
+        let arrayBuffer = await response.arrayBuffer();
+        await aCtx.decodeAudioData(arrayBuffer, (decodedBuffer) => {
+          let tempTracksData = {};
+
+          if (tempTracksKeys[i] === "master") {
+            tempTracksData.isEnabled = false;
+          } else {
+            tempTracksData.isEnabled = true;
+            setCurrentTrackIdx(i);
+          }
+
+          tempTrackBuffers.push(decodedBuffer);
+
+          tempTracksData.name = tempTracksKeys[i];
+          tempTracksData.idx = i;
+          tempSettingsTracksData.push(tempTracksData);
+          if (i !== 0) {
+            // skip 1, because 1 is already defined when the audioModulesState is set!
+            tempAudioModulesJSON.push('[[{"type":"Blank"}]]');
+          }
+        });
+      }
+      setTrackBuffers(tempTrackBuffers!);
+      setSongDuration(tempTrackBuffers![0].duration);
+      setSettingsTracksData(tempSettingsTracksData);
+      setAudioModulesJSON(tempAudioModulesJSON);
+      await createPrimaryNodes(tempTrackBuffers!, tempSettingsTracksData);
     };
 
-    let createPrimaryNodes = async (songBuffer: AudioBuffer) => {
+    let createPrimaryNodes = async (
+      songBuffers: AudioBuffer[],
+      tempSettingsTracksData: Object[] // to tell if gain should be on / off
+    ) => {
       // create audioBufferSourceNode and analyserNode
+
       console.log("creating primary nodes!");
-      let tempAudioSourceNode: AudioBufferSourceNode =
-        aCtx!.createBufferSource();
+
       let tempAnalyserNode: AnalyserNode = aCtx!.createAnalyser();
-
-      tempAudioSourceNode.buffer = songBuffer;
       tempAnalyserNode.fftSize = 2048;
+      setAnalyserNode(tempAnalyserNode);
 
-      let tempAudioNodesArr: AudioNode[][] = [
-        [tempAudioSourceNode],
-        [tempAnalyserNode],
-      ];
+      let tempAudioNodesArr: AudioNode[][][] = [];
+
+      for (let i = 0; i < songBuffers.length; i++) {
+        let tempAudioNodeSubArr = [];
+
+        let tempAudioSourceNode: AudioBufferSourceNode =
+          aCtx!.createBufferSource();
+        tempAudioSourceNode.buffer = songBuffers[i];
+        tempAudioNodeSubArr.push([tempAudioSourceNode]);
+
+        let tempGainNode: GainNode = aCtx!.createGain();
+        if (tempSettingsTracksData[i].isEnabled) {
+          tempGainNode.gain.value = 1; // enabled
+        } else {
+          tempGainNode.gain.value = 0; // muted
+        }
+        tempAudioNodeSubArr.push([tempGainNode]);
+        tempAudioNodesArr.push(tempAudioNodeSubArr);
+      }
 
       setAudioNodes(tempAudioNodesArr);
       setAreAudioNodesReady(true);
     };
 
-    fetchSong();
     fetchImpulseResponses();
+    fetchTracks();
   }, [aCtx]);
 };
 
 export let useReconnectNodes = (
   aCtx: AudioContext | undefined,
-  audioNodes: AudioNode[][] | undefined,
+  audioNodes: AudioNode[][][] | undefined,
+  analyserNode: AudioNode | undefined,
   audioModules: Object[][],
+  audioModulesJSON: string[],
+  settingsTracksData: Object[] | undefined,
+  currentTrackIdx: number,
   audioNodesChanged: boolean,
   setAudioNodesChanged: (val: any) => void
 ) => {
   useEffect(() => {
     // disconnect and reconnect all audioNodes
-    if (audioNodes === undefined) {
+    if (audioNodes === undefined || analyserNode === undefined) {
       return;
     }
 
@@ -97,44 +159,91 @@ export let useReconnectNodes = (
       return;
     }
 
-    // console.log("connecting nodes! -------------------", audioNodes);
-
+    console.log("connecting audio nodes!");
     let audioModuleRow: number;
     let audioModuleColumn: number;
 
-    if (audioNodes.length == 2) {
-      audioNodes[0][0].connect(aCtx!.destination); // connect to destination
-      audioNodes[0][0].connect(audioNodes[1][0]); // connect to analyser
-    } else {
-      // loop through audioNodes and connect them one by one
-      let currentNode = audioNodes[0][0]; // start with audioSourceBufferNode;
-      let analyserNode = audioNodes[audioNodes.length - 1][0]; // analyserNode
-      for (let i = 1; i < audioNodes.length - 1; i++) {
-        // row
-        for (let j = 0; j < audioNodes[i].length; j++) {
-          // column
+    for (let x = 0; x < audioNodes.length; x++) {
+      let tempAudioNodes = audioNodes[x]; // 2d audioNodes structure now
 
-          // convert audioNode location to audioModule location
-          audioModuleRow = i - 1;
-          audioModuleColumn = j;
+      if (tempAudioNodes.length === 2) {
+        // only audioBufferSourceNode and gainNode
+        tempAudioNodes[0][0].disconnect();
+        tempAudioNodes[0][0].connect(tempAudioNodes[1][0]);
+        tempAudioNodes[1][0].disconnect();
+        tempAudioNodes[1][0].connect(analyserNode!);
+        tempAudioNodes[1][0].connect(aCtx!.destination);
 
-          if (audioModuleRow === 0) {
-            audioModuleColumn += 1;
+        if (settingsTracksData![x].isEnabled) {
+          tempAudioNodes[1][0].gain.value = 1;
+        } else {
+          tempAudioNodes[1][0].gain.value = 0;
+        }
+      } else {
+        // loop through audioNodes and connect them one by one
+        let currentNode = tempAudioNodes[0][0]; // start with audioSourceBufferNode;
+        let gainNode = tempAudioNodes[tempAudioNodes.length - 1][0]; // gainNode
+        for (let i = 1; i < tempAudioNodes.length - 1; i++) {
+          // row
+          for (let j = 0; j < tempAudioNodes[i].length; j++) {
+            // column
+
+            if (x === currentTrackIdx) {
+              // convert audioNode location to audioModule location
+              audioModuleRow = i - 1;
+              audioModuleColumn = j;
+
+              if (audioModuleRow === 0) {
+                audioModuleColumn += 1;
+              }
+
+              if (!audioModules[audioModuleRow][audioModuleColumn].isEnabled) {
+                // this line breaks IF audioNodes are not reset along with audioModules when a track is changed
+                // if audioModule is not enabled, skip connection!
+                continue;
+              }
+
+              currentNode.disconnect();
+              currentNode.connect(tempAudioNodes[i][j]);
+              currentNode = tempAudioNodes[i][j];
+            } else {
+              let tempAudioModules = JSON.parse(audioModulesJSON[x]);
+
+              // convert audioNode location to audioModule location
+              audioModuleRow = i - 1;
+              audioModuleColumn = j;
+
+              if (audioModuleRow === 0) {
+                audioModuleColumn += 1;
+              }
+
+              // console.log(JSON.stringify(audioModules));
+
+              if (
+                !tempAudioModules[audioModuleRow][audioModuleColumn].isEnabled
+              ) {
+                // this line breaks IF audioNodes are not reset along with audioModules when a track is changed
+                // if audioModule is not enabled, skip connection!
+                continue;
+              }
+
+              currentNode.disconnect();
+              currentNode.connect(tempAudioNodes[i][j]);
+              currentNode = tempAudioNodes[i][j];
+            }
           }
+        }
+        currentNode.disconnect();
+        currentNode.connect(gainNode);
+        gainNode.connect(analyserNode);
+        gainNode.connect(aCtx!.destination);
 
-          if (!audioModules[audioModuleRow][audioModuleColumn].isEnabled) {
-            // if audioModule is not enabled, skip connection!
-            continue;
-          }
-
-          currentNode.disconnect();
-          currentNode.connect(audioNodes[i][j]);
-          currentNode = audioNodes[i][j];
+        if (settingsTracksData![x].isEnabled) {
+          gainNode.gain.value = 1;
+        } else {
+          gainNode.gain.value = 0;
         }
       }
-      currentNode.disconnect();
-      currentNode.connect(aCtx!.destination);
-      currentNode.connect(analyserNode);
     }
 
     setAudioNodesChanged(false);
@@ -162,8 +271,8 @@ export let useReconnectNodes = (
 
 export let usePlayAndResume = (
   aCtx: AudioContext | undefined,
-  audioNodes: AudioNode[][] | undefined,
-  songBuffer: AudioBuffer | undefined,
+  audioNodes: AudioNode[][][] | undefined,
+  trackBuffers: AudioBuffer[] | undefined,
   isPlaying: boolean,
   songTime: number = 0,
   setSongTime: (val: number) => void,
@@ -176,39 +285,53 @@ export let usePlayAndResume = (
       return;
     }
 
-    if (aCtx === undefined || audioNodes === undefined) {
+    if (
+      aCtx === undefined ||
+      audioNodes === undefined ||
+      trackBuffers === undefined
+    ) {
       return;
     }
 
     console.log("play / resume!");
 
     let tempAudioNodes = audioNodes; // I suspect that this is NOT seen as a different array upon mutation because the reference is the same
-    let tempAudioSourceNode: AudioBufferSourceNode = aCtx!.createBufferSource();
 
-    tempAudioSourceNode.buffer = songBuffer!;
-    tempAudioNodes![0][0] = tempAudioSourceNode;
+    for (let i = 0; i < audioNodes.length; i++) {
+      let tempAudioSourceNode: AudioBufferSourceNode =
+        aCtx!.createBufferSource();
+      tempAudioSourceNode.buffer = trackBuffers![i];
+
+      tempAudioNodes[i][0][0] = tempAudioSourceNode;
+    }
 
     setAudioNodes(tempAudioNodes);
-    setAudioNodesChanged(true); // required to trigger above effect because audioNodes is a FREAKING DEEP COPY and reference does not change when mutated
+    setAudioNodesChanged(true); // trigger the reconnection process
 
     if (songTime < 0) {
       setSongTime(0);
     }
 
-    audioNodes![0][0].start(0, songTime);
+    for (let i = 0; i < audioNodes.length; i++) {
+      // will need to check that they all start at the same time...
+      audioNodes![i][0][0].start(0, songTime);
+    }
   }, [isPlaying]);
 };
 
 export let usePauseSong = (
   isPlaying: boolean,
-  audioNodes: AudioNode[][] | undefined
+  audioNodes: AudioNode[][][] | undefined
 ) => {
   useEffect(() => {
     // pause when pause button clicked!
     if (isPlaying || audioNodes === undefined) {
       return;
     }
-    audioNodes[0][0].stop();
+
+    for (let i = 0; i < audioNodes.length; i++) {
+      audioNodes[i][0][0].stop();
+    }
   }, [isPlaying]);
 };
 
@@ -233,7 +356,7 @@ export let useTrackSongTime = (
       return;
     }
 
-    console.log("tracking song time!");
+    // console.log("tracking song time!");
 
     if (isPlaying) {
       if (songTimeInterval != undefined) {
@@ -278,9 +401,9 @@ export let useInitCanvas = (canvasRef: any) => {
 
 export let useInitVisualizer = (
   isVisualizing: boolean,
-  audioNodes: AudioNode[][] | undefined,
+  // audioNodes: AudioNode[][] | undefined,
+  analyserNode: AudioNode | undefined,
   canvasRef: any,
-  dataArr: Uint8Array | undefined,
   setBufferLength: (val: any) => void,
   setDataArr: (val: any) => void,
   setCanvas: (val: any) => void,
@@ -293,22 +416,21 @@ export let useInitVisualizer = (
       return;
     }
 
-    if (audioNodes === undefined) {
+    if (analyserNode === undefined) {
       console.log("canvas init dependencies undefined!");
       return;
     }
 
     console.log("initializing visualizer!");
 
-    let tempDataArrSize =
-      audioNodes[audioNodes.length - 1][0].frequencyBinCount;
+    let tempDataArrSize = analyserNode.frequencyBinCount;
     let tempDataArr = new Uint8Array(tempDataArrSize);
 
     setBufferLength(tempDataArrSize);
     setDataArr(tempDataArr);
 
     setTimeout(() => {
-      audioNodes![audioNodes!.length - 1][0].getByteTimeDomainData(tempDataArr);
+      analyserNode.getByteTimeDomainData(tempDataArr);
     }, 10);
 
     setCanvas(canvasRef.current!);
@@ -322,7 +444,7 @@ export let useInitVisualizer = (
 export let useDraw = (
   canvas: HTMLCanvasElement | undefined,
   canvasCtx: CanvasRenderingContext2D | undefined,
-  audioNodes: AudioNode[][] | undefined,
+  analyserNode: AudioNode | undefined,
   dataArr: Uint8Array | undefined,
   bufferLength: number | undefined,
   setAnimationFrameHandler: (val: any) => void
@@ -332,7 +454,7 @@ export let useDraw = (
     if (
       canvas === undefined ||
       canvasCtx === undefined ||
-      audioNodes === undefined ||
+      analyserNode === undefined ||
       dataArr === undefined ||
       bufferLength === undefined
     ) {
@@ -347,7 +469,7 @@ export let useDraw = (
 
     let draw = () => {
       setAnimationFrameHandler(requestAnimationFrame(draw));
-      audioNodes![audioNodes!.length - 1][0].getByteTimeDomainData(dataArr);
+      analyserNode.getByteTimeDomainData(dataArr);
 
       canvasCtx!.fillStyle = "rgb(255, 255, 255)";
       canvasCtx!.fillRect(0, 0, canvas!.width, canvas!.height);

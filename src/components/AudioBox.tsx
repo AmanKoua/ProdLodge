@@ -8,7 +8,7 @@ import AudioSettingsDrawer from "./AudioSettingsDrawer";
 
 import {
   useInitAudioCtx,
-  useFetchSongAndInitNodes,
+  useFetchAudioAndInitNodes,
   useReconnectNodes,
   usePlayAndResume,
   usePauseSong,
@@ -18,7 +18,34 @@ import {
   useDraw,
 } from "../webAudioHooks";
 
-import tempSong from "../assets/songs/telepathy.mp3";
+import tempSong from "../assets/songs/telepathy.mp3"; // when only 1 track was supported
+
+import bass from "../assets/songs/stems/bass.mp3";
+import chords from "../assets/songs/stems/chords.mp3";
+import drums from "../assets/songs/stems/drums.mp3";
+import leads from "../assets/songs/stems/leads.mp3";
+import reverb from "../assets/songs/stems/reverb.mp3";
+import master from "../assets/songs/stems/master.mp3"; // change this to change master song
+
+// import impulse0 from "../assets/impulseResponses/0.wav";
+import impulse1 from "../assets/impulseResponses/1.wav";
+import impulse2 from "../assets/impulseResponses/2.wav";
+import impulse3 from "../assets/impulseResponses/3.wav";
+import impulse4 from "../assets/impulseResponses/4.wav";
+import impulse5 from "../assets/impulseResponses/5.wav";
+import impulse6 from "../assets/impulseResponses/6.wav";
+import impulse7 from "../assets/impulseResponses/7.wav";
+import impulse8 from "../assets/impulseResponses/8.wav";
+import impulse9 from "../assets/impulseResponses/9.wav";
+import impulse10 from "../assets/impulseResponses/10.wav";
+import impulse11 from "../assets/impulseResponses/11.wav";
+import impulse12 from "../assets/impulseResponses/12.wav";
+import impulse13 from "../assets/impulseResponses/13.wav";
+import impulse14 from "../assets/impulseResponses/14.wav";
+import impulse15 from "../assets/impulseResponses/15.wav";
+import impulse16 from "../assets/impulseResponses/16.wav";
+import impulse17 from "../assets/impulseResponses/17.wav";
+import impulse18 from "../assets/impulseResponses/18.wav";
 
 console.log("AudioBox Rerender!");
 
@@ -26,23 +53,70 @@ console.log("AudioBox Rerender!");
 let aCtx: AudioContext | undefined;
 let setACtx: (val: any) => void;
 
-// song buffer & song info
-let songBuffer: AudioBuffer | undefined;
-let setSongBuffer: (val: any) => void;
-let impulseBuffer: AudioBuffer | undefined;
-let setImpulseBuffer: (val: any) => void;
+// song buffer, song info, and audio buffers
+let currentTrackIdx: number;
+let setCurrentTrackIdx: (val: any) => void;
+// let currentTrack: AudioBuffer | undefined; // not needed, because tracks will run in parallel
+// let setCurrentTrack: (val: any) => void;
+let trackBuffers: AudioBuffer[] | undefined;
+let setTrackBuffers: (val: any) => void;
+let settingsTracksData: Object[] | undefined;
+let setSettingsTracksData: (val: any) => void;
+// let impulseBuffer: AudioBuffer | undefined;
+// let setImpulseBuffer: (val: any) => void;
+let impulseBuffers: AudioBuffer[] | undefined;
+let setImpulseBuffers: (val: any) => void;
 let songDuration: number;
 let setSongDuration: (val: any) => void;
 
+let tracks: Object = {
+  bass: bass,
+  chords: chords,
+  drums: drums,
+  leads: leads,
+  reverb: reverb,
+  master: master,
+};
+
+let tracksJSON = JSON.stringify(tracks);
+
+let impulses: Object = {
+  // impulse0: impulse0,
+  impulse1: impulse1,
+  impulse2: impulse2,
+  impulse3: impulse3,
+  impulse4: impulse4,
+  impulse5: impulse5,
+  impulse6: impulse6,
+  impulse7: impulse7,
+  impulse8: impulse8,
+  impulse9: impulse9,
+  impulse10: impulse10,
+  impulse11: impulse11,
+  impulse12: impulse12,
+  impulse13: impulse13,
+  impulse14: impulse14,
+  impulse15: impulse15,
+  impulse16: impulse16,
+  impulse17: impulse17,
+  impulse18: impulse18,
+};
+
+let impulsesJSON = JSON.stringify(impulses);
+
 // AudioNodes (actual audio nodes)
-let audioNodes: AudioNode[][] | undefined;
+let audioNodes: AudioNode[][][] | undefined;
 let setAudioNodes: (val: any) => void;
 let audioNodesChanged: boolean;
 let setAudioNodesChanged: (val: any) => void;
+let analyserNode: AudioNode | undefined;
+let setAnalyserNode: (val: any) => void;
 
 // audioModules (data required for creating UI for audio nodes)
 let audioModules: Object[][];
 let setAudioModules: (val: Object[][]) => void;
+let audioModulesJSON: string[];
+let setAudioModulesJSON: (val: string[]) => void;
 
 // Canvas and context
 let canvas: HTMLCanvasElement | undefined;
@@ -107,13 +181,20 @@ const AudioBox = () => {
   [hasUserGestured, setHasUserGestured] = useState(false); // Keep track of first gesture required to initialize audioCtx
 
   [audioModules, setAudioModules] = useState(tempModuleData); // Initial module will be the blank module
+  [audioModulesJSON, setAudioModulesJSON] = useState(['[[{"type":"Blank"}]]']); // JSON array, kept as state, to keep track of audioModule present for each track.
   [areAudioNodesReady, setAreAudioNodesReady] = useState(false);
 
   [aCtx, setACtx] = useState(undefined); // aCtx and setACtx type are the way they are beause an audioCtx cannot be initialized on render.
-  [songBuffer, setSongBuffer] = useState(undefined);
-  [impulseBuffer, setImpulseBuffer] = useState(undefined);
+  // [songBuffer, setSongBuffer] = useState(undefined);
+  [currentTrackIdx, setCurrentTrackIdx] = useState(0);
+  // [currentTrack, setCurrentTrack] = useState(undefined);
+  [trackBuffers, setTrackBuffers] = useState(undefined);
+  [settingsTracksData, setSettingsTracksData] = useState(undefined);
+  // [impulseBuffer, setImpulseBuffer] = useState(undefined);
+  [impulseBuffers, setImpulseBuffers] = useState(undefined);
   [songDuration, setSongDuration] = useState(0);
   [audioNodes, setAudioNodes] = useState(undefined);
+  [analyserNode, setAnalyserNode] = useState(undefined);
   [audioNodesChanged, setAudioNodesChanged] = useState(false);
   [dataArr, setDataArr] = useState(undefined);
   [songTime, setSongTime] = useState(0.0);
@@ -127,20 +208,30 @@ const AudioBox = () => {
 
   useInitAudioCtx(hasUserGestured, setACtx);
 
-  useFetchSongAndInitNodes(
+  useFetchAudioAndInitNodes(
     aCtx,
-    tempSong,
-    setImpulseBuffer,
-    setSongBuffer,
+    tracksJSON,
+    impulsesJSON,
+    setTrackBuffers,
+    setSettingsTracksData,
+    setImpulseBuffers,
+    // setCurrentTrack,
+    setCurrentTrackIdx,
     setSongDuration,
     setAudioNodes,
-    setAreAudioNodesReady
+    setAnalyserNode,
+    setAreAudioNodesReady,
+    setAudioModulesJSON
   );
 
   useReconnectNodes(
     aCtx,
     audioNodes,
+    analyserNode,
     audioModules,
+    audioModulesJSON,
+    settingsTracksData,
+    currentTrackIdx,
     audioNodesChanged,
     setAudioNodesChanged
   );
@@ -148,7 +239,7 @@ const AudioBox = () => {
   usePlayAndResume(
     aCtx,
     audioNodes,
-    songBuffer,
+    trackBuffers,
     isPlaying,
     songTime,
     setSongTime,
@@ -168,9 +259,9 @@ const AudioBox = () => {
 
   useInitVisualizer(
     isVisualizing,
-    audioNodes,
+    // audioNodes,
+    analyserNode,
     canvasRef,
-    dataArr,
     setBufferLength,
     setDataArr,
     setCanvas,
@@ -182,7 +273,7 @@ const AudioBox = () => {
   useDraw(
     canvas,
     canvasCtx,
-    audioNodes,
+    analyserNode,
     dataArr,
     bufferLength,
     setAnimationFrameHandler
@@ -293,31 +384,54 @@ const AudioBox = () => {
   };
 
   const insertAudioNode = (
-    tempAudioNodes: AudioNode[][] | undefined,
-    tempAudioNode: AudioNode
+    audioNodes: AudioNode[][][] | undefined,
+    tempAudioNode: AudioNode,
+    currentTrackIdx: number
   ) => {
-    // splice into appropriate position
-    for (let i = 1; i < tempAudioNodes!.length - 1; i++) {
-      if (i === tempAudioNodes!.length - 2) {
+    let tempAudioNodesSubArr: AudioNode[][] = audioNodes![currentTrackIdx];
+
+    for (let i = 1; i < tempAudioNodesSubArr!.length - 1; i++) {
+      // ignore  audioBufferSourceNode and last gainNode subArrays
+      if (i === tempAudioNodesSubArr!.length - 2) {
         // if on last sub-array and still not inserted
 
         if (i === 1) {
           // If on 1st array that is not reserved for audioBufferSourceNode
-          if (tempAudioNodes![tempAudioNodes!.length - 2].length < 2) {
-            tempAudioNodes![tempAudioNodes!.length - 2].push(tempAudioNode);
+          if (
+            tempAudioNodesSubArr![tempAudioNodesSubArr!.length - 2].length < 2
+          ) {
+            tempAudioNodesSubArr![tempAudioNodesSubArr!.length - 2].push(
+              tempAudioNode
+            );
             break;
           } else {
-            tempAudioNodes!.splice(tempAudioNodes!.length - 1, 0, []);
-            tempAudioNodes![tempAudioNodes!.length - 2].push(tempAudioNode);
+            tempAudioNodesSubArr!.splice(
+              tempAudioNodesSubArr!.length - 1,
+              0,
+              []
+            );
+            tempAudioNodesSubArr![tempAudioNodesSubArr!.length - 2].push(
+              tempAudioNode
+            );
             break;
           }
         } else {
-          if (tempAudioNodes![tempAudioNodes!.length - 2].length < 3) {
-            tempAudioNodes![tempAudioNodes!.length - 2].push(tempAudioNode);
+          if (
+            tempAudioNodesSubArr![tempAudioNodesSubArr!.length - 2].length < 3
+          ) {
+            tempAudioNodesSubArr![tempAudioNodesSubArr!.length - 2].push(
+              tempAudioNode
+            );
             break;
           } else {
-            tempAudioNodes!.splice(tempAudioNodes!.length - 1, 0, []);
-            tempAudioNodes![tempAudioNodes!.length - 2].push(tempAudioNode);
+            tempAudioNodesSubArr!.splice(
+              tempAudioNodesSubArr!.length - 1,
+              0,
+              []
+            );
+            tempAudioNodesSubArr![tempAudioNodesSubArr!.length - 2].push(
+              tempAudioNode
+            );
             break;
           }
         }
@@ -325,39 +439,41 @@ const AudioBox = () => {
 
       if (i === 1) {
         // If on 1st array that is not reserved for audioBufferSourceNode
-        if (tempAudioNodes![i].length < 2) {
+        if (tempAudioNodesSubArr![i].length < 2) {
           // insert an audioNodeHere
-          tempAudioNodes![i].push(tempAudioNode!);
+          tempAudioNodesSubArr![i].push(tempAudioNode!);
           break;
         } else {
           continue;
         }
       } else {
-        if (tempAudioNodes![i].length < 3) {
+        if (tempAudioNodesSubArr![i].length < 3) {
           // insert an audioNodeHere
-          tempAudioNodes![i].push(tempAudioNode!);
+          tempAudioNodesSubArr![i].push(tempAudioNode!);
           break;
         } else {
           continue;
         }
       }
     }
-    return tempAudioNodes;
+
+    audioNodes![currentTrackIdx] = tempAudioNodesSubArr;
+    return audioNodes;
   };
 
   const addAudioNode = (data: Object) => {
     // add the audioNode to process audio data (2nd subarray only allows 2 audioNodes to synchronize with audioModules)
 
     if (audioNodes === undefined) {
-      console.log("cannot add node to undefined audio nodes");
+      console.log("cannot add node to undefined audio nodes!");
       return;
     }
 
-    let tempAudioNodes = audioNodes;
+    let tempAudioNodeSubArr = audioNodes[currentTrackIdx];
 
-    if (audioNodes!.length === 2) {
-      // if only audioBufferSource and analyser, create empty array for extra nodes
-      tempAudioNodes?.splice(1, 0, []);
+    if (tempAudioNodeSubArr!.length === 2) {
+      // if only audioBufferSource and gain, create empty array for extra nodes
+      tempAudioNodeSubArr?.splice(1, 0, []);
       // console.log(tempAudioNodes);
     }
 
@@ -370,8 +486,8 @@ const AudioBox = () => {
         tempAudioNode = aCtx!.createBiquadFilter();
         tempAudioNode.type = "highpass";
         tempAudioNode.frequency.value = 20;
-        insertAudioNode(tempAudioNodes, tempAudioNode);
-        setAudioNodes(tempAudioNodes);
+        insertAudioNode(audioNodes, tempAudioNode, currentTrackIdx);
+        setAudioNodes(audioNodes);
         setTimeout(() => {
           setAudioNodesChanged(true);
         }, 10);
@@ -380,29 +496,27 @@ const AudioBox = () => {
         tempAudioNode = aCtx!.createBiquadFilter();
         tempAudioNode.type = "lowpass";
         tempAudioNode.frequency.value = 21000;
-        insertAudioNode(tempAudioNodes, tempAudioNode);
-        setAudioNodes(tempAudioNodes);
+        insertAudioNode(audioNodes, tempAudioNode, currentTrackIdx);
+        setAudioNodes(audioNodes);
         setTimeout(() => {
           setAudioNodesChanged(true);
         }, 10);
         break;
       case "Reverb":
         tempAudioNode = aCtx!.createConvolver();
-        tempAudioNode.buffer = impulseBuffer;
-        insertAudioNode(tempAudioNodes, tempAudioNode);
-        setAudioNodes(tempAudioNodes);
+        tempAudioNode.buffer = impulseBuffers[0];
+        insertAudioNode(audioNodes, tempAudioNode, currentTrackIdx);
+        setAudioNodes(audioNodes);
         setTimeout(() => {
           setAudioNodesChanged(true);
         }, 10);
     }
-
-    // console.log(audioNodes);
   };
 
   const deleteAudioModuleAndNode = (position: number[]) => {
     // position is position of audio module
     let tempAudioModules = audioModules;
-    tempAudioModules[position[0]].splice(position[1], 1); // works, but still need to shift and reorder elements around
+    tempAudioModules[position[0]].splice(position[1], 1); // works
 
     if (tempAudioModules[position[0]].length === 0) {
       // works
@@ -444,30 +558,37 @@ const AudioBox = () => {
       column -= 1;
     }
 
+    let tempAudioNodesSubArr = audioNodes![currentTrackIdx];
     let tempAudioNodesLinearArr: AudioNode[] = [];
 
-    for (let i = 1; i < audioNodes!.length - 1; i++) {
-      for (let j = 0; j < audioNodes![i].length; j++) {
+    for (let i = 1; i < tempAudioNodesSubArr!.length - 1; i++) {
+      for (let j = 0; j < tempAudioNodesSubArr![i].length; j++) {
         if (i === row && j === column) {
           // skip node to be deleted
           continue;
         }
-        tempAudioNodesLinearArr.push(audioNodes![i][j]);
+        tempAudioNodesLinearArr.push(tempAudioNodesSubArr![i][j]);
       }
     }
 
-    let audioSourceBufferNode = [...audioNodes![0]];
-    let analyserNode = [...audioNodes![audioNodes!.length - 1]];
+    let audioSourceBufferNodeSubArr = [...tempAudioNodesSubArr![0]];
+    let gainNodeSubArr = [
+      ...tempAudioNodesSubArr![tempAudioNodesSubArr!.length - 1],
+    ];
 
-    let tempAudioNodes = [audioSourceBufferNode, [], analyserNode];
+    let tempNewAudioNodesSubArr = [
+      audioSourceBufferNodeSubArr,
+      [],
+      gainNodeSubArr,
+    ];
+
+    audioNodes![currentTrackIdx] = tempNewAudioNodesSubArr;
 
     for (let i = 0; i < tempAudioNodesLinearArr.length; i++) {
-      tempAudioNodes = [
-        ...insertAudioNode(tempAudioNodes, tempAudioNodesLinearArr[i])!,
-      ];
+      insertAudioNode(audioNodes, tempAudioNodesLinearArr[i], currentTrackIdx);
     }
 
-    setAudioNodes(tempAudioNodes);
+    setAudioNodes(audioNodes);
     setTimeout(() => {
       setAudioNodesChanged(true);
     }, 10);
@@ -536,6 +657,8 @@ const AudioBox = () => {
 
     setAudioModules(audioModules);
 
+    // Moving audioNode
+
     // moving audioNodes
     /*
       Operating under the assumption that if audioModules can be moved,
@@ -543,7 +666,7 @@ const AudioBox = () => {
       performed above for the audioNodes
     */
 
-    let tempAudioNodes = [...audioNodes!];
+    let tempAudioNodes = audioNodes![currentTrackIdx];
 
     // Offset row and column to account for structure of audioNodes array
     let row = position[0] + 1;
@@ -577,11 +700,11 @@ const AudioBox = () => {
       }
     }
 
-    setAudioNodes(tempAudioNodes);
+    setAudioNodes(audioNodes);
   };
 
   const editAudioNodeData = (data: Object, position: number[]) => {
-    let tempAudioNodes = audioNodes;
+    let tempAudioNodesSubArr = audioNodes![currentTrackIdx];
 
     // Offset row and column to account for structure of audioNodes array
     let row = position[0] + 1;
@@ -595,11 +718,27 @@ const AudioBox = () => {
     // console.log(tempAudioNodes, row, column);
 
     if (data.type === "Highpass" || data.type === "Lowpass") {
-      tempAudioNodes![row][column].frequency.value = data.frequency;
-      tempAudioNodes![row][column].Q.value = data.resonance;
+      tempAudioNodesSubArr![row][column].frequency.value = data.frequency;
+      tempAudioNodesSubArr![row][column].Q.value = data.resonance;
+    } else if (data.type === "Reverb") {
+      tempAudioNodesSubArr![row][column].buffer = impulseBuffers![data.impulse];
+    } else if (data.type === "TrackChange") {
+      // currentTrackIdx is changed in AudioSettingsTrack, which should automatically update currently selected track
+      // setCurrentTrack(trackBuffers![data.track]);
     }
 
-    setAudioNodes(tempAudioNodes);
+    setAudioNodes(audioNodes);
+
+    if (data.type === "TrackChange") {
+      if (!isPlaying) {
+        setIsPlaying(true);
+      }
+
+      setIsPlaying(false);
+      setTimeout(() => {
+        setIsPlaying(true);
+      }, 10);
+    }
 
     // data object contains configuration information for a given audioNode
     // position [row, column] contains the index of the audioModule whose data is being changed.
@@ -638,6 +777,8 @@ const AudioBox = () => {
     } else if (type === "Lowpass") {
       tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].frequency = 21000;
       tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].resonance = 0;
+    } else if (type === "Reverb") {
+      tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].impulse = 0;
     }
 
     addAudioNode(tempAudioModulesData[moduleIndex[0]][moduleIndex[1]]);
@@ -646,11 +787,14 @@ const AudioBox = () => {
 
   const saveConfiguration = () => {
     let config = JSON.stringify(audioModules); // this object, when loaded into the loadConfiguration method will work.
-    console.log(config);
+    audioModulesJSON[currentTrackIdx] = JSON.stringify(audioModules);
+    console.log(audioModulesJSON);
   };
 
   const loadConfiguration = () => {
     // works!
+    console.log(audioModulesJSON);
+
     /*
     load any configuration that was saved with saveConfiguration()
     */
@@ -670,13 +814,13 @@ const AudioBox = () => {
 
     setAudioModules(testConfig);
 
-    let tempAudioNodes = [...audioNodes!];
+    let tempAudioNodesSubArr = audioNodes![currentTrackIdx];
 
-    while (tempAudioNodes.length > 2) {
-      tempAudioNodes?.splice(1, 1); // delete all previous audioNodes
+    while (tempAudioNodesSubArr.length > 2) {
+      tempAudioNodesSubArr?.splice(1, 1); // delete all previous audioNodes
     }
 
-    setAudioNodes(tempAudioNodes); // set cleared audioNodes before adding configured ones
+    // setAudioNodes(tempAudioNodes); // set cleared audioNodes before adding configured ones
 
     let addNewAudioNodes = () => {
       for (let i = 0; i < testConfig.length; i++) {
@@ -700,7 +844,7 @@ const AudioBox = () => {
   /*
     Generate the UI for audio modules that are displayed
   */
-  const generateAudioSettingsFragment = (): JSX.Element => {
+  const generateAudioModuleContainers = (): JSX.Element => {
     let audioSettingsFragment: JSX.Element;
 
     audioSettingsFragment = (
@@ -738,11 +882,21 @@ const AudioBox = () => {
           Settings
         </div>
         <AudioSettingsDrawer
+          settingsTracksData={settingsTracksData}
+          audioModulesJSON={audioModulesJSON}
+          audioModules={audioModules}
           isSettingsExpanded={isSettingsExpanded}
+          currentTrackIdx={currentTrackIdx}
+          setAudioModulesJSON={setAudioModulesJSON}
+          setAudioModules={setAudioModules}
+          setCurrentTrackIdx={setCurrentTrackIdx}
+          setSettingsTracksData={setSettingsTracksData}
           saveConfiguration={saveConfiguration}
           loadConfiguration={loadConfiguration}
+          editAudioNodeData={editAudioNodeData}
+          setAudioNodesChanged={setAudioNodesChanged}
         ></AudioSettingsDrawer>
-        {generateAudioSettingsFragment()}
+        {generateAudioModuleContainers()}
         <canvas style={CanvasStyle} ref={canvasRef}></canvas>
         <AudioController
           hasUserGestured={hasUserGestured}
