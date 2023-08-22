@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-// import impulseResponse from "./assets/impulseResponses/1.wav";
 
 export let useInitAudioCtx = (
   hasUserGestured: boolean,
@@ -23,10 +22,11 @@ export let useFetchAudioAndInitNodes = (
   setTrackBuffers: (val: any) => void,
   setSettingsTracksData: (val: any) => void,
   setImpulseBuffers: (val: any) => void,
-  setCurrentTrack: (val: any) => void,
+  // setCurrentTrack: (val: any) => void,
   setCurrentTrackIdx: (val: number) => void,
   setSongDuration: (val: any) => void,
   setAudioNodes: (val: any) => void,
+  setAnalyserNode: (val: any) => void,
   setAreAudioNodesReady: (val: boolean) => void,
   setAudioModulesJSON: (val: string[]) => void
 ) => {
@@ -43,9 +43,6 @@ export let useFetchAudioAndInitNodes = (
 
     // console.log(tempTracks);
     // console.log(tempImpulses);
-
-    // let song;
-    // let tempSongBuffer;
 
     let fetchImpulseResponses = async () => {
       let tempImpulseBuffers: AudioBuffer[] = [];
@@ -77,7 +74,7 @@ export let useFetchAudioAndInitNodes = (
 
           if (tempTracksKeys[i] === "master") {
             setCurrentTrackIdx(i);
-            setCurrentTrack(decodedBuffer);
+            // setCurrentTrack(decodedBuffer);
             tempTracksData.isEnabled = true;
           } else {
             tempTracksData.isEnabled = false;
@@ -90,6 +87,7 @@ export let useFetchAudioAndInitNodes = (
           tempTracksData.idx = i;
           tempSettingsTracksData.push(tempTracksData);
           if (i !== 0) {
+            // skip 1, because 1 is already defined when the audioModulesState is set!
             tempAudioModulesJSON.push('[[{"type":"Blank"}]]');
           }
         });
@@ -98,26 +96,59 @@ export let useFetchAudioAndInitNodes = (
       setSongDuration(tempTrackBuffers![0].duration);
       setSettingsTracksData(tempSettingsTracksData);
       setAudioModulesJSON(tempAudioModulesJSON);
-      await createPrimaryNodes(tempTrackBuffers![0]);
+      await createPrimaryNodes(tempTrackBuffers!, tempSettingsTracksData);
     };
 
-    let createPrimaryNodes = async (songBuffer: AudioBuffer) => {
+    let createPrimaryNodes = async (
+      songBuffers: AudioBuffer[],
+      tempSettingsTracksData: Object[] // to tell if gain should be on / off
+    ) => {
       // create audioBufferSourceNode and analyserNode
+
       console.log("creating primary nodes!");
-      let tempAudioSourceNode: AudioBufferSourceNode =
-        aCtx!.createBufferSource();
+
       let tempAnalyserNode: AnalyserNode = aCtx!.createAnalyser();
-
-      tempAudioSourceNode.buffer = songBuffer;
       tempAnalyserNode.fftSize = 2048;
+      setAnalyserNode(tempAnalyserNode);
 
-      let tempAudioNodesArr: AudioNode[][] = [
-        [tempAudioSourceNode],
-        [tempAnalyserNode],
-      ];
+      let tempAudioNodesArr: AudioNode[][][] = [];
+
+      for (let i = 0; i < songBuffers.length; i++) {
+        let tempAudioNodeSubArr = [];
+
+        let tempAudioSourceNode: AudioBufferSourceNode =
+          aCtx!.createBufferSource();
+        tempAudioSourceNode.buffer = songBuffers[i];
+        tempAudioNodeSubArr.push([tempAudioSourceNode]);
+
+        let tempGainNode: GainNode = aCtx!.createGain();
+        if (tempSettingsTracksData[i].isEnabled) {
+          tempGainNode.gain.value = 1; // enabled
+        } else {
+          tempGainNode.gain.value = 0; // muted
+        }
+        tempAudioNodeSubArr.push([tempGainNode]);
+        tempAudioNodesArr.push(tempAudioNodeSubArr);
+      }
 
       setAudioNodes(tempAudioNodesArr);
       setAreAudioNodesReady(true);
+
+      //----------------------- OLD CODE ---------------------------------- //
+
+      // let tempAudioSourceNode: AudioBufferSourceNode =
+      //   aCtx!.createBufferSource();
+
+      // tempAudioSourceNode.buffer = songBuffer;
+      // tempAnalyserNode.fftSize = 2048;
+
+      // let tempAudioNodesArr: AudioNode[][] = [
+      //   [tempAudioSourceNode],
+      //   [tempAnalyserNode],
+      // ];
+
+      // setAudioNodes(tempAudioNodesArr);
+      // setAreAudioNodesReady(true);
     };
 
     fetchImpulseResponses();
@@ -128,6 +159,7 @@ export let useFetchAudioAndInitNodes = (
 export let useReconnectNodes = (
   aCtx: AudioContext | undefined,
   audioNodes: AudioNode[][] | undefined,
+  analyserNode: AudioNode | undefined, // TODO : STOPPED HERE FOR THE DAY! --------------
   audioModules: Object[][],
   audioNodesChanged: boolean,
   setAudioNodesChanged: (val: any) => void
@@ -211,7 +243,7 @@ export let useReconnectNodes = (
 export let usePlayAndResume = (
   aCtx: AudioContext | undefined,
   audioNodes: AudioNode[][] | undefined,
-  trackBuffer: AudioBuffer | undefined,
+  // trackBuffer: AudioBuffer | undefined,
   isPlaying: boolean,
   songTime: number = 0,
   setSongTime: (val: number) => void,

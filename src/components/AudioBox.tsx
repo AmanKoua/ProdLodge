@@ -56,8 +56,8 @@ let setACtx: (val: any) => void;
 // song buffer, song info, and audio buffers
 let currentTrackIdx: number;
 let setCurrentTrackIdx: (val: any) => void;
-let currentTrack: AudioBuffer | undefined;
-let setCurrentTrack: (val: any) => void;
+// let currentTrack: AudioBuffer | undefined; // not needed, because tracks will run in parallel
+// let setCurrentTrack: (val: any) => void;
 let trackBuffers: AudioBuffer[] | undefined;
 let setTrackBuffers: (val: any) => void;
 let settingsTracksData: Object[] | undefined;
@@ -105,10 +105,12 @@ let impulses: Object = {
 let impulsesJSON = JSON.stringify(impulses);
 
 // AudioNodes (actual audio nodes)
-let audioNodes: AudioNode[][] | undefined;
+let audioNodes: AudioNode[][][] | undefined;
 let setAudioNodes: (val: any) => void;
 let audioNodesChanged: boolean;
 let setAudioNodesChanged: (val: any) => void;
+let analyserNode: AudioNode | undefined;
+let setAnalyserNode: (val: any) => void;
 
 // audioModules (data required for creating UI for audio nodes)
 let audioModules: Object[][];
@@ -185,13 +187,14 @@ const AudioBox = () => {
   [aCtx, setACtx] = useState(undefined); // aCtx and setACtx type are the way they are beause an audioCtx cannot be initialized on render.
   // [songBuffer, setSongBuffer] = useState(undefined);
   [currentTrackIdx, setCurrentTrackIdx] = useState(0);
-  [currentTrack, setCurrentTrack] = useState(undefined);
+  // [currentTrack, setCurrentTrack] = useState(undefined);
   [trackBuffers, setTrackBuffers] = useState(undefined);
   [settingsTracksData, setSettingsTracksData] = useState(undefined);
   // [impulseBuffer, setImpulseBuffer] = useState(undefined);
   [impulseBuffers, setImpulseBuffers] = useState(undefined);
   [songDuration, setSongDuration] = useState(0);
   [audioNodes, setAudioNodes] = useState(undefined);
+  [analyserNode, setAnalyserNode] = useState(undefined);
   [audioNodesChanged, setAudioNodesChanged] = useState(false);
   [dataArr, setDataArr] = useState(undefined);
   [songTime, setSongTime] = useState(0.0);
@@ -212,10 +215,11 @@ const AudioBox = () => {
     setTrackBuffers,
     setSettingsTracksData,
     setImpulseBuffers,
-    setCurrentTrack,
+    // setCurrentTrack,
     setCurrentTrackIdx,
     setSongDuration,
     setAudioNodes,
+    setAnalyserNode,
     setAreAudioNodesReady,
     setAudioModulesJSON
   );
@@ -231,8 +235,7 @@ const AudioBox = () => {
   usePlayAndResume(
     aCtx,
     audioNodes,
-    // trackBuffers ? trackBuffers[5] : undefined, // track selection here!
-    currentTrack ? currentTrack : undefined,
+    // currentTrack ? currentTrack : undefined,
     isPlaying,
     songTime,
     setSongTime,
