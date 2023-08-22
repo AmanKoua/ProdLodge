@@ -230,6 +230,7 @@ const AudioBox = () => {
     analyserNode,
     audioModules,
     audioModulesJSON,
+    settingsTracksData,
     currentTrackIdx,
     audioNodesChanged,
     setAudioNodesChanged
@@ -1120,6 +1121,7 @@ const AudioBox = () => {
           saveConfiguration={saveConfiguration}
           loadConfiguration={loadConfiguration}
           editAudioNodeData={editAudioNodeData}
+          setAudioNodesChanged={setAudioNodesChanged}
         ></AudioSettingsDrawer>
         {generateAudioModuleContainers()}
         <canvas style={CanvasStyle} ref={canvasRef}></canvas>

@@ -14,6 +14,7 @@ interface Props {
   saveConfiguration: () => void;
   loadConfiguration: () => void;
   editAudioNodeData: (data: Object, position: number[]) => void;
+  setAudioNodesChanged: (val: any) => void;
 }
 
 const AudioSettingsDrawer = ({
@@ -29,6 +30,7 @@ const AudioSettingsDrawer = ({
   saveConfiguration,
   loadConfiguration,
   editAudioNodeData,
+  setAudioNodesChanged,
 }: Props) => {
   // console.log(audioModules);
 
@@ -94,6 +96,7 @@ const AudioSettingsDrawer = ({
               setCurrentTrackIdx={setCurrentTrackIdx}
               editAudioNodeData={editAudioNodeData}
               setSettingsTracksData={setSettingsTracksData}
+              setAudioNodesChanged={setAudioNodesChanged}
               key={idx}
             ></AudioSettingsTrack>
           );

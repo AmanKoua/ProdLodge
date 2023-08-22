@@ -72,27 +72,14 @@ export let useFetchAudioAndInitNodes = (
         await aCtx.decodeAudioData(arrayBuffer, (decodedBuffer) => {
           let tempTracksData = {};
 
-          if (tempTracksKeys[i] === "drums" || tempTracksKeys[i] === "master") {
-            /*
-
-              TODO : Changed code here for testing!
-
-            */
-
-            // play all tracks except master
-            // setCurrentTrack(decodedBuffer);
-            tempTracksData.isEnabled = true;
-            if (tempTracksKeys[i] === "master") {
-              tempTracksData.isEnabled = false;
-            } else {
-              setCurrentTrackIdx(i);
-            }
+          if (tempTracksKeys[i] === "master") {
+            tempTracksData.isEnabled = false;
           } else {
             tempTracksData.isEnabled = true;
+            setCurrentTrackIdx(i);
           }
-          tempTrackBuffers.push(decodedBuffer);
 
-          // TODO : Finished work here!
+          tempTrackBuffers.push(decodedBuffer);
 
           tempTracksData.name = tempTracksKeys[i];
           tempTracksData.idx = i;
@@ -173,6 +160,7 @@ export let useReconnectNodes = (
   analyserNode: AudioNode | undefined,
   audioModules: Object[][],
   audioModulesJSON: string[],
+  settingsTracksData: Object[] | undefined,
   currentTrackIdx: number,
   audioNodesChanged: boolean,
   setAudioNodesChanged: (val: any) => void
@@ -201,6 +189,12 @@ export let useReconnectNodes = (
         tempAudioNodes[1][0].disconnect();
         tempAudioNodes[1][0].connect(analyserNode!);
         tempAudioNodes[1][0].connect(aCtx!.destination);
+
+        if (settingsTracksData![x].isEnabled) {
+          tempAudioNodes[1][0].gain.value = 1;
+        } else {
+          tempAudioNodes[1][0].gain.value = 0;
+        }
       } else {
         // loop through audioNodes and connect them one by one
         let currentNode = tempAudioNodes[0][0]; // start with audioSourceBufferNode;
@@ -259,6 +253,12 @@ export let useReconnectNodes = (
         currentNode.connect(gainNode);
         gainNode.connect(analyserNode);
         gainNode.connect(aCtx!.destination);
+
+        if (settingsTracksData![x].isEnabled) {
+          gainNode.gain.value = 1;
+        } else {
+          gainNode.gain.value = 0;
+        }
       }
     }
 

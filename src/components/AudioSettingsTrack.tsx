@@ -12,6 +12,7 @@ interface Props {
   setCurrentTrackIdx: (val: any) => void;
   editAudioNodeData: (data: Object, position: number[]) => void;
   setSettingsTracksData: (val: any) => void;
+  setAudioNodesChanged: (val: any) => void;
 }
 
 const AudioSettingsTrack = ({
@@ -25,6 +26,7 @@ const AudioSettingsTrack = ({
   setCurrentTrackIdx,
   editAudioNodeData,
   setSettingsTracksData,
+  setAudioNodesChanged,
 }: Props) => {
   let AudioSettingsTrackDiv = useRef(null);
 
@@ -94,9 +96,8 @@ const AudioSettingsTrack = ({
   };
 
   let handleToggleEnabledButtonClick = () => {
-    console.log(settingsTracksData![idx]);
     settingsTracksData![idx].isEnabled = !settingsTracksData![idx].isEnabled;
-    // Will not use setSettingsTracksData because settingsTracksData is modified by reference
+    setAudioNodesChanged(true); // setAudioNodesChanged true to trigger reconnection!
   };
 
   return (
