@@ -44,8 +44,8 @@ export let useFetchAudioAndInitNodes = (
     // console.log(tempTracks);
     // console.log(tempImpulses);
 
-    let song;
-    let tempSongBuffer;
+    // let song;
+    // let tempSongBuffer;
 
     let fetchImpulseResponses = async () => {
       let tempImpulseBuffers: AudioBuffer[] = [];
@@ -101,18 +101,6 @@ export let useFetchAudioAndInitNodes = (
       await createPrimaryNodes(tempTrackBuffers![0]);
     };
 
-    // let fetchMaster = async () => {
-    //   // Fetch song store songBuffer and songDuration as state
-    //   song = await fetch(tempTracks.master);
-    //   tempSongBuffer = await song.arrayBuffer();
-
-    //   await aCtx!.decodeAudioData(tempSongBuffer, async (decodedBuffer) => {
-    //     setSongBuffer(decodedBuffer);
-    //     setSongDuration(decodedBuffer.duration);
-    //     await createPrimaryNodes(decodedBuffer);
-    //   });
-    // };
-
     let createPrimaryNodes = async (songBuffer: AudioBuffer) => {
       // create audioBufferSourceNode and analyserNode
       console.log("creating primary nodes!");
@@ -154,9 +142,7 @@ export let useReconnectNodes = (
       return;
     }
 
-    return;
-
-    console.log("connecting nodes! -------------------", audioModules);
+    // console.log("connecting nodes! -------------------", audioModules);
 
     let audioModuleRow: number;
     let audioModuleColumn: number;
@@ -181,7 +167,10 @@ export let useReconnectNodes = (
             audioModuleColumn += 1;
           }
 
+          // console.log(JSON.stringify(audioModules));
+
           if (!audioModules[audioModuleRow][audioModuleColumn].isEnabled) {
+            // this line breaks IF audioNodes are not reset along with audioModules when a track is changed
             // if audioModule is not enabled, skip connection!
             continue;
           }

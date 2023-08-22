@@ -30,6 +30,8 @@ const AudioSettingsDrawer = ({
   loadConfiguration,
   editAudioNodeData,
 }: Props) => {
+  // console.log(audioModules);
+
   const SettingsDrawerStyle: CSS.Properties = {
     position: "absolute",
     marginLeft: "95%",

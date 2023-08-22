@@ -560,6 +560,8 @@ const AudioBox = () => {
   const moveAudioModuleAndNode = (position: number[], isLeft: boolean) => {
     // moving audioModules
 
+    console.log(audioNodes);
+
     if (position[0] === 0 && position[1] === 1 && isLeft === true) {
       console.log("Not moving left!");
       return; // do not move into blank audioModule space
@@ -752,7 +754,7 @@ const AudioBox = () => {
 
   const loadConfiguration = () => {
     // works!
-
+    return;
     console.log(audioModulesJSON);
 
     /*

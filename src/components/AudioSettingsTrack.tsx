@@ -56,14 +56,6 @@ const AudioSettingsTrack = ({
     zIndex: "1",
   };
 
-  const sleep = (time: number) => {
-    return new Promise((res, rej) => {
-      setTimeout(() => {
-        res();
-      }, time * 1000);
-    });
-  };
-
   const handleTrackChange = async (event: any) => {
     if (event.target != AudioSettingsTrackDiv.current) {
       return;
