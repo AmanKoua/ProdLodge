@@ -131,22 +131,6 @@ export let useFetchAudioAndInitNodes = (
 
       setAudioNodes(tempAudioNodesArr);
       setAreAudioNodesReady(true);
-
-      //----------------------- OLD CODE ---------------------------------- //
-
-      // let tempAudioSourceNode: AudioBufferSourceNode =
-      //   aCtx!.createBufferSource();
-
-      // tempAudioSourceNode.buffer = songBuffer;
-      // tempAnalyserNode.fftSize = 2048;
-
-      // let tempAudioNodesArr: AudioNode[][] = [
-      //   [tempAudioSourceNode],
-      //   [tempAnalyserNode],
-      // ];
-
-      // setAudioNodes(tempAudioNodesArr);
-      // setAreAudioNodesReady(true);
     };
 
     fetchImpulseResponses();
@@ -264,55 +248,6 @@ export let useReconnectNodes = (
 
     setAudioNodesChanged(false);
 
-    // console.log("connecting nodes! -------------------", audioNodes);
-
-    // OLD Code ------------------------------------------------------------------------
-
-    // let audioModuleRow: number;
-    // let audioModuleColumn: number;
-
-    // if (audioNodes.length == 2) {
-    //   audioNodes[0][0].connect(aCtx!.destination); // connect to destination
-    //   audioNodes[0][0].connect(audioNodes[1][0]); // connect to analyser
-    // } else {
-    //   // loop through audioNodes and connect them one by one
-    //   let currentNode = audioNodes[0][0]; // start with audioSourceBufferNode;
-    //   let analyserNode = audioNodes[audioNodes.length - 1][0]; // analyserNode
-    //   for (let i = 1; i < audioNodes.length - 1; i++) {
-    //     // row
-    //     for (let j = 0; j < audioNodes[i].length; j++) {
-    //       // column
-
-    //       // convert audioNode location to audioModule location
-    //       audioModuleRow = i - 1;
-    //       audioModuleColumn = j;
-
-    //       if (audioModuleRow === 0) {
-    //         audioModuleColumn += 1;
-    //       }
-
-    //       // console.log(JSON.stringify(audioModules));
-
-    //       if (!audioModules[audioModuleRow][audioModuleColumn].isEnabled) {
-    //         // this line breaks IF audioNodes are not reset along with audioModules when a track is changed
-    //         // if audioModule is not enabled, skip connection!
-    //         continue;
-    //       }
-
-    //       currentNode.disconnect();
-    //       currentNode.connect(audioNodes[i][j]);
-    //       currentNode = audioNodes[i][j];
-    //     }
-    //   }
-    //   currentNode.disconnect();
-    //   currentNode.connect(aCtx!.destination);
-    //   currentNode.connect(analyserNode);
-    // }
-
-    // setAudioNodesChanged(false);
-
-    // -----------------------------------------------------------------------------------------
-
     /*
       For some reason, the cleanup function breaks when the hook is extracted into this file but works fine when implemented in audioBox.tsx directly.
     */
@@ -372,17 +307,6 @@ export let usePlayAndResume = (
 
     setAudioNodes(tempAudioNodes);
     setAudioNodesChanged(true); // trigger the reconnection process
-
-    // OLD CODE ------------------------------------------------------------------------------------
-
-    // let tempAudioNodes = audioNodes; // I suspect that this is NOT seen as a different array upon mutation because the reference is the same
-    // let tempAudioSourceNode: AudioBufferSourceNode = aCtx!.createBufferSource();
-
-    // tempAudioSourceNode.buffer = trackBuffer!;
-    // tempAudioNodes![0][0] = tempAudioSourceNode;
-
-    // setAudioNodes(tempAudioNodes);
-    // setAudioNodesChanged(true); // required to trigger above effect because audioNodes is a FREAKING DEEP COPY and reference does not change when mutated
 
     if (songTime < 0) {
       setSongTime(0);

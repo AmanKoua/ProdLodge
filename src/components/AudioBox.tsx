@@ -459,56 +459,6 @@ const AudioBox = () => {
 
     audioNodes![currentTrackIdx] = tempAudioNodesSubArr;
     return audioNodes;
-
-    // OLD Code ------------------------------------------------------------------------
-
-    // // splice into appropriate position
-    // for (let i = 1; i < tempAudioNodes!.length - 1; i++) {
-    //   if (i === tempAudioNodes!.length - 2) {
-    //     // if on last sub-array and still not inserted
-
-    //     if (i === 1) {
-    //       // If on 1st array that is not reserved for audioBufferSourceNode
-    //       if (tempAudioNodes![tempAudioNodes!.length - 2].length < 2) {
-    //         tempAudioNodes![tempAudioNodes!.length - 2].push(tempAudioNode);
-    //         break;
-    //       } else {
-    //         tempAudioNodes!.splice(tempAudioNodes!.length - 1, 0, []);
-    //         tempAudioNodes![tempAudioNodes!.length - 2].push(tempAudioNode);
-    //         break;
-    //       }
-    //     } else {
-    //       if (tempAudioNodes![tempAudioNodes!.length - 2].length < 3) {
-    //         tempAudioNodes![tempAudioNodes!.length - 2].push(tempAudioNode);
-    //         break;
-    //       } else {
-    //         tempAudioNodes!.splice(tempAudioNodes!.length - 1, 0, []);
-    //         tempAudioNodes![tempAudioNodes!.length - 2].push(tempAudioNode);
-    //         break;
-    //       }
-    //     }
-    //   }
-
-    //   if (i === 1) {
-    //     // If on 1st array that is not reserved for audioBufferSourceNode
-    //     if (tempAudioNodes![i].length < 2) {
-    //       // insert an audioNodeHere
-    //       tempAudioNodes![i].push(tempAudioNode!);
-    //       break;
-    //     } else {
-    //       continue;
-    //     }
-    //   } else {
-    //     if (tempAudioNodes![i].length < 3) {
-    //       // insert an audioNodeHere
-    //       tempAudioNodes![i].push(tempAudioNode!);
-    //       break;
-    //     } else {
-    //       continue;
-    //     }
-    //   }
-    // }
-    // return tempAudioNodes;
   };
 
   const addAudioNode = (data: Object) => {
@@ -561,53 +511,6 @@ const AudioBox = () => {
           setAudioNodesChanged(true);
         }, 10);
     }
-
-    // Old Code -------------------------------------------------------------------------
-
-    // let tempAudioNodes = audioNodes;
-
-    // if (audioNodes!.length === 2) {
-    //   // if only audioBufferSource and analyser, create empty array for extra nodes
-    //   tempAudioNodes?.splice(1, 0, []);
-    //   // console.log(tempAudioNodes);
-    // }
-
-    // let tempAudioNode: AudioNode;
-
-    // switch (
-    //   data.type // crete audioNode based on module Object type and information
-    // ) {
-    //   case "Highpass":
-    //     tempAudioNode = aCtx!.createBiquadFilter();
-    //     tempAudioNode.type = "highpass";
-    //     tempAudioNode.frequency.value = 20;
-    //     insertAudioNode(tempAudioNodes, tempAudioNode);
-    //     setAudioNodes(tempAudioNodes);
-    //     setTimeout(() => {
-    //       setAudioNodesChanged(true);
-    //     }, 10);
-    //     break;
-    //   case "Lowpass":
-    //     tempAudioNode = aCtx!.createBiquadFilter();
-    //     tempAudioNode.type = "lowpass";
-    //     tempAudioNode.frequency.value = 21000;
-    //     insertAudioNode(tempAudioNodes, tempAudioNode);
-    //     setAudioNodes(tempAudioNodes);
-    //     setTimeout(() => {
-    //       setAudioNodesChanged(true);
-    //     }, 10);
-    //     break;
-    //   case "Reverb":
-    //     tempAudioNode = aCtx!.createConvolver();
-    //     tempAudioNode.buffer = impulseBuffers[0];
-    //     insertAudioNode(tempAudioNodes, tempAudioNode);
-    //     setAudioNodes(tempAudioNodes);
-    //     setTimeout(() => {
-    //       setAudioNodesChanged(true);
-    //     }, 10);
-    // }
-
-    // // console.log(audioNodes);
   };
 
   const deleteAudioModuleAndNode = (position: number[]) => {
@@ -689,50 +592,6 @@ const AudioBox = () => {
     setTimeout(() => {
       setAudioNodesChanged(true);
     }, 10);
-
-    // for (let i = 0; i < audioNodes!.length; i++) {
-    //   console.log(
-    //     audioNodes![i] + "--------------- Delete audio node -----------------"
-    //   );
-    // }
-
-    // OLD CODE --------------------------------------------------------------------
-
-    // // Offset row and column to account for structure of audioNodes array
-    // let row = position[0] + 1;
-    // let column = position[1];
-
-    // if (row === 1) {
-    //   column -= 1;
-    // }
-
-    // let tempAudioNodesLinearArr: AudioNode[] = [];
-
-    // for (let i = 1; i < audioNodes!.length - 1; i++) {
-    //   for (let j = 0; j < audioNodes![i].length; j++) {
-    //     if (i === row && j === column) {
-    //       // skip node to be deleted
-    //       continue;
-    //     }
-    //     tempAudioNodesLinearArr.push(audioNodes![i][j]);
-    //   }
-    // }
-
-    // let audioSourceBufferNode = [...audioNodes![0]];
-    // let analyserNode = [...audioNodes![audioNodes!.length - 1]];
-
-    // let tempAudioNodes = [audioSourceBufferNode, [], analyserNode];
-
-    // for (let i = 0; i < tempAudioNodesLinearArr.length; i++) {
-    //   tempAudioNodes = [
-    //     ...insertAudioNode(tempAudioNodes, tempAudioNodesLinearArr[i])!,
-    //   ];
-    // }
-
-    // setAudioNodes(tempAudioNodes);
-    // setTimeout(() => {
-    //   setAudioNodesChanged(true);
-    // }, 10);
   };
 
   const moveAudioModuleAndNode = (position: number[], isLeft: boolean) => {
@@ -841,53 +700,7 @@ const AudioBox = () => {
       }
     }
 
-    console.log(tempAudioNodes);
     setAudioNodes(audioNodes);
-
-    // OLD CODE --------------------------------------------------------------
-
-    // // moving audioNodes
-    // /*
-    //   Operating under the assumption that if audioModules can be moved,
-    //   then audioNodes can be moved as well. Will not re-conduct the checks
-    //   performed above for the audioNodes
-    // */
-
-    // let tempAudioNodes = [...audioNodes!];
-
-    // // Offset row and column to account for structure of audioNodes array
-    // let row = position[0] + 1;
-    // let column = position[1];
-
-    // if (row === 1) {
-    //   column -= 1;
-    // }
-
-    // if (isLeft) {
-    //   if (column === 0) {
-    //     let tempAudioNode =
-    //       tempAudioNodes[row - 1][tempAudioNodes[row - 1].length - 1];
-    //     tempAudioNodes[row - 1][tempAudioNodes[row - 1].length - 1] =
-    //       tempAudioNodes[row][column];
-    //     tempAudioNodes[row][column] = tempAudioNode;
-    //   } else {
-    //     let tempAudioNode = tempAudioNodes[row][column - 1];
-    //     tempAudioNodes[row][column - 1] = tempAudioNodes[row][column];
-    //     tempAudioNodes[row][column] = tempAudioNode;
-    //   }
-    // } else {
-    //   if (column === tempAudioNodes[row].length - 1) {
-    //     let tempAudioNode = tempAudioNodes[row + 1][0];
-    //     tempAudioNodes[row + 1][0] = tempAudioNodes[row][column];
-    //     tempAudioNodes[row][column] = tempAudioNode;
-    //   } else {
-    //     let tempAudioNode = tempAudioNodes[row][column + 1];
-    //     tempAudioNodes[row][column + 1] = tempAudioNodes[row][column];
-    //     tempAudioNodes[row][column] = tempAudioNode;
-    //   }
-    // }
-
-    // setAudioNodes(tempAudioNodes);
   };
 
   const editAudioNodeData = (data: Object, position: number[]) => {
@@ -929,46 +742,6 @@ const AudioBox = () => {
 
     // data object contains configuration information for a given audioNode
     // position [row, column] contains the index of the audioModule whose data is being changed.
-
-    // OLD CODE -------------------------------------------------
-
-    // let tempAudioNodes = audioNodes;
-
-    // // Offset row and column to account for structure of audioNodes array
-    // let row = position[0] + 1;
-    // let column = position[1];
-
-    // if (row === 1) {
-    //   column -= 1;
-    // }
-
-    // // console.log(tempAudioNodes![position[0] + 1][position[1]]);
-    // // console.log(tempAudioNodes, row, column);
-
-    // if (data.type === "Highpass" || data.type === "Lowpass") {
-    //   tempAudioNodes![row][column].frequency.value = data.frequency;
-    //   tempAudioNodes![row][column].Q.value = data.resonance;
-    // } else if (data.type === "Reverb") {
-    //   tempAudioNodes![row][column].buffer = impulseBuffers![data.impulse];
-    // } else if (data.type === "TrackChange") {
-    //   setCurrentTrack(trackBuffers![data.track]);
-    // }
-
-    // setAudioNodes(tempAudioNodes);
-
-    // if (data.type === "TrackChange") {
-    //   if (!isPlaying) {
-    //     setIsPlaying(true);
-    //   }
-
-    //   setIsPlaying(false);
-    //   setTimeout(() => {
-    //     setIsPlaying(true);
-    //   }, 10);
-    // }
-
-    // // data object contains configuration information for a given audioNode
-    // // position [row, column] contains the index of the audioModule whose data is being changed.
   };
 
   let editAudioModuleData = () => {
