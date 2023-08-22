@@ -787,12 +787,12 @@ const AudioBox = () => {
 
   const saveConfiguration = () => {
     let config = JSON.stringify(audioModules); // this object, when loaded into the loadConfiguration method will work.
-    console.log(config);
+    audioModulesJSON[currentTrackIdx] = JSON.stringify(audioModules);
+    console.log(audioModulesJSON);
   };
 
   const loadConfiguration = () => {
     // works!
-    return;
     console.log(audioModulesJSON);
 
     /*
@@ -814,13 +814,13 @@ const AudioBox = () => {
 
     setAudioModules(testConfig);
 
-    let tempAudioNodes = [...audioNodes!];
+    let tempAudioNodesSubArr = audioNodes![currentTrackIdx];
 
-    while (tempAudioNodes.length > 2) {
-      tempAudioNodes?.splice(1, 1); // delete all previous audioNodes
+    while (tempAudioNodesSubArr.length > 2) {
+      tempAudioNodesSubArr?.splice(1, 1); // delete all previous audioNodes
     }
 
-    setAudioNodes(tempAudioNodes); // set cleared audioNodes before adding configured ones
+    // setAudioNodes(tempAudioNodes); // set cleared audioNodes before adding configured ones
 
     let addNewAudioNodes = () => {
       for (let i = 0; i < testConfig.length; i++) {
