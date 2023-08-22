@@ -23,7 +23,7 @@ export let useFetchAudioAndInitNodes = (
   setSettingsTracksData: (val: any) => void,
   setImpulseBuffers: (val: any) => void,
   // setCurrentTrack: (val: any) => void,
-  // setCurrentTrackIdx: (val: number) => void,
+  setCurrentTrackIdx: (val: number) => void,
   setSongDuration: (val: any) => void,
   setAudioNodes: (val: any) => void,
   setAnalyserNode: (val: any) => void,
@@ -72,11 +72,21 @@ export let useFetchAudioAndInitNodes = (
         await aCtx.decodeAudioData(arrayBuffer, (decodedBuffer) => {
           let tempTracksData = {};
 
-          if (tempTracksKeys[i] === "master") {
+          if (tempTracksKeys[i] === "drums" || tempTracksKeys[i] === "master") {
+            /*
+
+              TODO : Changed code here for testing!
+
+            */
+
             // play all tracks except master
-            // setCurrentTrackIdx(i);
             // setCurrentTrack(decodedBuffer);
-            tempTracksData.isEnabled = false;
+            tempTracksData.isEnabled = true;
+            if (tempTracksKeys[i] === "master") {
+              tempTracksData.isEnabled = false;
+            } else {
+              setCurrentTrackIdx(i);
+            }
           } else {
             tempTracksData.isEnabled = true;
           }
@@ -162,6 +172,7 @@ export let useReconnectNodes = (
   audioNodes: AudioNode[][][] | undefined,
   analyserNode: AudioNode | undefined,
   audioModules: Object[][],
+  audioModulesJSON: string[],
   currentTrackIdx: number,
   audioNodesChanged: boolean,
   setAudioNodesChanged: (val: any) => void
@@ -177,9 +188,11 @@ export let useReconnectNodes = (
     }
 
     console.log("connecting audio nodes!");
+    let audioModuleRow: number;
+    let audioModuleColumn: number;
 
-    for (let i = 0; i < audioNodes.length; i++) {
-      let tempAudioNodes = audioNodes[i]; // 2d audioNodes structure now
+    for (let x = 0; x < audioNodes.length; x++) {
+      let tempAudioNodes = audioNodes[x]; // 2d audioNodes structure now
 
       if (tempAudioNodes.length === 2) {
         // only audioBufferSourceNode and gainNode
@@ -189,8 +202,67 @@ export let useReconnectNodes = (
         tempAudioNodes[1][0].connect(analyserNode!);
         tempAudioNodes[1][0].connect(aCtx!.destination);
       } else {
-        // let currentNode: AudioNode = tempAudioNodes[0][0]; // audioBufferSourceNode
-        // TO BE IMPLEMENTED!
+        // loop through audioNodes and connect them one by one
+        let currentNode = tempAudioNodes[0][0]; // start with audioSourceBufferNode;
+        let gainNode = tempAudioNodes[tempAudioNodes.length - 1][0]; // gainNode
+        for (let i = 1; i < tempAudioNodes.length - 1; i++) {
+          // row
+          for (let j = 0; j < tempAudioNodes[i].length; j++) {
+            // column
+
+            if (x === currentTrackIdx) {
+              // convert audioNode location to audioModule location
+              audioModuleRow = i - 1;
+              audioModuleColumn = j;
+
+              if (audioModuleRow === 0) {
+                audioModuleColumn += 1;
+              }
+
+              for (let i = 0; i < tempAudioNodes.length; i++) {
+                // console.log(tempAudioNodes[i] + " ------- Reconnect -------- ");
+              }
+              // console.log(JSON.stringify(audioModules));
+              if (!audioModules[audioModuleRow][audioModuleColumn].isEnabled) {
+                // this line breaks IF audioNodes are not reset along with audioModules when a track is changed
+                // if audioModule is not enabled, skip connection!
+                continue;
+              }
+
+              currentNode.disconnect();
+              currentNode.connect(tempAudioNodes[i][j]);
+              currentNode = tempAudioNodes[i][j];
+            } else {
+              let tempAudioModules = JSON.parse(audioModulesJSON[x]);
+
+              // convert audioNode location to audioModule location
+              audioModuleRow = i - 1;
+              audioModuleColumn = j;
+
+              if (audioModuleRow === 0) {
+                audioModuleColumn += 1;
+              }
+
+              // console.log(JSON.stringify(audioModules));
+
+              if (
+                !tempAudioModules[audioModuleRow][audioModuleColumn].isEnabled
+              ) {
+                // this line breaks IF audioNodes are not reset along with audioModules when a track is changed
+                // if audioModule is not enabled, skip connection!
+                continue;
+              }
+
+              currentNode.disconnect();
+              currentNode.connect(tempAudioNodes[i][j]);
+              currentNode = tempAudioNodes[i][j];
+            }
+          }
+        }
+        currentNode.disconnect();
+        currentNode.connect(gainNode);
+        gainNode.connect(analyserNode);
+        gainNode.connect(aCtx!.destination);
       }
     }
 

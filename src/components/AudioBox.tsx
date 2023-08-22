@@ -216,7 +216,7 @@ const AudioBox = () => {
     setSettingsTracksData,
     setImpulseBuffers,
     // setCurrentTrack,
-    // setCurrentTrackIdx,
+    setCurrentTrackIdx,
     setSongDuration,
     setAudioNodes,
     setAnalyserNode,
@@ -229,6 +229,7 @@ const AudioBox = () => {
     audioNodes,
     analyserNode,
     audioModules,
+    audioModulesJSON,
     currentTrackIdx,
     audioNodesChanged,
     setAudioNodesChanged
@@ -382,31 +383,54 @@ const AudioBox = () => {
   };
 
   const insertAudioNode = (
-    tempAudioNodes: AudioNode[][] | undefined,
-    tempAudioNode: AudioNode
+    audioNodes: AudioNode[][][] | undefined,
+    tempAudioNode: AudioNode,
+    currentTrackIdx: number
   ) => {
-    // splice into appropriate position
-    for (let i = 1; i < tempAudioNodes!.length - 1; i++) {
-      if (i === tempAudioNodes!.length - 2) {
+    let tempAudioNodesSubArr: AudioNode[][] = audioNodes![currentTrackIdx];
+
+    for (let i = 1; i < tempAudioNodesSubArr!.length - 1; i++) {
+      // ignore  audioBufferSourceNode and last gainNode subArrays
+      if (i === tempAudioNodesSubArr!.length - 2) {
         // if on last sub-array and still not inserted
 
         if (i === 1) {
           // If on 1st array that is not reserved for audioBufferSourceNode
-          if (tempAudioNodes![tempAudioNodes!.length - 2].length < 2) {
-            tempAudioNodes![tempAudioNodes!.length - 2].push(tempAudioNode);
+          if (
+            tempAudioNodesSubArr![tempAudioNodesSubArr!.length - 2].length < 2
+          ) {
+            tempAudioNodesSubArr![tempAudioNodesSubArr!.length - 2].push(
+              tempAudioNode
+            );
             break;
           } else {
-            tempAudioNodes!.splice(tempAudioNodes!.length - 1, 0, []);
-            tempAudioNodes![tempAudioNodes!.length - 2].push(tempAudioNode);
+            tempAudioNodesSubArr!.splice(
+              tempAudioNodesSubArr!.length - 1,
+              0,
+              []
+            );
+            tempAudioNodesSubArr![tempAudioNodesSubArr!.length - 2].push(
+              tempAudioNode
+            );
             break;
           }
         } else {
-          if (tempAudioNodes![tempAudioNodes!.length - 2].length < 3) {
-            tempAudioNodes![tempAudioNodes!.length - 2].push(tempAudioNode);
+          if (
+            tempAudioNodesSubArr![tempAudioNodesSubArr!.length - 2].length < 3
+          ) {
+            tempAudioNodesSubArr![tempAudioNodesSubArr!.length - 2].push(
+              tempAudioNode
+            );
             break;
           } else {
-            tempAudioNodes!.splice(tempAudioNodes!.length - 1, 0, []);
-            tempAudioNodes![tempAudioNodes!.length - 2].push(tempAudioNode);
+            tempAudioNodesSubArr!.splice(
+              tempAudioNodesSubArr!.length - 1,
+              0,
+              []
+            );
+            tempAudioNodesSubArr![tempAudioNodesSubArr!.length - 2].push(
+              tempAudioNode
+            );
             break;
           }
         }
@@ -414,39 +438,91 @@ const AudioBox = () => {
 
       if (i === 1) {
         // If on 1st array that is not reserved for audioBufferSourceNode
-        if (tempAudioNodes![i].length < 2) {
+        if (tempAudioNodesSubArr![i].length < 2) {
           // insert an audioNodeHere
-          tempAudioNodes![i].push(tempAudioNode!);
+          tempAudioNodesSubArr![i].push(tempAudioNode!);
           break;
         } else {
           continue;
         }
       } else {
-        if (tempAudioNodes![i].length < 3) {
+        if (tempAudioNodesSubArr![i].length < 3) {
           // insert an audioNodeHere
-          tempAudioNodes![i].push(tempAudioNode!);
+          tempAudioNodesSubArr![i].push(tempAudioNode!);
           break;
         } else {
           continue;
         }
       }
     }
-    return tempAudioNodes;
+
+    audioNodes![currentTrackIdx] = tempAudioNodesSubArr;
+    return audioNodes;
+
+    // OLD Code ------------------------------------------------------------------------
+
+    // // splice into appropriate position
+    // for (let i = 1; i < tempAudioNodes!.length - 1; i++) {
+    //   if (i === tempAudioNodes!.length - 2) {
+    //     // if on last sub-array and still not inserted
+
+    //     if (i === 1) {
+    //       // If on 1st array that is not reserved for audioBufferSourceNode
+    //       if (tempAudioNodes![tempAudioNodes!.length - 2].length < 2) {
+    //         tempAudioNodes![tempAudioNodes!.length - 2].push(tempAudioNode);
+    //         break;
+    //       } else {
+    //         tempAudioNodes!.splice(tempAudioNodes!.length - 1, 0, []);
+    //         tempAudioNodes![tempAudioNodes!.length - 2].push(tempAudioNode);
+    //         break;
+    //       }
+    //     } else {
+    //       if (tempAudioNodes![tempAudioNodes!.length - 2].length < 3) {
+    //         tempAudioNodes![tempAudioNodes!.length - 2].push(tempAudioNode);
+    //         break;
+    //       } else {
+    //         tempAudioNodes!.splice(tempAudioNodes!.length - 1, 0, []);
+    //         tempAudioNodes![tempAudioNodes!.length - 2].push(tempAudioNode);
+    //         break;
+    //       }
+    //     }
+    //   }
+
+    //   if (i === 1) {
+    //     // If on 1st array that is not reserved for audioBufferSourceNode
+    //     if (tempAudioNodes![i].length < 2) {
+    //       // insert an audioNodeHere
+    //       tempAudioNodes![i].push(tempAudioNode!);
+    //       break;
+    //     } else {
+    //       continue;
+    //     }
+    //   } else {
+    //     if (tempAudioNodes![i].length < 3) {
+    //       // insert an audioNodeHere
+    //       tempAudioNodes![i].push(tempAudioNode!);
+    //       break;
+    //     } else {
+    //       continue;
+    //     }
+    //   }
+    // }
+    // return tempAudioNodes;
   };
 
   const addAudioNode = (data: Object) => {
     // add the audioNode to process audio data (2nd subarray only allows 2 audioNodes to synchronize with audioModules)
 
     if (audioNodes === undefined) {
-      console.log("cannot add node to undefined audio nodes");
+      console.log("cannot add node to undefined audio nodes!");
       return;
     }
 
-    let tempAudioNodes = audioNodes;
+    let tempAudioNodeSubArr = audioNodes[currentTrackIdx];
 
-    if (audioNodes!.length === 2) {
-      // if only audioBufferSource and analyser, create empty array for extra nodes
-      tempAudioNodes?.splice(1, 0, []);
+    if (tempAudioNodeSubArr!.length === 2) {
+      // if only audioBufferSource and gain, create empty array for extra nodes
+      tempAudioNodeSubArr?.splice(1, 0, []);
       // console.log(tempAudioNodes);
     }
 
@@ -459,8 +535,8 @@ const AudioBox = () => {
         tempAudioNode = aCtx!.createBiquadFilter();
         tempAudioNode.type = "highpass";
         tempAudioNode.frequency.value = 20;
-        insertAudioNode(tempAudioNodes, tempAudioNode);
-        setAudioNodes(tempAudioNodes);
+        insertAudioNode(audioNodes, tempAudioNode, currentTrackIdx);
+        setAudioNodes(audioNodes);
         setTimeout(() => {
           setAudioNodesChanged(true);
         }, 10);
@@ -469,8 +545,8 @@ const AudioBox = () => {
         tempAudioNode = aCtx!.createBiquadFilter();
         tempAudioNode.type = "lowpass";
         tempAudioNode.frequency.value = 21000;
-        insertAudioNode(tempAudioNodes, tempAudioNode);
-        setAudioNodes(tempAudioNodes);
+        insertAudioNode(audioNodes, tempAudioNode, currentTrackIdx);
+        setAudioNodes(audioNodes);
         setTimeout(() => {
           setAudioNodesChanged(true);
         }, 10);
@@ -478,20 +554,65 @@ const AudioBox = () => {
       case "Reverb":
         tempAudioNode = aCtx!.createConvolver();
         tempAudioNode.buffer = impulseBuffers[0];
-        insertAudioNode(tempAudioNodes, tempAudioNode);
-        setAudioNodes(tempAudioNodes);
+        insertAudioNode(audioNodes, tempAudioNode, currentTrackIdx);
+        setAudioNodes(audioNodes);
         setTimeout(() => {
           setAudioNodesChanged(true);
         }, 10);
     }
 
-    // console.log(audioNodes);
+    // Old Code -------------------------------------------------------------------------
+
+    // let tempAudioNodes = audioNodes;
+
+    // if (audioNodes!.length === 2) {
+    //   // if only audioBufferSource and analyser, create empty array for extra nodes
+    //   tempAudioNodes?.splice(1, 0, []);
+    //   // console.log(tempAudioNodes);
+    // }
+
+    // let tempAudioNode: AudioNode;
+
+    // switch (
+    //   data.type // crete audioNode based on module Object type and information
+    // ) {
+    //   case "Highpass":
+    //     tempAudioNode = aCtx!.createBiquadFilter();
+    //     tempAudioNode.type = "highpass";
+    //     tempAudioNode.frequency.value = 20;
+    //     insertAudioNode(tempAudioNodes, tempAudioNode);
+    //     setAudioNodes(tempAudioNodes);
+    //     setTimeout(() => {
+    //       setAudioNodesChanged(true);
+    //     }, 10);
+    //     break;
+    //   case "Lowpass":
+    //     tempAudioNode = aCtx!.createBiquadFilter();
+    //     tempAudioNode.type = "lowpass";
+    //     tempAudioNode.frequency.value = 21000;
+    //     insertAudioNode(tempAudioNodes, tempAudioNode);
+    //     setAudioNodes(tempAudioNodes);
+    //     setTimeout(() => {
+    //       setAudioNodesChanged(true);
+    //     }, 10);
+    //     break;
+    //   case "Reverb":
+    //     tempAudioNode = aCtx!.createConvolver();
+    //     tempAudioNode.buffer = impulseBuffers[0];
+    //     insertAudioNode(tempAudioNodes, tempAudioNode);
+    //     setAudioNodes(tempAudioNodes);
+    //     setTimeout(() => {
+    //       setAudioNodesChanged(true);
+    //     }, 10);
+    // }
+
+    // // console.log(audioNodes);
   };
 
   const deleteAudioModuleAndNode = (position: number[]) => {
     // position is position of audio module
     let tempAudioModules = audioModules;
-    tempAudioModules[position[0]].splice(position[1], 1); // works, but still need to shift and reorder elements around
+    tempAudioModules[position[0]].splice(position[1], 1); // works
 
     if (tempAudioModules[position[0]].length === 0) {
       // works
@@ -533,33 +654,88 @@ const AudioBox = () => {
       column -= 1;
     }
 
+    let tempAudioNodesSubArr = audioNodes![currentTrackIdx];
     let tempAudioNodesLinearArr: AudioNode[] = [];
 
-    for (let i = 1; i < audioNodes!.length - 1; i++) {
-      for (let j = 0; j < audioNodes![i].length; j++) {
+    for (let i = 1; i < tempAudioNodesSubArr!.length - 1; i++) {
+      for (let j = 0; j < tempAudioNodesSubArr![i].length; j++) {
         if (i === row && j === column) {
           // skip node to be deleted
           continue;
         }
-        tempAudioNodesLinearArr.push(audioNodes![i][j]);
+        tempAudioNodesLinearArr.push(tempAudioNodesSubArr![i][j]);
       }
     }
 
-    let audioSourceBufferNode = [...audioNodes![0]];
-    let analyserNode = [...audioNodes![audioNodes!.length - 1]];
+    let audioSourceBufferNodeSubArr = [...tempAudioNodesSubArr![0]];
+    let gainNodeSubArr = [
+      ...tempAudioNodesSubArr![tempAudioNodesSubArr!.length - 1],
+    ];
 
-    let tempAudioNodes = [audioSourceBufferNode, [], analyserNode];
+    let tempNewAudioNodesSubArr = [
+      audioSourceBufferNodeSubArr,
+      [],
+      gainNodeSubArr,
+    ];
+
+    audioNodes![currentTrackIdx] = tempNewAudioNodesSubArr;
 
     for (let i = 0; i < tempAudioNodesLinearArr.length; i++) {
-      tempAudioNodes = [
-        ...insertAudioNode(tempAudioNodes, tempAudioNodesLinearArr[i])!,
-      ];
+      insertAudioNode(audioNodes, tempAudioNodesLinearArr[i], currentTrackIdx);
     }
 
-    setAudioNodes(tempAudioNodes);
+    setAudioNodes(audioNodes);
     setTimeout(() => {
       setAudioNodesChanged(true);
     }, 10);
+
+    for (let i = 0; i < audioNodes!.length; i++) {
+      console.log(
+        audioNodes![i] + "--------------- Delete audio node -----------------"
+      );
+    }
+
+    // console.log(
+    //   audioNodes + "-------------Delete audio node-------------------"
+    // );
+
+    // OLD CODE --------------------------------------------------------------------
+
+    // // Offset row and column to account for structure of audioNodes array
+    // let row = position[0] + 1;
+    // let column = position[1];
+
+    // if (row === 1) {
+    //   column -= 1;
+    // }
+
+    // let tempAudioNodesLinearArr: AudioNode[] = [];
+
+    // for (let i = 1; i < audioNodes!.length - 1; i++) {
+    //   for (let j = 0; j < audioNodes![i].length; j++) {
+    //     if (i === row && j === column) {
+    //       // skip node to be deleted
+    //       continue;
+    //     }
+    //     tempAudioNodesLinearArr.push(audioNodes![i][j]);
+    //   }
+    // }
+
+    // let audioSourceBufferNode = [...audioNodes![0]];
+    // let analyserNode = [...audioNodes![audioNodes!.length - 1]];
+
+    // let tempAudioNodes = [audioSourceBufferNode, [], analyserNode];
+
+    // for (let i = 0; i < tempAudioNodesLinearArr.length; i++) {
+    //   tempAudioNodes = [
+    //     ...insertAudioNode(tempAudioNodes, tempAudioNodesLinearArr[i])!,
+    //   ];
+    // }
+
+    // setAudioNodes(tempAudioNodes);
+    // setTimeout(() => {
+    //   setAudioNodesChanged(true);
+    // }, 10);
   };
 
   const moveAudioModuleAndNode = (position: number[], isLeft: boolean) => {
