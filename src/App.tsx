@@ -1,13 +1,13 @@
-import AudioBox from './components/AudioBox';
+import AudioBox from "./components/AudioBox";
 
 function App() {
-
   return (
     <>
-      <AudioBox></AudioBox>
+      <AudioBox tempKey={3}></AudioBox>
+      <AudioBox tempKey={2}></AudioBox>
+      <AudioBox tempKey={1}></AudioBox>
     </>
-  )
-
+  );
 }
 
-export default App
+export default App;

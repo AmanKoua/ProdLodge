@@ -169,7 +169,11 @@ const startVisualizer = () => {
   }
 };
 
-const AudioBox = () => {
+interface Props {
+  tempKey: number;
+}
+
+const AudioBox = ({ tempKey }: Props) => {
   let tempModuleData: Object[][] = [[{ type: "Blank" }]];
   canvasRef = useRef(null); // reference to canvas
 
