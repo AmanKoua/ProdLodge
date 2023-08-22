@@ -23,7 +23,7 @@ export let useFetchAudioAndInitNodes = (
   setSettingsTracksData: (val: any) => void,
   setImpulseBuffers: (val: any) => void,
   // setCurrentTrack: (val: any) => void,
-  setCurrentTrackIdx: (val: number) => void,
+  // setCurrentTrackIdx: (val: number) => void,
   setSongDuration: (val: any) => void,
   setAudioNodes: (val: any) => void,
   setAnalyserNode: (val: any) => void,
@@ -73,11 +73,12 @@ export let useFetchAudioAndInitNodes = (
           let tempTracksData = {};
 
           if (tempTracksKeys[i] === "master") {
-            setCurrentTrackIdx(i);
+            // play all tracks except master
+            // setCurrentTrackIdx(i);
             // setCurrentTrack(decodedBuffer);
-            tempTracksData.isEnabled = true;
-          } else {
             tempTracksData.isEnabled = false;
+          } else {
+            tempTracksData.isEnabled = true;
           }
           tempTrackBuffers.push(decodedBuffer);
 
@@ -167,7 +168,7 @@ export let useReconnectNodes = (
 ) => {
   useEffect(() => {
     // disconnect and reconnect all audioNodes
-    if (audioNodes === undefined) {
+    if (audioNodes === undefined || analyserNode === undefined) {
       return;
     }
 
@@ -175,18 +176,22 @@ export let useReconnectNodes = (
       return;
     }
 
-    let tempAudioNodes = audioNodes[currentTrackIdx]; // 2d audioNodes structure now
+    console.log("connecting audio nodes!");
 
-    if (tempAudioNodes.length === 2) {
-      // only audioBufferSourceNode and gainNode
-      tempAudioNodes[0][0].disconnect();
-      tempAudioNodes[0][0].connect(tempAudioNodes[1][0]);
-      tempAudioNodes[1][0].disconnect();
-      tempAudioNodes[1][0].connect(analyserNode!);
-      tempAudioNodes[1][0].connect(aCtx!.destination);
-    } else {
-      let currentNode: AudioNode = tempAudioNodes[0][0]; // audioBufferSourceNode
-      // TO BE IMPLEMENTED!
+    for (let i = 0; i < audioNodes.length; i++) {
+      let tempAudioNodes = audioNodes[i]; // 2d audioNodes structure now
+
+      if (tempAudioNodes.length === 2) {
+        // only audioBufferSourceNode and gainNode
+        tempAudioNodes[0][0].disconnect();
+        tempAudioNodes[0][0].connect(tempAudioNodes[1][0]);
+        tempAudioNodes[1][0].disconnect();
+        tempAudioNodes[1][0].connect(analyserNode!);
+        tempAudioNodes[1][0].connect(aCtx!.destination);
+      } else {
+        // let currentNode: AudioNode = tempAudioNodes[0][0]; // audioBufferSourceNode
+        // TO BE IMPLEMENTED!
+      }
     }
 
     setAudioNodesChanged(false);
@@ -299,6 +304,8 @@ export let usePlayAndResume = (
 
     setAudioNodes(tempAudioNodes);
     setAudioNodesChanged(true); // trigger the reconnection process
+
+    // OLD CODE ------------------------------------------------------------------------------------
 
     // let tempAudioNodes = audioNodes; // I suspect that this is NOT seen as a different array upon mutation because the reference is the same
     // let tempAudioSourceNode: AudioBufferSourceNode = aCtx!.createBufferSource();

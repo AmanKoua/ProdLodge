@@ -216,7 +216,7 @@ const AudioBox = () => {
     setSettingsTracksData,
     setImpulseBuffers,
     // setCurrentTrack,
-    setCurrentTrackIdx,
+    // setCurrentTrackIdx,
     setSongDuration,
     setAudioNodes,
     setAnalyserNode,
