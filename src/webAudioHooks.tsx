@@ -219,10 +219,6 @@ export let useReconnectNodes = (
                 audioModuleColumn += 1;
               }
 
-              for (let i = 0; i < tempAudioNodes.length; i++) {
-                // console.log(tempAudioNodes[i] + " ------- Reconnect -------- ");
-              }
-              // console.log(JSON.stringify(audioModules));
               if (!audioModules[audioModuleRow][audioModuleColumn].isEnabled) {
                 // this line breaks IF audioNodes are not reset along with audioModules when a track is changed
                 // if audioModule is not enabled, skip connection!

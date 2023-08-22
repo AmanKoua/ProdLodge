@@ -689,15 +689,11 @@ const AudioBox = () => {
       setAudioNodesChanged(true);
     }, 10);
 
-    for (let i = 0; i < audioNodes!.length; i++) {
-      console.log(
-        audioNodes![i] + "--------------- Delete audio node -----------------"
-      );
-    }
-
-    // console.log(
-    //   audioNodes + "-------------Delete audio node-------------------"
-    // );
+    // for (let i = 0; i < audioNodes!.length; i++) {
+    //   console.log(
+    //     audioNodes![i] + "--------------- Delete audio node -----------------"
+    //   );
+    // }
 
     // OLD CODE --------------------------------------------------------------------
 
@@ -740,8 +736,6 @@ const AudioBox = () => {
 
   const moveAudioModuleAndNode = (position: number[], isLeft: boolean) => {
     // moving audioModules
-
-    console.log(audioNodes);
 
     if (position[0] === 0 && position[1] === 1 && isLeft === true) {
       console.log("Not moving left!");
@@ -803,6 +797,8 @@ const AudioBox = () => {
 
     setAudioModules(audioModules);
 
+    // Moving audioNode
+
     // moving audioNodes
     /*
       Operating under the assumption that if audioModules can be moved,
@@ -810,7 +806,7 @@ const AudioBox = () => {
       performed above for the audioNodes
     */
 
-    let tempAudioNodes = [...audioNodes!];
+    let tempAudioNodes = audioNodes![currentTrackIdx];
 
     // Offset row and column to account for structure of audioNodes array
     let row = position[0] + 1;
@@ -844,11 +840,57 @@ const AudioBox = () => {
       }
     }
 
-    setAudioNodes(tempAudioNodes);
+    console.log(tempAudioNodes);
+    setAudioNodes(audioNodes);
+
+    // OLD CODE --------------------------------------------------------------
+
+    // // moving audioNodes
+    // /*
+    //   Operating under the assumption that if audioModules can be moved,
+    //   then audioNodes can be moved as well. Will not re-conduct the checks
+    //   performed above for the audioNodes
+    // */
+
+    // let tempAudioNodes = [...audioNodes!];
+
+    // // Offset row and column to account for structure of audioNodes array
+    // let row = position[0] + 1;
+    // let column = position[1];
+
+    // if (row === 1) {
+    //   column -= 1;
+    // }
+
+    // if (isLeft) {
+    //   if (column === 0) {
+    //     let tempAudioNode =
+    //       tempAudioNodes[row - 1][tempAudioNodes[row - 1].length - 1];
+    //     tempAudioNodes[row - 1][tempAudioNodes[row - 1].length - 1] =
+    //       tempAudioNodes[row][column];
+    //     tempAudioNodes[row][column] = tempAudioNode;
+    //   } else {
+    //     let tempAudioNode = tempAudioNodes[row][column - 1];
+    //     tempAudioNodes[row][column - 1] = tempAudioNodes[row][column];
+    //     tempAudioNodes[row][column] = tempAudioNode;
+    //   }
+    // } else {
+    //   if (column === tempAudioNodes[row].length - 1) {
+    //     let tempAudioNode = tempAudioNodes[row + 1][0];
+    //     tempAudioNodes[row + 1][0] = tempAudioNodes[row][column];
+    //     tempAudioNodes[row][column] = tempAudioNode;
+    //   } else {
+    //     let tempAudioNode = tempAudioNodes[row][column + 1];
+    //     tempAudioNodes[row][column + 1] = tempAudioNodes[row][column];
+    //     tempAudioNodes[row][column] = tempAudioNode;
+    //   }
+    // }
+
+    // setAudioNodes(tempAudioNodes);
   };
 
   const editAudioNodeData = (data: Object, position: number[]) => {
-    let tempAudioNodes = audioNodes;
+    let tempAudioNodesSubArr = audioNodes![currentTrackIdx];
 
     // Offset row and column to account for structure of audioNodes array
     let row = position[0] + 1;
@@ -862,15 +904,16 @@ const AudioBox = () => {
     // console.log(tempAudioNodes, row, column);
 
     if (data.type === "Highpass" || data.type === "Lowpass") {
-      tempAudioNodes![row][column].frequency.value = data.frequency;
-      tempAudioNodes![row][column].Q.value = data.resonance;
+      tempAudioNodesSubArr![row][column].frequency.value = data.frequency;
+      tempAudioNodesSubArr![row][column].Q.value = data.resonance;
     } else if (data.type === "Reverb") {
-      tempAudioNodes![row][column].buffer = impulseBuffers![data.impulse];
+      tempAudioNodesSubArr![row][column].buffer = impulseBuffers![data.impulse];
     } else if (data.type === "TrackChange") {
-      setCurrentTrack(trackBuffers![data.track]);
+      // currentTrackIdx is changed in AudioSettingsTrack, which should automatically update currently selected track
+      // setCurrentTrack(trackBuffers![data.track]);
     }
 
-    setAudioNodes(tempAudioNodes);
+    setAudioNodes(audioNodes);
 
     if (data.type === "TrackChange") {
       if (!isPlaying) {
@@ -885,6 +928,46 @@ const AudioBox = () => {
 
     // data object contains configuration information for a given audioNode
     // position [row, column] contains the index of the audioModule whose data is being changed.
+
+    // OLD CODE -------------------------------------------------
+
+    // let tempAudioNodes = audioNodes;
+
+    // // Offset row and column to account for structure of audioNodes array
+    // let row = position[0] + 1;
+    // let column = position[1];
+
+    // if (row === 1) {
+    //   column -= 1;
+    // }
+
+    // // console.log(tempAudioNodes![position[0] + 1][position[1]]);
+    // // console.log(tempAudioNodes, row, column);
+
+    // if (data.type === "Highpass" || data.type === "Lowpass") {
+    //   tempAudioNodes![row][column].frequency.value = data.frequency;
+    //   tempAudioNodes![row][column].Q.value = data.resonance;
+    // } else if (data.type === "Reverb") {
+    //   tempAudioNodes![row][column].buffer = impulseBuffers![data.impulse];
+    // } else if (data.type === "TrackChange") {
+    //   setCurrentTrack(trackBuffers![data.track]);
+    // }
+
+    // setAudioNodes(tempAudioNodes);
+
+    // if (data.type === "TrackChange") {
+    //   if (!isPlaying) {
+    //     setIsPlaying(true);
+    //   }
+
+    //   setIsPlaying(false);
+    //   setTimeout(() => {
+    //     setIsPlaying(true);
+    //   }, 10);
+    // }
+
+    // // data object contains configuration information for a given audioNode
+    // // position [row, column] contains the index of the audioModule whose data is being changed.
   };
 
   let editAudioModuleData = () => {
