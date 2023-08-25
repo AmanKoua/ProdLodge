@@ -13,6 +13,7 @@ router.post('/signup', async (req, res) => {
 
     const email = req.body.email;
     const password = req.body.password;
+    const userName = req.body.userName;
 
     let createdUser = undefined;
     let token = undefined;
@@ -22,8 +23,15 @@ router.post('/signup', async (req, res) => {
     }
 
     try {
-        createdUser = await user.signup(email, password);
-        token = createToken(createdUser._id);
+
+        if (userName) {
+            createdUser = await user.signup(email, password, userName);
+            token = createToken(createdUser._id);
+        }
+        else {
+            createdUser = await user.signup(email, password, '');
+            token = createToken(createdUser._id);
+        }
 
     } catch (e) {
         return res.status(401).json({ error: e.message })
@@ -33,7 +41,7 @@ router.post('/signup', async (req, res) => {
         return res.status(500).json({ error: "Error creating user!" });
     }
     else {
-        return res.status(200).json({ email, token })
+        return res.status(200).json({ email, userName, token })
     }
 
 })
@@ -61,7 +69,8 @@ router.post('/login', async (req, res) => {
         return res.status(500).json({ error: "Error logging in user!" });
     }
     else {
-        return res.status(200).json({ email, token })
+        const userName = retrievedUser.userName;
+        return res.status(200).json({ email, userName, token })
     }
 
 })

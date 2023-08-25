@@ -11,6 +11,11 @@ const userSchema = new Schema({
         required: true,
         unique: true,
     },
+    userName: {
+        type: String,
+        required: false,
+        unique: false,
+    },
     password: {
         type: String,
         required: true,
@@ -18,7 +23,7 @@ const userSchema = new Schema({
 
 });
 
-userSchema.statics.signup = async function (email, password) {
+userSchema.statics.signup = async function (email, password, userName) {
 
     if (!email || !password) {
         throw Error("Missing required fields!");
@@ -36,7 +41,7 @@ userSchema.statics.signup = async function (email, password) {
 
     const salt = await bcrypt.genSalt(10);
     const hash = await bcrypt.hash(password, salt);
-    const user = await this.create({ email, password: hash })
+    const user = await this.create({ email, password: hash, userName })
 
     return user;
 

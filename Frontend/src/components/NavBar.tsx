@@ -16,7 +16,11 @@ const NavBar = () => {
       return (
         <>
           <div>
-            <span>{authContext.user.email}</span>
+            <span>
+              {authContext.user.userName === ""
+                ? authContext.user.email
+                : authContext.user.userName}
+            </span>
             <button className="userAuthButton" onClick={handleLogoutClick}>
               logout
             </button>
