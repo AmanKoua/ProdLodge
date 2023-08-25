@@ -1,12 +1,48 @@
-import AudioBox from "./components/AudioBox";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useContext } from "react";
+
+import AudioBox from "./audioComponents/AudioBox";
+import NavBar from "./components/NavBar";
+import Home from "./pages/Home";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+
+import { AuthContext } from "./context/AuthContext";
+
+import "./index.css";
+
+const useAuthContext = () => {
+  const context = useContext(AuthContext);
+
+  if (!context) {
+    throw Error(
+      "useAuthContext cannot be used outisde the scope of the useAuthContext context!"
+    );
+  }
+
+  return context;
+};
 
 function App() {
+  let authContext = useAuthContext();
+
   return (
-    <>
+    <div className="app">
+      <BrowserRouter>
+        <NavBar />
+        <div className="pages">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+          </Routes>
+        </div>
+      </BrowserRouter>
+
+      {/* <AudioBox></AudioBox>
       <AudioBox></AudioBox>
-      <AudioBox></AudioBox>
-      <AudioBox></AudioBox>
-    </>
+      <AudioBox></AudioBox> */}
+    </div>
   );
 }
 
