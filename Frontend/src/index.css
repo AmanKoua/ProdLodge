@@ -16,6 +16,10 @@
     text-decoration:none;
 }
 
+.navbar span{
+    margin-right: 10px;
+}
+
 /* Login page styles */
 
 .login{
@@ -28,6 +32,13 @@
     height: 350px;
     border-radius:5px;
     background-color: var(--primary);
+}
+
+.userAuthButton{
+    margin-right: 3px;
+    border: 1px solid black;
+    border-radius: 3px;
+    background-color: var(--secondary);
 }
 
 form h3{

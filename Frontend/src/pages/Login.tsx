@@ -1,5 +1,6 @@
 import React from "react";
 import { useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 
 const Login = () => {
@@ -7,6 +8,7 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const authContext = useContext(AuthContext); // user and dispatch properties
+  const navigate = useNavigate();
 
   const updateEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
@@ -40,9 +42,9 @@ const Login = () => {
       setError(json.error);
       return;
     } else {
-      console.log(authContext.user);
       authContext.dispatch({ type: "LOGIN", payload: json }); // save returned object to global state
       localStorage.setItem("user", JSON.stringify(json));
+      navigate("/");
     }
   };
 
