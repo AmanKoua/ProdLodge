@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 
 import AudioBox from "./audioComponents/AudioBox";
 import NavBar from "./components/NavBar";
@@ -25,6 +25,18 @@ const useAuthContext = () => {
 
 function App() {
   let authContext = useAuthContext();
+
+  useEffect(() => {
+    // log user in if still authenticated
+
+    let user = localStorage.getItem("user");
+
+    if (!user) {
+      // user is not authenticated
+    } else {
+      authContext.dispatch({ type: "LOGIN", payload: JSON.stringify(user) }); // set context state to stored user
+    }
+  }, []);
 
   return (
     <div className="app">

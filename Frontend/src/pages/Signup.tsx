@@ -1,10 +1,12 @@
 import React from "react";
-import { useState } from "react";
+import { useState, useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
 
 const Signup = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const authContext = useContext(AuthContext); // user and dispatch properties
 
   const updateEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
@@ -24,15 +26,19 @@ const Signup = () => {
       return;
     }
 
-    try {
-      const user = await fetch("/user/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-    } catch (e) {
-      console.log(e);
-      return;
+    const response = await fetch("http://localhost:8005/user/signup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+
+    const json = await response.json();
+
+    if (response.ok) {
+      authContext.dispatch({ type: "LOGIN", payload: json }); // save returned object to global state
+      localStorage.setItem("user", JSON.stringify(json));
+    } else {
+      setError(json.error);
     }
   };
 
