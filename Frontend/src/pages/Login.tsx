@@ -1,5 +1,5 @@
 import React from "react";
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 
@@ -9,6 +9,19 @@ const Login = () => {
   const [error, setError] = useState("");
   const authContext = useContext(AuthContext); // user and dispatch properties
   const navigate = useNavigate();
+
+  const preventPageAccess = () => {
+    // DO not allow a user to access the signup page if already logged in
+    const item = localStorage.getItem("user");
+
+    if (item) {
+      navigate("/");
+    }
+  };
+
+  useEffect(() => {
+    preventPageAccess();
+  }, []);
 
   const updateEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);

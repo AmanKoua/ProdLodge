@@ -18,7 +18,7 @@ app.get('/', (req, res) => {
     res.status(200).json({ message: "Hello to prodlodge!" })
 })
 
-let getGridFSBucket = async () => {
+let getGridFSBucket = async () => { // GridFS proof of concept tests
 
     const client = new MongoClient(process.env.MONGO_URI);
 
@@ -26,24 +26,35 @@ let getGridFSBucket = async () => {
 
         // works for uploading a file!
 
-        await client.connect();
-        const db = client.db("ProdCluster")
-        const bucket = new GridFSBucket(db);
+        // await client.connect();
+        // const db = client.db("ProdCluster")
+        // const bucket = new GridFSBucket(db);
 
-        const filePath = "C:/Personal Use/Programming/ProdLodge/Testing/AudioInterface/Frontend/src/assets/songs/stems/master.mp3";
-        const uploadStream = bucket.openUploadStream("Far cry 4 remix");
-        const fileStream = fs.createReadStream(filePath);
-        fileStream.pipe(uploadStream);
+        // const filePath = "C:/Personal Use/Programming/ProdLodge/Testing/AudioInterface/Frontend/src/assets/songs/stems/master.mp3";
+        // const uploadStream = bucket.openUploadStream("test name for remix");
+        // const fileStream = fs.createReadStream(filePath);
+        // fileStream.pipe(uploadStream);
 
-        uploadStream.on("finish", () => {
-            console.log("Upload successful!");
-            client.close();
-        })
+        // uploadStream.on("finish", async () => {
+
+        //     console.log("Upload successful!");
+        // })
+
+        // -------------------------------------------------------
+
+        // Works for renaming a file
+
+        // const cursor = bucket.find({ "filename": "Test name here!!!" })
+        // for await (const item of cursor) {
+        //     await bucket.rename(item._id, "This is new ----");
+        //     console.log(item);
+        // }
+        // await client.close();
 
         //--------------------------------------------------------------------
 
 
-        // seems to work for DLing a song!
+        // Works for DLing a song!
         // await client.connect();
         // const db = client.db("ProdCluster")
         // const bucket = new GridFSBucket(db);
@@ -61,12 +72,12 @@ let getGridFSBucket = async () => {
 
         //-------------------------------------------------------------------------------
 
-        // seems to work for deleting a song!
+        // Works for deleting a song!
         // await client.connect();
         // const db = client.db("ProdCluster")
         // const bucket = new GridFSBucket(db);
 
-        // await bucket.delete(new ObjectId('64e9799c8ebf1a1d3fa1d40a'));
+        // await bucket.delete(new ObjectId('64ea18b19e0a2d02d7b7cd79'));
 
     } catch (e) {
         console.log(e);
@@ -76,9 +87,10 @@ let getGridFSBucket = async () => {
 
 mongoose.connect(process.env.MONGO_URI).then(async () => {
 
-    await getGridFSBucket();
+    // await getGridFSBucket();
 
     app.listen(process.env.PORT, () => {
         console.log("Listening on port " + process.env.PORT);
     })
+
 }).catch((e) => { console.log(e) });
