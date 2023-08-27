@@ -1,3 +1,5 @@
 # ProdLodge
 
-A music production feedback forum. Made my music producers, for music producers.
+An online music production feedback forum. 
+
+All rights reserved.

@@ -1,22 +1,29 @@
 import { useState } from "react";
 import { useRef } from "react";
+import { useEffect } from "react";
 import CSS from "csstype";
 
 import AudioController from "./AudioController";
 import AudioModuleContainer from "./AudioModuleContainer";
 import AudioSettingsDrawer from "./AudioSettingsDrawer";
 
-import {
-  useInitAudioCtx,
-  useFetchAudioAndInitNodes,
-  useReconnectNodes,
-  usePlayAndResume,
-  usePauseSong,
-  useTrackSongTime,
-  useInitVisualizer,
-  useInitCanvas,
-  useDraw,
-} from "../webAudioHooks";
+/*
+Cannot use hooks imported from another module because variables used can be 
+accessed / corrupted by other AudioBox instances. I'd prefer not to keep 
+all useEffects definitions in this file, but I dont see another option.
+*/
+
+// import {
+//   useInitAudioCtx,
+//   useFetchAudioAndInitNodes,
+//   useReconnectNodes,
+//   usePlayAndResume,
+//   usePauseSong,
+//   useTrackSongTime,
+//   useInitVisualizer,
+//   useInitCanvas,
+//   useDraw,
+// } from "../webAudioHooks";
 
 import tempSong from "../assets/songs/telepathy.mp3"; // when only 1 track was supported
 
@@ -47,130 +54,112 @@ import impulse16 from "../assets/impulseResponses/16.wav";
 import impulse17 from "../assets/impulseResponses/17.wav";
 import impulse18 from "../assets/impulseResponses/18.wav";
 
-console.log("AudioBox Rerender!");
-
-// Audio context
-let aCtx: AudioContext | undefined;
-let setACtx: (val: any) => void;
-
-// song buffer, song info, and audio buffers
-let currentTrackIdx: number;
-let setCurrentTrackIdx: (val: any) => void;
-// let currentTrack: AudioBuffer | undefined; // not needed, because tracks will run in parallel
-// let setCurrentTrack: (val: any) => void;
-let trackBuffers: AudioBuffer[] | undefined;
-let setTrackBuffers: (val: any) => void;
-let settingsTracksData: Object[] | undefined;
-let setSettingsTracksData: (val: any) => void;
-// let impulseBuffer: AudioBuffer | undefined;
-// let setImpulseBuffer: (val: any) => void;
-let impulseBuffers: AudioBuffer[] | undefined;
-let setImpulseBuffers: (val: any) => void;
-let songDuration: number;
-let setSongDuration: (val: any) => void;
-
-let tracks: Object = {
-  bass: bass,
-  chords: chords,
-  drums: drums,
-  leads: leads,
-  reverb: reverb,
-  master: master,
-};
-
-let tracksJSON = JSON.stringify(tracks);
-
-let impulses: Object = {
-  // impulse0: impulse0,
-  impulse1: impulse1,
-  impulse2: impulse2,
-  impulse3: impulse3,
-  impulse4: impulse4,
-  impulse5: impulse5,
-  impulse6: impulse6,
-  impulse7: impulse7,
-  impulse8: impulse8,
-  impulse9: impulse9,
-  impulse10: impulse10,
-  impulse11: impulse11,
-  impulse12: impulse12,
-  impulse13: impulse13,
-  impulse14: impulse14,
-  impulse15: impulse15,
-  impulse16: impulse16,
-  impulse17: impulse17,
-  impulse18: impulse18,
-};
-
-let impulsesJSON = JSON.stringify(impulses);
-
-// AudioNodes (actual audio nodes)
-let audioNodes: AudioNode[][][] | undefined;
-let setAudioNodes: (val: any) => void;
-let audioNodesChanged: boolean;
-let setAudioNodesChanged: (val: any) => void;
-let analyserNode: AudioNode | undefined;
-let setAnalyserNode: (val: any) => void;
-
-// audioModules (data required for creating UI for audio nodes)
-let audioModules: Object[][];
-let setAudioModules: (val: Object[][]) => void;
-let audioModulesJSON: string[];
-let setAudioModulesJSON: (val: string[]) => void;
-
-// Canvas and context
-let canvas: HTMLCanvasElement | undefined;
-let setCanvas: (val: any) => void;
-let canvasCtx: CanvasRenderingContext2D | undefined;
-let setCanvasCtx: (Val: any) => void;
-let animationFrameHandler: number | undefined;
-let setAnimationFrameHandler: (val: any) => void;
-let canvasRef: any;
-
-// Visualizer data and properties
-let bufferLength: number | undefined;
-let setBufferLength: (val: any) => void;
-let dataArr: Uint8Array | undefined;
-let setDataArr: (val: any) => void;
-
-// Song information / time tracking
-let songTime: number = 0;
-let setSongTime: (val: number) => void;
-let songTimeInterval: number | undefined;
-let setSongTimeInterval: (val: any) => void;
-
-// Page status
-let hasUserGestured: boolean;
-let setHasUserGestured: (val: boolean) => void;
-let areAudioNodesReady: boolean;
-let setAreAudioNodesReady: (val: boolean) => void;
-let isVisualizing: boolean;
-let setIsVisualizing: (val: boolean) => void;
-let isPlaying: boolean;
-let setIsPlaying: (val: boolean) => void;
-let isExpanded: boolean;
-let setIsExpanded: (val: boolean) => void;
-let isSettingsHover: boolean;
-let setIsSettingsHover: (val: boolean) => void;
-let isSettingsExpanded: boolean;
-let setIsSettingsExpanded: (val: boolean) => void;
-
-let playSong = async function (seekTime: number | null) {
-  setIsPlaying(true);
-};
-
-const stopSong = function () {
-  setIsPlaying(false);
-};
-
-const startVisualizer = () => {
-  if (!isVisualizing) {
-    setIsVisualizing(true);
-  }
-};
-
 const AudioBox = () => {
+  // console.log("AudioBox Rerender!");
+
+  let tracks: Object = {
+    bass: bass,
+    chords: chords,
+    drums: drums,
+    leads: leads,
+    reverb: reverb,
+    master: master,
+  };
+
+  let tracksJSON = JSON.stringify(tracks);
+
+  let impulses: Object = {
+    // impulse0: impulse0,
+    impulse1: impulse1,
+    impulse2: impulse2,
+    impulse3: impulse3,
+    impulse4: impulse4,
+    impulse5: impulse5,
+    impulse6: impulse6,
+    impulse7: impulse7,
+    impulse8: impulse8,
+    impulse9: impulse9,
+    impulse10: impulse10,
+    impulse11: impulse11,
+    impulse12: impulse12,
+    impulse13: impulse13,
+    impulse14: impulse14,
+    impulse15: impulse15,
+    impulse16: impulse16,
+    impulse17: impulse17,
+    impulse18: impulse18,
+  };
+
+  let impulsesJSON = JSON.stringify(impulses);
   let tempModuleData: Object[][] = [[{ type: "Blank" }]];
+
+  // Audio context
+  let aCtx: AudioContext | undefined;
+  let setACtx: (val: any) => void;
+
+  // song buffer, song info, and audio buffers
+  let currentTrackIdx: number;
+  let setCurrentTrackIdx: (val: any) => void;
+  let trackBuffers: AudioBuffer[] | undefined;
+  let setTrackBuffers: (val: any) => void;
+  let settingsTracksData: Object[] | undefined;
+  let setSettingsTracksData: (val: any) => void;
+  let impulseBuffers: AudioBuffer[] | undefined;
+  let setImpulseBuffers: (val: any) => void;
+  let songDuration: number;
+  let setSongDuration: (val: any) => void;
+
+  // AudioNodes (actual audio nodes)
+  let audioNodes: AudioNode[][][] | undefined;
+  let setAudioNodes: (val: any) => void;
+  let audioNodesChanged: boolean;
+  let setAudioNodesChanged: (val: any) => void;
+  let analyserNode: AudioNode | undefined;
+  let setAnalyserNode: (val: any) => void;
+
+  // audioModules (data required for creating UI for audio nodes)
+  let audioModules: Object[][];
+  let setAudioModules: (val: Object[][]) => void;
+  let audioModulesJSON: string[];
+  let setAudioModulesJSON: (val: string[]) => void;
+
+  // Canvas and context
+  let canvas: HTMLCanvasElement | undefined;
+  let setCanvas: (val: any) => void;
+  let canvasCtx: CanvasRenderingContext2D | undefined;
+  let setCanvasCtx: (Val: any) => void;
+  let animationFrameHandler: number | undefined; // value is used in effects hooks
+  let setAnimationFrameHandler: (val: any) => void;
+  let canvasRef: any;
+
+  // Visualizer data and properties
+  let bufferLength: number | undefined;
+  let setBufferLength: (val: any) => void;
+  let dataArr: Uint8Array | undefined;
+  let setDataArr: (val: any) => void;
+
+  // Song information / time tracking
+  let songTime: number = 0;
+  let setSongTime: (val: number) => void;
+  let songTimeInterval: number | undefined;
+  let setSongTimeInterval: (val: any) => void;
+
+  // Page status
+  let hasUserGestured: boolean;
+  let setHasUserGestured: (val: boolean) => void;
+  let areAudioNodesReady: boolean;
+  let setAreAudioNodesReady: (val: boolean) => void;
+  let isVisualizing: boolean;
+  let setIsVisualizing: (val: boolean) => void;
+  let isPlaying: boolean;
+  let setIsPlaying: (val: boolean) => void;
+  let isExpanded: boolean;
+  let setIsExpanded: (val: boolean) => void;
+  let isSettingsHover: boolean;
+  let setIsSettingsHover: (val: boolean) => void;
+  let isSettingsExpanded: boolean;
+  let setIsSettingsExpanded: (val: boolean) => void;
+
   canvasRef = useRef(null); // reference to canvas
 
   [isExpanded, setIsExpanded] = useState(false);
@@ -185,12 +174,9 @@ const AudioBox = () => {
   [areAudioNodesReady, setAreAudioNodesReady] = useState(false);
 
   [aCtx, setACtx] = useState(undefined); // aCtx and setACtx type are the way they are beause an audioCtx cannot be initialized on render.
-  // [songBuffer, setSongBuffer] = useState(undefined);
   [currentTrackIdx, setCurrentTrackIdx] = useState(0);
-  // [currentTrack, setCurrentTrack] = useState(undefined);
   [trackBuffers, setTrackBuffers] = useState(undefined);
   [settingsTracksData, setSettingsTracksData] = useState(undefined);
-  // [impulseBuffer, setImpulseBuffer] = useState(undefined);
   [impulseBuffers, setImpulseBuffers] = useState(undefined);
   [songDuration, setSongDuration] = useState(0);
   [audioNodes, setAudioNodes] = useState(undefined);
@@ -205,6 +191,568 @@ const AudioBox = () => {
   [bufferLength, setBufferLength] = useState(undefined);
 
   /////////////////////////////////// Web audio Api effects! ////////////////////////////////////////////////////
+
+  let useInitAudioCtx = (
+    hasUserGestured: boolean,
+    setACtx: (val: any) => void
+  ) => {
+    useEffect(() => {
+      // initialze audio context on first gesture
+      if (!hasUserGestured) {
+        return;
+      }
+
+      console.log("audio context init!");
+      setACtx(new AudioContext());
+    }, [hasUserGestured]);
+  };
+
+  let useFetchAudioAndInitNodes = (
+    aCtx: AudioContext | undefined,
+    tracksJSON: string,
+    impulsesJSON: string,
+    setTrackBuffers: (val: any) => void,
+    setSettingsTracksData: (val: any) => void,
+    setImpulseBuffers: (val: any) => void,
+    // setCurrentTrack: (val: any) => void,
+    setCurrentTrackIdx: (val: number) => void,
+    setSongDuration: (val: any) => void,
+    setAudioNodes: (val: any) => void,
+    setAnalyserNode: (val: any) => void,
+    setAreAudioNodesReady: (val: boolean) => void,
+    setAudioModulesJSON: (val: string[]) => void
+  ) => {
+    useEffect(() => {
+      // Fetch audio data and initialize primary nodes
+      if (aCtx === undefined) {
+        return;
+      }
+
+      console.log("fetching audio!");
+
+      let tempTracks = JSON.parse(tracksJSON);
+      let tempImpulses = JSON.parse(impulsesJSON);
+
+      // console.log(tempTracks);
+      // console.log(tempImpulses);
+
+      let fetchImpulseResponses = async () => {
+        let tempImpulseBuffers: AudioBuffer[] = [];
+        let tempImpulsesKeys: string[] = Object.keys(tempImpulses);
+
+        for (let i = 0; i < tempImpulsesKeys.length; i++) {
+          console.log("impulse fetched!");
+          let response = await fetch(tempImpulses[tempImpulsesKeys[i]]);
+          let arrayBuffer = await response.arrayBuffer();
+          await aCtx.decodeAudioData(arrayBuffer, (decodedBuffer) => {
+            tempImpulseBuffers.push(decodedBuffer);
+          });
+        }
+        setImpulseBuffers(tempImpulseBuffers!);
+      };
+
+      let fetchTracks = async () => {
+        let tempTrackBuffers: AudioBuffer[] = [];
+        let tempTracksKeys: string[] = Object.keys(tempTracks);
+        let tempSettingsTracksData: Object[] = [];
+        let tempAudioModulesJSON: string[] = ['[[{"type":"Blank"}]]'];
+
+        for (let i = 0; i < tempTracksKeys.length; i++) {
+          console.log("track fetched!");
+          let response = await fetch(tempTracks[tempTracksKeys[i]]);
+          let arrayBuffer = await response.arrayBuffer();
+          await aCtx.decodeAudioData(arrayBuffer, (decodedBuffer) => {
+            let tempTracksData = {};
+
+            if (tempTracksKeys[i] === "master") {
+              tempTracksData.isEnabled = false;
+            } else {
+              tempTracksData.isEnabled = true;
+              setCurrentTrackIdx(i);
+            }
+
+            tempTrackBuffers.push(decodedBuffer);
+
+            tempTracksData.name = tempTracksKeys[i];
+            tempTracksData.moduleCount = 0;
+            tempTracksData.idx = i;
+            tempSettingsTracksData.push(tempTracksData);
+            if (i !== 0) {
+              // skip 1, because 1 is already defined when the audioModulesState is set!
+              tempAudioModulesJSON.push('[[{"type":"Blank"}]]');
+            }
+          });
+        }
+        setTrackBuffers(tempTrackBuffers!);
+        setSongDuration(tempTrackBuffers![0].duration);
+        setSettingsTracksData(tempSettingsTracksData);
+        setAudioModulesJSON(tempAudioModulesJSON);
+        await createPrimaryNodes(tempTrackBuffers!, tempSettingsTracksData);
+      };
+
+      let createPrimaryNodes = async (
+        songBuffers: AudioBuffer[],
+        tempSettingsTracksData: Object[] // to tell if gain should be on / off
+      ) => {
+        // create audioBufferSourceNode and analyserNode
+
+        console.log("creating primary nodes!");
+
+        let tempAnalyserNode: AnalyserNode = aCtx!.createAnalyser();
+        tempAnalyserNode.fftSize = 2048;
+        setAnalyserNode(tempAnalyserNode);
+
+        let tempAudioNodesArr: AudioNode[][][] = [];
+
+        for (let i = 0; i < songBuffers.length; i++) {
+          let tempAudioNodeSubArr = [];
+
+          let tempAudioSourceNode: AudioBufferSourceNode =
+            aCtx!.createBufferSource();
+          tempAudioSourceNode.buffer = songBuffers[i];
+          tempAudioNodeSubArr.push([tempAudioSourceNode]);
+
+          let tempGainNode: GainNode = aCtx!.createGain();
+          if (tempSettingsTracksData[i].isEnabled) {
+            tempGainNode.gain.value = 1; // enabled
+          } else {
+            tempGainNode.gain.value = 0; // muted
+          }
+          tempAudioNodeSubArr.push([tempGainNode]);
+          tempAudioNodesArr.push(tempAudioNodeSubArr);
+        }
+
+        setAudioNodes(tempAudioNodesArr);
+        setAreAudioNodesReady(true);
+      };
+
+      fetchImpulseResponses();
+      fetchTracks();
+    }, [aCtx]);
+  };
+
+  let useReconnectNodes = (
+    aCtx: AudioContext | undefined,
+    audioNodes: AudioNode[][][] | undefined,
+    analyserNode: AudioNode | undefined,
+    audioModules: Object[][],
+    audioModulesJSON: string[],
+    settingsTracksData: Object[] | undefined,
+    currentTrackIdx: number,
+    audioNodesChanged: boolean,
+    setAudioNodesChanged: (val: any) => void
+  ) => {
+    useEffect(() => {
+      // disconnect and reconnect all audioNodes
+      if (audioNodes === undefined || analyserNode === undefined) {
+        return;
+      }
+
+      if (!audioNodesChanged) {
+        return;
+      }
+
+      console.log("connecting audio nodes!");
+      let audioModuleRow: number;
+      let audioModuleColumn: number;
+
+      for (let x = 0; x < audioNodes.length; x++) {
+        let tempAudioNodes = audioNodes[x]; // 2d audioNodes structure now
+
+        if (tempAudioNodes.length === 2) {
+          // only audioBufferSourceNode and gainNode
+          tempAudioNodes[0][0].disconnect();
+          tempAudioNodes[0][0].connect(tempAudioNodes[1][0]);
+          tempAudioNodes[1][0].disconnect();
+          tempAudioNodes[1][0].connect(analyserNode!);
+          tempAudioNodes[1][0].connect(aCtx!.destination);
+
+          if (settingsTracksData![x].isEnabled) {
+            tempAudioNodes[1][0].gain.value = 1;
+          } else {
+            tempAudioNodes[1][0].gain.value = 0;
+          }
+        } else {
+          // loop through audioNodes and connect them one by one
+          let currentNode = tempAudioNodes[0][0]; // start with audioSourceBufferNode;
+          let gainNode = tempAudioNodes[tempAudioNodes.length - 1][0]; // gainNode
+          for (let i = 1; i < tempAudioNodes.length - 1; i++) {
+            // row
+            for (let j = 0; j < tempAudioNodes[i].length; j++) {
+              // column
+
+              if (x === currentTrackIdx) {
+                // convert audioNode location to audioModule location
+                audioModuleRow = i - 1;
+                audioModuleColumn = j;
+
+                if (audioModuleRow === 0) {
+                  audioModuleColumn += 1;
+                }
+
+                if (
+                  !audioModules[audioModuleRow][audioModuleColumn].isEnabled
+                ) {
+                  // this line breaks IF audioNodes are not reset along with audioModules when a track is changed
+                  // if audioModule is not enabled, skip connection!
+                  continue;
+                }
+
+                currentNode.disconnect();
+                currentNode.connect(tempAudioNodes[i][j]);
+                currentNode = tempAudioNodes[i][j];
+              } else {
+                let tempAudioModules = JSON.parse(audioModulesJSON[x]);
+
+                // convert audioNode location to audioModule location
+                audioModuleRow = i - 1;
+                audioModuleColumn = j;
+
+                if (audioModuleRow === 0) {
+                  audioModuleColumn += 1;
+                }
+
+                // console.log(JSON.stringify(audioModules));
+
+                if (
+                  !tempAudioModules[audioModuleRow][audioModuleColumn].isEnabled
+                ) {
+                  // this line breaks IF audioNodes are not reset along with audioModules when a track is changed
+                  // if audioModule is not enabled, skip connection!
+                  continue;
+                }
+
+                currentNode.disconnect();
+                currentNode.connect(tempAudioNodes[i][j]);
+                currentNode = tempAudioNodes[i][j];
+              }
+            }
+          }
+          currentNode.disconnect();
+          currentNode.connect(gainNode);
+          gainNode.connect(analyserNode);
+          gainNode.connect(aCtx!.destination);
+
+          if (settingsTracksData![x].isEnabled) {
+            gainNode.gain.value = 1;
+          } else {
+            gainNode.gain.value = 0;
+          }
+        }
+      }
+
+      setAudioNodesChanged(false);
+
+      /*
+        For some reason, the cleanup function breaks when the hook is extracted into this file but works fine when implemented in audioBox.tsx directly.
+      */
+      // return () => {
+      //   // cleanup function disconnects all audio nodes
+      //   if (audioNodes === undefined) {
+      //     return;
+      //   }
+      //   if (audioNodesChanged) {
+      //     return;
+      //   }
+
+      //   for (let i = 0; i < audioNodes.length - 1; i++) {
+      //     for (let j = 0; j < audioNodes[i].length; j++) {
+      //       audioNodes[i][j].disconnect();
+      //     }
+      //   }
+      // };
+    }, [audioNodes, audioNodesChanged]);
+  };
+
+  let usePlayAndResume = (
+    aCtx: AudioContext | undefined,
+    audioNodes: AudioNode[][][] | undefined,
+    trackBuffers: AudioBuffer[] | undefined,
+    isPlaying: boolean,
+    songTime: number = 0,
+    setSongTime: (val: number) => void,
+    setAudioNodes: (val: any) => void,
+    setAudioNodesChanged: (val: any) => void
+  ) => {
+    useEffect(() => {
+      // Play (resume requires recreation of source node)
+      if (!isPlaying) {
+        return;
+      }
+
+      if (
+        aCtx === undefined ||
+        audioNodes === undefined ||
+        trackBuffers === undefined
+      ) {
+        return;
+      }
+
+      console.log("play / resume!");
+
+      let tempAudioNodes = audioNodes; // I suspect that this is NOT seen as a different array upon mutation because the reference is the same
+
+      for (let i = 0; i < audioNodes.length; i++) {
+        let tempAudioSourceNode: AudioBufferSourceNode =
+          aCtx!.createBufferSource();
+        tempAudioSourceNode.buffer = trackBuffers![i];
+
+        tempAudioNodes[i][0][0] = tempAudioSourceNode;
+      }
+
+      setAudioNodes(tempAudioNodes);
+      setAudioNodesChanged(true); // trigger the reconnection process
+
+      if (songTime < 0) {
+        setSongTime(0);
+      }
+
+      for (let i = 0; i < audioNodes.length; i++) {
+        // will need to check that they all start at the same time...
+        audioNodes![i][0][0].start(0, songTime);
+      }
+    }, [isPlaying]);
+  };
+
+  let usePauseSong = (
+    isPlaying: boolean,
+    audioNodes: AudioNode[][][] | undefined
+  ) => {
+    useEffect(() => {
+      // pause when pause button clicked!
+      if (isPlaying || audioNodes === undefined) {
+        return;
+      }
+
+      for (let i = 0; i < audioNodes.length; i++) {
+        audioNodes[i][0][0].stop();
+      }
+    }, [isPlaying]);
+  };
+
+  /* 
+    It seems that songTime is only passed once, and is not passed again when setSongTime is used.
+    Local variable tempSongTime MUST be used!
+  */
+
+  let tempSongTime = 0; // necessary for tracking song time from a custom hook
+
+  let useTrackSongTime = (
+    isPlaying: boolean,
+    songTime: number,
+    songTimeInterval: number | undefined,
+    setSongTime: (val: number) => void,
+    setSongTimeInterval: (val: any) => void
+  ) => {
+    useEffect(() => {
+      // track song time (set and clear tracking setInterval)
+
+      if (songTimeInterval === undefined && !isPlaying) {
+        return;
+      }
+
+      // console.log("tracking song time!");
+
+      if (isPlaying) {
+        if (songTimeInterval != undefined) {
+          clearInterval(songTimeInterval);
+        }
+
+        tempSongTime = songTime;
+
+        songTimeInterval = setInterval(() => {
+          tempSongTime += 0.1;
+          setSongTime(tempSongTime);
+        }, 100);
+
+        setSongTimeInterval(songTimeInterval);
+      } else {
+        clearInterval(songTimeInterval);
+      }
+
+      return () => {
+        if (songTimeInterval === undefined) {
+          return;
+        }
+
+        clearInterval(songTimeInterval);
+      };
+    }, [isPlaying]);
+  };
+
+  let useInitCanvas = (canvasRef: any) => {
+    // Initialize canvas so that audioModuelContainer does not bleed through
+    useEffect(() => {
+      let canvasCtx = canvasRef.current.getContext("2d");
+      canvasCtx!.fillStyle = "rgb(255, 255, 255)";
+      canvasCtx!.fillRect(
+        0,
+        0,
+        canvasRef.current.width,
+        canvasRef.current.height
+      );
+    }, []);
+  };
+
+  let useInitVisualizer = (
+    isVisualizing: boolean,
+    // audioNodes: AudioNode[][] | undefined,
+    analyserNode: AudioNode | undefined,
+    canvasRef: any,
+    setBufferLength: (val: any) => void,
+    setDataArr: (val: any) => void,
+    setCanvas: (val: any) => void,
+    setCanvasCtx: (Val: any) => void
+  ) => {
+    useEffect(() => {
+      // initialize visualizer
+
+      if (!isVisualizing) {
+        return;
+      }
+
+      if (analyserNode === undefined) {
+        console.log("canvas init dependencies undefined!");
+        return;
+      }
+
+      console.log("initializing visualizer!");
+
+      let tempDataArrSize = analyserNode.frequencyBinCount;
+      let tempDataArr = new Uint8Array(tempDataArrSize);
+
+      setBufferLength(tempDataArrSize);
+      setDataArr(tempDataArr);
+
+      setTimeout(() => {
+        analyserNode.getByteTimeDomainData(tempDataArr);
+      }, 10);
+
+      setCanvas(canvasRef.current!);
+
+      setTimeout(() => {
+        setCanvasCtx(canvasRef.current.getContext("2d"));
+      }, 10);
+    }, [isVisualizing]);
+  };
+
+  let useDraw = (
+    canvas: HTMLCanvasElement | undefined,
+    canvasCtx: CanvasRenderingContext2D | undefined,
+    analyserNode: AudioNode | undefined,
+    dataArr: Uint8Array | undefined,
+    bufferLength: number | undefined,
+    setAnimationFrameHandler: (val: any) => void
+  ) => {
+    useEffect(() => {
+      // draw visualizations!
+      if (
+        canvas === undefined ||
+        canvasCtx === undefined ||
+        analyserNode === undefined ||
+        dataArr === undefined ||
+        bufferLength === undefined
+      ) {
+        console.log("Drawing visualizatons dependencies undefined!");
+        return;
+      }
+
+      console.log("Starting visualizer!");
+
+      // let canvas = canvasRef.current;
+      // let canvasCtx = canvas.getContext("2d");
+
+      let draw = () => {
+        setAnimationFrameHandler(requestAnimationFrame(draw));
+        analyserNode.getByteTimeDomainData(dataArr);
+
+        canvasCtx!.fillStyle = "rgb(255, 255, 255)";
+        canvasCtx!.fillRect(0, 0, canvas!.width, canvas!.height);
+
+        canvasCtx!.lineWidth = 1;
+        canvasCtx!.strokeStyle = "rgb(0, 0, 0)";
+
+        // oscilloscope
+
+        canvasCtx!.beginPath();
+        const sliceWidth = (canvas!.width * 1.0) / bufferLength!;
+        let x = 0;
+
+        for (let i = 0; i < bufferLength!; i++) {
+          const v = dataArr![i] / 128.0;
+          const y = (v * canvas!.height) / 2;
+
+          if (i === 0) {
+            canvasCtx!.moveTo(x, y);
+          } else {
+            canvasCtx!.lineTo(x, y);
+          }
+
+          x += sliceWidth;
+        }
+
+        canvasCtx!.lineTo(canvas!.width, canvas!.height / 2);
+        canvasCtx!.stroke();
+      };
+
+      draw(); // call draw once!
+    }, [canvasCtx]);
+  };
+
+  let useAttachEventListener = (
+    isEventHandlerAttached: boolean,
+    audioControllerRef: any,
+    audioControllerElement: HTMLDivElement,
+    setIsEventHandlerAttached: React.Dispatch<React.SetStateAction<boolean>>
+  ) => {
+    useEffect(() => {
+      // attach eventHandler to AudioControllerDiv
+
+      if (!hasUserGestured || !areAudioNodesReady || isEventHandlerAttached) {
+        return;
+      }
+
+      // alert("AudioController eventhandler attached!");
+
+      const handleAudioControllerClick = async (event: MouseEvent) => {
+        if (event.target === audioControllerRef.current) {
+          // console.log(audioControllerRef.current);
+          // audioControllerRef.current.style.backgroundColor = "green";
+          // console.log("CLICK!");
+
+          let x = event.clientX;
+          let left = audioControllerElement.getBoundingClientRect().left;
+          let right = audioControllerElement.getBoundingClientRect().right;
+          let width = right - left;
+          let position = (x - left) / width; // position percentage
+
+          if (position < 0) {
+            position = 0;
+          }
+
+          // console.log(position);
+          // setSongTimeWidth(position * 100);
+          setIsPlaying(false);
+          setSongTime(songDuration * position);
+          setTimeout(() => {
+            // wait for 1 millisecond to allow song time to update
+            setIsPlaying(true);
+          }, 1);
+        } else {
+        }
+      };
+
+      if (audioControllerRef.current) {
+        audioControllerRef.current.addEventListener(
+          "click",
+          handleAudioControllerClick
+        );
+      }
+
+      setIsEventHandlerAttached(true);
+      startVisualizer();
+    }, [songDuration]);
+  };
 
   useInitAudioCtx(hasUserGestured, setACtx);
 
@@ -285,7 +833,7 @@ const AudioBox = () => {
     position: "relative",
     marginLeft: "auto",
     marginRight: "auto",
-    marginTop: "10%",
+    marginTop: "2%",
     width: "50%",
     height: "300px",
     border: "1px solid black",
@@ -295,7 +843,7 @@ const AudioBox = () => {
   };
 
   AudioBoxStyle.height = isExpanded
-    ? `${audioModules.length * 255 + 100}px`
+    ? `${audioModules.length * (215 - audioModules.length) + 100}px`
     : "40px";
 
   const CanvasStyle: CSS.Properties = {
@@ -322,6 +870,20 @@ const AudioBox = () => {
     backgroundColor: "lavender",
     opacity: isSettingsHover ? "100%" : "45%",
     zIndex: "10",
+  };
+
+  let playSong = async function (seekTime: number | null) {
+    setIsPlaying(true);
+  };
+
+  const stopSong = function () {
+    setIsPlaying(false);
+  };
+
+  const startVisualizer = () => {
+    if (!isVisualizing) {
+      setIsVisualizing(true);
+    }
   };
 
   const handleUserGesture = (): void => {
@@ -915,6 +1477,7 @@ const AudioBox = () => {
           stopSong={stopSong}
           setSongTime={setSongTime}
           startVisualizer={startVisualizer}
+          useAttachEventListener={useAttachEventListener}
         ></AudioController>
       </div>
     </>

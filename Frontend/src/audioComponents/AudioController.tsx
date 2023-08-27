@@ -24,6 +24,12 @@ interface Props {
   stopSong: () => void;
   setSongTime: (val: number) => void;
   startVisualizer: () => void;
+  useAttachEventListener: (
+    isEventHandlerAttached: boolean,
+    audioControllerRef: any,
+    audioControllerElement: HTMLDivElement,
+    setIsEventHandlerAttached: React.Dispatch<React.SetStateAction<boolean>>
+  ) => void;
 }
 
 const AudioController = ({
@@ -41,52 +47,25 @@ const AudioController = ({
   stopSong,
   setSongTime,
   startVisualizer,
+  useAttachEventListener,
 }: Props) => {
   // const [songTimeWidth, setSongTimeWidth] = useState(0);
   const [isHover, setIsHover] = useState(false);
-  audioControllerRef = useRef<HTMLDivElement | null>(null);
+  const [isEventHandlerAttached, setIsEventHandlerAttached] = useState(false);
+  audioControllerRef = useRef(null);
   audioControllerElement = audioControllerRef.current;
 
-  useEffect(() => {
-    // attach eventHandler to AudioControllerDiv
+  /*
+    Event listener had to be attached like this to avoid bug where same event listener
+    seemed to be attached to 2 seperate audioControllers (in different AudioBox components)
+  */
 
-    if (!hasUserGestured || !areAudioNodesReady) {
-      return;
-    }
-
-    const handleAudioControllerClick = async (event: MouseEvent) => {
-      if (event.target === audioControllerRef.current) {
-        let x = event.clientX;
-        let left = audioControllerElement.getBoundingClientRect().left;
-        let right = audioControllerElement.getBoundingClientRect().right;
-        let width = right - left;
-        let position = (x - left) / width; // position percentage
-
-        if (position < 0) {
-          position = 0;
-        }
-
-        // console.log(position);
-        // setSongTimeWidth(position * 100);
-        setIsPlaying(false);
-        setSongTime(songDuration * position);
-        setTimeout(() => {
-          // wait for 1 millisecond to allow song time to update
-          setIsPlaying(true);
-        }, 1);
-      } else {
-      }
-    };
-
-    if (audioControllerRef.current) {
-      audioControllerRef.current.addEventListener(
-        "click",
-        handleAudioControllerClick
-      );
-    }
-
-    startVisualizer();
-  }, [songDuration]);
+  useAttachEventListener(
+    isEventHandlerAttached,
+    audioControllerRef,
+    audioControllerElement,
+    setIsEventHandlerAttached
+  );
 
   const AudioControllerStyle: CSS.Properties = {
     position: "absolute",
