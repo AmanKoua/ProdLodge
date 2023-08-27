@@ -99,7 +99,7 @@ form button {
     margin-top: 10px;
     /* margin: auto; */
     width: 70%;
-    height: 800px;
+    height: 1400px;
     background-color: var(--primary);
 }
 
@@ -127,7 +127,19 @@ form button {
 }
 
 .profileData h1{
+    display: block;
     font-size: 1em;
     text-align:center;
     /* background-color:red; */
+}
+
+.profileEdit {
+    margin-top:15px;
+    align-self: center;
+}
+
+.profileEditInput{
+    align-self: center;
+    margin-left: 40%;
+    /* background-color: red; */
 }

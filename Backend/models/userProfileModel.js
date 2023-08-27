@@ -26,24 +26,10 @@ const userProfileSchema = new Schema({
         unique: false,
     },
 
-    settings: {
-
-        isPublic: {
-            type: Boolean,
-            required: true,
-            unique: false,
-        },
-        isRestrictedToFriends: {
-            type: Boolean,
-            required: true,
-            unique: false,
-        },
-        isPrivate: {
-            type: Boolean,
-            required: true,
-            unique: false,
-        },
-
+    visibility: { // Public, Private, or FriendsOnly
+        type: String,
+        required: true,
+        unique: false,
     },
 
     friendsListId: {
@@ -71,13 +57,7 @@ userProfileSchema.statics.initialize = async function (userId) {
     const newUserFriends = await userFriendsModel.initialize();
     const newUserActions = await userActionItemsModel.initialize();
 
-    const tempSettings = {
-        isPublic: true,
-        isRestrictedToFriends: false,
-        isPrivate: false,
-    }
-
-    const userProfile = await this.create({ userId: userId, settings: tempSettings, friendsListId: newUserFriends._id, actionItemsId: newUserActions._id, hasProfileBeenSet: false })
+    const userProfile = await this.create({ userId: userId, visibility: "Public", friendsListId: newUserFriends._id, actionItemsId: newUserActions._id, hasProfileBeenSet: false })
 
     return userProfile;
 }

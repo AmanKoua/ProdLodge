@@ -96,12 +96,43 @@ router.get('/profile', async (req, res) => {
 
     const profileSlice = { // dont send all profile data to frontend
         socialMediaHandles: profile[0].socialMediaHandles ? profile[0].socialMediaHandles : null,
-        settings: profile[0].settings,
+        visibility: profile[0].visibility,
         hasProfileBeenSet: profile[0].hasProfileBeenSet,
     }
 
     return res.status(200).json({ profile: profileSlice });
 
 })
+
+router.patch('/profile', async (req, res) => {
+
+    if (!req.headers || !req.headers.authorization) {
+        return res.status(401).json({ error: "Invalid request header!" });
+    }
+
+    if (!req.body || !req.body.profile) {
+        return res.status(401).json({ error: "Invalid request body!" });
+    }
+
+    const token = req.headers.authorization.split(" ")[1];
+    let decodedToken;
+
+    try {
+        decodedToken = jwt.verify(token, process.env.SECRET) // fields: _id, iat, exp
+    } catch (e) {
+        return res.status(401).json({ error: "JWT verification failed!" });
+    }
+
+    const filter = { _id: new ObjectId(decodedToken._id) };
+    const update = {
+        // TODO create updates here!
+    };
+
+    const profile = await userProfle.updateOne(filter, update); // return array of items matching query
+
+
+    return res.status(200).json({ profile: profile });
+
+});
 
 module.exports = router;
