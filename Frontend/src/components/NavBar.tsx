@@ -43,9 +43,11 @@ const NavBar = () => {
               </span>
             </Link>
             <div className="userNameDropDown">
-              <a>link1</a>
-              <a>link2</a>
-              <a>link3</a>
+              <Link to="/newSong">
+                <center>
+                  <p>New Song</p>
+                </center>
+              </Link>
             </div>
             <button className="navbarButton" onClick={handleLogoutClick}>
               logout
