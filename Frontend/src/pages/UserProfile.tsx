@@ -3,10 +3,12 @@ import React from "react";
 import { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
+import { ProfileContext } from "../context/ProfileContext";
 
 const UserProfile = () => {
   const [error, setError] = useState("");
   const authContext = useContext(AuthContext); // user and dispatch properties
+  const profileContext = useContext(ProfileContext);
 
   const [userName, setUserName] = useState("null");
   const [email, setEmail] = useState("null");
@@ -19,10 +21,12 @@ const UserProfile = () => {
   const [instagramURL, setInstagramURL] = useState("");
   const [friendsIdList, setFriendsIdList] = useState([]);
 
+  console.log(profileContext.profile);
+
   const navigate = useNavigate();
 
   const preventPageAccess = () => {
-    // DO not allow a user to access the profile page if not logged in
+    // DO not allow a user to access the profile page if not logged in OR if profile has yet to be set
     const item = localStorage.getItem("user");
 
     if (!item) {
@@ -30,7 +34,7 @@ const UserProfile = () => {
     }
   };
 
-  const getProfileEmailAndUserName = async () => {
+  const setEmailAndUserName = async () => {
     if (!authContext.user) {
       // no user information to retrieve :/
       return;
@@ -43,9 +47,32 @@ const UserProfile = () => {
     setEmail(authContext.user.email);
   };
 
+  const getUserProfile = async () => {
+    if (!authContext || !authContext.user || !authContext.user.token) {
+      return;
+    }
+
+    const response = await fetch("http://localhost:8005/user/profile", {
+      method: "GET",
+      headers: { Authorization: `Bearer ${authContext.user.token}` },
+    });
+
+    const json = await response.json();
+
+    profileContext.dispatch({ type: "SET", payload: json }); // save profile to context
+  };
+
+  useEffect(() => {
+    // Defining functions outside of useEffect hook prevented annoying bugs
+    setEmailAndUserName();
+  }, [authContext]); // rerun when authContext is changed
+
   useEffect(() => {
     preventPageAccess();
-    getProfileEmailAndUserName();
+  }, [profileContext]); // Check if logged in, and check if profile is set
+
+  useEffect(() => {
+    getUserProfile();
   }, [authContext]); // rerun when authContext is changed
 
   return (
