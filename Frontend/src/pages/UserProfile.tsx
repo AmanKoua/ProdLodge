@@ -57,22 +57,6 @@ const UserProfile = () => {
     setVisibility(event.target.value);
   };
 
-  /*
-
-{
-    "profile": {
-        "socialMediaHandles": {
-            "facebookURL": "Facebook.com",
-            "soundcloudURL": "soundcloud.com",
-            "bandcampURL": "Bandcamp.com"
-        },
-        "visibility": "Private",
-        "hasProfileBeenSet": "true"
-    }
-}
-
-  */
-
   const toggleEditMode = async () => {
     if (isInEditMode) {
       let temp: Object = {};
@@ -116,7 +100,9 @@ const UserProfile = () => {
         body: JSON.stringify(updateObject),
       });
 
-      console.log(response);
+      if (response.ok) {
+        getUserProfile(); // fetch user profile again from server to update screen
+      }
     }
     setIsInEditMode(!isInEditMode);
   };
@@ -169,10 +155,35 @@ const UserProfile = () => {
       return;
     }
 
+    let temp = profileContext.profile;
+
     // TODO : Set user profile based on data received from backend
 
-    setVisibility(profileContext.profile.visibility);
-    // Add item here!
+    setVisibility(temp.visibility);
+
+    if (temp.socialMediaHandles) {
+      if (temp.socialMediaHandles.soundcloud) {
+        setsoundcloudURL(temp.socialMediaHandles.soundcloud);
+      }
+      if (temp.socialMediaHandles.bandcamp) {
+        setFacebookURL(temp.socialMediaHandles.bandcamp);
+      }
+      if (temp.socialMediaHandles.spotify) {
+        setSpotifyURL(temp.socialMediaHandles.spotify);
+      }
+      if (temp.socialMediaHandles.youtube) {
+        setYoutubeURL(temp.socialMediaHandles.youtube);
+      }
+      if (temp.socialMediaHandles.tiwtter) {
+        setTwitterURL(temp.socialMediaHandles.twitter);
+      }
+      if (temp.socialMediaHandles.facebook) {
+        setFacebookURL(temp.socialMediaHandles.facebook);
+      }
+      if (temp.socialMediaHandles.instagram) {
+        setInstagramURL(temp.socialMediaHandles.instagram);
+      }
+    }
   };
 
   useEffect(() => {

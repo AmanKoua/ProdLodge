@@ -140,7 +140,7 @@ router.patch('/profile', async (req, res) => {
 
     const profile = await userProfle.updateOne(filter, update); // return array of items matching query
 
-    return res.status(200).json({ profile: profile });
+    return res.status(200).json({ profile: profile }); // CORS will never allow a profole obj to be sent ...
 
 });
 
