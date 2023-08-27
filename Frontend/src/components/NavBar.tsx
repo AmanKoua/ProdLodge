@@ -8,6 +8,18 @@ const NavBar = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
+  const generateSongOptionsSection = () => {
+    return (
+      <>
+        <div className="navbar-left-item">
+          <Link to="/newSong">
+            <button className="navbarButton">Create new song!</button>
+          </Link>
+        </div>
+      </>
+    );
+  };
+
   const generateUserAuthSection = () => {
     const handleLogoutClick = () => {
       localStorage.removeItem("user");
@@ -22,15 +34,20 @@ const NavBar = () => {
     if (authContext.user) {
       return (
         <>
-          <div>
-            <Link to="/myProfile">
+          <div className="navbar-right-item">
+            <Link to="/myProfile" className="userName">
               <span>
                 {authContext.user.userName === ""
                   ? authContext.user.email
                   : authContext.user.userName}
               </span>
             </Link>
-            <button className="userAuthButton" onClick={handleLogoutClick}>
+            <div className="userNameDropDown">
+              <a>link1</a>
+              <a>link2</a>
+              <a>link3</a>
+            </div>
+            <button className="navbarButton" onClick={handleLogoutClick}>
               logout
             </button>
           </div>
@@ -39,12 +56,12 @@ const NavBar = () => {
     } else {
       return (
         <>
-          <div>
+          <div className="navbar-right-item">
             <Link to="/login">
-              <button className="userAuthButton">Login</button>
+              <button className="navbarButton">Login</button>
             </Link>
             <Link to="/signup">
-              <button className="userAuthButton">Sign Up</button>
+              <button className="navbarButton">Sign Up</button>
             </Link>
           </div>
         </>

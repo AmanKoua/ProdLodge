@@ -7,6 +7,8 @@
     --waning:#fe5d5d;
 }
 
+/* Navbar styles */
+
 .navbar{
     position: absolute;
     width: 100%;
@@ -23,6 +25,36 @@
     margin-right: 10px;
 }
 
+.navbarButton{
+    margin-right: 3px;
+    border: 1px solid black;
+    border-radius: 3px;
+    background-color: var(--secondary);
+}
+
+.userName:hover + .userNameDropDown{
+    display:block;
+}
+
+.userNameDropDown{
+    /* visibility:hidden; */
+    margin-top:-3px;
+    display:none;
+    position: absolute;
+    width: 6%;
+    height: 80px;
+    background-color: var(--secondary);
+}
+
+.userNameDropDown:hover {
+    display: block;
+}
+
+.userNameDropDown a{
+    display: block;
+    /* background-color: green; */
+}
+
 /* Login page styles */
 
 .login{
@@ -35,13 +67,6 @@
     height: 350px;
     border-radius:5px;
     background-color: var(--primary);
-}
-
-.userAuthButton{
-    margin-right: 3px;
-    border: 1px solid black;
-    border-radius: 3px;
-    background-color: var(--secondary);
 }
 
 form h3{
