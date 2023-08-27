@@ -3,6 +3,8 @@
     --secondary: #add0f7;
     --mainArea: #c5d2e0;
     --error: #f59a9a;
+    --message: rgb(196, 255, 196);
+    --waning:#fe5d5d;
 }
 
 .navbar{
@@ -142,4 +144,22 @@ form button {
     align-self: center;
     margin-left: 40%;
     /* background-color: red; */
+}
+
+.mainArea .error{
+    width: 45%;
+    align-self:center;
+    text-align:center;
+    margin-top: 15px;
+    border: 2px solid red;
+    background-color: var(--error);
+}
+
+.mainArea .message{
+    width: 45%;
+    align-self:center;
+    text-align:center;
+    margin-top: 15px;
+    border: 2px solid green;
+    background-color: var(--message);
 }

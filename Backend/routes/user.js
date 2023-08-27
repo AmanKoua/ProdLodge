@@ -3,8 +3,11 @@ const mongoose = require("mongoose");
 const { ObjectId } = require("mongodb");
 const jwt = require("jsonwebtoken");
 const router = express.Router();
+
 const user = require('../models/userModel');
-const userProfle = require("../models/userProfileModel");
+const userProfile = require("../models/userProfileModel");
+const userActionItems = require("../models/userActionItemsModel");
+const userFriends = require("../models/userFriendsModel");
 
 const createToken = (_id) => {
     return jwt.sign({ _id: _id, }, process.env.SECRET, { expiresIn: '3d' })
@@ -91,7 +94,11 @@ router.get('/profile', async (req, res) => {
         return res.status(401).json({ error: "JWT verification failed!" });
     }
 
-    const profile = await userProfle.find({ userId: new ObjectId(decodedToken._id) }).exec(); // return array of items matching query
+    const profile = await userProfile.find({ userId: new ObjectId(decodedToken._id) }).exec(); // return array of items matching query
+
+    if (profile.length === 0) { // could potentially be the case after a user has deleted their account but has not cleared a token
+        return res.status(404).json({ error: "No user found!" });
+    }
 
     const profileSlice = { // dont send all profile data to frontend
         socialMediaHandles: profile[0].socialMediaHandles ? profile[0].socialMediaHandles : null,
@@ -138,10 +145,58 @@ router.patch('/profile', async (req, res) => {
         $set: updateObject,
     };
 
-    const profile = await userProfle.updateOne(filter, update); // return array of items matching query
+    const profile = await userProfile.updateOne(filter, update); // return array of items matching query
 
     return res.status(200).json({ profile: profile }); // CORS will never allow a profole obj to be sent ...
 
 });
+
+router.delete("/profile", async (req, res) => {
+
+    // TODO : Update delete enpoint when user tracks, images, etc have been added!
+
+    if (!req.headers || !req.headers.authorization) {
+        return res.status(401).json({ error: "Invalid request header!" });
+    }
+
+    const token = req.headers.authorization.split(" ")[1];
+    let decodedToken;
+
+    try {
+        decodedToken = jwt.verify(token, process.env.SECRET) // fields: _id, iat, exp
+    } catch (e) {
+        return res.status(401).json({ error: "JWT verification failed!" });
+    }
+
+    const profile = await userProfile.find({ userId: new ObjectId(decodedToken._id) }).exec(); // return array of items matching query
+
+    if (profile.length === 0) {
+        return res.status(400).json({ error: "No users found for given ID" })
+    }
+    else if (profile.length > 1) {
+        return res.status(400).json({ error: "More than 1 user found for given ID" })
+    }
+
+    /*
+    delete songs, tracks, and images associated with user account!
+    */
+
+    const userProfileId = profile[0]._id;
+    const userId = profile[0].userId;
+    const friendsListId = profile[0].friendsListId;
+    const actionItemsId = profile[0].actionItemsId;
+
+    try {
+        await userActionItems.findOneAndDelete({ _id: actionItemsId });
+        await userFriends.findOneAndDelete({ _id: friendsListId });
+        await userProfile.findOneAndDelete({ _id: userProfileId });
+        await user.findOneAndDelete({ _id: userId });
+    } catch (e) {
+        return res.status(500).json({ error: e.message });
+    }
+
+    return res.status(200).json({ mssg: "Successful deletion!" });
+
+})
 
 module.exports = router;

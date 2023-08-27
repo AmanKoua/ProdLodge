@@ -10,6 +10,7 @@ const UserProfile = () => {
   const profileContext = useContext(ProfileContext);
 
   const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
   const [isInEditMode, setIsInEditMode] = useState(false);
 
   const [userName, setUserName] = useState("null");
@@ -57,29 +58,103 @@ const UserProfile = () => {
     setVisibility(event.target.value);
   };
 
+  const deleteProfile = async () => {
+    const confirmDelete = confirm(
+      "Are you sure you want to delete your profile and all associated data?"
+    );
+
+    if (confirmDelete) {
+      // send DELETE request to delete the user's profile and all associated data
+
+      let response = await fetch("http://localhost:8005/user/profile", {
+        method: "DELETE",
+        headers: {
+          "Content-type": "application/json; charset=UTF-8", // content type seems to fix CORS errors...
+          Authorization: `Bearer ${authContext.user.token}`,
+        },
+      });
+
+      const json = await response.json();
+
+      if (response.ok) {
+        setMessage("Account and info deleted!");
+        localStorage.removeItem("user");
+
+        authContext.dispatch({ type: "LOGOUT", payload: null });
+
+        setTimeout(() => {
+          // wait 3 seconds to allow the user to see deletion success message
+          navigate("/");
+        }, 3000);
+      } else {
+        setError(json.error);
+      }
+
+      // logout and delete cookie upon acct deletion
+    }
+  };
+
   const toggleEditMode = async () => {
+    setError("");
+    setMessage("");
+
     if (isInEditMode) {
       let temp: Object = {};
 
-      if (soundcloudURL && soundcloudURL.includes("soundcloud.com")) {
+      if (soundcloudURL) {
+        if (!soundcloudURL.includes("soundcloud.com")) {
+          setError("Soundcloud link is invalid!");
+          return;
+        }
+
         temp["soundcloud"] = soundcloudURL;
       }
-      if (bandcampURL && bandcampURL.includes("bandcamp.com")) {
+      if (bandcampURL) {
+        if (!bandcampURL.includes("bandcamp.com")) {
+          setError("Bandcamp link is invalid!");
+          return;
+        }
+
         temp["bandcamp"] = bandcampURL;
       }
-      if (spotifyURL && spotifyURL.includes("spotify.com")) {
+      if (spotifyURL) {
+        if (!spotifyURL.includes("spotify.com")) {
+          setError("Spotify link is invalid!");
+          return;
+        }
+
         temp["spotify"] = spotifyURL;
       }
-      if (youtubeURL && youtubeURL.includes("youtube.com")) {
+      if (youtubeURL) {
+        if (!youtubeURL.includes("youtube.com")) {
+          setError("Yutube link is invalid!");
+          return;
+        }
+
         temp["youtube"] = youtubeURL;
       }
-      if (twitterURL && twitterURL.includes("twitter.com")) {
+      if (twitterURL) {
+        if (!twitterURL.includes("twitter.com")) {
+          setError("Twitter link is invalid!");
+          return;
+        }
+
         temp["twitter"] = twitterURL;
       }
-      if (facebookURL && facebookURL.includes("facebook.com")) {
+      if (facebookURL) {
+        if (!facebookURL.includes("facebook.com")) {
+          setError("Facebook link is invalid!");
+          return;
+        }
+
         temp["facebook"] = facebookURL;
       }
-      if (instagramURL && instagramURL.includes("instagram.com")) {
+      if (instagramURL) {
+        if (!instagramURL.includes("instagram.com")) {
+          setError("Instagram link is invalid!");
+          return;
+        }
+
         temp["instagram"] = instagramURL;
       }
 
@@ -102,6 +177,9 @@ const UserProfile = () => {
 
       if (response.ok) {
         getUserProfile(); // fetch user profile again from server to update screen
+        setMessage("Profile successfully updated");
+      } else {
+        setError("Failed to update user data!");
       }
     }
     setIsInEditMode(!isInEditMode);
@@ -157,8 +235,6 @@ const UserProfile = () => {
 
     let temp = profileContext.profile;
 
-    // TODO : Set user profile based on data received from backend
-
     setVisibility(temp.visibility);
 
     if (temp.socialMediaHandles) {
@@ -166,7 +242,7 @@ const UserProfile = () => {
         setsoundcloudURL(temp.socialMediaHandles.soundcloud);
       }
       if (temp.socialMediaHandles.bandcamp) {
-        setFacebookURL(temp.socialMediaHandles.bandcamp);
+        setBandcampURL(temp.socialMediaHandles.bandcamp);
       }
       if (temp.socialMediaHandles.spotify) {
         setSpotifyURL(temp.socialMediaHandles.spotify);
@@ -174,7 +250,7 @@ const UserProfile = () => {
       if (temp.socialMediaHandles.youtube) {
         setYoutubeURL(temp.socialMediaHandles.youtube);
       }
-      if (temp.socialMediaHandles.tiwtter) {
+      if (temp.socialMediaHandles.twitter) {
         setTwitterURL(temp.socialMediaHandles.twitter);
       }
       if (temp.socialMediaHandles.facebook) {
@@ -311,6 +387,11 @@ const UserProfile = () => {
           {isInEditMode ? "Save profile" : "Edit Profile"}
         </button>
       </div>
+      <div className="profileEdit">
+        <button onClick={deleteProfile}>Delete profile</button>
+      </div>
+      {error && <div className="error">{error}</div>}
+      {message && <div className="message">{message}</div>}
     </div>
   );
 };
