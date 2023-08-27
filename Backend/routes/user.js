@@ -2,7 +2,6 @@ const express = require("express");
 const mongoose = require("mongoose");
 const { ObjectId } = require("mongodb");
 const jwt = require("jsonwebtoken");
-
 const router = express.Router();
 const user = require('../models/userModel');
 const userProfle = require("../models/userProfileModel");
@@ -114,7 +113,7 @@ router.patch('/profile', async (req, res) => {
         return res.status(401).json({ error: "Invalid request body!" });
     }
 
-    const token = req.headers.authorization.split(" ")[1];
+    const token = req.headers.authorization.split(" ")[1]; // bearer token...
     let decodedToken;
 
     try {
@@ -123,13 +122,23 @@ router.patch('/profile', async (req, res) => {
         return res.status(401).json({ error: "JWT verification failed!" });
     }
 
-    const filter = { _id: new ObjectId(decodedToken._id) };
+    const filter = { userId: new ObjectId(decodedToken._id) };
+    let updateObject = {};
+    let profileProperties = Object.keys(req.body.profile);
+
+    if (profileProperties.includes("userId") || profileProperties.includes("actionItemsId") || profileProperties.includes("friendsListId") || profileProperties.includes("_id")) { // dont allow modification of these properties!
+        return res.status(401).json({ error: "Invalid profile properties modification!" });
+    }
+
+    for (let i = 0; i < profileProperties.length; i++) {
+        updateObject[profileProperties[i]] = req.body.profile[profileProperties[i]];
+    }
+
     const update = {
-        // TODO create updates here!
+        $set: updateObject,
     };
 
     const profile = await userProfle.updateOne(filter, update); // return array of items matching query
-
 
     return res.status(200).json({ profile: profile });
 

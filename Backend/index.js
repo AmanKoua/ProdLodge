@@ -9,6 +9,12 @@ require('dotenv').config();
 
 const app = express();
 
+var CORSOptions = {
+    origin: "*",
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    preflightContinue: true,
+}
+
 app.use(cors());
 app.use(express.json());
 

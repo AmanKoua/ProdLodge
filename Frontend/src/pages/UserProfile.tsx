@@ -14,7 +14,7 @@ const UserProfile = () => {
 
   const [userName, setUserName] = useState("null");
   const [email, setEmail] = useState("null");
-  const [soundCloudURL, setSoundCloudURL] = useState("");
+  const [soundcloudURL, setsoundcloudURL] = useState("");
   const [bandcampURL, setBandcampURL] = useState("");
   const [spotifyURL, setSpotifyURL] = useState("");
   const [youtubeURL, setYoutubeURL] = useState("");
@@ -25,19 +25,8 @@ const UserProfile = () => {
 
   const navigate = useNavigate();
 
-  const toggleEditMode = () => {
-    if (isInEditMode) {
-      // Save data to DB
-    }
-    setIsInEditMode(!isInEditMode);
-  };
-
-  const editUserName = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setUserName(event.target.value);
-  };
-
-  const editSoundCloudURL = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSoundCloudURL(event.target.value);
+  const editsoundcloudURL = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setsoundcloudURL(event.target.value);
   };
 
   const editBandcampURL = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -66,6 +55,70 @@ const UserProfile = () => {
 
   const editVisibility = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setVisibility(event.target.value);
+  };
+
+  /*
+
+{
+    "profile": {
+        "socialMediaHandles": {
+            "facebookURL": "Facebook.com",
+            "soundcloudURL": "soundcloud.com",
+            "bandcampURL": "Bandcamp.com"
+        },
+        "visibility": "Private",
+        "hasProfileBeenSet": "true"
+    }
+}
+
+  */
+
+  const toggleEditMode = async () => {
+    if (isInEditMode) {
+      let temp: Object = {};
+
+      if (soundcloudURL && soundcloudURL.includes("soundcloud.com")) {
+        temp["soundcloud"] = soundcloudURL;
+      }
+      if (bandcampURL && bandcampURL.includes("bandcamp.com")) {
+        temp["bandcamp"] = bandcampURL;
+      }
+      if (spotifyURL && spotifyURL.includes("spotify.com")) {
+        temp["spotify"] = spotifyURL;
+      }
+      if (youtubeURL && youtubeURL.includes("youtube.com")) {
+        temp["youtube"] = youtubeURL;
+      }
+      if (twitterURL && twitterURL.includes("twitter.com")) {
+        temp["twitter"] = twitterURL;
+      }
+      if (facebookURL && facebookURL.includes("facebook.com")) {
+        temp["facebook"] = facebookURL;
+      }
+      if (instagramURL && instagramURL.includes("instagram.com")) {
+        temp["instagram"] = instagramURL;
+      }
+
+      let updateObject = {
+        profile: {
+          visibility: visibility,
+          hasProfileBeenSet: true,
+          socialMediaHandles: temp,
+        },
+      };
+
+      const response = await fetch("http://localhost:8005/user/profile", {
+        method: "PATCH",
+        headers: {
+          "Content-type": "application/json; charset=UTF-8", // content type seems to fix CORS errors...
+          Authorization: `Bearer ${authContext.user.token}`,
+        },
+        body: JSON.stringify(updateObject),
+      });
+
+      console.log(response);
+    }
+    setIsInEditMode(!isInEditMode);
   };
 
   const preventPageAccess = () => {
@@ -119,6 +172,7 @@ const UserProfile = () => {
     // TODO : Set user profile based on data received from backend
 
     setVisibility(profileContext.profile.visibility);
+    // Add item here!
   };
 
   useEffect(() => {
@@ -142,29 +196,22 @@ const UserProfile = () => {
   return (
     <div className="mainArea">
       <h3>{`${userName === "null" ? email : userName}'s Profile`}</h3>
-      <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"></img>
+      <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"></img>{" "}
+      {/* Temp Image */}
       <div className="profileData">
         <h1>Email: {email} </h1>
       </div>
       <div className="profileData">
         <h1>User Name: {userName === "null" ? "N/A" : userName} </h1>
-        {isInEditMode && (
-          <input
-            className="profileEditInput"
-            type="text"
-            value={userName}
-            onChange={editUserName}
-          ></input>
-        )}
       </div>
       <div className="profileData">
-        <h1>SoundCloud URL: {soundCloudURL} </h1>
+        <h1>soundcloud URL: {soundcloudURL} </h1>
         {isInEditMode && (
           <input
             className="profileEditInput"
             type="text"
-            value={soundCloudURL}
-            onChange={editSoundCloudURL}
+            value={soundcloudURL}
+            onChange={editsoundcloudURL}
           ></input>
         )}
       </div>
