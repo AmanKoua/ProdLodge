@@ -17,10 +17,10 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-router.post("/trackInit", async (req, res) => {
+router.post("/songInit", async (req, res) => {
 
     /*
-        initialize a track document in mongoDb. Potentially add limit to the number of songs a user can have
+        initialize a song document in mongoDb. Potentially add limit to the number of songs a user can have
         uploaded.
     */
 
@@ -53,7 +53,7 @@ router.post("/trackInit", async (req, res) => {
 
 })
 
-router.post("/track", upload.single('mp3File'), async (req, res) => { // Require that a track be initiilzed first!
+router.post("/track", upload.single('track'), async (req, res) => { // Require that a track be initiilzed first!
 
     /*
     Create a song document with the number of files to be sent over. Retrieve the ID of the song document
@@ -61,6 +61,9 @@ router.post("/track", upload.single('mp3File'), async (req, res) => { // Require
     JWT. Verify the JWT id and the song owner ID of the created song document, if they match, allow the upload.
     If they do not match, respond with 400 error and delete all tracks in storage belonging to user of a particular 
     ID.
+
+    After all tracks have been uploaded successfully, upload the files to the GridFS bucket. Then delete the files
+    from local storage.
     */
 
     // TODO : Finished work here!
@@ -69,6 +72,8 @@ router.post("/track", upload.single('mp3File'), async (req, res) => { // Require
     if (!req.file) {
         return res.status(400).json({ error: "No file upload" });
     }
+
+    return res.status(200).json({ message: "File uploaded successfully!" });
 
 })
 

@@ -1,8 +1,20 @@
 import React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import CSS from "csstype";
 
-const SongUploadContainer = () => {
+interface Props {
+  idx: number;
+  songUploadData: Object[];
+  addTrack: () => void;
+  setSongUploadData: (val: any) => void;
+}
+
+const SongUploadContainer = ({
+  idx,
+  songUploadData,
+  addTrack,
+  setSongUploadData, // song upload data will be modified by reference
+}: Props) => {
   const [trackName, setTrackName] = useState("");
 
   const SonguploadContainerStyle: CSS.Properties = {
@@ -25,7 +37,16 @@ const SongUploadContainer = () => {
 
   const AddCircleContainerStyle: CSS.Properties = {
     // position: "relative",
-    marginLeft: "2.8%",
+    marginLeft: "1%",
+    marginTop: "0.8%",
+    height: "65%",
+    // backgroundColor: "red",
+  };
+
+  const DeleteIconContainerStyle: CSS.Properties = {
+    // position: "relative",
+    marginLeft: "1%",
+    marginRight: "1%",
     marginTop: "0.8%",
     height: "65%",
     // backgroundColor: "red",
@@ -49,8 +70,26 @@ const SongUploadContainer = () => {
     width: "2%",
   };
 
+  useEffect(() => {
+    // Update track name in input field when page is loaded (add or delete a track)
+    setTrackName(songUploadData[idx].trackName);
+  }, [songUploadData]);
+
+  const deleteTrack = () => {
+    if (songUploadData.length === 1) {
+      return;
+    }
+
+    const temp = [...songUploadData];
+    temp.splice(idx, 1);
+
+    setSongUploadData(temp);
+  };
+
   const editTrackName = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTrackName(e.target.value);
+    songUploadData[idx].trackName = e.target.value;
+    // setSongUploadData(songUploadData);
   };
 
   const uploadTrack = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -79,6 +118,8 @@ const SongUploadContainer = () => {
       alert("Invalid file type:")!;
       return;
     }
+
+    songUploadData[idx].file = e.target.files![0];
   };
 
   return (
@@ -90,7 +131,7 @@ const SongUploadContainer = () => {
             accept=".mp3"
             style={TrackUploadInputStyle}
             onChange={uploadTrack}
-          />{" "}
+          />
           {/*Invisible file upload button*/}
           file_open
         </span>
@@ -103,8 +144,11 @@ const SongUploadContainer = () => {
         value={trackName}
         style={TrackNameInputStyle}
       ></input>
-      <div style={AddCircleContainerStyle}>
+      <div style={AddCircleContainerStyle} onClick={addTrack}>
         <span className="material-symbols-outlined">add_circle</span>
+      </div>
+      <div style={DeleteIconContainerStyle} onClick={deleteTrack}>
+        <span className="material-symbols-outlined">delete</span>
       </div>
     </div>
   );

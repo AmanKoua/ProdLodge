@@ -5,7 +5,7 @@ const fs = require('fs');
 const cors = require('cors');
 
 const userRouter = require('./routes/user');
-const songRouter = require('./routes/song');
+const uploadRouter = require('./routes/song');
 
 require('dotenv').config();
 
@@ -15,7 +15,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use('/user', userRouter);
-app.use('/upload', songRouter);
+app.use('/upload', uploadRouter);
 
 app.get('/', (req, res) => {
     res.status(200).json({ message: "Hello to prodlodge!" })
