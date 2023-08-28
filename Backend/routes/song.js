@@ -71,3 +71,5 @@ router.post("/track", upload.single('mp3File'), async (req, res) => { // Require
     }
 
 })
+
+module.exports = router;
