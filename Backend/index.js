@@ -1,9 +1,11 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const { MongoClient, GridFSBucket, ObjectId } = require('mongodb');
-const userRouter = require('./routes/user');
 const fs = require('fs');
 const cors = require('cors');
+
+const userRouter = require('./routes/user');
+const songRouter = require('./routes/song');
 
 require('dotenv').config();
 
@@ -13,6 +15,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use('/user', userRouter);
+app.use('/upload', songRouter);
 
 app.get('/', (req, res) => {
     res.status(200).json({ message: "Hello to prodlodge!" })
@@ -85,6 +88,15 @@ app.get('/', (req, res) => {
 
 // }
 
+
+// app.listen(process.env.PORT, () => {
+//     console.log("Listening on port " + process.env.PORT);
+// })
+
+/*
+    Do not connect to monogDB while using dynamic IP
+*/
+
 mongoose.connect(process.env.MONGO_URI).then(async () => {
 
     // await getGridFSBucket();
@@ -93,4 +105,6 @@ mongoose.connect(process.env.MONGO_URI).then(async () => {
         console.log("Listening on port " + process.env.PORT);
     })
 
-}).catch((e) => { console.log(e) });
+}).catch((e) => {
+    console.log(e);
+}); 
