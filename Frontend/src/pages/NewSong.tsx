@@ -62,10 +62,14 @@ const NewSong = () => {
 
       let response = await fetch("http://localhost:8005/upload/track", {
         method: "POST",
-        headers: {
-          "Content-type": "application/json; charset=UTF-8", // content type seems to fix CORS errors...
-          Authorization: `Bearer ${authContext.user.token}`,
-        },
+        /*
+        Having header will create "request entity too large error!?"
+        Headers are the main culprit.
+        */
+        // headers: {
+        //   "Content-type": "application/json; charset=UTF-8", // content type seems to fix CORS errors...
+        //   Authorization: `Bearer ${authContext.user.token}`,
+        // },
         body: formData,
       });
     }

@@ -21,7 +21,7 @@ DO NOT USE THIS DISKSTORAGE OBJECT. IT WILL BREAK YOUR COMPUTER!
 // })
 
 // const upload = multer({ storage });
-const upload = multer({ dest: __dirname + "../uploads", }) // DL works with this method for some reason
+const upload = multer({ dest: "../uploads", }) // DL works with this method for some reason
 
 router.post("/songInit", async (req, res) => {
 

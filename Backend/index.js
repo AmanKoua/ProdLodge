@@ -5,7 +5,7 @@ const fs = require('fs');
 const cors = require('cors');
 
 const userRouter = require('./routes/user');
-const uploadRouter = require('./routes/song');
+const uploadRouter = require('./routes/upload');
 
 require('dotenv').config();
 
