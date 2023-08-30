@@ -10,6 +10,8 @@ const NewSong = () => {
   const [songUploadData, setSongUploadData] = useState([
     { trackName: "", file: undefined },
   ]); // [{trackName: string, file: FileList}]
+  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
   const navigate = useNavigate();
   let authContext = useContext(AuthContext);
 
@@ -39,23 +41,65 @@ const NewSong = () => {
   };
 
   const initSongAndUploadTracks = async () => {
+    setError("");
+    setMessage("");
+
     if (!authContext.user || !authContext.user.token) {
-      alert("Cannot upload tracks without being logged in!");
+      setError("Cannot upload tracks without being logged in!");
       return;
     }
 
     if (songUploadData.length === 0) {
-      alert("No tracks to upload!");
+      setError("No tracks to upload!");
       return;
     }
 
+    const illegalChars = [
+      "#",
+      "%",
+      "&",
+      "{",
+      "}",
+      "\\",
+      "<",
+      ">",
+      "*",
+      "?",
+      "/",
+      "$",
+      "!",
+      "'",
+      '"',
+      ":",
+      "@",
+      "+",
+      "`",
+      "|",
+      "=",
+    ]; // Characters that CANNOT be used as filenames
+
     for (let i = 0; i < songUploadData.length; i++) {
-      // Do not allow the user to upload a track without a name or without a file
-      if (
-        songUploadData[i].trackName === "" ||
-        songUploadData[i].file === undefined
-      ) {
-        alert("Cannot upload with empty track names or with empty files!");
+      /*
+       Do not allow the user to upload a track without a name or without a file.
+       also do not allow a user to upload a track with a name that contains illegal characters
+      */
+
+      if (songUploadData[i].trackName === "" || !songUploadData[i].trackName) {
+        setError("Cannot upload track without a name!");
+        return;
+      }
+
+      for (let j = 0; j < songUploadData[i].trackName.length; j++) {
+        if (illegalChars.includes(songUploadData[i].trackName[j])) {
+          setError(
+            `Track named: ${songUploadData[i].trackName} contains illegal character: ${songUploadData[i].trackName[j]}`
+          );
+          return;
+        }
+      }
+
+      if (songUploadData[i].file === undefined) {
+        setError("Cannot upload a track without a file!");
         return;
       }
     }
@@ -64,25 +108,37 @@ const NewSong = () => {
       Send request to initialize Song!
     */
 
-    for (let i = 0; i < songUploadData.length; i++) {
-      const formData = new FormData();
-      formData.append("Authorization", `Bearer ${authContext.user.token}`);
-      formData.append("trackName", songUploadData[i].trackName);
-      formData.append("track", songUploadData[i].file!);
+    let response = await fetch("http://localhost:8005/upload/songInit", {
+      method: "POST",
+      headers: {
+        "Content-type": "application/json; charset=UTF-8", // content type seems to fix CORS errors...
+        Authorization: `Bearer ${authContext.user.token}`,
+      },
+    });
 
-      /*
-        Having header will create "request entity too large" error.
-        Workaround implemented to send JWT through body's formData
-      */
-      let response = await fetch("http://localhost:8005/upload/track", {
-        method: "POST",
-        body: formData,
-      });
+    // for (let i = 0; i < songUploadData.length; i++) {
+    //   const formData = new FormData();
+    //   formData.append("Authorization", `Bearer ${authContext.user.token}`);
+    //   formData.append("trackName", songUploadData[i].trackName);
+    //   formData.append("track", songUploadData[i].file!);
 
-      const json = await response.json();
+    //   /*
+    //     Having header will create "request entity too large" error.
+    //     Workaround implemented to send JWT through body's formData
+    //   */
+    //   let response = await fetch("http://localhost:8005/upload/track", {
+    //     method: "POST",
+    //     body: formData,
+    //   });
 
-      console.log(json);
-    }
+    //   const json = await response.json();
+
+    //   if (response.ok) {
+    //     setMessage("Tracks uploaded successfully!");
+    //   } else {
+    //     setError("File uploading failed!");
+    //   }
+    // }
   };
 
   const generateSongUploadContainers = (): JSX.Element => {
@@ -112,6 +168,8 @@ const NewSong = () => {
       <button style={SubmitButtonStyle} onClick={initSongAndUploadTracks}>
         Upload Tracks!
       </button>
+      {error && <div className="error">{error}</div>}
+      {message && <div className="message">{message}</div>}
     </div>
   );
 };

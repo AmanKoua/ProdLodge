@@ -6,9 +6,7 @@ const multer = require("multer");
 const fs = require("fs");
 const router = express.Router();
 
-/*
-DO NOT USE THIS DISKSTORAGE OBJECT. IT WILL BREAK YOUR COMPUTER!
-*/
+const song = require('../models/songModel');
 
 const storage = multer.diskStorage({
     destination: (req, file, callBack) => {
@@ -21,7 +19,6 @@ const storage = multer.diskStorage({
 })
 
 const upload = multer({ storage });
-// const upload = multer({ dest: "../uploads", }) // DL works with this method for some reason
 
 router.post("/songInit", async (req, res) => {
 
