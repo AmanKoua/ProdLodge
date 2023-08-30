@@ -10,18 +10,18 @@ const router = express.Router();
 DO NOT USE THIS DISKSTORAGE OBJECT. IT WILL BREAK YOUR COMPUTER!
 */
 
-// const storage = multer.diskStorage({
-//     destination: (req, file, callBack) => {
-//         callBack(null, "../uploads");
-//     },
-//     filename: (req, file, callBack) => {
-//         const fileName = file.originalname;
-//         callBack(null, fileName);
-//     }
-// })
+const storage = multer.diskStorage({
+    destination: (req, file, callBack) => {
+        callBack(null, "../uploads");
+    },
+    filename: (req, file, callBack) => {
+        const fileName = req.body.trackName + ".mp3";
+        callBack(null, fileName);
+    }
+})
 
-// const upload = multer({ storage });
-const upload = multer({ dest: "../uploads", }) // DL works with this method for some reason
+const upload = multer({ storage });
+// const upload = multer({ dest: "../uploads", }) // DL works with this method for some reason
 
 router.post("/songInit", async (req, res) => {
 
@@ -71,8 +71,6 @@ router.post("/track", upload.single('track'), async (req, res) => { // Require t
     After all tracks have been uploaded successfully, upload the files to the GridFS bucket. Then delete the files
     from local storage.
     */
-
-    console.log(req.body);
 
     if (!req.file) {
         return res.status(400).json({ error: "No file upload" });

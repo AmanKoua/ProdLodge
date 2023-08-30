@@ -57,21 +57,22 @@ const NewSong = () => {
       }
 
       const formData = new FormData();
-
+      formData.append("Authorization", `Bearer ${authContext.user.token}`);
+      formData.append("trackName", songUploadData[i].trackName);
       formData.append("track", songUploadData[i].file!);
 
+      /*
+        Having header will create "request entity too large" error.
+        Workaround implemented to send JWT through body's formData
+      */
       let response = await fetch("http://localhost:8005/upload/track", {
         method: "POST",
-        /*
-        Having header will create "request entity too large error!?"
-        Headers are the main culprit.
-        */
-        // headers: {
-        //   "Content-type": "application/json; charset=UTF-8", // content type seems to fix CORS errors...
-        //   Authorization: `Bearer ${authContext.user.token}`,
-        // },
         body: formData,
       });
+
+      const json = await response.json();
+
+      console.log(json);
     }
   };
 
