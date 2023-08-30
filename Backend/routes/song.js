@@ -3,19 +3,25 @@ const mongoose = require("mongoose");
 const { ObjectId } = require("mongodb");
 const jwt = require("jsonwebtoken");
 const multer = require("multer");
+const fs = require("fs");
 const router = express.Router();
 
-const storage = multer.diskStorage({
-    destination: (req, file, callBack) => {
-        callBack(null, "../uploads");
-    },
-    filename: (req, file, callBack) => {
-        const fileName = file.originalname;
-        callBack(null, fileName);
-    }
-})
+/*
+DO NOT USE THIS DISKSTORAGE OBJECT. IT WILL BREAK YOUR COMPUTER!
+*/
 
-const upload = multer({ storage });
+// const storage = multer.diskStorage({
+//     destination: (req, file, callBack) => {
+//         callBack(null, "../uploads");
+//     },
+//     filename: (req, file, callBack) => {
+//         const fileName = file.originalname;
+//         callBack(null, fileName);
+//     }
+// })
+
+// const upload = multer({ storage });
+const upload = multer({ dest: __dirname + "../uploads", }) // DL works with this method for some reason
 
 router.post("/songInit", async (req, res) => {
 
@@ -66,8 +72,7 @@ router.post("/track", upload.single('track'), async (req, res) => { // Require t
     from local storage.
     */
 
-    // TODO : Finished work here!
-
+    console.log(req.body);
 
     if (!req.file) {
         return res.status(400).json({ error: "No file upload" });
