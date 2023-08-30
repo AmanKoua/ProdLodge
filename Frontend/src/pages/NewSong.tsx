@@ -31,12 +31,6 @@ const NewSong = () => {
   };
 
   useEffect(() => {
-    /*
-      TODO : Remove return after testing is completed!
-    */
-
-    return;
-
     preventPageAccess();
   }, []);
 
@@ -45,17 +39,32 @@ const NewSong = () => {
   };
 
   const initSongAndUploadTracks = async () => {
+    if (!authContext.user || !authContext.user.token) {
+      alert("Cannot upload tracks without being logged in!");
+      return;
+    }
+
     if (songUploadData.length === 0) {
+      alert("No tracks to upload!");
       return;
     }
 
     for (let i = 0; i < songUploadData.length; i++) {
-      // TODO : Finished here!
-
-      if (songUploadData[i].file === undefined) {
-        continue;
+      // Do not allow the user to upload a track without a name or without a file
+      if (
+        songUploadData[i].trackName === "" ||
+        songUploadData[i].file === undefined
+      ) {
+        alert("Cannot upload with empty track names or with empty files!");
+        return;
       }
+    }
 
+    /*
+      Send request to initialize Song!
+    */
+
+    for (let i = 0; i < songUploadData.length; i++) {
       const formData = new FormData();
       formData.append("Authorization", `Bearer ${authContext.user.token}`);
       formData.append("trackName", songUploadData[i].trackName);

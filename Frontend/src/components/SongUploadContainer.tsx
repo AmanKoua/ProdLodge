@@ -98,13 +98,13 @@ const SongUploadContainer = ({
       e.target.value.length
     );
 
-    if (!fileType.includes(".mp3")) {
-      alert(`Invalid file type : ${fileType}`);
+    if (e.target.files!.length === 0) {
+      alert("No file selected!");
       return;
     }
 
-    if (e.target.files!.length === 0) {
-      alert("No file selected!");
+    if (!fileType.includes(".mp3")) {
+      alert(`Invalid file type : ${fileType}`);
       return;
     }
 
@@ -115,7 +115,7 @@ const SongUploadContainer = ({
     }
 
     if (!e.target.files![0].type.includes("audio")) {
-      alert("Invalid file type:")!;
+      alert("Invalid file type");
       return;
     }
 
