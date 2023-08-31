@@ -4,6 +4,7 @@ const { ObjectId, MongoClient, GridFSBucket } = require("mongodb");
 const path = require("path");
 const jwt = require("jsonwebtoken");
 const fs = require("fs");
+const Fs = require('fs/promises'); // imported to retrieve file size
 const router = express.Router();
 
 const user = require('../models/userModel');
@@ -60,9 +61,6 @@ const downloadTrack = async (trackId) => {
 
 router.get('/:id', verifyTokenAndGetUser, async (req, res) => {
 
-    const userId = req.body.verifiedUser._id.valueOf();
-    let trackId = undefined;
-
     if (!req.params.id) {
         return res.status(400).json({ error: "No id sent with request!" });
     }
@@ -73,10 +71,14 @@ router.get('/:id', verifyTokenAndGetUser, async (req, res) => {
     (song visibility - Public, Private, FriendsOnly, AccessList)
     */
 
-    trackId = req.params.id;
-    await downloadTrack(trackId);
+    let trackId = req.params.id;
+    // await downloadTrack(trackId);
 
     const filePath = path.join(__dirname, '../../downloads/', `${trackId}.mp3`);
+
+    const stats = await Fs.stat(filePath);
+    const fileSize = stats.size;
+    res.setHeader('Content-Length', fileSize);
 
     return res.status(200).download(filePath, (err) => {
         if (err) {
@@ -86,7 +88,7 @@ router.get('/:id', verifyTokenAndGetUser, async (req, res) => {
         }
     })
 
-    // return res.status(200).json({ message: "download successful!" });
+    return res.status(200).json({ message: "download successful!" });
 })
 
 module.exports = router;

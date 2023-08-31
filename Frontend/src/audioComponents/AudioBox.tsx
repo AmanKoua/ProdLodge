@@ -259,8 +259,31 @@ const AudioBox = () => {
 
         for (let i = 0; i < tempTracksKeys.length; i++) {
           console.log("track fetched!");
-          let response = await fetch(tempTracks[tempTracksKeys[i]]);
+          // let response = await fetch(tempTracks[tempTracksKeys[i]]);
+
+          // -----------------------------------------------------------
+
+          // TODO : experimentation here!
+
+          let response = await fetch(
+            "http://localhost:8005/tracks/64f0b9f230113da4ebf8d6b9",
+            {
+              method: "GET",
+              headers: {
+                authorization:
+                  "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NGViOGRiZDg5ZmEwYTAwNjRmMDFkN2UiLCJpYXQiOjE2OTM1MTk1NjksImV4cCI6MTY5Mzc3ODc2OX0.eisG3GM727VPZ0iZxSZlVrN8qjAf8y1bOcIZ-fHFruw",
+              },
+            }
+          );
+
+          console.log(response);
+
           let arrayBuffer = await response.arrayBuffer();
+          console.log(arrayBuffer);
+
+          //-------------------------------------------------------------
+
+          // let arrayBuffer = await response.arrayBuffer();
           await aCtx.decodeAudioData(arrayBuffer, (decodedBuffer) => {
             let tempTracksData = {};
 
@@ -282,6 +305,8 @@ const AudioBox = () => {
               tempAudioModulesJSON.push('[[{"type":"Blank"}]]');
             }
           });
+
+          break;
         }
         setTrackBuffers(tempTrackBuffers!);
         setSongDuration(tempTrackBuffers![0].duration);
