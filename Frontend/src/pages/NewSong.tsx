@@ -177,8 +177,6 @@ const NewSong = () => {
       return;
     }
 
-    console.log(songToken + "  token!");
-
     for (let i = 0; i < songUploadData.length; i++) {
       // upload individual tracks to server
       const formData = new FormData();

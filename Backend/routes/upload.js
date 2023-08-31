@@ -69,11 +69,6 @@ router.post("/songInit", async (req, res) => {
         return res.status(404).json({ error: "No user found!" });
     }
 
-    /*
-        TODO : Initialize Song document in database!
-        Create user interface to define title and description
-    */
-
     const tempCommendsId = new ObjectId(0xA95554925A5505E5); // temp random ID
 
     let tempSong = await song.initialize(decodedToken._id, req.body.name, req.body.description, "public", tempCommendsId, [], [], []);
