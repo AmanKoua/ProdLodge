@@ -65,3 +65,12 @@ How to enable multiple Tracks
     ]
 
 ------------------------------------------------------------------------------------------------------
+
+When the client request the songs that are available for a user, if they are authenticated, send them
+the metadata for the song, and a list of IDs of tracks associated with the song. Metadata will be an 
+array of objects. 
+
+For downloading tracks, create an endpoint that takes a trackID paramater and requires a JWT header.
+If the song that the track belongs to is public, or the user is on the access list, grant access
+to them to download the tracks from the endpoint onto their machine.
+
