@@ -7,10 +7,56 @@ const fs = require("fs");
 const router = express.Router();
 
 const song = require('../models/songModel');
+const userProfile = require("../models/userProfileModel");
+
+const createToken = (songId) => {
+    return jwt.sign({ songId: songId }, process.env.SECRET, { expiresIn: '5m' })
+}
+
+const verifySongToken = (req, res, next) => {
+
+    /*
+        decoded token structure
+        {
+        songId: '64efed88378665f77f558183',
+        iat: 1693445512,
+        exp: 1693445812
+        }
+    */
+
+    console.log(req.body);
+    return res.status(215);
+
+    if (!req.body.songToken || !req.body.trackName) {
+        return res.status(400).json({ error: "Invalid request body!" });
+    }
+
+    const trackName = req.body.trackName;
+    const songToken = req.body.songToken;
+    let decodedToken = undefined;
+
+    try {
+        decodedToken = jwt.decode(songToken);
+    } catch (e) {
+        return res.status(401).json({ error: "JWT verification failed!" });
+    }
+
+
+    if (!req.file) {
+        return res.status(400).json({ error: "No file uploaded" });
+    }
+
+
+    // Allow file upload ONLY when all checks have passed!
+    // req.verifiedSongId = decodedToken.songId;
+
+    next();
+}
 
 const storage = multer.diskStorage({
     destination: (req, file, callBack) => {
         callBack(null, "../uploads");
+
     },
     filename: (req, file, callBack) => {
         const fileName = req.body.trackName + ".mp3";
@@ -23,8 +69,7 @@ const upload = multer({ storage });
 router.post("/songInit", async (req, res) => {
 
     /*
-        initialize a song document in mongoDb. Potentially add limit to the number of songs a user can have
-        uploaded.
+        initialize a song document in mongoDb.
     */
 
     if (!req.headers || !req.headers.authorization) {
@@ -40,8 +85,6 @@ router.post("/songInit", async (req, res) => {
         return res.status(401).json({ error: "JWT verification failed!" });
     }
 
-    // decodedToken._id;
-
     const profile = await userProfile.find({ userId: new ObjectId(decodedToken._id) }).exec(); // return array of items matching query
 
     if (profile.length === 0) { // could potentially be the case after a user has deleted their account but has not cleared a token
@@ -50,31 +93,20 @@ router.post("/songInit", async (req, res) => {
 
     /*
         TODO : Initialize Song document in database!
+        Create user interface to define title and description
     */
 
-    return res.status(200).json({ message: "Song initialized!" });
+    const tempCommendsId = new ObjectId(0xA95554925A5505E5); // temp random ID
+
+    let tempSong = await song.initialize(decodedToken._id, req.body.name, req.body.description, "public", tempCommendsId, [], [], []);
+    const songToken = createToken(tempSong._id);
+
+    return res.status(200).json({ message: "Song initialized!", token: songToken });
 
 })
 
-router.post("/track", upload.single('track'), async (req, res) => { // Require that a track be initiilzed first!
-
-    /*
-    Create a song document with the number of files to be sent over. Retrieve the ID of the song document
-    and return it as JSON. In the subsequent track upload requests, resend the song document ID and the 
-    JWT. Verify the JWT id and the song owner ID of the created song document, if they match, allow the upload.
-    If they do not match, respond with 400 error and delete all tracks in storage belonging to user of a particular 
-    ID.
-
-    After all tracks have been uploaded successfully, upload the files to the GridFS bucket. Then delete the files
-    from local storage.
-    */
-
-    if (!req.file) {
-        return res.status(400).json({ error: "No file upload" });
-    }
-
+router.post("/track", verifySongToken, upload.single('track'), (req, res) => { // Require that a track be initiilzed first!
     return res.status(200).json({ message: "File uploaded successfully!" });
-
 })
 
 module.exports = router;

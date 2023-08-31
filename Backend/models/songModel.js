@@ -29,10 +29,11 @@ const songSchema = new Schema({
         unique: false,
     },
 
-    /*
-    to be implemented...
-    songCommentsId: {}
-    */
+    commentsId: {
+        type: ObjectId,
+        required: true,
+        unique: true,
+    },
 
     accessList: {
         type: [],
@@ -54,10 +55,12 @@ const songSchema = new Schema({
 
 });
 
-songSchema.statics.initialize = async function (userId, title, description, visibility, accessList, trackList, chainsList) {
-    // Create song document...
+songSchema.statics.initialize = async function (userId, title, description, visibility, commentsId, accessList, trackList, chainsList) {
+    // Initialization values will be created within upload route
 
-    //TODO : Finished off here!
+    let song = await this.create({ userId: userId, title: title, description: description, visibility: visibility, commentsId, accessList, trackList, chainsList })
+    return song;
+
 }
 
 module.exports = mongoose.model('Song', songSchema);

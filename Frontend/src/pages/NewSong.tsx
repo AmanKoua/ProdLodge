@@ -10,10 +10,33 @@ const NewSong = () => {
   const [songUploadData, setSongUploadData] = useState([
     { trackName: "", file: undefined },
   ]); // [{trackName: string, file: FileList}]
+  const [songName, setSongName] = useState("");
+  const [songDescription, setSongDescription] = useState("");
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
   let authContext = useContext(AuthContext);
+
+  const SongNameInputStyle: CSS.Properties = {
+    // position: "relative",
+    backgroundColor: "#edf4fc",
+    marginLeft: "auto",
+    marginRight: "auto",
+    width: "50%",
+    height: "35px",
+    border: "1px solid black",
+  };
+
+  const SongDescInputStyle: CSS.Properties = {
+    // position: "relative",
+    backgroundColor: "#edf4fc",
+    marginTop: "15px",
+    marginLeft: "auto",
+    marginRight: "auto",
+    width: "50%",
+    height: "35px",
+    border: "1px solid black",
+  };
 
   const SubmitButtonStyle: CSS.Properties = {
     width: "50%",
@@ -44,16 +67,6 @@ const NewSong = () => {
     setError("");
     setMessage("");
 
-    if (!authContext.user || !authContext.user.token) {
-      setError("Cannot upload tracks without being logged in!");
-      return;
-    }
-
-    if (songUploadData.length === 0) {
-      setError("No tracks to upload!");
-      return;
-    }
-
     const illegalChars = [
       "#",
       "%",
@@ -77,6 +90,41 @@ const NewSong = () => {
       "|",
       "=",
     ]; // Characters that CANNOT be used as filenames
+
+    if (!authContext.user || !authContext.user.token) {
+      setError("Cannot upload tracks without being logged in!");
+      return;
+    }
+
+    if (!songName || songName === "") {
+      setError("Cannot upload song without a song name!");
+      return;
+    }
+
+    if (songName.length > 70) {
+      setError(
+        "Cannot have a song name with more than 70 characters! Current : " +
+          songName.length
+      );
+      return;
+    }
+
+    if (songDescription.length > 170) {
+      setError(
+        "Cannot have a song description with more than 170 characters! Current : " +
+          songDescription.length
+      );
+      return;
+    }
+
+    if (!songDescription || songDescription === "") {
+      setSongDescription(""); // ensure songDescription is empty
+    }
+
+    if (songUploadData.length === 0) {
+      setError("No tracks to upload!");
+      return;
+    }
 
     for (let i = 0; i < songUploadData.length; i++) {
       /*
@@ -108,37 +156,57 @@ const NewSong = () => {
       Send request to initialize Song!
     */
 
+    let songToken = undefined;
+    const payload = { name: songName, description: songDescription };
+
     let response = await fetch("http://localhost:8005/upload/songInit", {
       method: "POST",
       headers: {
-        "Content-type": "application/json; charset=UTF-8", // content type seems to fix CORS errors...
+        "Content-type": "application/json; charset=UTF-8",
         Authorization: `Bearer ${authContext.user.token}`,
       },
+      body: JSON.stringify(payload),
     });
 
-    // for (let i = 0; i < songUploadData.length; i++) {
-    //   const formData = new FormData();
-    //   formData.append("Authorization", `Bearer ${authContext.user.token}`);
-    //   formData.append("trackName", songUploadData[i].trackName);
-    //   formData.append("track", songUploadData[i].file!);
+    if (response.ok) {
+      let json = await response.json();
+      songToken = json.token;
+      setMessage("Song successfully initialized");
+    } else {
+      setError("Song initialization failed!");
+      return;
+    }
 
-    //   /*
-    //     Having header will create "request entity too large" error.
-    //     Workaround implemented to send JWT through body's formData
-    //   */
-    //   let response = await fetch("http://localhost:8005/upload/track", {
-    //     method: "POST",
-    //     body: formData,
-    //   });
+    for (let i = 0; i < songUploadData.length; i++) {
+      // upload individual tracks to server
+      const formData = new FormData();
+      formData.append("songToken", `${songToken}`);
+      formData.append("trackName", songUploadData[i].trackName);
+      formData.append("track", songUploadData[i].file!);
 
-    //   const json = await response.json();
+      /*
+        Having header will create "request entity too large" error.
+        Workaround implemented to send JWT through body's formData
+      */
+      let response = await fetch("http://localhost:8005/upload/track", {
+        method: "POST",
+        body: formData,
+      });
 
-    //   if (response.ok) {
-    //     setMessage("Tracks uploaded successfully!");
-    //   } else {
-    //     setError("File uploading failed!");
-    //   }
-    // }
+      if (response.ok) {
+        setMessage("Tracks uploaded successfully!");
+      } else {
+        setError("File uploading failed!");
+      }
+    }
+  };
+
+  const editSongName = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSongName(e.target.value);
+  };
+
+  const editSongDescription = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSongDescription(e.target.value);
   };
 
   const generateSongUploadContainers = (): JSX.Element => {
@@ -164,6 +232,20 @@ const NewSong = () => {
   return (
     <div className="mainArea">
       <h3>Upload a new song!</h3>
+      <input
+        type="text"
+        placeholder="Song Name"
+        onChange={editSongName}
+        value={songName}
+        style={SongNameInputStyle}
+      />
+      <input
+        type="text"
+        placeholder="Song description"
+        onChange={editSongDescription}
+        value={songDescription}
+        style={SongDescInputStyle}
+      />
       {generateSongUploadContainers()}
       <button style={SubmitButtonStyle} onClick={initSongAndUploadTracks}>
         Upload Tracks!
