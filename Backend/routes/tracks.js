@@ -41,22 +41,29 @@ const verifyTokenAndGetUser = async (req, res, next) => {
     next();
 }
 
-const downloadTrack = async (trackId) => {
+const downloadTrack = (trackId) => {
 
-    const client = new MongoClient(process.env.MONGO_URI);
+    return new Promise(async (res, rej) => {
 
-    await client.connect();
-    const db = client.db("ProdCluster");
-    const bucket = new GridFSBucket(db);
+        const client = new MongoClient(process.env.MONGO_URI);
 
-    const dlPath = path.join(__dirname, '../../downloads/', `${trackId}.mp3`);
-    const dlStream = bucket.openDownloadStream(new ObjectId(trackId));
-    const fileStream = fs.createWriteStream(dlPath);
-    dlStream.pipe(fileStream);
+        await client.connect();
+        const db = client.db("ProdCluster");
+        const bucket = new GridFSBucket(db);
 
-    fileStream.on("finish", async () => {
-        await client.close();
-    })
+        const dlPath = path.join(__dirname, '../../downloads/', `${trackId}.mp3`);
+        const dlStream = bucket.openDownloadStream(new ObjectId(trackId));
+        const fileStream = fs.createWriteStream(dlPath);
+        dlStream.pipe(fileStream);
+
+        fileStream.on("finish", async () => {
+            await client.close();
+            res("DL finished!");
+        })
+
+    });
+
+
 }
 
 router.get('/:id', verifyTokenAndGetUser, async (req, res) => {
@@ -72,7 +79,7 @@ router.get('/:id', verifyTokenAndGetUser, async (req, res) => {
     */
 
     let trackId = req.params.id;
-    // await downloadTrack(trackId);
+    await downloadTrack(trackId);
 
     const filePath = path.join(__dirname, '../../downloads/', `${trackId}.mp3`);
 
@@ -88,7 +95,6 @@ router.get('/:id', verifyTokenAndGetUser, async (req, res) => {
         }
     })
 
-    return res.status(200).json({ message: "download successful!" });
 })
 
 module.exports = router;

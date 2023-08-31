@@ -263,10 +263,10 @@ const AudioBox = () => {
 
           // -----------------------------------------------------------
 
-          // TODO : experimentation here!
+          // Functional track fetch example!
 
           let response = await fetch(
-            "http://localhost:8005/tracks/64f0b9f230113da4ebf8d6b9",
+            "http://localhost:8005/tracks/64f0ba0b30113da4ebf8d6f1",
             {
               method: "GET",
               headers: {
@@ -276,10 +276,7 @@ const AudioBox = () => {
             }
           );
 
-          console.log(response);
-
           let arrayBuffer = await response.arrayBuffer();
-          console.log(arrayBuffer);
 
           //-------------------------------------------------------------
 
@@ -305,7 +302,7 @@ const AudioBox = () => {
               tempAudioModulesJSON.push('[[{"type":"Blank"}]]');
             }
           });
-
+          // TODO : Remove break after endpoint testing!
           break;
         }
         setTrackBuffers(tempTrackBuffers!);
