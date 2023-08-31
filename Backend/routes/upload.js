@@ -15,40 +15,19 @@ const createToken = (songId) => {
 
 const verifySongToken = (req, res, next) => {
 
-    /*
-        decoded token structure
-        {
-        songId: '64efed88378665f77f558183',
-        iat: 1693445512,
-        exp: 1693445812
-        }
-    */
-
-    console.log(req.body);
-    return res.status(215);
-
-    if (!req.body.songToken || !req.body.trackName) {
-        return res.status(400).json({ error: "Invalid request body!" });
+    if (!req.headers.songtoken) {
+        return res.status(400).json({ error: "Invalid request header!" });
     }
 
-    const trackName = req.body.trackName;
-    const songToken = req.body.songToken;
     let decodedToken = undefined;
 
     try {
-        decodedToken = jwt.decode(songToken);
+        decodedToken = jwt.verify(req.headers.songtoken, process.env.SECRET);
     } catch (e) {
         return res.status(401).json({ error: "JWT verification failed!" });
     }
 
-
-    if (!req.file) {
-        return res.status(400).json({ error: "No file uploaded" });
-    }
-
-
-    // Allow file upload ONLY when all checks have passed!
-    // req.verifiedSongId = decodedToken.songId;
+    req.verifiedSongId = decodedToken.songId;
 
     next();
 }
@@ -56,10 +35,9 @@ const verifySongToken = (req, res, next) => {
 const storage = multer.diskStorage({
     destination: (req, file, callBack) => {
         callBack(null, "../uploads");
-
     },
     filename: (req, file, callBack) => {
-        const fileName = req.body.trackName + ".mp3";
+        const fileName = req.body.trackName + "@" + req.verifiedSongId + ".mp3";
         callBack(null, fileName);
     }
 })

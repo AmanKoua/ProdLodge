@@ -177,10 +177,11 @@ const NewSong = () => {
       return;
     }
 
+    console.log(songToken + "  token!");
+
     for (let i = 0; i < songUploadData.length; i++) {
       // upload individual tracks to server
       const formData = new FormData();
-      formData.append("songToken", `${songToken}`);
       formData.append("trackName", songUploadData[i].trackName);
       formData.append("track", songUploadData[i].file!);
 
@@ -191,6 +192,9 @@ const NewSong = () => {
       let response = await fetch("http://localhost:8005/upload/track", {
         method: "POST",
         body: formData,
+        headers: {
+          songToken: `${songToken}`,
+        },
       });
 
       if (response.ok) {
