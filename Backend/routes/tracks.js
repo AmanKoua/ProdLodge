@@ -58,7 +58,7 @@ const downloadTrack = async (trackId) => {
     })
 }
 
-router.get('/:id', verifyTokenAndGetUser, (req, res) => {
+router.get('/:id', verifyTokenAndGetUser, async (req, res) => {
 
     const userId = req.body.verifiedUser._id.valueOf();
     let trackId = undefined;
@@ -67,11 +67,26 @@ router.get('/:id', verifyTokenAndGetUser, (req, res) => {
         return res.status(400).json({ error: "No id sent with request!" });
     }
 
+    /*
+    TODO :
+    Check if user is owner, or if user has permissions to download requested track.
+    (song visibility - Public, Private, FriendsOnly, AccessList)
+    */
+
     trackId = req.params.id;
+    await downloadTrack(trackId);
 
-    downloadTrack(trackId);
+    const filePath = path.join(__dirname, '../../downloads/', `${trackId}.mp3`);
 
-    return res.status(200).json({ message: "successful" });
+    return res.status(200).download(filePath, (err) => {
+        if (err) {
+            // TODO : Delete file after successful DL!
+            console.log(err);
+            return res.status(500).json({ error: "Failure in transmitting file to user!" });
+        }
+    })
+
+    // return res.status(200).json({ message: "download successful!" });
 })
 
 module.exports = router;
