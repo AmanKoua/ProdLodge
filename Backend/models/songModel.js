@@ -56,11 +56,12 @@ const songSchema = new Schema({
 });
 
 songSchema.statics.initialize = async function (userId, title, description, visibility, commentsId, accessList, trackList, chainsList) {
-    // Initialization values will be created within upload route
-
     let song = await this.create({ userId: userId, title: title, description: description, visibility: visibility, commentsId, accessList, trackList, chainsList })
     return song;
-
 }
+
+// songSchema.statics.addTrack = async function (trackId){
+
+// }
 
 module.exports = mongoose.model('Song', songSchema);

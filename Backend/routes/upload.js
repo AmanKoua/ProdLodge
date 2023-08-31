@@ -1,8 +1,9 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const { ObjectId } = require("mongodb");
+const { MongoClient, GridFSBucket, ObjectId } = require('mongodb');
 const jwt = require("jsonwebtoken");
 const multer = require("multer");
+const path = require("path");
 const fs = require("fs");
 const router = express.Router();
 
@@ -32,12 +33,49 @@ const verifySongToken = (req, res, next) => {
     next();
 }
 
+const uploadSongToGridFSBucket = async (req, res, next) => {
+
+    const fileName = req.fileNames[0];
+    const files = fs.readdirSync(path.join(__dirname, "../../uploads"))
+
+    const client = new MongoClient(process.env.MONGO_URI);
+
+    if (files.includes(fileName)) {
+
+        await client.connect();
+        const db = client.db("ProdCluster")
+        const bucket = new GridFSBucket(db);
+
+        const fileNameSplit = fileName.split("@");
+        const songId = fileNameSplit[1].substr(0, fileNameSplit[1].length - 4);
+
+        const filePath = path.join(__dirname, "../../uploads", fileName);
+        const uploadStream = bucket.openUploadStream(fileName);
+        const fileStream = fs.createReadStream(filePath);
+        fileStream.pipe(uploadStream);
+
+        uploadStream.on("finish", async () => {
+            const cursor = bucket.find({ "filename": fileName });
+            for await (const item of cursor) {
+                await song.updateOne({ _id: new ObjectId(songId) }, { $push: { trackList: item._id } })
+            }
+            fs.unlinkSync(path.join(__dirname, "../../uploads", fileName));
+            await client.close();
+        })
+
+    }
+
+    next()
+
+}
+
 const storage = multer.diskStorage({
     destination: (req, file, callBack) => {
         callBack(null, "../uploads");
     },
     filename: (req, file, callBack) => {
         const fileName = req.body.trackName + "@" + req.verifiedSongId + ".mp3";
+        req.fileNames = [fileName];
         callBack(null, fileName);
     }
 })
@@ -78,7 +116,7 @@ router.post("/songInit", async (req, res) => {
 
 })
 
-router.post("/track", verifySongToken, upload.single('track'), (req, res) => { // Require that a track be initiilzed first!
+router.post("/track", verifySongToken, upload.single('track'), uploadSongToGridFSBucket, (req, res) => { // Require that a track be initiilzed first!
     return res.status(200).json({ message: "File uploaded successfully!" });
 })
 
