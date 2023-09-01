@@ -1,0 +1,147 @@
+- For the audioNodes, allow the first subArray (that is not the audioSourceNodeBuffer)
+  to only contain 2 items. all other "rows" can contain up to 3 item. This will allow
+  it to align with the audioModules array (representative of the cards displayed by 
+  the audioModules).
+
+- To delete an audioModule / audioNode. First, the delete button is clicked. delete
+  the audioModule form the audioModules array. Delete the audioNode from the audioNodes
+  array. If after deletion, the subarray is empty, delete the subarrray. Else, ensure that 
+  there are no gaps in the subarray. This logic has to be implemented differently for each
+  module.
+
+- To enable / disable an audiOnde, simply connect to the audioNode that is next (use
+  continue in the connectAudioNodes effect essentially).
+
+-----------------------------------------------------------------------------------------
+
+How to enable multiple Tracks 
+
+- For each track, there will be a set of audioModules. When a user clicks a track, the audioModules
+  will switch in the expanded audioBox area
+
+- Each audioSettings track needs setAudioModules (to change modules), a copy of the audioModulesJSON arr
+  to change by reference. Might need a currentSelectedTrack state variable in order to keep track of 
+  which track is selected (to save the current audioModules configuration between track changed).
+
+- For the audioNodes, have a system where each "chain" is always playing, resetting, stopping, etc,
+  but the only thing that determines whether or not it is audible is the enable / disable settings 
+  from the settings drawer. This will be achieved via gain node that is set to 0 or normal volume.
+
+  Current audioNodes structure - audioNodes: AudioNode[][] (2d arr)
+  [
+    [AudioBufferSourceNode]
+    [Node, Node] (maximum of 2 audioNodes)
+    [Node, Node, Node] (max of 3 audioNodes)
+    ....... (as many layers as desired)
+    [AnalyserNode] (will always be the last node)
+  ]
+
+  Proposed audioNodes structure - audioNodes: AudioNode[][][] (3d arr)
+  [
+    [
+      [...]  
+    ],
+    [
+      [AudioBufferSourceNode]
+      [Node, Node] (maximum of 2 audioNodes)
+      [Node, Node, Node] (max of 3 audioNodes)
+      ...... (as many layers as desired)
+      [gainNode] (to control track enable / disable setting)
+    ],
+    [
+      [...]  
+    ],
+    ....
+  ]
+
+  AnalyserNode (kept independent and seperate from audioNodes structure, as it will never change!)
+
+  Current audioModules structure (audioModules will be saved and swapped out as JSON objects):
+
+    [
+      [Blank, Module, Module], (max of 3 modules, 1 MUST be the blank module)
+      [module, module, module],
+      [...]
+    ]
+
+------------------------------------------------------------------------------------------------------
+
+When the client request the songs that are available for a user, if they are authenticated, send them
+the metadata for the song, and a list of IDs of tracks associated with the song. Metadata will be an 
+array of objects. 
+
+For downloading tracks, create an endpoint that takes a trackID paramater and requires a JWT header.
+If the song that the track belongs to is public, or the user is on the access list, grant access
+to them to download the tracks from the endpoint onto their machine.
+
+------------------------------------------------------------------------------------------------------
+
+gridFS reference
+
+let getGridFSBucket = async () => { // GridFS proof of concept tests
+
+    const client = new MongoClient(process.env.MONGO_URI);
+
+    try {
+
+        // works for uploading a file!
+
+        // await client.connect();
+        // const db = client.db("ProdCluster")
+        // const bucket = new GridFSBucket(db);
+
+        // const filePath = "C:/Personal Use/Programming/ProdLodge/Testing/AudioInterface/Frontend/src/assets/songs/stems/master.mp3";
+        // const uploadStream = bucket.openUploadStream("test name for remix");
+        // const fileStream = fs.createReadStream(filePath);
+        // fileStream.pipe(uploadStream);
+
+        // uploadStream.on("finish", async () => {
+
+        //     console.log("Upload successful!");
+        // })
+
+        // -------------------------------------------------------
+
+        // Works for renaming a file
+
+        // const cursor = bucket.find({ "filename": "Test name here!!!" })
+        // for await (const item of cursor) {
+        //     await bucket.rename(item._id, "This is new ----");
+        //     console.log(item);
+        // }
+        // await client.close();
+
+        //--------------------------------------------------------------------
+
+
+        // Works for DLing a song!
+        // await client.connect();
+        // const db = client.db("ProdCluster")
+        // const bucket = new GridFSBucket(db);
+
+        // const fileId = "Far cry 4 remix";
+        // const dlPath = "C:/Personal Use/Programming/ProdLodge/Testing/AudioInterface/Frontend/src/assets/songs/stems/DLTrack.mp3"
+        // const dlStream = bucket.openDownloadStreamByName(fileId);
+        // const fileStream = fs.createWriteStream(dlPath);
+        // dlStream.pipe(fileStream);
+
+        // fileStream.on("finish", () => {
+        //     console.log("download successful!");
+        //     client.close();
+        // })
+
+        //-------------------------------------------------------------------------------
+
+        // Works for deleting a song!
+        // await client.connect();
+        // const db = client.db("ProdCluster")
+        // const bucket = new GridFSBucket(db);
+
+        // await bucket.delete(new ObjectId('64ea18b19e0a2d02d7b7cd79'));
+
+    } catch (e) {
+        console.log(e);
+    }
+
+}
+

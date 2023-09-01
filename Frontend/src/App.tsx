@@ -7,6 +7,7 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import UserProfile from "./pages/UserProfile";
+import NewSong from "./pages/NewSong";
 
 import { AuthContext } from "./context/AuthContext";
 
@@ -49,13 +50,10 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/myProfile" element={<UserProfile />} />
+            <Route path="/newSong" element={<NewSong />} />
           </Routes>
         </div>
       </BrowserRouter>
-
-      {/* <AudioBox></AudioBox>
-      <AudioBox></AudioBox>
-      <AudioBox></AudioBox> */}
     </div>
   );
 }

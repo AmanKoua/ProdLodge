@@ -54,7 +54,11 @@ import impulse16 from "../assets/impulseResponses/16.wav";
 import impulse17 from "../assets/impulseResponses/17.wav";
 import impulse18 from "../assets/impulseResponses/18.wav";
 
-const AudioBox = () => {
+interface Props {
+  songData: Object;
+}
+
+const AudioBox = ({ songData }: Props) => {
   // console.log("AudioBox Rerender!");
 
   let tracks: Object = {
@@ -253,14 +257,35 @@ const AudioBox = () => {
 
       let fetchTracks = async () => {
         let tempTrackBuffers: AudioBuffer[] = [];
-        let tempTracksKeys: string[] = Object.keys(tempTracks);
+        // let tempTracksKeys: string[] = Object.keys(tempTracks);
+        let tempTracksKeys: string[] = songData.trackIds;
         let tempSettingsTracksData: Object[] = [];
         let tempAudioModulesJSON: string[] = ['[[{"type":"Blank"}]]'];
 
         for (let i = 0; i < tempTracksKeys.length; i++) {
           console.log("track fetched!");
-          let response = await fetch(tempTracks[tempTracksKeys[i]]);
+          // let response = await fetch(tempTracks[tempTracksKeys[i]]);
+
+          // -----------------------------------------------------------
+
+          // Functional track fetch example!
+
+          let response = await fetch(
+            `http://localhost:8005/tracks/${tempTracksKeys[i]}`,
+            {
+              method: "GET",
+              headers: {
+                authorization:
+                  "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NGViOGRiZDg5ZmEwYTAwNjRmMDFkN2UiLCJpYXQiOjE2OTM1MTk1NjksImV4cCI6MTY5Mzc3ODc2OX0.eisG3GM727VPZ0iZxSZlVrN8qjAf8y1bOcIZ-fHFruw",
+              },
+            }
+          );
+
           let arrayBuffer = await response.arrayBuffer();
+
+          //-------------------------------------------------------------
+
+          // let arrayBuffer = await response.arrayBuffer();
           await aCtx.decodeAudioData(arrayBuffer, (decodedBuffer) => {
             let tempTracksData = {};
 
