@@ -1,6 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const { ObjectId } = require("mongodb");
+const { ObjectId, MongoClient, GridFSBucket } = require("mongodb");
 const jwt = require("jsonwebtoken");
 const router = express.Router();
 
@@ -216,6 +216,25 @@ router.delete("/profile", async (req, res) => {
     const friendsListId = profile[0].friendsListId;
     const actionItemsId = profile[0].actionItemsId;
 
+    const userSongs = await song.find({ userId: userId }).exec();
+
+    const client = new MongoClient(process.env.MONGO_URI);
+    await client.connect();
+    const db = client.db("ProdCluster");
+    const bucket = new GridFSBucket(db);
+
+    for (let i = 0; i < userSongs.length; i++) {
+        let tempTrackList = userSongs[i].trackList
+
+        for (let j = 0; j < tempTrackList.length; j++) { // delete all tracks associated with a song
+            await bucket.delete(tempTrackList[j]);
+        }
+
+        await song.deleteOne({ _id: userSongs[i]._id }).exec();
+    }
+
+    await client.close();
+
     try {
         await userActionItems.findOneAndDelete({ _id: actionItemsId });
         await userFriends.findOneAndDelete({ _id: friendsListId });
@@ -225,7 +244,7 @@ router.delete("/profile", async (req, res) => {
         return res.status(500).json({ error: e.message });
     }
 
-    return res.status(200).json({ mssg: "Successful deletion!" });
+    return res.status(200).json({ mssg: "Successful data deletion!" });
 
 })
 

@@ -22,7 +22,6 @@ const NavBar = () => {
 
   const generateUserAuthSection = () => {
     const handleLogoutClick = () => {
-      localStorage.removeItem("user");
       authContext.dispatch({ type: "LOGOUT", payload: undefined });
 
       if (location.pathname === "/myProfile") {
@@ -45,7 +44,7 @@ const NavBar = () => {
             <div className="userNameDropDown">
               <Link to="/newSong">
                 <center>
-                  <p>New Song</p>
+                  <p style={{ border: "1px solid black" }}>New Song</p>
                 </center>
               </Link>
             </div>
