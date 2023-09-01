@@ -196,7 +196,9 @@ const NewSong = () => {
       });
 
       if (response.ok) {
-        setMessage("Tracks uploaded successfully!");
+        setMessage(
+          `Tracks uploaded successfully! ${i + 1}/${songUploadData.length}`
+        );
       } else {
         setError("File uploading failed!");
       }

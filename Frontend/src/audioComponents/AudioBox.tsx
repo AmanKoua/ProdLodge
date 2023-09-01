@@ -1,11 +1,11 @@
-import { useState } from "react";
-import { useRef } from "react";
-import { useEffect } from "react";
+import { useState, useRef, useEffect, useContext } from "react";
+
 import CSS from "csstype";
 
 import AudioController from "./AudioController";
 import AudioModuleContainer from "./AudioModuleContainer";
 import AudioSettingsDrawer from "./AudioSettingsDrawer";
+import { AuthContext } from "../context/AuthContext";
 
 /*
 Cannot use hooks imported from another module because variables used can be 
@@ -96,6 +96,8 @@ const AudioBox = ({ songData }: Props) => {
 
   let impulsesJSON = JSON.stringify(impulses);
   let tempModuleData: Object[][] = [[{ type: "Blank" }]];
+
+  const authContext = useContext(AuthContext);
 
   // Audio context
   let aCtx: AudioContext | undefined;
@@ -228,7 +230,13 @@ const AudioBox = ({ songData }: Props) => {
   ) => {
     useEffect(() => {
       // Fetch audio data and initialize primary nodes
-      if (aCtx === undefined) {
+      if (
+        // If any of these are missing, do not initialize track fetching
+        aCtx === undefined ||
+        !authContext ||
+        !authContext.user ||
+        !authContext.user.token
+      ) {
         return;
       }
 
@@ -257,56 +265,53 @@ const AudioBox = ({ songData }: Props) => {
 
       let fetchTracks = async () => {
         let tempTrackBuffers: AudioBuffer[] = [];
-        // let tempTracksKeys: string[] = Object.keys(tempTracks);
-        let tempTracksKeys: string[] = songData.trackIds;
+        // let songTrackIds: string[] = Object.keys(tempTracks);
+        let songTrackIds: string[] = songData.trackIds;
         let tempSettingsTracksData: Object[] = [];
         let tempAudioModulesJSON: string[] = ['[[{"type":"Blank"}]]'];
 
-        for (let i = 0; i < tempTracksKeys.length; i++) {
+        for (let i = 0; i < songTrackIds.length; i++) {
           console.log("track fetched!");
-          // let response = await fetch(tempTracks[tempTracksKeys[i]]);
-
-          // -----------------------------------------------------------
-
-          // Functional track fetch example!
 
           let response = await fetch(
-            `http://localhost:8005/tracks/${tempTracksKeys[i]}`,
+            `http://localhost:8005/tracks/${songTrackIds[i]}`,
             {
               method: "GET",
               headers: {
-                authorization:
-                  "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NGViOGRiZDg5ZmEwYTAwNjRmMDFkN2UiLCJpYXQiOjE2OTM1MTk1NjksImV4cCI6MTY5Mzc3ODc2OX0.eisG3GM727VPZ0iZxSZlVrN8qjAf8y1bOcIZ-fHFruw",
+                authorization: `Bearer ${authContext.user.token}`,
               },
             }
           );
 
-          let arrayBuffer = await response.arrayBuffer();
+          if (response.ok) {
+            let trackName = response.headers.get("Trackname");
+            let arrayBuffer = await response.arrayBuffer();
 
-          //-------------------------------------------------------------
+            await aCtx.decodeAudioData(arrayBuffer, (decodedBuffer) => {
+              let tempTracksData = {};
 
-          // let arrayBuffer = await response.arrayBuffer();
-          await aCtx.decodeAudioData(arrayBuffer, (decodedBuffer) => {
-            let tempTracksData = {};
+              if (songTrackIds[i] === "master") {
+                tempTracksData.isEnabled = false;
+              } else {
+                tempTracksData.isEnabled = true;
+                setCurrentTrackIdx(i);
+              }
 
-            if (tempTracksKeys[i] === "master") {
-              tempTracksData.isEnabled = false;
-            } else {
-              tempTracksData.isEnabled = true;
-              setCurrentTrackIdx(i);
-            }
+              tempTrackBuffers.push(decodedBuffer);
 
-            tempTrackBuffers.push(decodedBuffer);
-
-            tempTracksData.name = tempTracksKeys[i];
-            tempTracksData.moduleCount = 0;
-            tempTracksData.idx = i;
-            tempSettingsTracksData.push(tempTracksData);
-            if (i !== 0) {
-              // skip 1, because 1 is already defined when the audioModulesState is set!
-              tempAudioModulesJSON.push('[[{"type":"Blank"}]]');
-            }
-          });
+              tempTracksData.name = trackName;
+              tempTracksData.moduleCount = 0;
+              tempTracksData.idx = i;
+              tempSettingsTracksData.push(tempTracksData);
+              if (i !== 0) {
+                // skip 1, because 1 is already defined when the audioModulesState is set!
+                tempAudioModulesJSON.push('[[{"type":"Blank"}]]');
+              }
+            });
+          } else {
+            alert("Track fetching failed!");
+            break;
+          }
         }
         setTrackBuffers(tempTrackBuffers!);
         setSongDuration(tempTrackBuffers![0].duration);
