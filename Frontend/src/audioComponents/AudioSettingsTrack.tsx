@@ -83,11 +83,6 @@ const AudioSettingsTrack = ({
       return;
     }
 
-    // console.log(idx);
-    // console.log(currentTrackIdx);
-    // console.log(audioModules);
-    // console.log(audioModulesJSON);
-
     if (currentTrackIdx != idx) {
       // save modules before switching over
       let tempAudioModulesJSON = [...audioModulesJSON];
@@ -97,12 +92,6 @@ const AudioSettingsTrack = ({
       setTimeout(() => {
         setAudioModules(JSON.parse(audioModulesJSON[idx]));
       }, 10);
-
-      // console.log(idx + " -------- ");
-      // console.log(currentTrackIdx + " -------- ");
-      // console.log(JSON.parse(audioModulesJSON[idx]));
-      // console.log(audioModules + " -------- ");
-      // console.log(audioModulesJSON + " -------- ");
     }
 
     let tempObject = {

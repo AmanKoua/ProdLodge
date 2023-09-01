@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect, useContext } from "react";
-
 import CSS from "csstype";
 
 import AudioController from "./AudioController";
@@ -1132,7 +1131,7 @@ const AudioBox = ({ songData }: Props) => {
         break;
       case "Reverb":
         tempAudioNode = aCtx!.createConvolver();
-        tempAudioNode.buffer = impulseBuffers[0];
+        tempAudioNode.buffer = impulseBuffers[1];
         insertAudioNode(audioNodes, tempAudioNode, currentTrackIdx);
         setAudioNodes(audioNodes);
         setTimeout(() => {
@@ -1353,7 +1352,6 @@ const AudioBox = ({ songData }: Props) => {
       tempAudioNodesSubArr![row][column].buffer = impulseBuffers![data.impulse];
     } else if (data.type === "TrackChange") {
       // currentTrackIdx is changed in AudioSettingsTrack, which should automatically update currently selected track
-      // setCurrentTrack(trackBuffers![data.track]);
     }
 
     setAudioNodes(audioNodes);
@@ -1415,59 +1413,133 @@ const AudioBox = ({ songData }: Props) => {
   };
 
   const saveConfiguration = () => {
-    let config = JSON.stringify(audioModules); // this object, when loaded into the loadConfiguration method will work.
-    audioModulesJSON[currentTrackIdx] = JSON.stringify(audioModules);
-    console.log(audioModulesJSON);
+    /*
+    audioModulesJSON is an array of JSON objects. Each JSON object
+    within audioModulesJSON is a stringified 2d array of audioModules
+    for a given track. The audioModulesJSON will ITSELF be stringified 
+    before being stored in the DB.
+
+    To unpack data payload:
+      Parse audioModulesJSON object -> array of JSON Object
+      parse audioModulesJson[index] -> 2d audioModules Object
+    */
+
+    audioModulesJSON[currentTrackIdx] = JSON.stringify(audioModules); // save current track's audioModules as JSOn
+
+    let tempData = [];
+
+    for (let i = 0; i < audioModulesJSON.length; i++) {
+      tempData.push(JSON.parse(audioModulesJSON[i]));
+    }
+
+    const configuration = {
+      data: tempData,
+    };
+
+    // TODO : Save the parsed configuration object to the DB with a name, user, etc...
+
+    // console.log(JSON.stringify(configuration));
+    /*
+    example of a saved configuration (make sure to add ` before and after JSON string below)
+    {"data":[[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"New"}]],[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"New"}]],[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"Reverb","isEnabled":true,"impulse":0}]],[[{"type":"Blank"}]],[[{"type":"Blank"}]],[[{"type":"Blank"}]]]}
+    */
   };
 
-  const loadConfiguration = () => {
+  let sleep = (seconds: number): Promise<void> => {
+    // sleeping utility function
+
+    return new Promise((res, rej) => {
+      setTimeout(() => {
+        res();
+      }, seconds * 1000);
+    });
+  };
+
+  const loadConfiguration = async () => {
     // works!
-    console.log(audioModulesJSON);
 
     /*
     load any configuration that was saved with saveConfiguration()
     */
-    let testConfig = [
-      [
-        { type: "Blank" },
-        { type: "Highpass", frequency: 20, resonance: 0 },
-        { type: "Lowpass", frequency: 21000, resonance: 0 },
-      ],
-      [
-        { type: "Reverb" },
-        { type: "Highpass", frequency: 20, resonance: 0 },
-        { type: "Lowpass", frequency: 21000, resonance: 0 },
-      ],
-      [{ type: "New" }],
-    ];
+    // let config = [
+    //   [
+    //     { type: "Blank" },
+    //     { type: "Highpass", frequency: 20, resonance: 0 },
+    //     { type: "Lowpass", frequency: 21000, resonance: 0 },
+    //   ],
+    //   [
+    //     { type: "Reverb" },
+    //     { type: "Highpass", frequency: 20, resonance: 0 },
+    //     { type: "Lowpass", frequency: 21000, resonance: 0 },
+    //   ],
+    //   [{ type: "New" }],
+    // ];
 
-    setAudioModules(testConfig);
+    let parsedConfig = JSON.parse(
+      `{"data":[[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"New"}]],[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"New"}]],[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"Reverb","isEnabled":true,"impulse":0}]],[[{"type":"Blank"}]],[[{"type":"Blank"}]],[[{"type":"Blank"}]]]}`
+    );
 
-    let tempAudioNodesSubArr = audioNodes![currentTrackIdx];
+    for (let i = 0; i < parsedConfig.data.length; i++) {
+      console.log("Current track idx: " + i + " --------------------");
+      currentTrackIdx! = i;
+      setCurrentTrackIdx(i);
+      await sleep(0.1);
 
-    while (tempAudioNodesSubArr.length > 2) {
-      tempAudioNodesSubArr?.splice(1, 1); // delete all previous audioNodes
+      let config = parsedConfig.data[i];
+      // console.log("Current track config: " + config + " --------------------");
+      setAudioModules(config);
+      await sleep(0.1);
+
+      // console.log(
+      //   "Current track idx (audioNodes): " +
+      //     currentTrackIdx +
+      //     " --------------------"
+      // );
+      let tempAudioNodesSubArr = audioNodes![currentTrackIdx];
+
+      while (tempAudioNodesSubArr.length > 2) {
+        tempAudioNodesSubArr?.splice(1, 1); // delete all previous audioNodes EXCEPT AudioBufferSourceNode and gainNode
+      }
+
+      audioNodes![currentTrackIdx] = tempAudioNodesSubArr;
+      setAudioNodes(audioNodes);
+      await sleep(0.1);
+      console.log("Audio nodes cleared: " + audioNodes![currentTrackIdx]);
+
+      // setAudioNodes(tempAudioNodes); // set cleared audioNodes before adding configured ones
+      // above line of code is not requires because audioNodes will be changed by reference
+
+      let addNewAudioNodes = async () => {
+        console.log("configuration");
+        console.log(config);
+        // Config is equivalent to the current audioModules
+        for (let k = 0; k < config.length; k++) {
+          for (let j = 0; j < config[k].length; j++) {
+            if (k === 0 && j === 0) {
+              // skip blank module
+              continue;
+            }
+
+            if (config[k][j].type === "New") {
+              // dont add the new module as an audioNode
+              break;
+            }
+            settingsTracksData![currentTrackIdx].moduleCount += 1;
+            addAudioNode(config[k][j]); // add configured audio nodes
+            await sleep(0.1);
+          }
+        }
+      };
+
+      await addNewAudioNodes();
+
+      // save current audio module configuration
+      audioModulesJSON[currentTrackIdx] = JSON.stringify(config);
     }
 
-    // setAudioNodes(tempAudioNodes); // set cleared audioNodes before adding configured ones
-
-    let addNewAudioNodes = () => {
-      for (let i = 0; i < testConfig.length; i++) {
-        for (let j = 0; j < testConfig[i].length; j++) {
-          if (i === 0 && j === 0) {
-            continue;
-          }
-
-          if (testConfig[i][j].type === "New") {
-            // dont add the new module as an audioNode
-            break;
-          }
-          addAudioNode(testConfig[i][j]); // add configured audio nodes
-        }
-      }
-    };
-
-    setTimeout(addNewAudioNodes, 10); // need a slight delay to allow the audio nodes state to set before adding nodes
+    setAudioModulesJSON(audioModulesJSON);
+    // console.log(audioModulesJSON);
+    console.log(audioNodes);
   };
 
   /*
