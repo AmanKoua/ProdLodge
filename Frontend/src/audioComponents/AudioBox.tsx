@@ -54,7 +54,11 @@ import impulse16 from "../assets/impulseResponses/16.wav";
 import impulse17 from "../assets/impulseResponses/17.wav";
 import impulse18 from "../assets/impulseResponses/18.wav";
 
-const AudioBox = () => {
+interface Props {
+  songData: Object;
+}
+
+const AudioBox = ({ songData }: Props) => {
   // console.log("AudioBox Rerender!");
 
   let tracks: Object = {
@@ -253,7 +257,8 @@ const AudioBox = () => {
 
       let fetchTracks = async () => {
         let tempTrackBuffers: AudioBuffer[] = [];
-        let tempTracksKeys: string[] = Object.keys(tempTracks);
+        // let tempTracksKeys: string[] = Object.keys(tempTracks);
+        let tempTracksKeys: string[] = songData.trackIds;
         let tempSettingsTracksData: Object[] = [];
         let tempAudioModulesJSON: string[] = ['[[{"type":"Blank"}]]'];
 
@@ -266,7 +271,7 @@ const AudioBox = () => {
           // Functional track fetch example!
 
           let response = await fetch(
-            "http://localhost:8005/tracks/64f0ba0b30113da4ebf8d6f1",
+            `http://localhost:8005/tracks/${tempTracksKeys[i]}`,
             {
               method: "GET",
               headers: {
@@ -302,8 +307,6 @@ const AudioBox = () => {
               tempAudioModulesJSON.push('[[{"type":"Blank"}]]');
             }
           });
-          // TODO : Remove break after endpoint testing!
-          break;
         }
         setTrackBuffers(tempTrackBuffers!);
         setSongDuration(tempTrackBuffers![0].duration);

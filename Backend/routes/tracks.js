@@ -88,10 +88,13 @@ router.get('/:id', verifyTokenAndGetUser, async (req, res) => {
     res.setHeader('Content-Length', fileSize);
 
     return res.status(200).download(filePath, (err) => {
+
         if (err) {
-            // TODO : Delete file after successful DL!
             console.log(err);
             return res.status(500).json({ error: "Failure in transmitting file to user!" });
+        }
+        else {
+            fs.unlinkSync(filePath);
         }
     })
 
