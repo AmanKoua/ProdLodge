@@ -1468,11 +1468,11 @@ const AudioBox = ({ songData }: Props) => {
     for (let i = 0; i < parsedConfig.data.length; i++) {
       currentTrackIdx! = i;
       setCurrentTrackIdx(i);
-      await sleep(0.005);
+      await sleep(0.01);
 
       let config = parsedConfig.data[i];
       setAudioModules(config);
-      await sleep(0.005);
+      await sleep(0.01);
 
       let tempAudioNodesSubArr = audioNodes![currentTrackIdx];
 
@@ -1482,7 +1482,7 @@ const AudioBox = ({ songData }: Props) => {
 
       audioNodes![currentTrackIdx] = tempAudioNodesSubArr;
       setAudioNodes(audioNodes);
-      await sleep(0.005);
+      await sleep(0.01);
 
       // setAudioNodes(tempAudioNodes); // set cleared audioNodes before adding configured ones
       // above line of code is not requires because audioNodes will be changed by reference
@@ -1503,7 +1503,7 @@ const AudioBox = ({ songData }: Props) => {
             }
             settingsTracksData![currentTrackIdx].moduleCount += 1;
             addAudioNode(config[k][j]); // add configured audio nodes
-            await sleep(0.005);
+            await sleep(0.01);
           }
         }
       };
