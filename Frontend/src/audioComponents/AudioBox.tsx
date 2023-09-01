@@ -854,12 +854,47 @@ const AudioBox = ({ songData }: Props) => {
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+  const MasterContainerStyle: CSS.Properties = {
+    width: "50%",
+    height: "340px",
+    marginTop: "55px",
+    marginLeft: "auto",
+    marginRight: "auto",
+    transition: "all 0.3s",
+    // backgroundColor: "beige",
+  };
+
+  MasterContainerStyle.height = isExpanded
+    ? `${audioModules.length * (215 - audioModules.length) + 100}px`
+    : "40px";
+
+  MasterContainerStyle.marginBottom = isExpanded ? "120px" : "55px";
+
+  const SongDataContainerStyle: CSS.Properties = {
+    display: "flex",
+    justifyContent: "space-evenly",
+    width: "100%",
+    height: "40px",
+    transition: "all 0.3s",
+    backgroundColor: "#edf4fc",
+  };
+
+  SongDataContainerStyle.height = isExpanded ? "100px" : "40px";
+
+  const SongDataContainerElementStyle: CSS.Properties = {
+    width: "47.5%",
+    justifyContent: "center",
+    overflow: "hidden",
+    // border: "1px solid black",
+    // backgroundColor: "green",
+  };
+
   const AudioBoxStyle: CSS.Properties = {
     position: "relative",
     marginLeft: "auto",
     marginRight: "auto",
-    marginTop: "2%",
-    width: "50%",
+    marginTop: "0%",
+    width: "100%",
     height: "300px",
     border: "1px solid black",
     transition: "all 0.3s",
@@ -1461,49 +1496,75 @@ const AudioBox = ({ songData }: Props) => {
 
   return (
     <>
-      <div style={AudioBoxStyle} onClick={handleUserGesture}>
-        <div
-          style={SettingButtonStyle}
-          onMouseEnter={handleMouseEnterSettingsButton}
-          onMouseLeave={handleMouseLeaveSettingsButton}
-          onClick={handleUserClickSettingsButton}
-        >
-          Settings
+      <div style={MasterContainerStyle}>
+        <div style={SongDataContainerStyle}>
+          <div style={SongDataContainerElementStyle}>
+            <h1
+              style={{
+                fontSize: "15px",
+                marginTop: "8px",
+                textAlign: "center",
+              }}
+            >
+              Title: {songData.title}
+            </h1>
+          </div>
+          <div style={SongDataContainerElementStyle}>
+            <h1
+              style={{
+                fontSize: "15px",
+                marginTop: "8px",
+                textAlign: "center",
+              }}
+            >
+              Description: {songData.description}
+            </h1>
+          </div>
         </div>
-        <AudioSettingsDrawer
-          settingsTracksData={settingsTracksData}
-          audioModulesJSON={audioModulesJSON}
-          audioModules={audioModules}
-          isSettingsExpanded={isSettingsExpanded}
-          currentTrackIdx={currentTrackIdx}
-          setAudioModulesJSON={setAudioModulesJSON}
-          setAudioModules={setAudioModules}
-          setCurrentTrackIdx={setCurrentTrackIdx}
-          setSettingsTracksData={setSettingsTracksData}
-          saveConfiguration={saveConfiguration}
-          loadConfiguration={loadConfiguration}
-          editAudioNodeData={editAudioNodeData}
-          setAudioNodesChanged={setAudioNodesChanged}
-        ></AudioSettingsDrawer>
-        {generateAudioModuleContainers()}
-        <canvas style={CanvasStyle} ref={canvasRef}></canvas>
-        <AudioController
-          hasUserGestured={hasUserGestured}
-          isPlaying={isPlaying}
-          isExpanded={isExpanded}
-          isSettingsExpanded={isSettingsExpanded}
-          songTime={songTime}
-          songDuration={songDuration}
-          areAudioNodesReady={areAudioNodesReady}
-          setIsPlaying={setIsPlaying}
-          setIsExpanded={setIsExpanded}
-          setIsSettingsExpanded={setIsSettingsExpanded}
-          playSong={playSong}
-          stopSong={stopSong}
-          setSongTime={setSongTime}
-          startVisualizer={startVisualizer}
-          useAttachEventListener={useAttachEventListener}
-        ></AudioController>
+        <div style={AudioBoxStyle} onClick={handleUserGesture}>
+          <div
+            style={SettingButtonStyle}
+            onMouseEnter={handleMouseEnterSettingsButton}
+            onMouseLeave={handleMouseLeaveSettingsButton}
+            onClick={handleUserClickSettingsButton}
+          >
+            Settings
+          </div>
+          <AudioSettingsDrawer
+            settingsTracksData={settingsTracksData}
+            audioModulesJSON={audioModulesJSON}
+            audioModules={audioModules}
+            isSettingsExpanded={isSettingsExpanded}
+            currentTrackIdx={currentTrackIdx}
+            setAudioModulesJSON={setAudioModulesJSON}
+            setAudioModules={setAudioModules}
+            setCurrentTrackIdx={setCurrentTrackIdx}
+            setSettingsTracksData={setSettingsTracksData}
+            saveConfiguration={saveConfiguration}
+            loadConfiguration={loadConfiguration}
+            editAudioNodeData={editAudioNodeData}
+            setAudioNodesChanged={setAudioNodesChanged}
+          ></AudioSettingsDrawer>
+          {generateAudioModuleContainers()}
+          <canvas style={CanvasStyle} ref={canvasRef}></canvas>
+          <AudioController
+            hasUserGestured={hasUserGestured}
+            isPlaying={isPlaying}
+            isExpanded={isExpanded}
+            isSettingsExpanded={isSettingsExpanded}
+            songTime={songTime}
+            songDuration={songDuration}
+            areAudioNodesReady={areAudioNodesReady}
+            setIsPlaying={setIsPlaying}
+            setIsExpanded={setIsExpanded}
+            setIsSettingsExpanded={setIsSettingsExpanded}
+            playSong={playSong}
+            stopSong={stopSong}
+            setSongTime={setSongTime}
+            startVisualizer={startVisualizer}
+            useAttachEventListener={useAttachEventListener}
+          ></AudioController>
+        </div>
       </div>
     </>
   );
