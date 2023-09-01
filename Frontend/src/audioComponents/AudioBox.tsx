@@ -1438,7 +1438,7 @@ const AudioBox = ({ songData }: Props) => {
 
     // TODO : Save the parsed configuration object to the DB with a name, user, etc...
 
-    // console.log(JSON.stringify(configuration));
+    console.log(JSON.stringify(configuration));
     /*
     example of a saved configuration (make sure to add ` before and after JSON string below)
     {"data":[[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"New"}]],[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"New"}]],[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"Reverb","isEnabled":true,"impulse":0}]],[[{"type":"Blank"}]],[[{"type":"Blank"}]],[[{"type":"Blank"}]]]}
@@ -1447,7 +1447,6 @@ const AudioBox = ({ songData }: Props) => {
 
   let sleep = (seconds: number): Promise<void> => {
     // sleeping utility function
-
     return new Promise((res, rej) => {
       setTimeout(() => {
         res();
@@ -1458,43 +1457,23 @@ const AudioBox = ({ songData }: Props) => {
   const loadConfiguration = async () => {
     // works!
 
-    /*
-    load any configuration that was saved with saveConfiguration()
-    */
-    // let config = [
-    //   [
-    //     { type: "Blank" },
-    //     { type: "Highpass", frequency: 20, resonance: 0 },
-    //     { type: "Lowpass", frequency: 21000, resonance: 0 },
-    //   ],
-    //   [
-    //     { type: "Reverb" },
-    //     { type: "Highpass", frequency: 20, resonance: 0 },
-    //     { type: "Lowpass", frequency: 21000, resonance: 0 },
-    //   ],
-    //   [{ type: "New" }],
-    // ];
-
     let parsedConfig = JSON.parse(
       `{"data":[[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"New"}]],[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"New"}]],[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"Reverb","isEnabled":true,"impulse":0}]],[[{"type":"Blank"}]],[[{"type":"Blank"}]],[[{"type":"Blank"}]]]}`
     );
 
+    parsedConfig = JSON.parse(
+      `{"data":[[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":"265","resonance":"13"},{"type":"Lowpass","isEnabled":true,"frequency":"10483","resonance":"20"}],[{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0},{"type":"Reverb","isEnabled":true,"impulse":"1"}]],[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":"1905","resonance":"15"},{"type":"Lowpass","isEnabled":true,"frequency":"6852","resonance":"9"}],[{"type":"Reverb","isEnabled":true,"impulse":"2"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0},{"type":"New"}]],[[{"type":"Blank"},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0}],[{"type":"Reverb","isEnabled":true,"impulse":"3"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Reverb","isEnabled":true,"impulse":0}],[{"type":"New"}]],[[{"type":"Blank"}]],[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"Reverb","isEnabled":true,"impulse":"8"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}]],[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0},{"type":"Reverb","isEnabled":true,"impulse":"2"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0}],[{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}]]]}`
+    );
+
     for (let i = 0; i < parsedConfig.data.length; i++) {
-      console.log("Current track idx: " + i + " --------------------");
       currentTrackIdx! = i;
       setCurrentTrackIdx(i);
-      await sleep(0.1);
+      await sleep(0.005);
 
       let config = parsedConfig.data[i];
-      // console.log("Current track config: " + config + " --------------------");
       setAudioModules(config);
-      await sleep(0.1);
+      await sleep(0.005);
 
-      // console.log(
-      //   "Current track idx (audioNodes): " +
-      //     currentTrackIdx +
-      //     " --------------------"
-      // );
       let tempAudioNodesSubArr = audioNodes![currentTrackIdx];
 
       while (tempAudioNodesSubArr.length > 2) {
@@ -1503,15 +1482,13 @@ const AudioBox = ({ songData }: Props) => {
 
       audioNodes![currentTrackIdx] = tempAudioNodesSubArr;
       setAudioNodes(audioNodes);
-      await sleep(0.1);
-      console.log("Audio nodes cleared: " + audioNodes![currentTrackIdx]);
+      await sleep(0.005);
 
       // setAudioNodes(tempAudioNodes); // set cleared audioNodes before adding configured ones
       // above line of code is not requires because audioNodes will be changed by reference
+      settingsTracksData![currentTrackIdx].moduleCount = 0;
 
       let addNewAudioNodes = async () => {
-        console.log("configuration");
-        console.log(config);
         // Config is equivalent to the current audioModules
         for (let k = 0; k < config.length; k++) {
           for (let j = 0; j < config[k].length; j++) {
@@ -1526,7 +1503,7 @@ const AudioBox = ({ songData }: Props) => {
             }
             settingsTracksData![currentTrackIdx].moduleCount += 1;
             addAudioNode(config[k][j]); // add configured audio nodes
-            await sleep(0.1);
+            await sleep(0.005);
           }
         }
       };
@@ -1538,8 +1515,6 @@ const AudioBox = ({ songData }: Props) => {
     }
 
     setAudioModulesJSON(audioModulesJSON);
-    // console.log(audioModulesJSON);
-    console.log(audioNodes);
   };
 
   /*
