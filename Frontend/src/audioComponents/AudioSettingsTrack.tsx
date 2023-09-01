@@ -42,10 +42,12 @@ const AudioSettingsTrack = ({
   };
 
   const TrackNameStyle: CSS.Properties = {
-    // backgroundColor: "green",
     float: "left",
     marginLeft: "15px",
-    width: "15%",
+    width: "30%",
+    height: "90%",
+    overflow: "hidden",
+    // backgroundColor: "green",
   };
 
   const AudioModulesCountStyle: CSS.Properties = {
@@ -59,7 +61,7 @@ const AudioSettingsTrack = ({
 
   const IsEnabledButton: CSS.Properties = {
     position: "absolute",
-    marginLeft: "15%",
+    marginLeft: "30%",
     marginTop: "7.5px",
     width: "20px",
     height: "20px",
