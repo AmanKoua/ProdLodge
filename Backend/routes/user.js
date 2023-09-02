@@ -278,6 +278,7 @@ router.get("/songs", verifyTokenAndGetUser, async (req, res) => {
                 let chainSnapShot = {
                     name: tempChains[0].name,
                     data: tempChains[0].data,
+                    id: tempChains[0]._id, // send over id for deletion
                 }
                 tempChainsData.push(chainSnapShot);
             }
