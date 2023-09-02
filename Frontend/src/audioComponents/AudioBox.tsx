@@ -1424,11 +1424,28 @@ const AudioBox = ({ songData }: Props) => {
       parse audioModulesJson[index] -> 2d audioModules Object
     */
 
-    audioModulesJSON[currentTrackIdx] = JSON.stringify(audioModules); // save current track's audioModules as JSOn
+    // remove any "new" type modules before saving.
+
+    audioModulesJSON[currentTrackIdx] = JSON.stringify(audioModules); // save current track's audioModules as JSON
 
     let tempData = [];
 
     for (let i = 0; i < audioModulesJSON.length; i++) {
+      let tempAudioModules = JSON.parse(audioModulesJSON[i]);
+
+      let lastRow = tempAudioModules.length - 1;
+      let lastColumn = tempAudioModules[lastRow].length - 1;
+
+      if (tempAudioModules[lastRow][lastColumn].type === "New") {
+        tempAudioModules[lastRow].splice(lastColumn, 1);
+
+        if (tempAudioModules[lastRow].length === 0) {
+          tempAudioModules.splice(lastRow, 1);
+        }
+      }
+
+      audioModulesJSON[i] = JSON.stringify(tempAudioModules);
+
       tempData.push(JSON.parse(audioModulesJSON[i]));
     }
 
@@ -1454,15 +1471,53 @@ const AudioBox = ({ songData }: Props) => {
     });
   };
 
+  const clearConfiguration = async () => {
+    for (let i = 0; i < audioModulesJSON.length; i++) {
+      // save modules before switching over
+      setCurrentTrackIdx(i);
+      setAudioModules(JSON.parse(audioModulesJSON[i]));
+      await sleep(0.1);
+
+      let tempObject = {
+        type: "TrackChange",
+      };
+
+      editAudioNodeData(tempObject, []);
+      await sleep(0.1);
+
+      // get module count
+      let moduleCount = 0;
+
+      for (let j = 0; j < audioModules.length; j++) {
+        for (let k = 0; k < audioModules[j].length; k++) {
+          if (audioModules[j][k]) {
+            moduleCount++;
+          }
+        }
+      }
+
+      for (let j = 0; j < moduleCount - 1; j++) {
+        deleteAudioModuleAndNode([0, 1]);
+        await sleep(0.1);
+      }
+    }
+  };
+
   const loadConfiguration = async () => {
     // works!
 
-    let parsedConfig = JSON.parse(
-      `{"data":[[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"New"}]],[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"New"}]],[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"Reverb","isEnabled":true,"impulse":0}]],[[{"type":"Blank"}]],[[{"type":"Blank"}]],[[{"type":"Blank"}]]]}`
-    );
+    await clearConfiguration();
 
-    parsedConfig = JSON.parse(
-      `{"data":[[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":"265","resonance":"13"},{"type":"Lowpass","isEnabled":true,"frequency":"10483","resonance":"20"}],[{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0},{"type":"Reverb","isEnabled":true,"impulse":"1"}]],[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":"1905","resonance":"15"},{"type":"Lowpass","isEnabled":true,"frequency":"6852","resonance":"9"}],[{"type":"Reverb","isEnabled":true,"impulse":"2"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0},{"type":"New"}]],[[{"type":"Blank"},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0}],[{"type":"Reverb","isEnabled":true,"impulse":"3"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Reverb","isEnabled":true,"impulse":0}],[{"type":"New"}]],[[{"type":"Blank"}]],[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"Reverb","isEnabled":true,"impulse":"8"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}]],[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0},{"type":"Reverb","isEnabled":true,"impulse":"2"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0}],[{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}]]]}`
+    // let parsedConfig = JSON.parse(
+    //   `{"data":[[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"New"}]],[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"New"}]],[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"Reverb","isEnabled":true,"impulse":0}]],[[{"type":"Blank"}]],[[{"type":"Blank"}]],[[{"type":"Blank"}]]]}`
+    // );
+
+    // let parsedConfig = JSON.parse(
+    //   `{"data":[[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":"265","resonance":"13"},{"type":"Lowpass","isEnabled":true,"frequency":"10483","resonance":"20"}],[{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0},{"type":"Reverb","isEnabled":true,"impulse":"1"}]],[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":"1905","resonance":"15"},{"type":"Lowpass","isEnabled":true,"frequency":"6852","resonance":"9"}],[{"type":"Reverb","isEnabled":true,"impulse":"2"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0},{"type":"New"}]],[[{"type":"Blank"},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0}],[{"type":"Reverb","isEnabled":true,"impulse":"3"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Reverb","isEnabled":true,"impulse":0}],[{"type":"New"}]],[[{"type":"Blank"}]],[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"Reverb","isEnabled":true,"impulse":"8"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}]],[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0},{"type":"Reverb","isEnabled":true,"impulse":"2"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0}],[{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}]]]}`
+    // );
+
+    let parsedConfig = JSON.parse(
+      `{"data":[[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":"265","resonance":"13"},{"type":"Lowpass","isEnabled":true,"frequency":"10483","resonance":"20"}],[{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0},{"type":"Reverb","isEnabled":true,"impulse":"1"}]],[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":"1905","resonance":"15"},{"type":"Lowpass","isEnabled":true,"frequency":"6852","resonance":"9"}],[{"type":"Reverb","isEnabled":true,"impulse":"2"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}]],[[{"type":"Blank"},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0}],[{"type":"Reverb","isEnabled":true,"impulse":"3"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Reverb","isEnabled":true,"impulse":0}]],[[{"type":"Blank"}]],[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"Reverb","isEnabled":true,"impulse":"8"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}]],[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0},{"type":"Reverb","isEnabled":true,"impulse":"2"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0}],[{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}]]]}`
     );
 
     for (let i = 0; i < parsedConfig.data.length; i++) {
