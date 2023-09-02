@@ -117,6 +117,8 @@ const AudioBox = ({ songData }: Props) => {
   // AudioNodes (actual audio nodes)
   let audioNodes: AudioNode[][][] | undefined;
   let setAudioNodes: (val: any) => void;
+  let initAudioNodes: AudioNode[][][] | undefined; // audioNodes when first initialized
+  let setInitAudioNodes: (val: any) => void;
   let audioNodesChanged: boolean;
   let setAudioNodesChanged: (val: any) => void;
   let analyserNode: AudioNode | undefined;
@@ -127,6 +129,8 @@ const AudioBox = ({ songData }: Props) => {
   let setAudioModules: (val: Object[][]) => void;
   let audioModulesJSON: string[];
   let setAudioModulesJSON: (val: string[]) => void;
+  let initAudioModulesJSON: string[]; // audioModules when first initialized
+  let setInitAudioModulesJSON: (val: string[]) => void;
 
   // Canvas and context
   let canvas: HTMLCanvasElement | undefined;
@@ -175,6 +179,9 @@ const AudioBox = ({ songData }: Props) => {
   [hasUserGestured, setHasUserGestured] = useState(false); // Keep track of first gesture required to initialize audioCtx
 
   [audioModules, setAudioModules] = useState(tempModuleData); // Initial module will be the blank module
+  [initAudioModulesJSON, setInitAudioModulesJSON] = useState([
+    '[[{"type":"Blank"}]]',
+  ]);
   [audioModulesJSON, setAudioModulesJSON] = useState(['[[{"type":"Blank"}]]']); // JSON array, kept as state, to keep track of audioModule present for each track.
   [areAudioNodesReady, setAreAudioNodesReady] = useState(false);
 
@@ -185,6 +192,7 @@ const AudioBox = ({ songData }: Props) => {
   [impulseBuffers, setImpulseBuffers] = useState(undefined);
   [songDuration, setSongDuration] = useState(0);
   [audioNodes, setAudioNodes] = useState(undefined);
+  [initAudioNodes, setInitAudioNodes] = useState(undefined);
   [analyserNode, setAnalyserNode] = useState(undefined);
   [audioNodesChanged, setAudioNodesChanged] = useState(false);
   [dataArr, setDataArr] = useState(undefined);
@@ -316,6 +324,7 @@ const AudioBox = ({ songData }: Props) => {
         setSongDuration(tempTrackBuffers![0].duration);
         setSettingsTracksData(tempSettingsTracksData);
         setAudioModulesJSON(tempAudioModulesJSON);
+        setInitAudioModulesJSON(tempAudioModulesJSON);
         await createPrimaryNodes(tempTrackBuffers!, tempSettingsTracksData);
       };
 
@@ -352,6 +361,7 @@ const AudioBox = ({ songData }: Props) => {
         }
 
         setAudioNodes(tempAudioNodesArr);
+        setInitAudioNodes(tempAudioNodesArr);
         setAreAudioNodesReady(true);
       };
 
@@ -1511,6 +1521,11 @@ const AudioBox = ({ songData }: Props) => {
   const loadConfiguration = async () => {
     // works!
 
+    setAudioModulesJSON(initAudioModulesJSON);
+    setAudioNodes(initAudioNodes);
+    setAudioModules(JSON.parse(initAudioModulesJSON[0]));
+    await sleep(1);
+
     // console.log("-------- Clearing Config!-----------");
     // await clearConfiguration();
     // console.log("------ Cleared Config! -------------");
@@ -1530,11 +1545,11 @@ const AudioBox = ({ songData }: Props) => {
     for (let i = 0; i < parsedConfig.data.length; i++) {
       currentTrackIdx! = i;
       setCurrentTrackIdx(i);
-      await sleep(0.01);
+      await sleep(0.1);
 
       let config = parsedConfig.data[i];
       setAudioModules(config);
-      await sleep(0.01);
+      await sleep(0.1);
 
       let tempAudioNodesSubArr = audioNodes![currentTrackIdx];
 
@@ -1544,7 +1559,7 @@ const AudioBox = ({ songData }: Props) => {
 
       audioNodes![currentTrackIdx] = tempAudioNodesSubArr;
       setAudioNodes(audioNodes);
-      await sleep(0.01);
+      await sleep(0.1);
 
       // setAudioNodes(tempAudioNodes); // set cleared audioNodes before adding configured ones
       // above line of code is not requires because audioNodes will be changed by reference
@@ -1565,7 +1580,7 @@ const AudioBox = ({ songData }: Props) => {
             }
             settingsTracksData![currentTrackIdx].moduleCount += 1;
             addAudioNode(config[k][j]); // add configured audio nodes
-            await sleep(0.01);
+            await sleep(0.1);
           }
         }
       };
