@@ -1481,54 +1481,58 @@ const AudioBox = ({ songData }: Props) => {
     });
   };
 
-  const clearConfiguration = async () => {
-    audioModulesJSON[currentTrackIdx] = JSON.stringify(audioModules);
-    setAudioModulesJSON(audioModulesJSON);
-    await sleep(1);
+  // const clearConfiguration = async () => {
+  //   audioModulesJSON[currentTrackIdx] = JSON.stringify(audioModules);
+  //   setAudioModulesJSON(audioModulesJSON);
+  //   await sleep(1);
 
-    for (let i = 0; i < audioModulesJSON.length; i++) {
-      // save modules before switching over
-      setCurrentTrackIdx(i);
-      setAudioModules(JSON.parse(audioModulesJSON[i]));
-      await sleep(2);
+  //   for (let i = 0; i < audioModulesJSON.length; i++) {
+  //     // save modules before switching over
+  //     setCurrentTrackIdx(i);
+  //     setAudioModules(JSON.parse(audioModulesJSON[i]));
+  //     await sleep(2);
 
-      // let tempObject = {
-      //   type: "TrackChange",
-      // };
+  //     // let tempObject = {
+  //     //   type: "TrackChange",
+  //     // };
 
-      // editAudioNodeData(tempObject, []);
-      // await sleep(0.5);
+  //     // editAudioNodeData(tempObject, []);
+  //     // await sleep(0.5);
 
-      // get module count
-      let moduleCount = 0;
+  //     // get module count
+  //     let moduleCount = 0;
 
-      for (let j = 0; j < audioModules.length; j++) {
-        for (let k = 0; k < audioModules[j].length; k++) {
-          if (audioModules[j][k]) {
-            moduleCount++;
-          }
-        }
-      }
+  //     for (let j = 0; j < audioModules.length; j++) {
+  //       for (let k = 0; k < audioModules[j].length; k++) {
+  //         if (audioModules[j][k]) {
+  //           moduleCount++;
+  //         }
+  //       }
+  //     }
 
-      for (let j = 0; j < moduleCount - 1; j++) {
-        console.log("Deleting audioNode... ------------");
-        deleteAudioModuleAndNode([0, 1]);
-        await sleep(2);
-      }
-    }
-  };
+  //     for (let j = 0; j < moduleCount - 1; j++) {
+  //       console.log("Deleting audioNode... ------------");
+  //       deleteAudioModuleAndNode([0, 1]);
+  //       await sleep(2);
+  //     }
+  //   }
+  // };
 
   const loadConfiguration = async () => {
     // works!
 
+    /*  
+    Sleeping is required to avoid bug where there is a mismatch between the audioNodes and audioModules
+    when the useReconnectNodes hook is executed (which is quite often).
+    */
+
+    // Setting the audioModulesJSON, audioNodes, and audioModules to their initial state works for clearing previous config
     setAudioModulesJSON(initAudioModulesJSON);
     setAudioNodes(initAudioNodes);
     setAudioModules(JSON.parse(initAudioModulesJSON[0]));
-    await sleep(1);
+    await sleep(0.1);
 
-    // console.log("-------- Clearing Config!-----------");
     // await clearConfiguration();
-    // console.log("------ Cleared Config! -------------");
 
     // let parsedConfig = JSON.parse(
     //   `{"data":[[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"New"}]],[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"New"}]],[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"Reverb","isEnabled":true,"impulse":0}]],[[{"type":"Blank"}]],[[{"type":"Blank"}]],[[{"type":"Blank"}]]]}`
