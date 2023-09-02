@@ -13,8 +13,8 @@ interface Props {
   setAudioModules: (val: Object[][]) => void;
   setCurrentTrackIdx: (val: any) => void;
   setSettingsTracksData: (val: any) => void;
-  saveConfiguration: (name: string) => void;
-  loadConfiguration: (payload: string) => void;
+  saveConfiguration: (name: string) => Promise<boolean>;
+  loadConfiguration: (payload: string) => Promise<boolean>;
   editAudioNodeData: (data: Object, position: number[]) => void;
   setAudioNodesChanged: (val: any) => void;
 }
@@ -36,9 +36,12 @@ const AudioSettingsDrawer = ({
   setAudioNodesChanged,
 }: Props) => {
   const [isConfigSettingOpen, setIsConfigSettingsOpen] = useState(false);
+  const [configDivStyleHeight, setConfigDivStyleHeight] = useState("30px");
   const [isSaveConfig, setIsSaveConfig] = useState(false);
   const [configName, setConfigName] = useState("");
   const [songChainIdx, setSongChainIdx] = useState("invalid");
+  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
 
   const SettingsDrawerStyle: CSS.Properties = {
     position: "absolute",
@@ -67,7 +70,22 @@ const AudioSettingsDrawer = ({
     zIndex: "1",
   };
 
-  ConfigurationsDivStyle.height = isConfigSettingOpen ? "150px" : "30px";
+  // ConfigurationsDivStyle.height = isConfigSettingOpen ? "115px" : "30px";
+  ConfigurationsDivStyle.height = configDivStyleHeight;
+
+  const calcConfigDivHeight = () => {
+    if (isConfigSettingOpen && !error && !message) {
+      setConfigDivStyleHeight("115px");
+    } else if (isConfigSettingOpen && error && message) {
+      // both err and message
+      setConfigDivStyleHeight("205px");
+    } else if (isConfigSettingOpen && (error || message)) {
+      // err or message but not both
+      setConfigDivStyleHeight("145px");
+    } else {
+      setConfigDivStyleHeight("30px");
+    }
+  };
 
   const ConfigurationButtonStyle: CSS.Properties = {
     // writingMode: "vertical-rl",
@@ -111,6 +129,24 @@ const AudioSettingsDrawer = ({
 
   SettingsDrawerStyle.marginLeft = isSettingsExpanded ? "30%" : "100%";
 
+  const ErrorMessageStyle: CSS.Properties = {
+    width: "80%",
+    textAlign: "center",
+    marginTop: "35px",
+    marginLeft: "10%",
+    border: "2px solid red",
+    backgroundColor: "#f59a9a",
+  };
+
+  const MessageStyle: CSS.Properties = {
+    width: "80%",
+    textAlign: "center",
+    marginTop: "35px",
+    marginLeft: "10%",
+    border: "2px solid green",
+    backgroundColor: "#c4ffc4",
+  };
+
   const openSaveConfigSettings = () => {
     setIsSaveConfig(true);
     setIsConfigSettingsOpen(!isConfigSettingOpen);
@@ -133,16 +169,29 @@ const AudioSettingsDrawer = ({
           placeholder="Config name"
           value={configName}
           onChange={editConfigName}
-          style={{ width: "65%", marginLeft: "17.5%", marginTop: "35px" }}
+          style={{ width: "65%", marginLeft: "17.5%", marginTop: "15px" }}
         />
         <div
           style={ActionButtonStyle}
-          onClick={() => {
-            saveConfiguration(configName);
+          onClick={async () => {
+            setMessage("");
+            setError("");
+
+            let ok = await saveConfiguration(configName);
+
+            if (ok) {
+              setMessage("Configuration saved!");
+            } else {
+              setError("Error saving configuration!");
+            }
+
+            calcConfigDivHeight();
           }}
         >
           Save Configuration
         </div>
+        {error && <div style={ErrorMessageStyle}>{error}</div>}
+        {message && <div style={MessageStyle}>{message}</div>}
       </>
     );
 
@@ -158,7 +207,7 @@ const AudioSettingsDrawer = ({
           onChange={(e) => {
             setSongChainIdx(e.target.value);
           }}
-          style={{ width: "65%", marginLeft: "17.5%", marginTop: "35px" }}
+          style={{ width: "65%", marginLeft: "17.5%", marginTop: "15px" }}
         >
           <option key={-1} value={"invalid"}>
             Choose configuration
@@ -179,12 +228,25 @@ const AudioSettingsDrawer = ({
               // do not load this configuration
               return;
             } else {
-              loadConfiguration(songChains[songChainIdx].data);
+              setError("");
+              setMessage("");
+
+              let ok = await loadConfiguration(songChains[songChainIdx].data);
+
+              if (ok) {
+                setMessage("Configuration Loaded!");
+              } else {
+                setError("Configuration loading failed!");
+              }
+
+              calcConfigDivHeight();
             }
           }}
         >
           Load Configuration
         </div>
+        {error && <div style={ErrorMessageStyle}>{error}</div>}
+        {message && <div style={MessageStyle}>{message}</div>}
       </>
     );
 
@@ -228,11 +290,24 @@ const AudioSettingsDrawer = ({
       <div style={ConfigurationsDivStyle}>
         <div
           style={ConfigurationButtonStyle}
-          onClick={/*saveConfiguration*/ openSaveConfigSettings}
+          onClick={() => {
+            setIsSaveConfig(true);
+            setIsConfigSettingsOpen(!isConfigSettingOpen);
+            // openSaveConfigSettings();
+            calcConfigDivHeight();
+          }}
         >
           Save Configuration
         </div>
-        <div style={ConfigurationButtonStyle} onClick={openLoadConfigSettings}>
+        <div
+          style={ConfigurationButtonStyle}
+          onClick={() => {
+            setIsSaveConfig(false);
+            setIsConfigSettingsOpen(!isConfigSettingOpen);
+            // openLoadConfigSettings();
+            calcConfigDivHeight();
+          }}
+        >
           Load Configuration
         </div>
         <div style={ConfigurationOptionsStyle}>

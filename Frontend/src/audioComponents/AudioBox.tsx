@@ -1421,7 +1421,7 @@ const AudioBox = ({ songData }: Props) => {
     setAudioModules(tempAudioModulesData);
   };
 
-  const saveConfiguration = async (name: string) => {
+  const saveConfiguration = async (name: string): Promise<boolean> => {
     /*
     audioModulesJSON is an array of JSON objects. Each JSON object
     within audioModulesJSON is a stringified 2d array of audioModules
@@ -1479,9 +1479,10 @@ const AudioBox = ({ songData }: Props) => {
     });
 
     if (response.ok) {
-      const json = await response.json();
+      // const json = await response.json();
+      return true;
     } else {
-      console.log("Chain upload request failed!");
+      return false;
     }
 
     /*
@@ -1536,86 +1537,82 @@ const AudioBox = ({ songData }: Props) => {
   //   }
   // };
 
-  const loadConfiguration = async (payload: string) => {
-    // works!
+  const loadConfiguration = async (payload: string): Promise<boolean> => {
+    try {
+      /*  
+      Sleeping is required to avoid bug where there is a mismatch between the audioNodes and audioModules
+      when the useReconnectNodes hook is executed (which is quite often).
+      */
 
-    /*  
-    Sleeping is required to avoid bug where there is a mismatch between the audioNodes and audioModules
-    when the useReconnectNodes hook is executed (which is quite often).
-    */
-
-    // Setting the audioModulesJSON, audioNodes, and audioModules to their initial state works for clearing previous config
-    setAudioModulesJSON(initAudioModulesJSON);
-    setAudioNodes(initAudioNodes);
-    setAudioModules(JSON.parse(initAudioModulesJSON[0]));
-    await sleep(0.1);
-
-    // await clearConfiguration();
-
-    // let parsedConfig = JSON.parse(
-    //   `{"data":[[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"New"}]],[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"New"}]],[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"Reverb","isEnabled":true,"impulse":0}]],[[{"type":"Blank"}]],[[{"type":"Blank"}]],[[{"type":"Blank"}]]]}`
-    // );
-
-    // let parsedConfig = JSON.parse(
-    //   `{"data":[[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":"265","resonance":"13"},{"type":"Lowpass","isEnabled":true,"frequency":"10483","resonance":"20"}],[{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0},{"type":"Reverb","isEnabled":true,"impulse":"1"}]],[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":"1905","resonance":"15"},{"type":"Lowpass","isEnabled":true,"frequency":"6852","resonance":"9"}],[{"type":"Reverb","isEnabled":true,"impulse":"2"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0},{"type":"New"}]],[[{"type":"Blank"},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0}],[{"type":"Reverb","isEnabled":true,"impulse":"3"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Reverb","isEnabled":true,"impulse":0}],[{"type":"New"}]],[[{"type":"Blank"}]],[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"Reverb","isEnabled":true,"impulse":"8"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}]],[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0},{"type":"Reverb","isEnabled":true,"impulse":"2"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0}],[{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}]]]}`
-    // );
-
-    // let parsedConfig = JSON.parse(
-    //   `{"data":[[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":"265","resonance":"13"},{"type":"Lowpass","isEnabled":true,"frequency":"10483","resonance":"20"}],[{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0},{"type":"Reverb","isEnabled":true,"impulse":"1"}]],[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":"1905","resonance":"15"},{"type":"Lowpass","isEnabled":true,"frequency":"6852","resonance":"9"}],[{"type":"Reverb","isEnabled":true,"impulse":"2"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}]],[[{"type":"Blank"},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0}],[{"type":"Reverb","isEnabled":true,"impulse":"3"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Reverb","isEnabled":true,"impulse":0}]],[[{"type":"Blank"}]],[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"Reverb","isEnabled":true,"impulse":"8"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}]],[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0},{"type":"Reverb","isEnabled":true,"impulse":"2"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0}],[{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}]]]}`
-    // );
-
-    let parsedConfig = JSON.parse(payload);
-
-    for (let i = 0; i < parsedConfig.data.length; i++) {
-      currentTrackIdx! = i;
-      setCurrentTrackIdx(i);
+      // Setting the audioModulesJSON, audioNodes, and audioModules to their initial state works for clearing previous config
+      setAudioModulesJSON(initAudioModulesJSON);
+      setAudioNodes(initAudioNodes);
+      setAudioModules(JSON.parse(initAudioModulesJSON[0]));
       await sleep(0.1);
 
-      let config = parsedConfig.data[i];
-      setAudioModules(config);
-      await sleep(0.1);
+      // await clearConfiguration();
 
-      let tempAudioNodesSubArr = audioNodes![currentTrackIdx];
+      // let parsedConfig = JSON.parse( // Test configuration
+      //   `{"data":[[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":"265","resonance":"13"},{"type":"Lowpass","isEnabled":true,"frequency":"10483","resonance":"20"}],[{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0},{"type":"Reverb","isEnabled":true,"impulse":"1"}]],[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":"1905","resonance":"15"},{"type":"Lowpass","isEnabled":true,"frequency":"6852","resonance":"9"}],[{"type":"Reverb","isEnabled":true,"impulse":"2"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}]],[[{"type":"Blank"},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0}],[{"type":"Reverb","isEnabled":true,"impulse":"3"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Reverb","isEnabled":true,"impulse":0}]],[[{"type":"Blank"}]],[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"Reverb","isEnabled":true,"impulse":"8"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}]],[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0},{"type":"Reverb","isEnabled":true,"impulse":"2"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0}],[{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}]]]}`
+      // );
 
-      while (tempAudioNodesSubArr.length > 2) {
-        tempAudioNodesSubArr?.splice(1, 1); // delete all previous audioNodes EXCEPT AudioBufferSourceNode and gainNode
-      }
+      let parsedConfig = JSON.parse(payload);
 
-      audioNodes![currentTrackIdx] = tempAudioNodesSubArr;
-      setAudioNodes(audioNodes);
-      await sleep(0.1);
+      for (let i = 0; i < parsedConfig.data.length; i++) {
+        currentTrackIdx! = i;
+        setCurrentTrackIdx(i);
+        await sleep(0.1);
 
-      // setAudioNodes(tempAudioNodes); // set cleared audioNodes before adding configured ones
-      // above line of code is not requires because audioNodes will be changed by reference
-      settingsTracksData![currentTrackIdx].moduleCount = 0;
+        let config = parsedConfig.data[i];
+        setAudioModules(config);
+        await sleep(0.1);
 
-      let addNewAudioNodes = async () => {
-        // Config is equivalent to the current audioModules
-        for (let k = 0; k < config.length; k++) {
-          for (let j = 0; j < config[k].length; j++) {
-            if (k === 0 && j === 0) {
-              // skip blank module
-              continue;
-            }
+        let tempAudioNodesSubArr = audioNodes![currentTrackIdx];
 
-            if (config[k][j].type === "New") {
-              // dont add the new module as an audioNode
-              break;
-            }
-            settingsTracksData![currentTrackIdx].moduleCount += 1;
-            addAudioNode(config[k][j]); // add configured audio nodes
-            await sleep(0.1);
-          }
+        while (tempAudioNodesSubArr.length > 2) {
+          tempAudioNodesSubArr?.splice(1, 1); // delete all previous audioNodes EXCEPT AudioBufferSourceNode and gainNode
         }
-      };
 
-      await addNewAudioNodes();
+        audioNodes![currentTrackIdx] = tempAudioNodesSubArr;
+        setAudioNodes(audioNodes);
+        await sleep(0.1);
 
-      // save current audio module configuration
-      audioModulesJSON[currentTrackIdx] = JSON.stringify(config);
+        // setAudioNodes(tempAudioNodes); // set cleared audioNodes before adding configured ones
+        // above line of code is not requires because audioNodes will be changed by reference
+        settingsTracksData![currentTrackIdx].moduleCount = 0;
+
+        let addNewAudioNodes = async () => {
+          // Config is equivalent to the current audioModules
+          for (let k = 0; k < config.length; k++) {
+            for (let j = 0; j < config[k].length; j++) {
+              if (k === 0 && j === 0) {
+                // skip blank module
+                continue;
+              }
+
+              if (config[k][j].type === "New") {
+                // dont add the new module as an audioNode
+                break;
+              }
+              settingsTracksData![currentTrackIdx].moduleCount += 1;
+              addAudioNode(config[k][j]); // add configured audio nodes
+              await sleep(0.1);
+            }
+          }
+        };
+
+        await addNewAudioNodes();
+
+        // save current audio module configuration
+        audioModulesJSON[currentTrackIdx] = JSON.stringify(config);
+      }
+      setAudioModulesJSON(audioModulesJSON);
+
+      return true;
+    } catch (e) {
+      console.log(e);
+      return false;
     }
-
-    setAudioModulesJSON(audioModulesJSON);
   };
 
   /*
