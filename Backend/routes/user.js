@@ -9,6 +9,7 @@ const userProfile = require("../models/userProfileModel");
 const userActionItems = require("../models/userActionItemsModel");
 const userFriends = require("../models/userFriendsModel");
 const song = require("../models/songModel");
+const chain = require("../models/chainModel");
 
 const createToken = (_id) => {
     return jwt.sign({ _id: _id, }, process.env.SECRET, { expiresIn: '3d' })
@@ -256,13 +257,34 @@ router.get("/songs", verifyTokenAndGetUser, async (req, res) => {
     for (let i = 0; i < songs.length; i++) {
         let tempSong = {};
         let tempTrackIds = [];
+        let tempChainsData = [];
         tempSong.title = songs[i].title;
         tempSong.description = songs[i].description;
+        tempSong.id = songs[i]._id;
 
         for (let j = 0; j < songs[i].trackList.length; j++) {
             tempTrackIds.push(songs[i].trackList[j]._id.valueOf());
         }
 
+        for (let j = 0; j < songs[i].chainsList.length; j++) {
+
+            const tempChains = await chain.find({ _id: songs[i].chainsList[j] }).exec();
+
+            if (tempChains.length === 0) {
+                // Chain is not found OR deleted...
+                continue;
+            }
+            else {
+                let chainSnapShot = {
+                    name: tempChains[0].name,
+                    data: tempChains[0].data,
+                }
+                tempChainsData.push(chainSnapShot);
+            }
+
+        }
+
+        tempSong.chains = tempChainsData;
         tempSong.trackIds = tempTrackIds;
         payload.push(tempSong);
     }

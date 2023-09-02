@@ -59,7 +59,6 @@ interface Props {
 
 const AudioBox = ({ songData }: Props) => {
   // console.log("AudioBox Rerender!");
-
   let tracks: Object = {
     bass: bass,
     chords: chords,
@@ -1422,7 +1421,7 @@ const AudioBox = ({ songData }: Props) => {
     setAudioModules(tempAudioModulesData);
   };
 
-  const saveConfiguration = () => {
+  const saveConfiguration = async (name: string) => {
     /*
     audioModulesJSON is an array of JSON objects. Each JSON object
     within audioModulesJSON is a stringified 2d array of audioModules
@@ -1434,12 +1433,13 @@ const AudioBox = ({ songData }: Props) => {
       parse audioModulesJson[index] -> 2d audioModules Object
     */
 
-    // remove any "new" type modules before saving.
+    // TODO : Remove return statement after testing is completed
 
     audioModulesJSON[currentTrackIdx] = JSON.stringify(audioModules); // save current track's audioModules as JSON
 
     let tempData = [];
 
+    // remove any "new" type modules before saving.
     for (let i = 0; i < audioModulesJSON.length; i++) {
       let tempAudioModules = JSON.parse(audioModulesJSON[i]);
 
@@ -1463,9 +1463,27 @@ const AudioBox = ({ songData }: Props) => {
       data: tempData,
     };
 
-    // TODO : Save the parsed configuration object to the DB with a name, user, etc...
+    const tempBody = {
+      songId: songData.id,
+      chainName: name,
+      data: JSON.stringify(configuration),
+    };
 
-    console.log(JSON.stringify(configuration));
+    let response = await fetch(`http://localhost:8005/upload/chain`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json", // Required in order to server to receive req body
+        authorization: `Bearer ${authContext.user.token}`,
+      },
+      body: JSON.stringify(tempBody),
+    });
+
+    if (response.ok) {
+      const json = await response.json();
+    } else {
+      console.log("Chain upload request failed!");
+    }
+
     /*
     example of a saved configuration (make sure to add ` before and after JSON string below)
     {"data":[[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"New"}]],[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"New"}]],[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"Reverb","isEnabled":true,"impulse":0}]],[[{"type":"Blank"}]],[[{"type":"Blank"}]],[[{"type":"Blank"}]]]}
@@ -1518,7 +1536,7 @@ const AudioBox = ({ songData }: Props) => {
   //   }
   // };
 
-  const loadConfiguration = async () => {
+  const loadConfiguration = async (payload: string) => {
     // works!
 
     /*  
@@ -1542,9 +1560,11 @@ const AudioBox = ({ songData }: Props) => {
     //   `{"data":[[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":"265","resonance":"13"},{"type":"Lowpass","isEnabled":true,"frequency":"10483","resonance":"20"}],[{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0},{"type":"Reverb","isEnabled":true,"impulse":"1"}]],[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":"1905","resonance":"15"},{"type":"Lowpass","isEnabled":true,"frequency":"6852","resonance":"9"}],[{"type":"Reverb","isEnabled":true,"impulse":"2"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0},{"type":"New"}]],[[{"type":"Blank"},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0}],[{"type":"Reverb","isEnabled":true,"impulse":"3"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Reverb","isEnabled":true,"impulse":0}],[{"type":"New"}]],[[{"type":"Blank"}]],[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"Reverb","isEnabled":true,"impulse":"8"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}]],[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0},{"type":"Reverb","isEnabled":true,"impulse":"2"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0}],[{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}]]]}`
     // );
 
-    let parsedConfig = JSON.parse(
-      `{"data":[[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":"265","resonance":"13"},{"type":"Lowpass","isEnabled":true,"frequency":"10483","resonance":"20"}],[{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0},{"type":"Reverb","isEnabled":true,"impulse":"1"}]],[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":"1905","resonance":"15"},{"type":"Lowpass","isEnabled":true,"frequency":"6852","resonance":"9"}],[{"type":"Reverb","isEnabled":true,"impulse":"2"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}]],[[{"type":"Blank"},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0}],[{"type":"Reverb","isEnabled":true,"impulse":"3"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Reverb","isEnabled":true,"impulse":0}]],[[{"type":"Blank"}]],[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"Reverb","isEnabled":true,"impulse":"8"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}]],[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0},{"type":"Reverb","isEnabled":true,"impulse":"2"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0}],[{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}]]]}`
-    );
+    // let parsedConfig = JSON.parse(
+    //   `{"data":[[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":"265","resonance":"13"},{"type":"Lowpass","isEnabled":true,"frequency":"10483","resonance":"20"}],[{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0},{"type":"Reverb","isEnabled":true,"impulse":"1"}]],[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":"1905","resonance":"15"},{"type":"Lowpass","isEnabled":true,"frequency":"6852","resonance":"9"}],[{"type":"Reverb","isEnabled":true,"impulse":"2"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}]],[[{"type":"Blank"},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0}],[{"type":"Reverb","isEnabled":true,"impulse":"3"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Reverb","isEnabled":true,"impulse":0}]],[[{"type":"Blank"}]],[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"Reverb","isEnabled":true,"impulse":"8"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}]],[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0},{"type":"Reverb","isEnabled":true,"impulse":"2"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0}],[{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}]]]}`
+    // );
+
+    let parsedConfig = JSON.parse(payload);
 
     for (let i = 0; i < parsedConfig.data.length; i++) {
       currentTrackIdx! = i;
@@ -1664,6 +1684,7 @@ const AudioBox = ({ songData }: Props) => {
             Settings
           </div>
           <AudioSettingsDrawer
+            songChains={songData.chains}
             settingsTracksData={settingsTracksData}
             audioModulesJSON={audioModulesJSON}
             audioModules={audioModules}

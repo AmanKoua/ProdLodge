@@ -23,7 +23,6 @@ const Home = () => {
       });
 
       let json = await response.json();
-
       setUserSongPayload(json.payload);
       setIsUserSongPayloadSet(true);
     };
