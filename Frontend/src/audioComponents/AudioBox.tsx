@@ -1469,7 +1469,7 @@ const AudioBox = ({ songData }: Props) => {
       data: JSON.stringify(configuration),
     };
 
-    let response = await fetch(`http://localhost:8005/upload/chain`, {
+    let response = await fetch(`http://localhost:8005/chain/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json", // Required in order to server to receive req body
@@ -1615,6 +1615,25 @@ const AudioBox = ({ songData }: Props) => {
     }
   };
 
+  const deleteConfiguration = async (chainId: string): Promise<boolean> => {
+    let response = await fetch(`http://localhost:8005/chain/`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json", // Required in order to server to receive req body
+        authorization: `Bearer ${authContext.user.token}`,
+      },
+      body: JSON.stringify({
+        chainId: chainId,
+      }),
+    });
+
+    if (response.ok) {
+      return true;
+    } else {
+      return false;
+    }
+  };
+
   /*
     Generate the UI for audio modules that are displayed
   */
@@ -1693,6 +1712,7 @@ const AudioBox = ({ songData }: Props) => {
             setSettingsTracksData={setSettingsTracksData}
             saveConfiguration={saveConfiguration}
             loadConfiguration={loadConfiguration}
+            deleteConfiguration={deleteConfiguration}
             editAudioNodeData={editAudioNodeData}
             setAudioNodesChanged={setAudioNodesChanged}
           ></AudioSettingsDrawer>

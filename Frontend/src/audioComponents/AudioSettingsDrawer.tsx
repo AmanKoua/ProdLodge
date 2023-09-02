@@ -15,6 +15,7 @@ interface Props {
   setSettingsTracksData: (val: any) => void;
   saveConfiguration: (name: string) => Promise<boolean>;
   loadConfiguration: (payload: string) => Promise<boolean>;
+  deleteConfiguration: (chainId: string) => Promise<boolean>;
   editAudioNodeData: (data: Object, position: number[]) => void;
   setAudioNodesChanged: (val: any) => void;
 }
@@ -32,6 +33,7 @@ const AudioSettingsDrawer = ({
   setSettingsTracksData,
   saveConfiguration,
   loadConfiguration,
+  deleteConfiguration,
   editAudioNodeData,
   setAudioNodesChanged,
 }: Props) => {
@@ -104,10 +106,25 @@ const AudioSettingsDrawer = ({
   };
 
   const ActionButtonStyle: CSS.Properties = {
-    // writingMode: "vertical-rl",
     position: "relative",
     float: "left",
     marginLeft: "37.5%",
+    marginTop: "2%",
+    width: "25%",
+    height: "15px",
+    border: "1px solid black",
+    borderRadius: "6px",
+    fontSize: "10px",
+    textAlign: "center",
+    // backgroundColor: "blue",
+    zIndex: "2",
+  };
+
+  const CustomActionButtonStyle: CSS.Properties = {
+    // have 2 action buttons side by side
+    position: "relative",
+    float: "left",
+    marginLeft: "16%",
     marginTop: "2%",
     width: "25%",
     height: "15px",
@@ -222,7 +239,7 @@ const AudioSettingsDrawer = ({
           })}
         </select>
         <div
-          style={ActionButtonStyle}
+          style={CustomActionButtonStyle}
           onClick={async () => {
             if (songChainIdx === "invalid") {
               // do not load this configuration
@@ -244,6 +261,28 @@ const AudioSettingsDrawer = ({
           }}
         >
           Load Configuration
+        </div>
+        <div
+          style={CustomActionButtonStyle}
+          onClick={async () => {
+            setMessage("");
+            setError("");
+
+            if (songChainIdx === "invalid") {
+              // ignore
+              return;
+            }
+
+            const ok = await deleteConfiguration(songChains[songChainIdx].id);
+
+            if (ok) {
+              setMessage("Configuration Deleted!");
+            } else {
+              setError("Error deleting configuration!");
+            }
+          }}
+        >
+          Delete Configuration
         </div>
         {error && <div style={ErrorMessageStyle}>{error}</div>}
         {message && <div style={MessageStyle}>{message}</div>}

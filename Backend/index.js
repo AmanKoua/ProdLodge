@@ -7,6 +7,7 @@ const cors = require('cors');
 const userRouter = require('./routes/user');
 const uploadRouter = require('./routes/upload');
 const tracksRouter = require("./routes/tracks");
+const chainsRouter = require('./routes/chain')
 
 require('dotenv').config();
 
@@ -18,6 +19,7 @@ app.use(express.json());
 app.use('/user', userRouter);
 app.use('/upload', uploadRouter);
 app.use('/tracks', tracksRouter);
+app.use('/chain', chainsRouter);
 
 app.get('/', (req, res) => {
     res.status(200).json({ message: "Hello to prodlodge!" })
