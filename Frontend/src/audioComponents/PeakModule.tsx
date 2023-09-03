@@ -3,6 +3,8 @@ import deleteButton from "../assets/delete.png";
 import moveLeftButton from "../assets/moveLeft.png";
 import moveRightButton from "../assets/moveRight.png";
 
+import "../invisibleScrollbar.css";
+
 interface Props {
   data: Object;
   position: number[];
@@ -153,7 +155,7 @@ const PeakModule = ({
   };
 
   return (
-    <div style={AudioModuleStyle}>
+    <div style={AudioModuleStyle} className="hide-scrollbar">
       <div style={CenterDivStyle}>
         <img
           src={moveLeftButton}
