@@ -23,11 +23,8 @@ const NavBar = () => {
   const generateUserAuthSection = () => {
     const handleLogoutClick = () => {
       authContext.dispatch({ type: "LOGOUT", payload: undefined });
-
-      if (location.pathname === "/myProfile") {
-        // if logging out on profile page, redirect to home page
-        navigate("/");
-      }
+      localStorage.removeItem("user");
+      navigate("/login");
     };
 
     if (authContext.user) {
