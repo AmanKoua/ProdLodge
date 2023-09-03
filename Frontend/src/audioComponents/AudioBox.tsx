@@ -1138,6 +1138,18 @@ const AudioBox = ({ songData }: Props) => {
           setAudioNodesChanged(true);
         }, 10);
         break;
+      case "Peak":
+        tempAudioNode = aCtx!.createBiquadFilter();
+        tempAudioNode.type = "peaking";
+        tempAudioNode.frequency.value = 10000;
+        tempAudioNode.Q.value = 1;
+        tempAudioNode.gain.value = 25;
+        insertAudioNode(audioNodes, tempAudioNode, currentTrackIdx);
+        setAudioNodes(audioNodes);
+        setTimeout(() => {
+          setAudioNodesChanged(true);
+        }, 10);
+        break;
       case "Reverb":
         tempAudioNode = aCtx!.createConvolver();
         tempAudioNode.buffer = impulseBuffers[1];
@@ -1354,9 +1366,16 @@ const AudioBox = ({ songData }: Props) => {
     // console.log(tempAudioNodes![position[0] + 1][position[1]]);
     // console.log(tempAudioNodes, row, column);
 
-    if (data.type === "Highpass" || data.type === "Lowpass") {
+    if (
+      data.type === "Highpass" ||
+      data.type === "Lowpass" ||
+      data.type === "Peak"
+    ) {
       tempAudioNodesSubArr![row][column].frequency.value = data.frequency;
       tempAudioNodesSubArr![row][column].Q.value = data.resonance;
+      if (data.type === "Peak") {
+        tempAudioNodesSubArr![row][column].gain.value = data.gain;
+      }
     } else if (data.type === "Reverb") {
       tempAudioNodesSubArr![row][column].buffer = impulseBuffers![data.impulse];
     } else if (data.type === "TrackChange") {
@@ -1413,8 +1432,12 @@ const AudioBox = ({ songData }: Props) => {
     } else if (type === "Lowpass") {
       tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].frequency = 21000;
       tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].resonance = 0;
+    } else if (type === "Peak") {
+      tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].frequency = 10000;
+      tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].resonance = 1;
+      tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].gain = 15;
     } else if (type === "Reverb") {
-      tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].impulse = 0;
+      tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].impulse = 1;
     }
 
     addAudioNode(tempAudioModulesData[moduleIndex[0]][moduleIndex[1]]);

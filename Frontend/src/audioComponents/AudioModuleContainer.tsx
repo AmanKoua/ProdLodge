@@ -3,6 +3,7 @@ import BlankAudioModule from "./BlankAudioModule";
 import NewAudioModule from "./NewAudioModule";
 import HighPassModule from "./HighPassModule";
 import LowPassModule from "./LowPassModule";
+import PeakModule from "./PeakModule";
 import ReverbModule from "./ReverbModule";
 import CSS from "csstype";
 
@@ -82,6 +83,18 @@ const AudioModuleContainer = ({
             key={idx}
           ></LowPassModule>
         );
+      case "Peak":
+        return (
+          <PeakModule
+            data={data}
+            position={[containerIdx, idx]}
+            editAudioNodeData={editAudioNodeData}
+            deleteAudioModuleAndNode={deleteAudioModuleAndNode}
+            setAudioNodesChanged={setAudioNodesChanged}
+            moveAudioModuleAndNode={moveAudioModuleAndNode}
+            key={idx}
+          ></PeakModule>
+        );
       case "Reverb":
         return (
           <ReverbModule
@@ -96,6 +109,7 @@ const AudioModuleContainer = ({
         );
       default:
         console.log("Unsupported module added!");
+        return <></>;
     }
 
     return <></>;
