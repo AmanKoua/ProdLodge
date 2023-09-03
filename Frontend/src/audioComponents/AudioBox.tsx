@@ -55,9 +55,10 @@ import impulse18 from "../assets/impulseResponses/18.wav";
 
 interface Props {
   songData: Object;
+  setIsUserSongPayloadSet: (val: boolean) => void;
 }
 
-const AudioBox = ({ songData }: Props) => {
+const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
   // console.log("AudioBox Rerender!");
   let tracks: Object = {
     bass: bass,
@@ -1121,7 +1122,8 @@ const AudioBox = ({ songData }: Props) => {
       case "Highpass":
         tempAudioNode = aCtx!.createBiquadFilter();
         tempAudioNode.type = "highpass";
-        tempAudioNode.frequency.value = 20;
+        tempAudioNode.frequency.value = data.frequency;
+        tempAudioNode.Q.value = data.resonance;
         insertAudioNode(audioNodes, tempAudioNode, currentTrackIdx);
         setAudioNodes(audioNodes);
         setTimeout(() => {
@@ -1131,7 +1133,8 @@ const AudioBox = ({ songData }: Props) => {
       case "Lowpass":
         tempAudioNode = aCtx!.createBiquadFilter();
         tempAudioNode.type = "lowpass";
-        tempAudioNode.frequency.value = 21000;
+        tempAudioNode.frequency.value = data.frequency;
+        tempAudioNode.Q.value = data.resonance;
         insertAudioNode(audioNodes, tempAudioNode, currentTrackIdx);
         setAudioNodes(audioNodes);
         setTimeout(() => {
@@ -1141,9 +1144,9 @@ const AudioBox = ({ songData }: Props) => {
       case "Peak":
         tempAudioNode = aCtx!.createBiquadFilter();
         tempAudioNode.type = "peaking";
-        tempAudioNode.frequency.value = 10000;
-        tempAudioNode.Q.value = 1;
-        tempAudioNode.gain.value = 25;
+        tempAudioNode.frequency.value = data.frequency;
+        tempAudioNode.Q.value = data.resonance;
+        tempAudioNode.gain.value = data.gain;
         insertAudioNode(audioNodes, tempAudioNode, currentTrackIdx);
         setAudioNodes(audioNodes);
         setTimeout(() => {
@@ -1152,7 +1155,7 @@ const AudioBox = ({ songData }: Props) => {
         break;
       case "Reverb":
         tempAudioNode = aCtx!.createConvolver();
-        tempAudioNode.buffer = impulseBuffers[1];
+        tempAudioNode.buffer = impulseBuffers[data.impulse];
         insertAudioNode(audioNodes, tempAudioNode, currentTrackIdx);
         setAudioNodes(audioNodes);
         setTimeout(() => {
@@ -1503,6 +1506,7 @@ const AudioBox = ({ songData }: Props) => {
 
     if (response.ok) {
       // const json = await response.json();
+      setIsUserSongPayloadSet(false); // trigger refetching if user song data from backend
       return true;
     } else {
       return false;
@@ -1561,6 +1565,8 @@ const AudioBox = ({ songData }: Props) => {
   // };
 
   const loadConfiguration = async (payload: string): Promise<boolean> => {
+    const sleepFactor = 0.2; // Require sleeping to avoid audioModules undefined error when reconnecting audioNodes
+
     try {
       /*  
       Sleeping is required to avoid bug where there is a mismatch between the audioNodes and audioModules
@@ -1571,7 +1577,7 @@ const AudioBox = ({ songData }: Props) => {
       setAudioModulesJSON(initAudioModulesJSON);
       setAudioNodes(initAudioNodes);
       setAudioModules(JSON.parse(initAudioModulesJSON[0]));
-      await sleep(0.1);
+      await sleep(sleepFactor);
 
       // await clearConfiguration();
 
@@ -1585,11 +1591,11 @@ const AudioBox = ({ songData }: Props) => {
       for (let i = 0; i < parsedConfig.data.length; i++) {
         currentTrackIdx! = i;
         setCurrentTrackIdx(i);
-        await sleep(0.1);
+        await sleep(sleepFactor);
 
         let config = parsedConfig.data[i];
         setAudioModules(config);
-        await sleep(0.1);
+        await sleep(sleepFactor);
 
         let tempAudioNodesSubArr = audioNodes![currentTrackIdx];
 
@@ -1599,7 +1605,7 @@ const AudioBox = ({ songData }: Props) => {
 
         audioNodes![currentTrackIdx] = tempAudioNodesSubArr;
         setAudioNodes(audioNodes);
-        await sleep(0.1);
+        await sleep(sleepFactor);
 
         // setAudioNodes(tempAudioNodes); // set cleared audioNodes before adding configured ones
         // above line of code is not requires because audioNodes will be changed by reference
@@ -1620,7 +1626,7 @@ const AudioBox = ({ songData }: Props) => {
               }
               settingsTracksData![currentTrackIdx].moduleCount += 1;
               addAudioNode(config[k][j]); // add configured audio nodes
-              await sleep(0.1);
+              await sleep(sleepFactor);
             }
           }
         };

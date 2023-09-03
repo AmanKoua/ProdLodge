@@ -44,7 +44,11 @@ const Home = () => {
     let audioBoxFragment = (
       <>
         {userSongPayload.map((item, idx) => (
-          <AudioBox songData={item} key={idx}></AudioBox>
+          <AudioBox
+            songData={item}
+            setIsUserSongPayloadSet={setIsUserSongPayloadSet}
+            key={idx}
+          ></AudioBox>
         ))}
       </>
     );
