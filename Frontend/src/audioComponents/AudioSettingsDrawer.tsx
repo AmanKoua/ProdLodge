@@ -72,8 +72,7 @@ const AudioSettingsDrawer = ({
     zIndex: "1",
   };
 
-  // ConfigurationsDivStyle.height = isConfigSettingOpen ? "115px" : "30px";
-  ConfigurationsDivStyle.height = configDivStyleHeight;
+  ConfigurationsDivStyle.height = isConfigSettingOpen ? "180px" : "30px";
 
   const calcConfigDivHeight = () => {
     if (isConfigSettingOpen && !error && !message) {
@@ -155,14 +154,18 @@ const AudioSettingsDrawer = ({
     backgroundColor: "#f59a9a",
   };
 
+  ErrorMessageStyle.marginTop = message ? "35px" : "55px";
+
   const MessageStyle: CSS.Properties = {
     width: "80%",
     textAlign: "center",
-    marginTop: "35px",
+    marginTop: "10px",
     marginLeft: "10%",
     border: "2px solid green",
     backgroundColor: "#c4ffc4",
   };
+
+  MessageStyle.marginTop = error ? "10px" : "55px";
 
   const openSaveConfigSettings = () => {
     setIsSaveConfig(true);
@@ -202,7 +205,7 @@ const AudioSettingsDrawer = ({
               setError("Error saving configuration!");
             }
 
-            calcConfigDivHeight();
+            // calcConfigDivHeight();
           }}
         >
           Save Configuration
@@ -256,7 +259,7 @@ const AudioSettingsDrawer = ({
                 setError("Configuration loading failed!");
               }
 
-              calcConfigDivHeight();
+              // calcConfigDivHeight();
             }
           }}
         >
@@ -330,10 +333,14 @@ const AudioSettingsDrawer = ({
         <div
           style={ConfigurationButtonStyle}
           onClick={() => {
-            setIsSaveConfig(true);
-            setIsConfigSettingsOpen(!isConfigSettingOpen);
+            if (isSaveConfig) {
+              setIsConfigSettingsOpen(!isConfigSettingOpen);
+            } else {
+              setIsSaveConfig(true);
+            }
+
             // openSaveConfigSettings();
-            calcConfigDivHeight();
+            // calcConfigDivHeight();
           }}
         >
           Save Configuration
@@ -341,10 +348,14 @@ const AudioSettingsDrawer = ({
         <div
           style={ConfigurationButtonStyle}
           onClick={() => {
-            setIsSaveConfig(false);
-            setIsConfigSettingsOpen(!isConfigSettingOpen);
+            if (!isSaveConfig) {
+              setIsConfigSettingsOpen(!isConfigSettingOpen);
+            } else {
+              setIsSaveConfig(false);
+            }
+
             // openLoadConfigSettings();
-            calcConfigDivHeight();
+            // calcConfigDivHeight();
           }}
         >
           Load Configuration
