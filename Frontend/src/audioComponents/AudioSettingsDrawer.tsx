@@ -197,6 +197,18 @@ const AudioSettingsDrawer = ({
             setMessage("");
             setError("");
 
+            if (!configName) {
+              setError("Cannot save configuration without name!");
+              return;
+            }
+
+            if (configName.length > 25) {
+              setError(
+                `Config name too long (limit 25, current ${configName.length})`
+              );
+              return;
+            }
+
             let ok = await saveConfiguration(configName);
 
             if (ok) {
