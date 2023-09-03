@@ -1,6 +1,7 @@
 import { useState } from "react";
 import CSS from "csstype";
 import AudioSettingsTrack from "./AudioSettingsTrack";
+import "../invisibleScrollbar.css";
 
 interface Props {
   songChains: Object[]; // [{name: ..., data: ....}]
@@ -340,7 +341,7 @@ const AudioSettingsDrawer = ({
   };
 
   return (
-    <div style={SettingsDrawerStyle}>
+    <div style={SettingsDrawerStyle} className="hide-scrollbar">
       <div style={ConfigurationsDivStyle}>
         <div
           style={ConfigurationButtonStyle}

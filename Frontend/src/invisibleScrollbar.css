@@ -1,8 +1,5 @@
 
-.hide-scrollbar {
-    /* Set a fixed height for your component to enable scrolling */
-    height: 300px; /* Adjust the height as needed */
-  
+.hide-scrollbar {  
     /* Make the scrollbar transparent */
     scrollbar-width: thin;
     scrollbar-color: transparent transparent;
@@ -10,7 +7,7 @@
   
   /* Define the scrollbar styles for webkit browsers (e.g., Chrome) */
   .hide-scrollbar::-webkit-scrollbar {
-    width: 6px; /* Adjust the width as needed */
+    width: 0px; /* Adjust the width as needed */
   }
   
   .hide-scrollbar::-webkit-scrollbar-thumb {
