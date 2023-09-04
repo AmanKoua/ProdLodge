@@ -30,6 +30,12 @@ export interface AudioModule {
   gain?: number;
   impulse?: number;
   amount?: number;
+  threshold?: number;
+  knee?: number;
+  ratio?: number;
+  reduction?: number;
+  attack?: number;
+  release?: number;
 }
 
 // NewSong types

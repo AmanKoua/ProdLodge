@@ -1188,6 +1188,20 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
           setAudioNodesChanged(true);
         }, 10);
         break;
+      case "Compression":
+        tempAudioNode = aCtx!.createDynamicsCompressor();
+        tempAudioNode.threshold.value = data.threshold;
+        tempAudioNode.knee.value = data.knee;
+        tempAudioNode.ratio.value = data.ratio;
+        // tempAudioNode.reduction = data.reduction;
+        tempAudioNode.attack.value = data.attack;
+        tempAudioNode.release.value = data.release;
+        insertAudioNode(audioNodes, tempAudioNode, currentTrackIdx);
+        setAudioNodes(audioNodes);
+        setTimeout(() => {
+          setAudioNodesChanged(true);
+        }, 10);
+        break;
       default:
         console.log("Invalid audioNode type added!");
         return;
@@ -1386,6 +1400,8 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
   };
 
   const editAudioNodeData = (data: AudioModule, position: number[]) => {
+    console.log(data);
+
     let tempAudioNodesSubArr = audioNodes![currentTrackIdx];
 
     // Offset row and column to account for structure of audioNodes array
@@ -1418,6 +1434,13 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
       );
     } else if (data.type === "Gain") {
       tempAudioNodesSubArr![row][column].gain.value = data.amount;
+    } else if (data.type === "Compression") {
+      tempAudioNodesSubArr![row][column].threshold.value = data.threshold;
+      tempAudioNodesSubArr![row][column].knee.value = data.knee;
+      tempAudioNodesSubArr![row][column].ratio.value = data.ratio;
+      // tempAudioNodesSubArr![row][column].reduction = data.reduction;
+      tempAudioNodesSubArr![row][column].attack.value = data.attack / 1000;
+      tempAudioNodesSubArr![row][column].release.value = data.release / 1000;
     } else if (data.type === "TrackChange") {
       // currentTrackIdx is changed in AudioSettingsTrack, which should automatically update currently selected track
     }
@@ -1480,9 +1503,15 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
       tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].impulse = 1;
     } else if (type === "Waveshaper") {
       tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].amount = 1;
-      // tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].curve = 1;
     } else if (type === "Gain") {
       tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].amount = 1.0;
+    } else if (type === "Compression") {
+      tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].threshold = 0;
+      tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].knee = 0;
+      tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].ratio = 1;
+      // tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].reduction = 0;
+      tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].attack = 0.1;
+      tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].release = 0.1;
     } else {
       console.log("Unsupported module type added!");
       return;

@@ -7,6 +7,7 @@ import PeakModule from "./PeakModule";
 import ReverbModule from "./ReverbModule";
 import WaveShaperModule from "./WaveShaperModule";
 import GainModule from "./GainModule";
+import CompressionModule from "./CompressionModule";
 import CSS from "csstype";
 
 import { AudioModule } from "../customTypes";
@@ -134,6 +135,18 @@ const AudioModuleContainer = ({
             moveAudioModuleAndNode={moveAudioModuleAndNode}
             key={idx}
           ></GainModule>
+        );
+      case "Compression":
+        return (
+          <CompressionModule
+            data={data}
+            position={[containerIdx, idx]}
+            editAudioNodeData={editAudioNodeData}
+            setAudioNodesChanged={setAudioNodesChanged}
+            deleteAudioModuleAndNode={deleteAudioModuleAndNode}
+            moveAudioModuleAndNode={moveAudioModuleAndNode}
+            key={idx}
+          ></CompressionModule>
         );
       default:
         console.log("Unsupported module added!");

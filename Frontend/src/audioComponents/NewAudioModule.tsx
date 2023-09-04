@@ -66,6 +66,7 @@ const NewAudioModule = ({ position, setModuleType }: Props) => {
           <option value={"Reverb"}>Reverb</option>
           <option value={"Waveshaper"}>Waveshaper</option>
           <option value={"Gain"}>Gain</option>
+          <option value={"Compression"}>Compression</option>
         </select>
       </div>
     </div>
