@@ -13,7 +13,7 @@ interface Props {
   deleteAudioModuleAndNode: (position: number[]) => void;
   moveAudioModuleAndNode: (position: number[], isLeft: boolean) => void;
 }
-const WaveShaperModule = ({
+const GainModule = ({
   data,
   position,
   deleteAudioModuleAndNode,
@@ -120,7 +120,7 @@ const WaveShaperModule = ({
   const handleSliderChange = (event: any) => {
     // HELL YEAH!
     let tempData = data;
-    tempData.amount = event.target.value;
+    tempData.amount = event.target.value / 100;
     editAudioNodeData(data, position);
   };
 
@@ -154,15 +154,15 @@ const WaveShaperModule = ({
           style={MoveRightButtonStyle}
           onClick={handleRightButtonClick}
         ></img>
-        <h1 style={ModuleNameTextStyle}>Waveshaper</h1>
+        <h1 style={ModuleNameTextStyle}>Gain</h1>
         <div style={CenterAttributeTextDivStyle}>
-          <p style={AttributeTextStyle}>Amount : {data.amount / 100}</p>
+          <p style={AttributeTextStyle}>Amount : {data.amount}</p>
         </div>
         <input
           type={"range"}
-          value={data.amount}
+          value={data.amount * 100}
           min={0}
-          max={600}
+          max={500}
           style={SliderStyle}
           onChange={handleSliderChange}
         ></input>
@@ -181,4 +181,4 @@ const WaveShaperModule = ({
   );
 };
 
-export default WaveShaperModule;
+export default GainModule;

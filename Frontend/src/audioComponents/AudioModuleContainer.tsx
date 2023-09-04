@@ -6,6 +6,7 @@ import LowPassModule from "./LowPassModule";
 import PeakModule from "./PeakModule";
 import ReverbModule from "./ReverbModule";
 import WaveShaperModule from "./WaveShaperModule";
+import GainModule from "./GainModule";
 import CSS from "csstype";
 
 interface Props {
@@ -119,6 +120,18 @@ const AudioModuleContainer = ({
             moveAudioModuleAndNode={moveAudioModuleAndNode}
             key={idx}
           ></WaveShaperModule>
+        );
+      case "Gain":
+        return (
+          <GainModule
+            data={data}
+            position={[containerIdx, idx]}
+            editAudioNodeData={editAudioNodeData}
+            setAudioNodesChanged={setAudioNodesChanged}
+            deleteAudioModuleAndNode={deleteAudioModuleAndNode}
+            moveAudioModuleAndNode={moveAudioModuleAndNode}
+            key={idx}
+          ></GainModule>
         );
       default:
         console.log("Unsupported module added!");

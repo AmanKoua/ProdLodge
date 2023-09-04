@@ -1185,6 +1185,15 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
           setAudioNodesChanged(true);
         }, 10);
         break;
+      case "Gain":
+        tempAudioNode = aCtx!.createGain();
+        tempAudioNode.gain.value = data.amount;
+        insertAudioNode(audioNodes, tempAudioNode, currentTrackIdx);
+        setAudioNodes(audioNodes);
+        setTimeout(() => {
+          setAudioNodesChanged(true);
+        }, 10);
+        break;
       default:
         console.log("Invalid audioNode type added!");
         return;
@@ -1410,6 +1419,8 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
       tempAudioNodesSubArr![row][column].buffer = impulseBuffers![data.impulse];
     } else if (data.type === "Waveshaper") {
       tempAudioNodesSubArr![row][column].curve = generateDistcurve(data.amount);
+    } else if (data.type === "Gain") {
+      tempAudioNodesSubArr![row][column].gain.value = data.amount;
     } else if (data.type === "TrackChange") {
       // currentTrackIdx is changed in AudioSettingsTrack, which should automatically update currently selected track
     }
@@ -1474,6 +1485,8 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
       tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].amount = 1;
       tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].curve =
         generateDistcurve(1);
+    } else if (type === "Gain") {
+      tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].amount = 0;
     } else {
       console.log("Unsupported module type added!");
       return;

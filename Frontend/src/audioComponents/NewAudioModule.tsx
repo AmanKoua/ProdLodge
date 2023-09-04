@@ -65,6 +65,7 @@ const NewAudioModule = ({ position, setModuleType }: Props) => {
           <option value={"Peak"}>Peak (filter)</option>
           <option value={"Reverb"}>Reverb</option>
           <option value={"Waveshaper"}>Waveshaper</option>
+          <option value={"Gain"}>Gain</option>
         </select>
       </div>
     </div>
