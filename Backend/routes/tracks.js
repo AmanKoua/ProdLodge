@@ -79,16 +79,30 @@ router.get('/:id', verifyTokenAndGetUser, async (req, res) => {
     */
 
     let trackId = req.params.id;
+    let trackName = undefined;
+
+    const client = new MongoClient(process.env.MONGO_URI);
+    await client.connect();
+    const db = client.db("ProdCluster");
+    const bucket = new GridFSBucket(db);
+    const cursor = bucket.find({ _id: new ObjectId(trackId) })
+
+    for await (const item of cursor) {
+        trackName = item.filename.split("@")[0];
+    }
+
+    await client.close();
     await downloadTrack(trackId);
 
     const filePath = path.join(__dirname, '../../downloads/', `${trackId}.mp3`);
-
     const stats = await Fs.stat(filePath);
     const fileSize = stats.size;
+
     res.setHeader('Content-Length', fileSize);
+    res.setHeader('Access-Control-Expose-Headers', 'Trackname');
+    res.setHeader('Trackname', trackName);
 
     return res.status(200).download(filePath, (err) => {
-
         if (err) {
             console.log(err);
             return res.status(500).json({ error: "Failure in transmitting file to user!" });

@@ -1,6 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const { ObjectId } = require("mongodb");
+const { ObjectId, MongoClient, GridFSBucket } = require("mongodb");
 const jwt = require("jsonwebtoken");
 const router = express.Router();
 
@@ -9,6 +9,7 @@ const userProfile = require("../models/userProfileModel");
 const userActionItems = require("../models/userActionItemsModel");
 const userFriends = require("../models/userFriendsModel");
 const song = require("../models/songModel");
+const chain = require("../models/chainModel");
 
 const createToken = (_id) => {
     return jwt.sign({ _id: _id, }, process.env.SECRET, { expiresIn: '3d' })
@@ -216,6 +217,25 @@ router.delete("/profile", async (req, res) => {
     const friendsListId = profile[0].friendsListId;
     const actionItemsId = profile[0].actionItemsId;
 
+    const userSongs = await song.find({ userId: userId }).exec();
+
+    const client = new MongoClient(process.env.MONGO_URI);
+    await client.connect();
+    const db = client.db("ProdCluster");
+    const bucket = new GridFSBucket(db);
+
+    for (let i = 0; i < userSongs.length; i++) {
+        let tempTrackList = userSongs[i].trackList
+
+        for (let j = 0; j < tempTrackList.length; j++) { // delete all tracks associated with a song
+            await bucket.delete(tempTrackList[j]);
+        }
+
+        await song.deleteOne({ _id: userSongs[i]._id }).exec();
+    }
+
+    await client.close();
+
     try {
         await userActionItems.findOneAndDelete({ _id: actionItemsId });
         await userFriends.findOneAndDelete({ _id: friendsListId });
@@ -225,7 +245,7 @@ router.delete("/profile", async (req, res) => {
         return res.status(500).json({ error: e.message });
     }
 
-    return res.status(200).json({ mssg: "Successful deletion!" });
+    return res.status(200).json({ mssg: "Successful data deletion!" });
 
 })
 
@@ -237,13 +257,35 @@ router.get("/songs", verifyTokenAndGetUser, async (req, res) => {
     for (let i = 0; i < songs.length; i++) {
         let tempSong = {};
         let tempTrackIds = [];
+        let tempChainsData = [];
         tempSong.title = songs[i].title;
         tempSong.description = songs[i].description;
+        tempSong.id = songs[i]._id;
 
         for (let j = 0; j < songs[i].trackList.length; j++) {
             tempTrackIds.push(songs[i].trackList[j]._id.valueOf());
         }
 
+        for (let j = 0; j < songs[i].chainsList.length; j++) {
+
+            const tempChains = await chain.find({ _id: songs[i].chainsList[j] }).exec();
+
+            if (tempChains.length === 0) {
+                // Chain is not found OR deleted...
+                continue;
+            }
+            else {
+                let chainSnapShot = {
+                    name: tempChains[0].name,
+                    data: tempChains[0].data,
+                    id: tempChains[0]._id, // send over id for deletion
+                }
+                tempChainsData.push(chainSnapShot);
+            }
+
+        }
+
+        tempSong.chains = tempChainsData;
         tempSong.trackIds = tempTrackIds;
         payload.push(tempSong);
     }

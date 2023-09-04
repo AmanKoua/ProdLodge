@@ -5,6 +5,8 @@ import moveRightButton from "../assets/moveRight.png";
 
 import { AudioModule } from "../customTypes";
 
+import "../invisibleScrollbar.css";
+
 interface Props {
   data: AudioModule;
   position: number[];
@@ -14,7 +16,7 @@ interface Props {
   moveAudioModuleAndNode: (position: number[], isLeft: boolean) => void;
 }
 
-const HighPassModule = ({
+const PeakModule = ({
   data,
   position,
   deleteAudioModuleAndNode,
@@ -34,6 +36,7 @@ const HighPassModule = ({
     borderRadius: "10px",
     // backgroundColor: "green",
     // opacity: "100%",
+    overflowY: "scroll",
     opacity: data.isEnabled ? "100%" : "35%",
   };
 
@@ -130,6 +133,12 @@ const HighPassModule = ({
     editAudioNodeData(data, position);
   };
 
+  const handleGainSliderChange = (event: any) => {
+    let tempData = data;
+    tempData.gain = event.target.value;
+    editAudioNodeData(data, position);
+  };
+
   const handleDeleteIconClick = (event: any) => {
     deleteAudioModuleAndNode(position);
   };
@@ -148,7 +157,7 @@ const HighPassModule = ({
   };
 
   return (
-    <div style={AudioModuleStyle}>
+    <div style={AudioModuleStyle} className="hide-scrollbar">
       <div style={CenterDivStyle}>
         <img
           src={moveLeftButton}
@@ -160,7 +169,7 @@ const HighPassModule = ({
           style={MoveRightButtonStyle}
           onClick={handleRightButtonClick}
         ></img>
-        <h1 style={ModuleNameTextStyle}>HighPass</h1>
+        <h1 style={ModuleNameTextStyle}>Peak</h1>
         <div style={CenterAttributeTextDivStyle}>
           <p style={AttributeTextStyle}>Frequency : {data.frequency}</p>
         </div>
@@ -173,15 +182,26 @@ const HighPassModule = ({
           onChange={handleSliderChange}
         ></input>
         <div style={CenterAttributeTextDivStyle}>
-          <p style={AttributeTextStyle}>Resonance : {data.resonance}</p>
+          <p style={AttributeTextStyle}>Width : {data.resonance}</p>
         </div>
         <input
           type={"range"}
-          min={-25}
+          min={1}
           max={25}
           style={SliderStyle}
           value={data.resonance}
           onChange={handleResonanceSliderChange}
+        ></input>
+        <div style={CenterAttributeTextDivStyle}>
+          <p style={AttributeTextStyle}>Gain : {data.gain}</p>
+        </div>
+        <input
+          type={"range"}
+          min={-30}
+          max={30}
+          style={SliderStyle}
+          value={data.gain}
+          onChange={handleGainSliderChange}
         ></input>
         <br></br>
         <img
@@ -198,4 +218,4 @@ const HighPassModule = ({
   );
 };
 
-export default HighPassModule;
+export default PeakModule;

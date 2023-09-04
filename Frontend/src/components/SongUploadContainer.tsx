@@ -2,9 +2,11 @@ import React from "react";
 import { useState, useEffect } from "react";
 import CSS from "csstype";
 
+import { SongUploadData } from "../customTypes";
+
 interface Props {
   idx: number;
-  songUploadData: Object[];
+  songUploadData: SongUploadData[];
   addTrack: () => void;
   setSongUploadData: (val: any) => void;
 }

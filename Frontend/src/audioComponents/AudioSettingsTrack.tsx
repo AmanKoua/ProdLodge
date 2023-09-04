@@ -1,8 +1,10 @@
 import { useRef } from "react";
 import CSS from "csstype";
 
+import { TrackData } from "../customTypes";
+
 interface Props {
-  settingsTracksData: Object[] | undefined;
+  settingsTracksData: TrackData[] | undefined;
   audioModulesJSON: string[];
   audioModules: Object[][];
   idx: number;
@@ -42,10 +44,12 @@ const AudioSettingsTrack = ({
   };
 
   const TrackNameStyle: CSS.Properties = {
-    // backgroundColor: "green",
     float: "left",
     marginLeft: "15px",
-    width: "15%",
+    width: "30%",
+    height: "90%",
+    overflow: "hidden",
+    // backgroundColor: "green",
   };
 
   const AudioModulesCountStyle: CSS.Properties = {
@@ -59,7 +63,7 @@ const AudioSettingsTrack = ({
 
   const IsEnabledButton: CSS.Properties = {
     position: "absolute",
-    marginLeft: "15%",
+    marginLeft: "30%",
     marginTop: "7.5px",
     width: "20px",
     height: "20px",
@@ -81,11 +85,6 @@ const AudioSettingsTrack = ({
       return;
     }
 
-    // console.log(idx);
-    // console.log(currentTrackIdx);
-    // console.log(audioModules);
-    // console.log(audioModulesJSON);
-
     if (currentTrackIdx != idx) {
       // save modules before switching over
       let tempAudioModulesJSON = [...audioModulesJSON];
@@ -95,12 +94,6 @@ const AudioSettingsTrack = ({
       setTimeout(() => {
         setAudioModules(JSON.parse(audioModulesJSON[idx]));
       }, 10);
-
-      // console.log(idx + " -------- ");
-      // console.log(currentTrackIdx + " -------- ");
-      // console.log(JSON.parse(audioModulesJSON[idx]));
-      // console.log(audioModules + " -------- ");
-      // console.log(audioModulesJSON + " -------- ");
     }
 
     let tempObject = {

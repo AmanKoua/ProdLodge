@@ -3,8 +3,10 @@ import deleteButton from "../assets/delete.png";
 import moveLeftButton from "../assets/moveLeft.png";
 import moveRightButton from "../assets/moveRight.png";
 
+import { AudioModule } from "../customTypes";
+
 interface Props {
-  data: Object;
+  data: AudioModule;
   position: number[];
   editAudioNodeData: (data: Object, moduleIndex: number[]) => void;
   setAudioNodesChanged: (val: boolean) => void;

@@ -7,8 +7,10 @@ const path = require("path");
 const fs = require("fs");
 const router = express.Router();
 
-const song = require('../models/songModel');
+const user = require('../models/userModel');
 const userProfile = require("../models/userProfileModel");
+const song = require('../models/songModel');
+const chain = require('../models/chainModel');
 
 const createToken = (songId) => {
     return jwt.sign({ songId: songId }, process.env.SECRET, { expiresIn: '5m' })
@@ -33,7 +35,7 @@ const verifySongToken = (req, res, next) => {
     next();
 }
 
-const uploadSongToGridFSBucket = async (req, res, next) => {
+const uploadTrackToGridFSBucket = async (req, res, next) => {
 
     const fileName = req.fileNames[0];
     const files = fs.readdirSync(path.join(__dirname, "../../uploads"))
@@ -65,7 +67,7 @@ const uploadSongToGridFSBucket = async (req, res, next) => {
 
     }
 
-    next()
+    next();
 
 }
 
@@ -116,7 +118,7 @@ router.post("/songInit", async (req, res) => {
 
 })
 
-router.post("/track", verifySongToken, upload.single('track'), uploadSongToGridFSBucket, (req, res) => { // Require that a track be initiilzed first!
+router.post("/track", verifySongToken, upload.single('track'), uploadTrackToGridFSBucket, (req, res) => { // Require that a track be initiilzed first!
     return res.status(200).json({ message: "File uploaded successfully!" });
 })
 

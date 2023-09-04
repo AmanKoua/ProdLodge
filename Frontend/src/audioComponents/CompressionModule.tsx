@@ -5,6 +5,8 @@ import moveRightButton from "../assets/moveRight.png";
 
 import { AudioModule } from "../customTypes";
 
+import "../invisibleScrollbar.css";
+
 interface Props {
   data: AudioModule;
   position: number[];
@@ -14,7 +16,7 @@ interface Props {
   moveAudioModuleAndNode: (position: number[], isLeft: boolean) => void;
 }
 
-const HighPassModule = ({
+const CompressionModule = ({
   data,
   position,
   deleteAudioModuleAndNode,
@@ -34,6 +36,7 @@ const HighPassModule = ({
     borderRadius: "10px",
     // backgroundColor: "green",
     // opacity: "100%",
+    overflowY: "scroll",
     opacity: data.isEnabled ? "100%" : "35%",
   };
 
@@ -57,6 +60,7 @@ const HighPassModule = ({
     textAlign: "center",
     // backgroundColor: "green",
   };
+
   const CenterAttributeTextDivStyle: CSS.Properties = {
     position: "relative",
     marginLeft: "15%",
@@ -69,18 +73,18 @@ const HighPassModule = ({
     // backgroundColor: "blue",
   };
 
+  const SliderStyle: CSS.Properties = {
+    width: "80%",
+    marginLeft: "10%",
+    marginTop: "0%",
+  };
+
   const AttributeTextStyle: CSS.Properties = {
     fontSize: "10px",
     width: "60%",
     marginLeft: "20%",
     textAlign: "center",
     // backgroundColor: "green",
-  };
-
-  const SliderStyle: CSS.Properties = {
-    width: "80%",
-    marginLeft: "10%",
-    marginTop: "0%",
   };
 
   const DeleteButtonStyle: CSS.Properties = {
@@ -117,16 +121,46 @@ const HighPassModule = ({
     height: "10%",
   };
 
-  const handleSliderChange = (event: any) => {
-    // HELL YEAH!
+  const handleThreshSliderChange = (event: any) => {
+    /*
+      The way that information is propagates through the audioModules
+      state is be directly mutating the state variable WITHOUT calling
+      setState. tempData is a reference to the state varaible, and so 
+      changing it automatically changes the sate. If this becomes a problem,
+      it can be changed later, but it seems to work fine.
+      */
     let tempData = data;
-    tempData.frequency = event.target.value;
+    tempData.threshold = event.target.value;
     editAudioNodeData(data, position);
   };
 
-  const handleResonanceSliderChange = (event: any) => {
+  const handleKneeSliderChange = (event: any) => {
     let tempData = data;
-    tempData.resonance = event.target.value;
+    tempData.knee = event.target.value;
+    editAudioNodeData(data, position);
+  };
+
+  const handleRatioSliderChange = (event: any) => {
+    let tempData = data;
+    tempData.ratio = event.target.value;
+    editAudioNodeData(data, position);
+  };
+
+  const handleReductionSliderChange = (event: any) => {
+    let tempData = data;
+    tempData.reduction = event.target.value;
+    editAudioNodeData(data, position);
+  };
+
+  const handleAttackSliderChange = (event: any) => {
+    let tempData = data;
+    tempData.attack = event.target.value;
+    editAudioNodeData(data, position);
+  };
+
+  const handleReleaseSliderChange = (event: any) => {
+    let tempData = data;
+    tempData.release = event.target.value;
     editAudioNodeData(data, position);
   };
 
@@ -148,7 +182,7 @@ const HighPassModule = ({
   };
 
   return (
-    <div style={AudioModuleStyle}>
+    <div style={AudioModuleStyle} className="hide-scrollbar">
       <div style={CenterDivStyle}>
         <img
           src={moveLeftButton}
@@ -160,28 +194,61 @@ const HighPassModule = ({
           style={MoveRightButtonStyle}
           onClick={handleRightButtonClick}
         ></img>
-        <h1 style={ModuleNameTextStyle}>HighPass</h1>
+        <h1 style={ModuleNameTextStyle}>Compression</h1>
         <div style={CenterAttributeTextDivStyle}>
-          <p style={AttributeTextStyle}>Frequency : {data.frequency}</p>
+          <p style={AttributeTextStyle}>Threshold : {data.threshold}</p>
         </div>
         <input
           type={"range"}
-          value={data.frequency}
-          min={20}
-          max={21000}
+          value={data.threshold}
+          min={-100}
+          max={0}
           style={SliderStyle}
-          onChange={handleSliderChange}
+          onChange={handleThreshSliderChange}
         ></input>
         <div style={CenterAttributeTextDivStyle}>
-          <p style={AttributeTextStyle}>Resonance : {data.resonance}</p>
+          <p style={AttributeTextStyle}>Knee : {data.knee}</p>
         </div>
         <input
           type={"range"}
-          min={-25}
-          max={25}
+          min={0}
+          max={40}
           style={SliderStyle}
-          value={data.resonance}
-          onChange={handleResonanceSliderChange}
+          value={data.knee}
+          onChange={handleKneeSliderChange}
+        ></input>
+        <div style={CenterAttributeTextDivStyle}>
+          <p style={AttributeTextStyle}>Ratio : {data.ratio}</p>
+        </div>
+        <input
+          type={"range"}
+          min={1}
+          max={20}
+          style={SliderStyle}
+          value={data.ratio}
+          onChange={handleRatioSliderChange}
+        ></input>
+        <div style={CenterAttributeTextDivStyle}>
+          <p style={AttributeTextStyle}>Attack : {data.attack}</p>
+        </div>
+        <input
+          type={"range"}
+          min={0}
+          max={1000}
+          style={SliderStyle}
+          value={data.attack}
+          onChange={handleAttackSliderChange}
+        ></input>
+        <div style={CenterAttributeTextDivStyle}>
+          <p style={AttributeTextStyle}>Release : {data.release}</p>
+        </div>
+        <input
+          type={"range"}
+          min={0}
+          max={1000}
+          style={SliderStyle}
+          value={data.release}
+          onChange={handleReleaseSliderChange}
         ></input>
         <br></br>
         <img
@@ -198,4 +265,4 @@ const HighPassModule = ({
   );
 };
 
-export default HighPassModule;
+export default CompressionModule;

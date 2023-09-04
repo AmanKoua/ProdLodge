@@ -6,6 +6,8 @@ import { useNavigate } from "react-router-dom";
 import SongUploadContainer from "../components/SongUploadContainer";
 import { AuthContext } from "../context/AuthContext";
 
+import { SongUploadData } from "../customTypes";
+
 const NewSong = () => {
   const [songUploadData, setSongUploadData] = useState([
     { trackName: "", file: undefined },
@@ -196,7 +198,9 @@ const NewSong = () => {
       });
 
       if (response.ok) {
-        setMessage("Tracks uploaded successfully!");
+        setMessage(
+          `Tracks uploaded successfully! ${i + 1}/${songUploadData.length}`
+        );
       } else {
         setError("File uploading failed!");
       }

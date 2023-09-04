@@ -1,16 +1,27 @@
 import React from "react";
 import { useState, useContext, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
+
 import AudioBox from "../audioComponents/AudioBox";
+
+import { Chain, SongData } from "../customTypes";
 
 const Home = () => {
   const [userSongPayload, setUserSongPayload] = useState([]);
   const [isUserSongPayloadSet, setIsUserSongPayloadSet] = useState(false);
   const authContext = useContext(AuthContext);
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Get the list of user songs (and their tracks) upon page load
-    if (isUserSongPayloadSet || !authContext.user || !authContext.user.token) {
+
+    if (!authContext.user || !authContext.user.token) {
+      navigate("/login");
+      return;
+    }
+
+    if (isUserSongPayloadSet) {
       return;
     }
 
@@ -23,7 +34,6 @@ const Home = () => {
       });
 
       let json = await response.json();
-
       setUserSongPayload(json.payload);
       setIsUserSongPayloadSet(true);
     };
@@ -37,7 +47,11 @@ const Home = () => {
     let audioBoxFragment = (
       <>
         {userSongPayload.map((item, idx) => (
-          <AudioBox songData={item} key={idx}></AudioBox>
+          <AudioBox
+            songData={item}
+            setIsUserSongPayloadSet={setIsUserSongPayloadSet}
+            key={idx}
+          ></AudioBox>
         ))}
       </>
     );

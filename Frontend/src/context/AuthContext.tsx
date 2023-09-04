@@ -8,12 +8,15 @@ let authContextReducer = (state: any, action: any) => {
       return {
         user: action.payload,
       };
+      break;
     case "LOGOUT":
       return {
         user: undefined,
       };
+      break;
     default:
       return state;
+      break;
   }
 };
 

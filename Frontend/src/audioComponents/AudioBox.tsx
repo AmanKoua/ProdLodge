@@ -1,38 +1,18 @@
-import { useState } from "react";
-import { useRef } from "react";
-import { useEffect } from "react";
+import { useState, useRef, useEffect, useContext } from "react";
 import CSS from "csstype";
 
 import AudioController from "./AudioController";
 import AudioModuleContainer from "./AudioModuleContainer";
 import AudioSettingsDrawer from "./AudioSettingsDrawer";
+import { AuthContext } from "../context/AuthContext";
+
+import { SongData, TrackData, AudioModule } from "../customTypes";
 
 /*
 Cannot use hooks imported from another module because variables used can be 
 accessed / corrupted by other AudioBox instances. I'd prefer not to keep 
 all useEffects definitions in this file, but I dont see another option.
 */
-
-// import {
-//   useInitAudioCtx,
-//   useFetchAudioAndInitNodes,
-//   useReconnectNodes,
-//   usePlayAndResume,
-//   usePauseSong,
-//   useTrackSongTime,
-//   useInitVisualizer,
-//   useInitCanvas,
-//   useDraw,
-// } from "../webAudioHooks";
-
-import tempSong from "../assets/songs/telepathy.mp3"; // when only 1 track was supported
-
-import bass from "../assets/songs/stems/bass.mp3";
-import chords from "../assets/songs/stems/chords.mp3";
-import drums from "../assets/songs/stems/drums.mp3";
-import leads from "../assets/songs/stems/leads.mp3";
-import reverb from "../assets/songs/stems/reverb.mp3";
-import master from "../assets/songs/stems/master.mp3"; // change this to change master song
 
 // import impulse0 from "../assets/impulseResponses/0.wav";
 import impulse1 from "../assets/impulseResponses/1.wav";
@@ -55,22 +35,12 @@ import impulse17 from "../assets/impulseResponses/17.wav";
 import impulse18 from "../assets/impulseResponses/18.wav";
 
 interface Props {
-  songData: Object;
+  songData: SongData;
+  setIsUserSongPayloadSet: (val: boolean) => void;
 }
 
-const AudioBox = ({ songData }: Props) => {
+const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
   // console.log("AudioBox Rerender!");
-
-  let tracks: Object = {
-    bass: bass,
-    chords: chords,
-    drums: drums,
-    leads: leads,
-    reverb: reverb,
-    master: master,
-  };
-
-  let tracksJSON = JSON.stringify(tracks);
 
   let impulses: Object = {
     // impulse0: impulse0,
@@ -95,7 +65,9 @@ const AudioBox = ({ songData }: Props) => {
   };
 
   let impulsesJSON = JSON.stringify(impulses);
-  let tempModuleData: Object[][] = [[{ type: "Blank" }]];
+  let tempModuleData: AudioModule[][] = [[{ type: "Blank" }]];
+
+  const authContext = useContext(AuthContext);
 
   // Audio context
   let aCtx: AudioContext | undefined;
@@ -106,7 +78,7 @@ const AudioBox = ({ songData }: Props) => {
   let setCurrentTrackIdx: (val: any) => void;
   let trackBuffers: AudioBuffer[] | undefined;
   let setTrackBuffers: (val: any) => void;
-  let settingsTracksData: Object[] | undefined;
+  let settingsTracksData: TrackData[] | undefined;
   let setSettingsTracksData: (val: any) => void;
   let impulseBuffers: AudioBuffer[] | undefined;
   let setImpulseBuffers: (val: any) => void;
@@ -116,16 +88,20 @@ const AudioBox = ({ songData }: Props) => {
   // AudioNodes (actual audio nodes)
   let audioNodes: AudioNode[][][] | undefined;
   let setAudioNodes: (val: any) => void;
+  let initAudioNodes: AudioNode[][][] | undefined; // audioNodes when first initialized
+  let setInitAudioNodes: (val: any) => void;
   let audioNodesChanged: boolean;
   let setAudioNodesChanged: (val: any) => void;
   let analyserNode: AudioNode | undefined;
   let setAnalyserNode: (val: any) => void;
 
   // audioModules (data required for creating UI for audio nodes)
-  let audioModules: Object[][];
+  let audioModules: AudioModule[][];
   let setAudioModules: (val: Object[][]) => void;
   let audioModulesJSON: string[];
   let setAudioModulesJSON: (val: string[]) => void;
+  let initAudioModulesJSON: string[]; // audioModules when first initialized
+  let setInitAudioModulesJSON: (val: string[]) => void;
 
   // Canvas and context
   let canvas: HTMLCanvasElement | undefined;
@@ -174,6 +150,9 @@ const AudioBox = ({ songData }: Props) => {
   [hasUserGestured, setHasUserGestured] = useState(false); // Keep track of first gesture required to initialize audioCtx
 
   [audioModules, setAudioModules] = useState(tempModuleData); // Initial module will be the blank module
+  [initAudioModulesJSON, setInitAudioModulesJSON] = useState([
+    '[[{"type":"Blank"}]]',
+  ]);
   [audioModulesJSON, setAudioModulesJSON] = useState(['[[{"type":"Blank"}]]']); // JSON array, kept as state, to keep track of audioModule present for each track.
   [areAudioNodesReady, setAreAudioNodesReady] = useState(false);
 
@@ -184,6 +163,7 @@ const AudioBox = ({ songData }: Props) => {
   [impulseBuffers, setImpulseBuffers] = useState(undefined);
   [songDuration, setSongDuration] = useState(0);
   [audioNodes, setAudioNodes] = useState(undefined);
+  [initAudioNodes, setInitAudioNodes] = useState(undefined);
   [analyserNode, setAnalyserNode] = useState(undefined);
   [audioNodesChanged, setAudioNodesChanged] = useState(false);
   [dataArr, setDataArr] = useState(undefined);
@@ -213,7 +193,6 @@ const AudioBox = ({ songData }: Props) => {
 
   let useFetchAudioAndInitNodes = (
     aCtx: AudioContext | undefined,
-    tracksJSON: string,
     impulsesJSON: string,
     setTrackBuffers: (val: any) => void,
     setSettingsTracksData: (val: any) => void,
@@ -228,13 +207,18 @@ const AudioBox = ({ songData }: Props) => {
   ) => {
     useEffect(() => {
       // Fetch audio data and initialize primary nodes
-      if (aCtx === undefined) {
+      if (
+        // If any of these are missing, do not initialize track fetching
+        aCtx === undefined ||
+        !authContext ||
+        !authContext.user ||
+        !authContext.user.token
+      ) {
         return;
       }
 
       console.log("fetching audio!");
 
-      let tempTracks = JSON.parse(tracksJSON);
       let tempImpulses = JSON.parse(impulsesJSON);
 
       // console.log(tempTracks);
@@ -257,67 +241,76 @@ const AudioBox = ({ songData }: Props) => {
 
       let fetchTracks = async () => {
         let tempTrackBuffers: AudioBuffer[] = [];
-        // let tempTracksKeys: string[] = Object.keys(tempTracks);
-        let tempTracksKeys: string[] = songData.trackIds;
-        let tempSettingsTracksData: Object[] = [];
+        let maxTrackDuration: number = 0;
+        // let songTrackIds: string[] = Object.keys(tempTracks);
+        let songTrackIds: string[] = songData.trackIds;
+        let tempSettingsTracksData: TrackData[] = [];
         let tempAudioModulesJSON: string[] = ['[[{"type":"Blank"}]]'];
 
-        for (let i = 0; i < tempTracksKeys.length; i++) {
+        for (let i = 0; i < songTrackIds.length; i++) {
           console.log("track fetched!");
-          // let response = await fetch(tempTracks[tempTracksKeys[i]]);
-
-          // -----------------------------------------------------------
-
-          // Functional track fetch example!
 
           let response = await fetch(
-            `http://localhost:8005/tracks/${tempTracksKeys[i]}`,
+            `http://localhost:8005/tracks/${songTrackIds[i]}`,
             {
               method: "GET",
               headers: {
-                authorization:
-                  "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NGViOGRiZDg5ZmEwYTAwNjRmMDFkN2UiLCJpYXQiOjE2OTM1MTk1NjksImV4cCI6MTY5Mzc3ODc2OX0.eisG3GM727VPZ0iZxSZlVrN8qjAf8y1bOcIZ-fHFruw",
+                authorization: `Bearer ${authContext.user.token}`,
               },
             }
           );
 
-          let arrayBuffer = await response.arrayBuffer();
+          if (response.ok) {
+            let trackName = response.headers.get("Trackname");
+            let arrayBuffer = await response.arrayBuffer();
 
-          //-------------------------------------------------------------
+            await aCtx.decodeAudioData(arrayBuffer, (decodedBuffer) => {
+              tempTrackBuffers.push(decodedBuffer);
 
-          // let arrayBuffer = await response.arrayBuffer();
-          await aCtx.decodeAudioData(arrayBuffer, (decodedBuffer) => {
-            let tempTracksData = {};
+              let tempTracksData: TrackData = {
+                isEnabled: true,
+                name: trackName!,
+                moduleCount: 0,
+                idx: i,
+              };
 
-            if (tempTracksKeys[i] === "master") {
-              tempTracksData.isEnabled = false;
-            } else {
-              tempTracksData.isEnabled = true;
-              setCurrentTrackIdx(i);
-            }
+              if (songTrackIds[i] === "master") {
+                tempTracksData.isEnabled = false;
+              } else {
+                tempTracksData.isEnabled = true;
+                setCurrentTrackIdx(i);
+              }
 
-            tempTrackBuffers.push(decodedBuffer);
-
-            tempTracksData.name = tempTracksKeys[i];
-            tempTracksData.moduleCount = 0;
-            tempTracksData.idx = i;
-            tempSettingsTracksData.push(tempTracksData);
-            if (i !== 0) {
-              // skip 1, because 1 is already defined when the audioModulesState is set!
-              tempAudioModulesJSON.push('[[{"type":"Blank"}]]');
-            }
-          });
+              tempSettingsTracksData.push(tempTracksData);
+              if (i !== 0) {
+                // skip 1, because 1 is already defined when the audioModulesState is set!
+                tempAudioModulesJSON.push('[[{"type":"Blank"}]]');
+              }
+            });
+          } else {
+            alert("Track fetching failed!");
+            break;
+          }
         }
+
+        for (let i = 0; i < tempTrackBuffers.length; i++) {
+          // Search for the track of the longest duration
+          if (tempTrackBuffers![i].duration > maxTrackDuration) {
+            maxTrackDuration = tempTrackBuffers![i].duration;
+          }
+        }
+
         setTrackBuffers(tempTrackBuffers!);
-        setSongDuration(tempTrackBuffers![0].duration);
+        setSongDuration(maxTrackDuration);
         setSettingsTracksData(tempSettingsTracksData);
         setAudioModulesJSON(tempAudioModulesJSON);
+        setInitAudioModulesJSON(tempAudioModulesJSON);
         await createPrimaryNodes(tempTrackBuffers!, tempSettingsTracksData);
       };
 
       let createPrimaryNodes = async (
         songBuffers: AudioBuffer[],
-        tempSettingsTracksData: Object[] // to tell if gain should be on / off
+        tempSettingsTracksData: TrackData[] // to tell if gain should be on / off
       ) => {
         // create audioBufferSourceNode and analyserNode
 
@@ -348,6 +341,7 @@ const AudioBox = ({ songData }: Props) => {
         }
 
         setAudioNodes(tempAudioNodesArr);
+        setInitAudioNodes(tempAudioNodesArr);
         setAreAudioNodesReady(true);
       };
 
@@ -360,9 +354,9 @@ const AudioBox = ({ songData }: Props) => {
     aCtx: AudioContext | undefined,
     audioNodes: AudioNode[][][] | undefined,
     analyserNode: AudioNode | undefined,
-    audioModules: Object[][],
+    audioModules: AudioModule[][],
     audioModulesJSON: string[],
-    settingsTracksData: Object[] | undefined,
+    settingsTracksData: TrackData[] | undefined,
     currentTrackIdx: number,
     audioNodesChanged: boolean,
     setAudioNodesChanged: (val: any) => void
@@ -622,7 +616,7 @@ const AudioBox = ({ songData }: Props) => {
   let useInitVisualizer = (
     isVisualizing: boolean,
     // audioNodes: AudioNode[][] | undefined,
-    analyserNode: AudioNode | undefined,
+    analyserNode: AnalyserNode | undefined,
     canvasRef: any,
     setBufferLength: (val: any) => void,
     setDataArr: (val: any) => void,
@@ -664,7 +658,7 @@ const AudioBox = ({ songData }: Props) => {
   let useDraw = (
     canvas: HTMLCanvasElement | undefined,
     canvasCtx: CanvasRenderingContext2D | undefined,
-    analyserNode: AudioNode | undefined,
+    analyserNode: AnalyserNode | undefined,
     dataArr: Uint8Array | undefined,
     bufferLength: number | undefined,
     setAnimationFrameHandler: (val: any) => void
@@ -783,7 +777,6 @@ const AudioBox = ({ songData }: Props) => {
 
   useFetchAudioAndInitNodes(
     aCtx,
-    tracksJSON,
     impulsesJSON,
     setTrackBuffers,
     setSettingsTracksData,
@@ -854,12 +847,47 @@ const AudioBox = ({ songData }: Props) => {
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+  const MasterContainerStyle: CSS.Properties = {
+    width: "50%",
+    height: "340px",
+    marginTop: "55px",
+    marginLeft: "auto",
+    marginRight: "auto",
+    transition: "all 0.3s",
+    // backgroundColor: "beige",
+  };
+
+  MasterContainerStyle.height = isExpanded
+    ? `${audioModules.length * (215 - audioModules.length) + 100}px`
+    : "40px";
+
+  MasterContainerStyle.marginBottom = isExpanded ? "120px" : "55px";
+
+  const SongDataContainerStyle: CSS.Properties = {
+    display: "flex",
+    justifyContent: "space-evenly",
+    width: "100%",
+    height: "40px",
+    transition: "all 0.3s",
+    backgroundColor: "#edf4fc",
+  };
+
+  SongDataContainerStyle.height = isExpanded ? "100px" : "40px";
+
+  const SongDataContainerElementStyle: CSS.Properties = {
+    width: "47.5%",
+    justifyContent: "center",
+    overflow: "hidden",
+    // border: "1px solid black",
+    // backgroundColor: "green",
+  };
+
   const AudioBoxStyle: CSS.Properties = {
     position: "relative",
     marginLeft: "auto",
     marginRight: "auto",
-    marginTop: "2%",
-    width: "50%",
+    marginTop: "0%",
+    width: "100%",
     height: "300px",
     border: "1px solid black",
     transition: "all 0.3s",
@@ -934,13 +962,42 @@ const AudioBox = ({ songData }: Props) => {
     setIsSettingsHover(false);
   };
 
+  const generateDistcurve = (amount: number): Float32Array => {
+    // function for creating the distortion curve for waveshapers
+
+    // This function only changes volume, but does not seem to actually distort?
+
+    // const n_samples = 500; // dont need 41K samples
+    // const curve = new Float32Array(n_samples);
+    // const deg = Math.PI / 180;
+
+    // for (let i = 0; i < n_samples; i++) {
+    //   const x = (i * 2) / n_samples - 1;
+    //   curve[i] = (3 + amount / 10) * x * 20 * deg;
+    // }
+    // return curve;
+
+    // ----------------------------------------------
+
+    const k = amount;
+    const n_samples = 500;
+    const curve = new Float32Array(n_samples);
+    const deg = Math.PI / 180;
+
+    for (let i = 0; i < n_samples; i++) {
+      const x = (i * 2) / n_samples - 1;
+      curve[i] = ((3 + k) * x * 20 * deg) / (Math.PI + k * Math.abs(x));
+    }
+    return curve;
+  };
+
   /*
     Adds a module to the audioModules. This variable
     is for storing information regarding the displayed
     cards. it is NOT for storing individual audio nodes
   */
   const addModule = (): void => {
-    let tempAudioModulesData: Object[][] = audioModules;
+    let tempAudioModulesData: AudioModule[][] = audioModules;
 
     // If last module is already a new module, dont allow for further module addition (until module type is created)
 
@@ -1049,7 +1106,7 @@ const AudioBox = ({ songData }: Props) => {
     return audioNodes;
   };
 
-  const addAudioNode = (data: Object) => {
+  const addAudioNode = (data: AudioModule) => {
     // add the audioNode to process audio data (2nd subarray only allows 2 audioNodes to synchronize with audioModules)
 
     if (audioNodes === undefined) {
@@ -1073,7 +1130,8 @@ const AudioBox = ({ songData }: Props) => {
       case "Highpass":
         tempAudioNode = aCtx!.createBiquadFilter();
         tempAudioNode.type = "highpass";
-        tempAudioNode.frequency.value = 20;
+        tempAudioNode.frequency.value = data.frequency;
+        tempAudioNode.Q.value = data.resonance;
         insertAudioNode(audioNodes, tempAudioNode, currentTrackIdx);
         setAudioNodes(audioNodes);
         setTimeout(() => {
@@ -1083,7 +1141,20 @@ const AudioBox = ({ songData }: Props) => {
       case "Lowpass":
         tempAudioNode = aCtx!.createBiquadFilter();
         tempAudioNode.type = "lowpass";
-        tempAudioNode.frequency.value = 21000;
+        tempAudioNode.frequency.value = data.frequency;
+        tempAudioNode.Q.value = data.resonance;
+        insertAudioNode(audioNodes, tempAudioNode, currentTrackIdx);
+        setAudioNodes(audioNodes);
+        setTimeout(() => {
+          setAudioNodesChanged(true);
+        }, 10);
+        break;
+      case "Peak":
+        tempAudioNode = aCtx!.createBiquadFilter();
+        tempAudioNode.type = "peaking";
+        tempAudioNode.frequency.value = data.frequency;
+        tempAudioNode.Q.value = data.resonance;
+        tempAudioNode.gain.value = data.gain;
         insertAudioNode(audioNodes, tempAudioNode, currentTrackIdx);
         setAudioNodes(audioNodes);
         setTimeout(() => {
@@ -1092,18 +1163,54 @@ const AudioBox = ({ songData }: Props) => {
         break;
       case "Reverb":
         tempAudioNode = aCtx!.createConvolver();
-        tempAudioNode.buffer = impulseBuffers[0];
+        tempAudioNode.buffer = impulseBuffers![data.impulse!];
         insertAudioNode(audioNodes, tempAudioNode, currentTrackIdx);
         setAudioNodes(audioNodes);
         setTimeout(() => {
           setAudioNodesChanged(true);
         }, 10);
+        break;
+      case "Waveshaper":
+        tempAudioNode = aCtx!.createWaveShaper();
+        tempAudioNode.curve = generateDistcurve(data.amount!);
+        insertAudioNode(audioNodes, tempAudioNode, currentTrackIdx);
+        setAudioNodes(audioNodes);
+        setTimeout(() => {
+          setAudioNodesChanged(true);
+        }, 10);
+        break;
+      case "Gain":
+        tempAudioNode = aCtx!.createGain();
+        tempAudioNode.gain.value = data.amount;
+        insertAudioNode(audioNodes, tempAudioNode, currentTrackIdx);
+        setAudioNodes(audioNodes);
+        setTimeout(() => {
+          setAudioNodesChanged(true);
+        }, 10);
+        break;
+      case "Compression":
+        tempAudioNode = aCtx!.createDynamicsCompressor();
+        tempAudioNode.threshold.value = data.threshold;
+        tempAudioNode.knee.value = data.knee;
+        tempAudioNode.ratio.value = data.ratio;
+        // tempAudioNode.reduction = data.reduction;
+        tempAudioNode.attack.value = data.attack;
+        tempAudioNode.release.value = data.release;
+        insertAudioNode(audioNodes, tempAudioNode, currentTrackIdx);
+        setAudioNodes(audioNodes);
+        setTimeout(() => {
+          setAudioNodesChanged(true);
+        }, 10);
+        break;
+      default:
+        console.log("Invalid audioNode type added!");
+        return;
     }
   };
 
   const deleteAudioModuleAndNode = (position: number[]) => {
     // position is position of audio module
-    let tempAudioModules = audioModules;
+    let tempAudioModules = [...audioModules]; // NOTE : Changed this to be a deep copy...
     tempAudioModules[position[0]].splice(position[1], 1); // works
 
     if (tempAudioModules[position[0]].length === 0) {
@@ -1292,7 +1399,7 @@ const AudioBox = ({ songData }: Props) => {
     setAudioNodes(audioNodes);
   };
 
-  const editAudioNodeData = (data: Object, position: number[]) => {
+  const editAudioNodeData = (data: AudioModule, position: number[]) => {
     let tempAudioNodesSubArr = audioNodes![currentTrackIdx];
 
     // Offset row and column to account for structure of audioNodes array
@@ -1306,14 +1413,34 @@ const AudioBox = ({ songData }: Props) => {
     // console.log(tempAudioNodes![position[0] + 1][position[1]]);
     // console.log(tempAudioNodes, row, column);
 
-    if (data.type === "Highpass" || data.type === "Lowpass") {
+    if (
+      data.type === "Highpass" ||
+      data.type === "Lowpass" ||
+      data.type === "Peak"
+    ) {
       tempAudioNodesSubArr![row][column].frequency.value = data.frequency;
       tempAudioNodesSubArr![row][column].Q.value = data.resonance;
+      if (data.type === "Peak") {
+        tempAudioNodesSubArr![row][column].gain.value = data.gain;
+      }
     } else if (data.type === "Reverb") {
-      tempAudioNodesSubArr![row][column].buffer = impulseBuffers![data.impulse];
+      tempAudioNodesSubArr![row][column].buffer =
+        impulseBuffers![data.impulse!];
+    } else if (data.type === "Waveshaper") {
+      tempAudioNodesSubArr![row][column].curve = generateDistcurve(
+        data.amount!
+      );
+    } else if (data.type === "Gain") {
+      tempAudioNodesSubArr![row][column].gain.value = data.amount;
+    } else if (data.type === "Compression") {
+      tempAudioNodesSubArr![row][column].threshold.value = data.threshold;
+      tempAudioNodesSubArr![row][column].knee.value = data.knee;
+      tempAudioNodesSubArr![row][column].ratio.value = data.ratio;
+      // tempAudioNodesSubArr![row][column].reduction = data.reduction;
+      tempAudioNodesSubArr![row][column].attack.value = data.attack / 1000;
+      tempAudioNodesSubArr![row][column].release.value = data.release / 1000;
     } else if (data.type === "TrackChange") {
       // currentTrackIdx is changed in AudioSettingsTrack, which should automatically update currently selected track
-      // setCurrentTrack(trackBuffers![data.track]);
     }
 
     setAudioNodes(audioNodes);
@@ -1348,7 +1475,7 @@ const AudioBox = ({ songData }: Props) => {
     audio node)
   */
   const setModuleType = (type: string, moduleIndex: number[]): void => {
-    let tempAudioModulesData: Object[][] = audioModules;
+    let tempAudioModulesData: AudioModule[][] = audioModules;
 
     // settings for all audioModules
     tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].type = type;
@@ -1366,68 +1493,247 @@ const AudioBox = ({ songData }: Props) => {
     } else if (type === "Lowpass") {
       tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].frequency = 21000;
       tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].resonance = 0;
+    } else if (type === "Peak") {
+      tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].frequency = 10000;
+      tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].resonance = 1;
+      tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].gain = 15;
     } else if (type === "Reverb") {
-      tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].impulse = 0;
+      tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].impulse = 1;
+    } else if (type === "Waveshaper") {
+      tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].amount = 1;
+    } else if (type === "Gain") {
+      tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].amount = 1.0;
+    } else if (type === "Compression") {
+      tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].threshold = 0;
+      tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].knee = 0;
+      tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].ratio = 1;
+      // tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].reduction = 0;
+      tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].attack = 0.1;
+      tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].release = 0.1;
+    } else {
+      console.log("Unsupported module type added!");
+      return;
     }
 
     addAudioNode(tempAudioModulesData[moduleIndex[0]][moduleIndex[1]]);
     setAudioModules(tempAudioModulesData);
   };
 
-  const saveConfiguration = () => {
-    let config = JSON.stringify(audioModules); // this object, when loaded into the loadConfiguration method will work.
-    audioModulesJSON[currentTrackIdx] = JSON.stringify(audioModules);
-    console.log(audioModulesJSON);
-  };
-
-  const loadConfiguration = () => {
-    // works!
-    console.log(audioModulesJSON);
-
+  const saveConfiguration = async (name: string): Promise<boolean> => {
     /*
-    load any configuration that was saved with saveConfiguration()
+    audioModulesJSON is an array of JSON objects. Each JSON object
+    within audioModulesJSON is a stringified 2d array of audioModules
+    for a given track. The audioModulesJSON will ITSELF be stringified 
+    before being stored in the DB.
+
+    To unpack data payload:
+      Parse audioModulesJSON object -> array of JSON Object
+      parse audioModulesJson[index] -> 2d audioModules Object
     */
-    let testConfig = [
-      [
-        { type: "Blank" },
-        { type: "Highpass", frequency: 20, resonance: 0 },
-        { type: "Lowpass", frequency: 21000, resonance: 0 },
-      ],
-      [
-        { type: "Reverb" },
-        { type: "Highpass", frequency: 20, resonance: 0 },
-        { type: "Lowpass", frequency: 21000, resonance: 0 },
-      ],
-      [{ type: "New" }],
-    ];
 
-    setAudioModules(testConfig);
+    // TODO : Remove return statement after testing is completed
 
-    let tempAudioNodesSubArr = audioNodes![currentTrackIdx];
+    audioModulesJSON[currentTrackIdx] = JSON.stringify(audioModules); // save current track's audioModules as JSON
 
-    while (tempAudioNodesSubArr.length > 2) {
-      tempAudioNodesSubArr?.splice(1, 1); // delete all previous audioNodes
-    }
+    let tempData = [];
 
-    // setAudioNodes(tempAudioNodes); // set cleared audioNodes before adding configured ones
+    // remove any "new" type modules before saving.
+    for (let i = 0; i < audioModulesJSON.length; i++) {
+      let tempAudioModules = JSON.parse(audioModulesJSON[i]);
 
-    let addNewAudioNodes = () => {
-      for (let i = 0; i < testConfig.length; i++) {
-        for (let j = 0; j < testConfig[i].length; j++) {
-          if (i === 0 && j === 0) {
-            continue;
-          }
+      let lastRow = tempAudioModules.length - 1;
+      let lastColumn = tempAudioModules[lastRow].length - 1;
 
-          if (testConfig[i][j].type === "New") {
-            // dont add the new module as an audioNode
-            break;
-          }
-          addAudioNode(testConfig[i][j]); // add configured audio nodes
+      if (tempAudioModules[lastRow][lastColumn].type === "New") {
+        tempAudioModules[lastRow].splice(lastColumn, 1);
+
+        if (tempAudioModules[lastRow].length === 0) {
+          tempAudioModules.splice(lastRow, 1);
         }
       }
+
+      audioModulesJSON[i] = JSON.stringify(tempAudioModules);
+
+      tempData.push(JSON.parse(audioModulesJSON[i]));
+    }
+
+    const configuration = {
+      data: tempData,
     };
 
-    setTimeout(addNewAudioNodes, 10); // need a slight delay to allow the audio nodes state to set before adding nodes
+    const tempBody = {
+      songId: songData.id,
+      chainName: name,
+      data: JSON.stringify(configuration),
+    };
+
+    let response = await fetch(`http://localhost:8005/chain/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json", // Required in order to server to receive req body
+        authorization: `Bearer ${authContext.user.token}`,
+      },
+      body: JSON.stringify(tempBody),
+    });
+
+    if (response.ok) {
+      // const json = await response.json();
+      setIsUserSongPayloadSet(false); // trigger refetching if user song data from backend
+      return true;
+    } else {
+      return false;
+    }
+
+    /*
+    example of a saved configuration (make sure to add ` before and after JSON string below)
+    {"data":[[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"New"}]],[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"New"}]],[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"Reverb","isEnabled":true,"impulse":0}]],[[{"type":"Blank"}]],[[{"type":"Blank"}]],[[{"type":"Blank"}]]]}
+    */
+  };
+
+  let sleep = (seconds: number): Promise<void> => {
+    // sleeping utility function
+    return new Promise((res, rej) => {
+      setTimeout(() => {
+        res();
+      }, seconds * 1000);
+    });
+  };
+
+  // const clearConfiguration = async () => {
+  //   audioModulesJSON[currentTrackIdx] = JSON.stringify(audioModules);
+  //   setAudioModulesJSON(audioModulesJSON);
+  //   await sleep(1);
+
+  //   for (let i = 0; i < audioModulesJSON.length; i++) {
+  //     // save modules before switching over
+  //     setCurrentTrackIdx(i);
+  //     setAudioModules(JSON.parse(audioModulesJSON[i]));
+  //     await sleep(2);
+
+  //     // let tempObject = {
+  //     //   type: "TrackChange",
+  //     // };
+
+  //     // editAudioNodeData(tempObject, []);
+  //     // await sleep(0.5);
+
+  //     // get module count
+  //     let moduleCount = 0;
+
+  //     for (let j = 0; j < audioModules.length; j++) {
+  //       for (let k = 0; k < audioModules[j].length; k++) {
+  //         if (audioModules[j][k]) {
+  //           moduleCount++;
+  //         }
+  //       }
+  //     }
+
+  //     for (let j = 0; j < moduleCount - 1; j++) {
+  //       console.log("Deleting audioNode... ------------");
+  //       deleteAudioModuleAndNode([0, 1]);
+  //       await sleep(2);
+  //     }
+  //   }
+  // };
+
+  const loadConfiguration = async (payload: string): Promise<boolean> => {
+    const sleepFactor = 0.2; // Require sleeping to avoid audioModules undefined error when reconnecting audioNodes
+
+    try {
+      /*  
+      Sleeping is required to avoid bug where there is a mismatch between the audioNodes and audioModules
+      when the useReconnectNodes hook is executed (which is quite often).
+      */
+
+      // Setting the audioModulesJSON, audioNodes, and audioModules to their initial state works for clearing previous config
+      setAudioModulesJSON(initAudioModulesJSON);
+      setAudioNodes(initAudioNodes);
+      setAudioModules(JSON.parse(initAudioModulesJSON[0]));
+      await sleep(sleepFactor);
+
+      // await clearConfiguration();
+
+      // let parsedConfig = JSON.parse(
+      //   // Test configuration
+      //   `{"data":[[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":"265","resonance":"13"},{"type":"Lowpass","isEnabled":true,"frequency":"10483","resonance":"20"}],[{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0},{"type":"Reverb","isEnabled":true,"impulse":"1"}]],[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":"1905","resonance":"15"},{"type":"Lowpass","isEnabled":true,"frequency":"6852","resonance":"9"}],[{"type":"Reverb","isEnabled":true,"impulse":"2"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}]],[[{"type":"Blank"},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0}],[{"type":"Reverb","isEnabled":true,"impulse":"3"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Reverb","isEnabled":true,"impulse":0}]],[[{"type":"Blank"}]],[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"Reverb","isEnabled":true,"impulse":"8"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}]],[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0},{"type":"Reverb","isEnabled":true,"impulse":"2"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0}],[{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}]]]}`
+      // );
+
+      let parsedConfig = JSON.parse(payload);
+
+      for (let i = 0; i < parsedConfig.data.length; i++) {
+        currentTrackIdx! = i;
+        setCurrentTrackIdx(i);
+        await sleep(sleepFactor);
+
+        let config = parsedConfig.data[i];
+        setAudioModules(config);
+        await sleep(sleepFactor);
+
+        let tempAudioNodesSubArr = audioNodes![currentTrackIdx];
+
+        while (tempAudioNodesSubArr.length > 2) {
+          tempAudioNodesSubArr?.splice(1, 1); // delete all previous audioNodes EXCEPT AudioBufferSourceNode and gainNode
+        }
+
+        audioNodes![currentTrackIdx] = tempAudioNodesSubArr;
+        setAudioNodes(audioNodes);
+        await sleep(sleepFactor);
+
+        // setAudioNodes(tempAudioNodes); // set cleared audioNodes before adding configured ones
+        // above line of code is not requires because audioNodes will be changed by reference
+        settingsTracksData![currentTrackIdx].moduleCount = 0;
+
+        let addNewAudioNodes = async () => {
+          // Config is equivalent to the current audioModules
+          for (let k = 0; k < config.length; k++) {
+            for (let j = 0; j < config[k].length; j++) {
+              if (k === 0 && j === 0) {
+                // skip blank module
+                continue;
+              }
+
+              if (config[k][j].type === "New") {
+                // dont add the new module as an audioNode
+                break;
+              }
+              settingsTracksData![currentTrackIdx].moduleCount += 1;
+              addAudioNode(config[k][j]); // add configured audio nodes
+              await sleep(sleepFactor);
+            }
+          }
+        };
+
+        await addNewAudioNodes();
+
+        // save current audio module configuration
+        audioModulesJSON[currentTrackIdx] = JSON.stringify(config);
+      }
+      setAudioModulesJSON(audioModulesJSON);
+
+      return true;
+    } catch (e) {
+      console.log(e);
+      return false;
+    }
+  };
+
+  const deleteConfiguration = async (chainId: string): Promise<boolean> => {
+    let response = await fetch(`http://localhost:8005/chain/`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json", // Required in order to server to receive req body
+        authorization: `Bearer ${authContext.user.token}`,
+      },
+      body: JSON.stringify({
+        chainId: chainId,
+      }),
+    });
+
+    if (response.ok) {
+      return true;
+    } else {
+      return false;
+    }
   };
 
   /*
@@ -1461,49 +1767,77 @@ const AudioBox = ({ songData }: Props) => {
 
   return (
     <>
-      <div style={AudioBoxStyle} onClick={handleUserGesture}>
-        <div
-          style={SettingButtonStyle}
-          onMouseEnter={handleMouseEnterSettingsButton}
-          onMouseLeave={handleMouseLeaveSettingsButton}
-          onClick={handleUserClickSettingsButton}
-        >
-          Settings
+      <div style={MasterContainerStyle}>
+        <div style={SongDataContainerStyle}>
+          <div style={SongDataContainerElementStyle}>
+            <h1
+              style={{
+                fontSize: "15px",
+                marginTop: "8px",
+                textAlign: "center",
+              }}
+            >
+              Title: {songData.title}
+            </h1>
+          </div>
+          <div style={SongDataContainerElementStyle}>
+            <h1
+              style={{
+                fontSize: "15px",
+                marginTop: "8px",
+                textAlign: "center",
+              }}
+            >
+              Description: {songData.description}
+            </h1>
+          </div>
         </div>
-        <AudioSettingsDrawer
-          settingsTracksData={settingsTracksData}
-          audioModulesJSON={audioModulesJSON}
-          audioModules={audioModules}
-          isSettingsExpanded={isSettingsExpanded}
-          currentTrackIdx={currentTrackIdx}
-          setAudioModulesJSON={setAudioModulesJSON}
-          setAudioModules={setAudioModules}
-          setCurrentTrackIdx={setCurrentTrackIdx}
-          setSettingsTracksData={setSettingsTracksData}
-          saveConfiguration={saveConfiguration}
-          loadConfiguration={loadConfiguration}
-          editAudioNodeData={editAudioNodeData}
-          setAudioNodesChanged={setAudioNodesChanged}
-        ></AudioSettingsDrawer>
-        {generateAudioModuleContainers()}
-        <canvas style={CanvasStyle} ref={canvasRef}></canvas>
-        <AudioController
-          hasUserGestured={hasUserGestured}
-          isPlaying={isPlaying}
-          isExpanded={isExpanded}
-          isSettingsExpanded={isSettingsExpanded}
-          songTime={songTime}
-          songDuration={songDuration}
-          areAudioNodesReady={areAudioNodesReady}
-          setIsPlaying={setIsPlaying}
-          setIsExpanded={setIsExpanded}
-          setIsSettingsExpanded={setIsSettingsExpanded}
-          playSong={playSong}
-          stopSong={stopSong}
-          setSongTime={setSongTime}
-          startVisualizer={startVisualizer}
-          useAttachEventListener={useAttachEventListener}
-        ></AudioController>
+        <div style={AudioBoxStyle} onClick={handleUserGesture}>
+          <div
+            style={SettingButtonStyle}
+            onMouseEnter={handleMouseEnterSettingsButton}
+            onMouseLeave={handleMouseLeaveSettingsButton}
+            onClick={handleUserClickSettingsButton}
+          >
+            Settings
+          </div>
+          <AudioSettingsDrawer
+            songChains={songData.chains}
+            settingsTracksData={settingsTracksData}
+            audioModulesJSON={audioModulesJSON}
+            audioModules={audioModules}
+            isSettingsExpanded={isSettingsExpanded}
+            currentTrackIdx={currentTrackIdx}
+            setAudioModulesJSON={setAudioModulesJSON}
+            setAudioModules={setAudioModules}
+            setCurrentTrackIdx={setCurrentTrackIdx}
+            setSettingsTracksData={setSettingsTracksData}
+            saveConfiguration={saveConfiguration}
+            loadConfiguration={loadConfiguration}
+            deleteConfiguration={deleteConfiguration}
+            editAudioNodeData={editAudioNodeData}
+            setAudioNodesChanged={setAudioNodesChanged}
+          ></AudioSettingsDrawer>
+          {generateAudioModuleContainers()}
+          <canvas style={CanvasStyle} ref={canvasRef}></canvas>
+          <AudioController
+            hasUserGestured={hasUserGestured}
+            isPlaying={isPlaying}
+            isExpanded={isExpanded}
+            isSettingsExpanded={isSettingsExpanded}
+            songTime={songTime}
+            songDuration={songDuration}
+            areAudioNodesReady={areAudioNodesReady}
+            setIsPlaying={setIsPlaying}
+            setIsExpanded={setIsExpanded}
+            setIsSettingsExpanded={setIsSettingsExpanded}
+            playSong={playSong}
+            stopSong={stopSong}
+            setSongTime={setSongTime}
+            startVisualizer={startVisualizer}
+            useAttachEventListener={useAttachEventListener}
+          ></AudioController>
+        </div>
       </div>
     </>
   );

@@ -99,7 +99,7 @@ const UserProfile = () => {
     setMessage("");
 
     if (isInEditMode) {
-      let temp: Object = {};
+      let temp: any = {};
 
       if (soundcloudURL) {
         if (!soundcloudURL.includes("soundcloud.com")) {

@@ -145,3 +145,8 @@ let getGridFSBucket = async () => { // GridFS proof of concept tests
 
 }
 
+----------------------------------------------------------------------------------------------------
+
+I believe that the issue with loading a configuration arises due to the fact that the saved configuration
+has "new" (unspecified) modules which do not have an isEnabled field. Do not allow these modules to be 
+saved in the configuration
