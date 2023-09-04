@@ -986,6 +986,8 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
   const generateDistcurve = (amount: number): Float32Array => {
     // function for creating the distortion curve for waveshapers
 
+    // This function only changes volume, but does not seem to actually distort?
+
     // const n_samples = 500; // dont need 41K samples
     // const curve = new Float32Array(n_samples);
     // const deg = Math.PI / 180;
@@ -1191,7 +1193,7 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
         break;
       case "Waveshaper":
         tempAudioNode = aCtx!.createWaveShaper();
-        tempAudioNode.curve = data.curve;
+        tempAudioNode.curve = generateDistcurve(data.amount);
         insertAudioNode(audioNodes, tempAudioNode, currentTrackIdx);
         setAudioNodes(audioNodes);
         setTimeout(() => {
@@ -1496,8 +1498,7 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
       tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].impulse = 1;
     } else if (type === "Waveshaper") {
       tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].amount = 1;
-      tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].curve =
-        generateDistcurve(1);
+      tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].curve = 1;
     } else if (type === "Gain") {
       tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].amount = 1.0;
     } else {
