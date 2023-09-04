@@ -163,7 +163,7 @@ const GainModule = ({
           type={"range"}
           value={data.amount * 100}
           min={0}
-          max={500}
+          max={250}
           style={SliderStyle}
           onChange={handleSliderChange}
         ></input>

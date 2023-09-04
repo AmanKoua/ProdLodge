@@ -157,13 +157,13 @@ const WaveShaperModule = ({
         ></img>
         <h1 style={ModuleNameTextStyle}>Waveshaper</h1>
         <div style={CenterAttributeTextDivStyle}>
-          <p style={AttributeTextStyle}>Amount : {data.amount / 100}</p>
+          <p style={AttributeTextStyle}>Amount : {data.amount}</p>
         </div>
         <input
           type={"range"}
           value={data.amount}
           min={0}
-          max={600}
+          max={100}
           style={SliderStyle}
           onChange={handleSliderChange}
         ></input>

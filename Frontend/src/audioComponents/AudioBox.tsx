@@ -986,13 +986,26 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
   const generateDistcurve = (amount: number): Float32Array => {
     // function for creating the distortion curve for waveshapers
 
-    const n_samples = 500; // dont need 41K samples
+    // const n_samples = 500; // dont need 41K samples
+    // const curve = new Float32Array(n_samples);
+    // const deg = Math.PI / 180;
+
+    // for (let i = 0; i < n_samples; i++) {
+    //   const x = (i * 2) / n_samples - 1;
+    //   curve[i] = (3 + amount / 10) * x * 20 * deg;
+    // }
+    // return curve;
+
+    // ----------------------------------------------
+
+    const k = amount;
+    const n_samples = 500;
     const curve = new Float32Array(n_samples);
     const deg = Math.PI / 180;
 
     for (let i = 0; i < n_samples; i++) {
       const x = (i * 2) / n_samples - 1;
-      curve[i] = (3 + amount / 10) * x * 20 * deg;
+      curve[i] = ((3 + k) * x * 20 * deg) / (Math.PI + k * Math.abs(x));
     }
     return curve;
   };
