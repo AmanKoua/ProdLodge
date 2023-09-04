@@ -293,4 +293,106 @@ router.get("/songs", verifyTokenAndGetUser, async (req, res) => {
     return res.status(200).json({ payload })
 })
 
+router.patch("/song", verifyTokenAndGetUser, async (req, res) => {
+
+    if (!req.body || !req.body.songId || !req.body.title || !req.body.description) {
+        return res.status(400).json({ error: "Invalid request body!" })
+    }
+
+    const songId = req.body.songId;
+    const title = req.body.title;
+    const description = req.body.description;
+    let songs = [];
+
+    if (songId.length !== 24) {
+        return res.status(400).json({ error: "Invalid songId!" });
+    }
+
+    try {
+        songs = await song.find({ _id: new ObjectId(songId) }).exec();
+    } catch (e) {
+        console.log(e);
+        return res.status(500).json({ error: "Error querying songs!" });
+    }
+
+    if (songs.length === 0) {
+        return res.status(404).json({ error: "No song found for given id!" });
+    }
+    else if (songs.length > 1) {
+        return res.status(500).json({ error: "Multiple songs found for same id!" });
+    }
+
+    if (songs[0].userId.valueOf() !== req.body.verifiedUser._id.valueOf()) {
+        return res.status(401).json({ error: "You are not authorized to change this song!" });
+    }
+
+    try {
+        await songs[0].updateOne({
+            $set: {
+                title: title,
+                description: description,
+            }
+        })
+    } catch (e) {
+        console.log(e);
+        return res.status(500).json({ error: "Error updating song!" });
+    }
+
+    return res.status(200).json({ message: "Song updated successfully!" })
+
+})
+
+router.delete('/song', verifyTokenAndGetUser, async (req, res) => {
+
+    if (!req.body || !req.body.songId) {
+        return res.status(400).json({ error: "Invalid request body!" })
+    }
+
+    const songId = req.body.songId;
+    let songs = [];
+
+    if (songId.length !== 24) {
+        return res.status(400).json({ error: "Invalid songId!" });
+    }
+
+    try {
+        songs = await song.find({ _id: new ObjectId(songId) }).exec();
+    } catch (e) {
+        console.log(e);
+        return res.status(500).json({ error: "Error querying songs!" });
+    }
+
+    if (songs.length === 0) {
+        return res.status(404).json({ error: "No song found for given id!" });
+    }
+    else if (songs.length > 1) {
+        return res.status(500).json({ error: "Multiple songs found for same id!" });
+    }
+
+    if (songs[0].userId.valueOf() !== req.body.verifiedUser._id.valueOf()) {
+        return res.status(401).json({ error: "You are not authorized to delete this song!" });
+    }
+
+    try {
+        const client = new MongoClient(process.env.MONGO_URI);
+        await client.connect();
+        const db = client.db("ProdCluster");
+        const bucket = new GridFSBucket(db);
+
+        for (let i = 0; i < songs[0].trackList.length; i++) {
+            await bucket.delete(songs[0].trackList[i]);
+        }
+
+        await client.close();
+        await songs[0].deleteOne();
+
+    } catch (e) {
+        console.log(e);
+        return res.status(500).json({ error: "Error deleting song!" });
+    }
+
+    return res.status(200).json({ message: "Song deleted successfully!" })
+
+})
+
 module.exports = router;
