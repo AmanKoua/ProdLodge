@@ -41,7 +41,16 @@ const NavBar = () => {
             <div className="userNameDropDown">
               <Link to="/newSong">
                 <center>
-                  <p style={{ border: "1px solid black" }}>New Song</p>
+                  <p style={{ border: "1px solid black", marginBottom: "0px" }}>
+                    New Song
+                  </p>
+                </center>
+              </Link>
+              <Link to="/editSong">
+                <center>
+                  <p style={{ border: "1px solid black", marginBottom: "0px" }}>
+                    Edit Song
+                  </p>
                 </center>
               </Link>
             </div>

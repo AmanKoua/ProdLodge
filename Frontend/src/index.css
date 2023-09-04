@@ -41,7 +41,7 @@
     margin-top:-3px;
     display:none;
     position: absolute;
-    width: 6%;
+    width: 8%;
     height: 140px;
     background-color: var(--secondary);
 }
@@ -52,6 +52,7 @@
 
 .userNameDropDown a{
     display: block;
+    float:inline-start;
     /* background-color: green; */
 }
 
@@ -146,6 +147,24 @@ form button {
     width: 10%;
 }
 
+.mainArea .error{
+    width: 45%;
+    align-self:center;
+    text-align:center;
+    margin-top: 15px;
+    border: 2px solid red;
+    background-color: var(--error);
+}
+
+.mainArea .message{
+    width: 45%;
+    align-self:center;
+    text-align:center;
+    margin-top: 15px;
+    border: 2px solid green;
+    background-color: var(--message);
+}
+
 .profileData{
     width: 80%;
     margin-top:10px;
@@ -169,22 +188,4 @@ form button {
     align-self: center;
     margin-left: 40%;
     /* background-color: red; */
-}
-
-.mainArea .error{
-    width: 45%;
-    align-self:center;
-    text-align:center;
-    margin-top: 15px;
-    border: 2px solid red;
-    background-color: var(--error);
-}
-
-.mainArea .message{
-    width: 45%;
-    align-self:center;
-    text-align:center;
-    margin-top: 15px;
-    border: 2px solid green;
-    background-color: var(--message);
 }
