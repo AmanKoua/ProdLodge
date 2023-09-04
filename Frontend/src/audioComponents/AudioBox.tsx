@@ -272,6 +272,7 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
 
       let fetchTracks = async () => {
         let tempTrackBuffers: AudioBuffer[] = [];
+        let maxTrackDuration: number = 0;
         // let songTrackIds: string[] = Object.keys(tempTracks);
         let songTrackIds: string[] = songData.trackIds;
         let tempSettingsTracksData: Object[] = [];
@@ -320,8 +321,16 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
             break;
           }
         }
+
+        for (let i = 0; i < tempTrackBuffers.length; i++) {
+          // Search for the track of the longest duration
+          if (tempTrackBuffers![i].duration > maxTrackDuration) {
+            maxTrackDuration = tempTrackBuffers![i].duration;
+          }
+        }
+
         setTrackBuffers(tempTrackBuffers!);
-        setSongDuration(tempTrackBuffers![0].duration);
+        setSongDuration(maxTrackDuration);
         setSettingsTracksData(tempSettingsTracksData);
         setAudioModulesJSON(tempAudioModulesJSON);
         setInitAudioModulesJSON(tempAudioModulesJSON);
