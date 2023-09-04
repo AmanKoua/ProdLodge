@@ -2,7 +2,10 @@ import React from "react";
 import { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
+
 import AudioBox from "../audioComponents/AudioBox";
+
+import { Chain, SongData } from "../customTypes";
 
 const Home = () => {
   const [userSongPayload, setUserSongPayload] = useState([]);

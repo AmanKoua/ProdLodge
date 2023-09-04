@@ -3,10 +3,12 @@ import deleteButton from "../assets/delete.png";
 import moveLeftButton from "../assets/moveLeft.png";
 import moveRightButton from "../assets/moveRight.png";
 
+import { AudioModule } from "../customTypes";
+
 import "../invisibleScrollbar.css";
 
 interface Props {
-  data: Object;
+  data: AudioModule;
   position: number[];
   editAudioNodeData: (data: Object, moduleIndex: number[]) => void;
   setAudioNodesChanged: (val: boolean) => void;
@@ -161,7 +163,7 @@ const GainModule = ({
         </div>
         <input
           type={"range"}
-          value={data.amount * 100}
+          value={data.amount! * 100}
           min={0}
           max={250}
           style={SliderStyle}

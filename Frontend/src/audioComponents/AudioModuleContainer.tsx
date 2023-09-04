@@ -9,6 +9,8 @@ import WaveShaperModule from "./WaveShaperModule";
 import GainModule from "./GainModule";
 import CSS from "csstype";
 
+import { AudioModule } from "../customTypes";
+
 interface Props {
   containerIndex: number;
   modules: Object[]; // pass in data required to reconstruct module interfaces
@@ -43,7 +45,7 @@ const AudioModuleContainer = ({
   };
 
   const generateModuleFromData = (
-    data: Object,
+    data: AudioModule,
     idx: number,
     containerIdx: number
   ): JSX.Element => {

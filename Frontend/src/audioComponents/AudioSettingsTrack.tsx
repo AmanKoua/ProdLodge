@@ -1,8 +1,10 @@
 import { useRef } from "react";
 import CSS from "csstype";
 
+import { TrackData } from "../customTypes";
+
 interface Props {
-  settingsTracksData: Object[] | undefined;
+  settingsTracksData: TrackData[] | undefined;
   audioModulesJSON: string[];
   audioModules: Object[][];
   idx: number;

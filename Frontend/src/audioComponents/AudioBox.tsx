@@ -6,32 +6,13 @@ import AudioModuleContainer from "./AudioModuleContainer";
 import AudioSettingsDrawer from "./AudioSettingsDrawer";
 import { AuthContext } from "../context/AuthContext";
 
+import { SongData, TrackData, AudioModule } from "../customTypes";
+
 /*
 Cannot use hooks imported from another module because variables used can be 
 accessed / corrupted by other AudioBox instances. I'd prefer not to keep 
 all useEffects definitions in this file, but I dont see another option.
 */
-
-// import {
-//   useInitAudioCtx,
-//   useFetchAudioAndInitNodes,
-//   useReconnectNodes,
-//   usePlayAndResume,
-//   usePauseSong,
-//   useTrackSongTime,
-//   useInitVisualizer,
-//   useInitCanvas,
-//   useDraw,
-// } from "../webAudioHooks";
-
-import tempSong from "../assets/songs/telepathy.mp3"; // when only 1 track was supported
-
-import bass from "../assets/songs/stems/bass.mp3";
-import chords from "../assets/songs/stems/chords.mp3";
-import drums from "../assets/songs/stems/drums.mp3";
-import leads from "../assets/songs/stems/leads.mp3";
-import reverb from "../assets/songs/stems/reverb.mp3";
-import master from "../assets/songs/stems/master.mp3"; // change this to change master song
 
 // import impulse0 from "../assets/impulseResponses/0.wav";
 import impulse1 from "../assets/impulseResponses/1.wav";
@@ -54,22 +35,12 @@ import impulse17 from "../assets/impulseResponses/17.wav";
 import impulse18 from "../assets/impulseResponses/18.wav";
 
 interface Props {
-  songData: Object;
+  songData: SongData;
   setIsUserSongPayloadSet: (val: boolean) => void;
 }
 
 const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
   // console.log("AudioBox Rerender!");
-  let tracks: Object = {
-    bass: bass,
-    chords: chords,
-    drums: drums,
-    leads: leads,
-    reverb: reverb,
-    master: master,
-  };
-
-  let tracksJSON = JSON.stringify(tracks);
 
   let impulses: Object = {
     // impulse0: impulse0,
@@ -94,7 +65,7 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
   };
 
   let impulsesJSON = JSON.stringify(impulses);
-  let tempModuleData: Object[][] = [[{ type: "Blank" }]];
+  let tempModuleData: AudioModule[][] = [[{ type: "Blank" }]];
 
   const authContext = useContext(AuthContext);
 
@@ -107,7 +78,7 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
   let setCurrentTrackIdx: (val: any) => void;
   let trackBuffers: AudioBuffer[] | undefined;
   let setTrackBuffers: (val: any) => void;
-  let settingsTracksData: Object[] | undefined;
+  let settingsTracksData: TrackData[] | undefined;
   let setSettingsTracksData: (val: any) => void;
   let impulseBuffers: AudioBuffer[] | undefined;
   let setImpulseBuffers: (val: any) => void;
@@ -125,7 +96,7 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
   let setAnalyserNode: (val: any) => void;
 
   // audioModules (data required for creating UI for audio nodes)
-  let audioModules: Object[][];
+  let audioModules: AudioModule[][];
   let setAudioModules: (val: Object[][]) => void;
   let audioModulesJSON: string[];
   let setAudioModulesJSON: (val: string[]) => void;
@@ -222,7 +193,6 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
 
   let useFetchAudioAndInitNodes = (
     aCtx: AudioContext | undefined,
-    tracksJSON: string,
     impulsesJSON: string,
     setTrackBuffers: (val: any) => void,
     setSettingsTracksData: (val: any) => void,
@@ -249,7 +219,6 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
 
       console.log("fetching audio!");
 
-      let tempTracks = JSON.parse(tracksJSON);
       let tempImpulses = JSON.parse(impulsesJSON);
 
       // console.log(tempTracks);
@@ -275,7 +244,7 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
         let maxTrackDuration: number = 0;
         // let songTrackIds: string[] = Object.keys(tempTracks);
         let songTrackIds: string[] = songData.trackIds;
-        let tempSettingsTracksData: Object[] = [];
+        let tempSettingsTracksData: TrackData[] = [];
         let tempAudioModulesJSON: string[] = ['[[{"type":"Blank"}]]'];
 
         for (let i = 0; i < songTrackIds.length; i++) {
@@ -296,7 +265,14 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
             let arrayBuffer = await response.arrayBuffer();
 
             await aCtx.decodeAudioData(arrayBuffer, (decodedBuffer) => {
-              let tempTracksData = {};
+              tempTrackBuffers.push(decodedBuffer);
+
+              let tempTracksData: TrackData = {
+                isEnabled: true,
+                name: trackName!,
+                moduleCount: 0,
+                idx: i,
+              };
 
               if (songTrackIds[i] === "master") {
                 tempTracksData.isEnabled = false;
@@ -305,11 +281,6 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
                 setCurrentTrackIdx(i);
               }
 
-              tempTrackBuffers.push(decodedBuffer);
-
-              tempTracksData.name = trackName;
-              tempTracksData.moduleCount = 0;
-              tempTracksData.idx = i;
               tempSettingsTracksData.push(tempTracksData);
               if (i !== 0) {
                 // skip 1, because 1 is already defined when the audioModulesState is set!
@@ -339,7 +310,7 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
 
       let createPrimaryNodes = async (
         songBuffers: AudioBuffer[],
-        tempSettingsTracksData: Object[] // to tell if gain should be on / off
+        tempSettingsTracksData: TrackData[] // to tell if gain should be on / off
       ) => {
         // create audioBufferSourceNode and analyserNode
 
@@ -383,9 +354,9 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
     aCtx: AudioContext | undefined,
     audioNodes: AudioNode[][][] | undefined,
     analyserNode: AudioNode | undefined,
-    audioModules: Object[][],
+    audioModules: AudioModule[][],
     audioModulesJSON: string[],
-    settingsTracksData: Object[] | undefined,
+    settingsTracksData: TrackData[] | undefined,
     currentTrackIdx: number,
     audioNodesChanged: boolean,
     setAudioNodesChanged: (val: any) => void
@@ -645,7 +616,7 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
   let useInitVisualizer = (
     isVisualizing: boolean,
     // audioNodes: AudioNode[][] | undefined,
-    analyserNode: AudioNode | undefined,
+    analyserNode: AnalyserNode | undefined,
     canvasRef: any,
     setBufferLength: (val: any) => void,
     setDataArr: (val: any) => void,
@@ -687,7 +658,7 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
   let useDraw = (
     canvas: HTMLCanvasElement | undefined,
     canvasCtx: CanvasRenderingContext2D | undefined,
-    analyserNode: AudioNode | undefined,
+    analyserNode: AnalyserNode | undefined,
     dataArr: Uint8Array | undefined,
     bufferLength: number | undefined,
     setAnimationFrameHandler: (val: any) => void
@@ -806,7 +777,6 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
 
   useFetchAudioAndInitNodes(
     aCtx,
-    tracksJSON,
     impulsesJSON,
     setTrackBuffers,
     setSettingsTracksData,
@@ -1027,7 +997,7 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
     cards. it is NOT for storing individual audio nodes
   */
   const addModule = (): void => {
-    let tempAudioModulesData: Object[][] = audioModules;
+    let tempAudioModulesData: AudioModule[][] = audioModules;
 
     // If last module is already a new module, dont allow for further module addition (until module type is created)
 
@@ -1136,7 +1106,7 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
     return audioNodes;
   };
 
-  const addAudioNode = (data: Object) => {
+  const addAudioNode = (data: AudioModule) => {
     // add the audioNode to process audio data (2nd subarray only allows 2 audioNodes to synchronize with audioModules)
 
     if (audioNodes === undefined) {
@@ -1193,7 +1163,7 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
         break;
       case "Reverb":
         tempAudioNode = aCtx!.createConvolver();
-        tempAudioNode.buffer = impulseBuffers[data.impulse];
+        tempAudioNode.buffer = impulseBuffers![data.impulse!];
         insertAudioNode(audioNodes, tempAudioNode, currentTrackIdx);
         setAudioNodes(audioNodes);
         setTimeout(() => {
@@ -1202,7 +1172,7 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
         break;
       case "Waveshaper":
         tempAudioNode = aCtx!.createWaveShaper();
-        tempAudioNode.curve = generateDistcurve(data.amount);
+        tempAudioNode.curve = generateDistcurve(data.amount!);
         insertAudioNode(audioNodes, tempAudioNode, currentTrackIdx);
         setAudioNodes(audioNodes);
         setTimeout(() => {
@@ -1415,7 +1385,7 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
     setAudioNodes(audioNodes);
   };
 
-  const editAudioNodeData = (data: Object, position: number[]) => {
+  const editAudioNodeData = (data: AudioModule, position: number[]) => {
     let tempAudioNodesSubArr = audioNodes![currentTrackIdx];
 
     // Offset row and column to account for structure of audioNodes array
@@ -1440,9 +1410,12 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
         tempAudioNodesSubArr![row][column].gain.value = data.gain;
       }
     } else if (data.type === "Reverb") {
-      tempAudioNodesSubArr![row][column].buffer = impulseBuffers![data.impulse];
+      tempAudioNodesSubArr![row][column].buffer =
+        impulseBuffers![data.impulse!];
     } else if (data.type === "Waveshaper") {
-      tempAudioNodesSubArr![row][column].curve = generateDistcurve(data.amount);
+      tempAudioNodesSubArr![row][column].curve = generateDistcurve(
+        data.amount!
+      );
     } else if (data.type === "Gain") {
       tempAudioNodesSubArr![row][column].gain.value = data.amount;
     } else if (data.type === "TrackChange") {
@@ -1481,7 +1454,7 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
     audio node)
   */
   const setModuleType = (type: string, moduleIndex: number[]): void => {
-    let tempAudioModulesData: Object[][] = audioModules;
+    let tempAudioModulesData: AudioModule[][] = audioModules;
 
     // settings for all audioModules
     tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].type = type;
@@ -1507,7 +1480,7 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
       tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].impulse = 1;
     } else if (type === "Waveshaper") {
       tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].amount = 1;
-      tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].curve = 1;
+      // tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].curve = 1;
     } else if (type === "Gain") {
       tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].amount = 1.0;
     } else {

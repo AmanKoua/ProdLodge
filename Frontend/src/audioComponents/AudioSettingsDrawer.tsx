@@ -3,8 +3,10 @@ import CSS from "csstype";
 import AudioSettingsTrack from "./AudioSettingsTrack";
 import "../invisibleScrollbar.css";
 
+import { Chain } from "../customTypes";
+
 interface Props {
-  songChains: Object[]; // [{name: ..., data: ....}]
+  songChains: Chain[];
   settingsTracksData: Object[] | undefined;
   audioModulesJSON: string[];
   audioModules: Object[][];
@@ -42,7 +44,7 @@ const AudioSettingsDrawer = ({
   const [configDivStyleHeight, setConfigDivStyleHeight] = useState("30px");
   const [isSaveConfig, setIsSaveConfig] = useState(false);
   const [configName, setConfigName] = useState("");
-  const [songChainIdx, setSongChainIdx] = useState("invalid");
+  const [songChainIdx, setSongChainIdx] = useState(-1);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
 
@@ -238,11 +240,11 @@ const AudioSettingsDrawer = ({
           name="chainSelect"
           value={songChainIdx}
           onChange={(e) => {
-            setSongChainIdx(e.target.value);
+            setSongChainIdx(parseInt(e.target.value));
           }}
           style={{ width: "65%", marginLeft: "17.5%", marginTop: "15px" }}
         >
-          <option key={-1} value={"invalid"}>
+          <option key={-1} value={-1}>
             Choose configuration
           </option>
 
@@ -257,7 +259,7 @@ const AudioSettingsDrawer = ({
         <div
           style={CustomActionButtonStyle}
           onClick={async () => {
-            if (songChainIdx === "invalid") {
+            if (songChainIdx === -1) {
               // do not load this configuration
               return;
             } else {
@@ -284,7 +286,7 @@ const AudioSettingsDrawer = ({
             setMessage("");
             setError("");
 
-            if (songChainIdx === "invalid") {
+            if (songChainIdx === -1) {
               // ignore
               return;
             }
