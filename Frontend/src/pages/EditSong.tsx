@@ -10,14 +10,19 @@ import { SongData } from "../customTypes";
 
 interface Props {
   songData: SongData;
+  authContext: any;
+  editSong: (
+    songId: string,
+    title: string,
+    description: string
+  ) => Promise<void>;
+  deleteSong: (songId: string) => Promise<void>;
 }
 
-const SongEntry = ({ songData }: Props) => {
+const SongEntry = ({ songData, authContext, editSong, deleteSong }: Props) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [songTitle, setSongTitle] = useState("");
   const [songDescription, setSongDescription] = useState("");
-
-  console.log(songData);
 
   useEffect(() => {
     if (songTitle || songDescription) {
@@ -114,6 +119,17 @@ const SongEntry = ({ songData }: Props) => {
         <span
           className="material-symbols-outlined"
           style={{ fontSize: "2.2em" /*backgroundColor: "orange"*/ }}
+          onClick={async () => {
+            const confirmed = confirm(
+              'Are you sure you want to delete "' + songData.title + '" ?'
+            );
+
+            if (confirmed) {
+              await deleteSong(songData.id);
+            } else {
+              return;
+            }
+          }}
         >
           delete
         </span>
@@ -140,7 +156,14 @@ const SongEntry = ({ songData }: Props) => {
             textAlign: "center",
           }}
         >
-          <p style={{ marginTop: "5px" }}>Edit song data</p>
+          <p
+            style={{ marginTop: "5px" }}
+            onClick={async () => {
+              await editSong(songData.id, songTitle, songDescription);
+            }}
+          >
+            Edit song data
+          </p>
         </div>
       </div>
     </div>
@@ -154,6 +177,19 @@ const EditSong = () => {
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
   let authContext = useContext(AuthContext);
+
+  const preventPageAccess = () => {
+    // DO not allow a user to access the profile page if not logged in OR if profile has yet to be set
+    const item = localStorage.getItem("user");
+
+    if (!item) {
+      navigate("/login");
+    }
+  };
+
+  useEffect(() => {
+    preventPageAccess();
+  }, []);
 
   useEffect(() => {
     // Get the list of user songs (and their tracks) upon page load
@@ -182,6 +218,54 @@ const EditSong = () => {
 
     getUserSongPayload();
   }, [isUserSongPayloadSet, authContext]);
+
+  const editSong = async (
+    songId: string,
+    title: string,
+    description: string
+  ) => {
+    const response = await fetch("http://localhost:8005/user/song", {
+      method: "PATCH",
+      headers: {
+        "Content-type": "Application/json",
+        Authorization: `Bearer ${authContext.user.token}`,
+      },
+      body: JSON.stringify({
+        songId: songId,
+        title: title,
+        description: description,
+      }),
+    });
+
+    if (response.ok) {
+      setMessage("Song edited successfully!");
+    } else {
+      setError("Error updating song!");
+    }
+
+    return;
+  };
+
+  const deleteSong = async (songId: string) => {
+    const response = await fetch("http://localhost:8005/user/song", {
+      method: "DELETE",
+      headers: {
+        "Content-type": "Application/json",
+        Authorization: `Bearer ${authContext.user.token}`,
+      },
+      body: JSON.stringify({
+        songId: songId,
+      }),
+    });
+
+    if (response.ok) {
+      setMessage("Song deleted successfully!");
+    } else {
+      setError("Error deleting song!");
+    }
+
+    return;
+  };
 
   const SongNameInputStyle: CSS.Properties = {
     // position: "relative",
@@ -212,24 +296,19 @@ const EditSong = () => {
     backgroundColor: "#edf4fc",
   };
 
-  const preventPageAccess = () => {
-    // DO not allow a user to access the profile page if not logged in OR if profile has yet to be set
-    const item = localStorage.getItem("user");
-
-    if (!item) {
-      navigate("/login");
-    }
-  };
-
-  useEffect(() => {
-    preventPageAccess();
-  }, []);
-
   const generateSongEntries = (): JSX.Element => {
     return (
       <>
         {userSongPayload.map((item, idx) => {
-          return <SongEntry songData={item} key={idx}></SongEntry>;
+          return (
+            <SongEntry
+              songData={item}
+              authContext={authContext}
+              key={idx}
+              editSong={editSong}
+              deleteSong={deleteSong}
+            ></SongEntry>
+          );
         })}
       </>
     );
