@@ -81,6 +81,7 @@ const GainModule = ({
     width: "80%",
     marginLeft: "10%",
     marginTop: "0%",
+    marginBottom: "45px",
   };
 
   const DeleteButtonStyle: CSS.Properties = {

@@ -1486,7 +1486,7 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
       tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].curve =
         generateDistcurve(1);
     } else if (type === "Gain") {
-      tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].amount = 0;
+      tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].amount = 1.0;
     } else {
       console.log("Unsupported module type added!");
       return;
