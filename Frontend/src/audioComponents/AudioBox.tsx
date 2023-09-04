@@ -983,6 +983,20 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
     setIsSettingsHover(false);
   };
 
+  const generateDistcurve = (amount: number): Float32Array => {
+    // function for creating the distortion curve for waveshapers
+
+    const n_samples = 500; // dont need 41K samples
+    const curve = new Float32Array(n_samples);
+    const deg = Math.PI / 180;
+
+    for (let i = 0; i < n_samples; i++) {
+      const x = (i * 2) / n_samples - 1;
+      curve[i] = (3 + amount / 10) * x * 20 * deg;
+    }
+    return curve;
+  };
+
   /*
     Adds a module to the audioModules. This variable
     is for storing information regarding the displayed
@@ -1161,6 +1175,19 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
         setTimeout(() => {
           setAudioNodesChanged(true);
         }, 10);
+        break;
+      case "Waveshaper":
+        tempAudioNode = aCtx!.createWaveShaper();
+        tempAudioNode.curve = data.curve;
+        insertAudioNode(audioNodes, tempAudioNode, currentTrackIdx);
+        setAudioNodes(audioNodes);
+        setTimeout(() => {
+          setAudioNodesChanged(true);
+        }, 10);
+        break;
+      default:
+        console.log("Invalid audioNode type added!");
+        return;
     }
   };
 
@@ -1381,6 +1408,8 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
       }
     } else if (data.type === "Reverb") {
       tempAudioNodesSubArr![row][column].buffer = impulseBuffers![data.impulse];
+    } else if (data.type === "Waveshaper") {
+      tempAudioNodesSubArr![row][column].curve = generateDistcurve(data.amount);
     } else if (data.type === "TrackChange") {
       // currentTrackIdx is changed in AudioSettingsTrack, which should automatically update currently selected track
     }
@@ -1441,6 +1470,13 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
       tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].gain = 15;
     } else if (type === "Reverb") {
       tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].impulse = 1;
+    } else if (type === "Waveshaper") {
+      tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].amount = 1;
+      tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].curve =
+        generateDistcurve(1);
+    } else {
+      console.log("Unsupported module type added!");
+      return;
     }
 
     addAudioNode(tempAudioModulesData[moduleIndex[0]][moduleIndex[1]]);
