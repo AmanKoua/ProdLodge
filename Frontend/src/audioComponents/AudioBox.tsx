@@ -1400,8 +1400,6 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
   };
 
   const editAudioNodeData = (data: AudioModule, position: number[]) => {
-    console.log(data);
-
     let tempAudioNodesSubArr = audioNodes![currentTrackIdx];
 
     // Offset row and column to account for structure of audioNodes array
