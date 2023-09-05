@@ -1647,7 +1647,7 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
   // };
 
   const loadConfiguration = async (payload: string): Promise<boolean> => {
-    const sleepFactor = 0.03; // Require sleeping to avoid audioModules undefined error when reconnecting audioNodes
+    const sleepFactor = 0.01; // Require sleeping to avoid audioModules undefined error when reconnecting audioNodes
 
     try {
       /*  
