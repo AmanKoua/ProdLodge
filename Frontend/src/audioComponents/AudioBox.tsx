@@ -84,6 +84,8 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
   let setImpulseBuffers: (val: any) => void;
   let songDuration: number;
   let setSongDuration: (val: any) => void;
+  let isReconnectionSuspended: boolean;
+  let setIsReconnectionSuspended: (val: boolean) => void;
 
   // AudioNodes (actual audio nodes)
   let audioNodes: AudioNode[][][] | undefined;
@@ -162,6 +164,7 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
   [settingsTracksData, setSettingsTracksData] = useState(undefined);
   [impulseBuffers, setImpulseBuffers] = useState(undefined);
   [songDuration, setSongDuration] = useState(0);
+  [isReconnectionSuspended, setIsReconnectionSuspended] = useState(false);
   [audioNodes, setAudioNodes] = useState(undefined);
   [initAudioNodes, setInitAudioNodes] = useState(undefined);
   [analyserNode, setAnalyserNode] = useState(undefined);
@@ -359,9 +362,15 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
     settingsTracksData: TrackData[] | undefined,
     currentTrackIdx: number,
     audioNodesChanged: boolean,
+    isReconnectionSuspended: boolean,
     setAudioNodesChanged: (val: any) => void
   ) => {
     useEffect(() => {
+      if (isReconnectionSuspended) {
+        // do not run reconnection process while loading a configuration
+        return;
+      }
+
       // disconnect and reconnect all audioNodes
       if (audioNodes === undefined || analyserNode === undefined) {
         return;
@@ -480,7 +489,7 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
       //     }
       //   }
       // };
-    }, [audioNodes, audioNodesChanged]);
+    }, [audioNodes, audioNodesChanged, isReconnectionSuspended]);
   };
 
   let usePlayAndResume = (
@@ -799,6 +808,7 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
     settingsTracksData,
     currentTrackIdx,
     audioNodesChanged,
+    isReconnectionSuspended,
     setAudioNodesChanged
   );
 
@@ -1637,7 +1647,7 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
   // };
 
   const loadConfiguration = async (payload: string): Promise<boolean> => {
-    const sleepFactor = 0.2; // Require sleeping to avoid audioModules undefined error when reconnecting audioNodes
+    const sleepFactor = 0.03; // Require sleeping to avoid audioModules undefined error when reconnecting audioNodes
 
     try {
       /*  
@@ -1646,6 +1656,7 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
       */
 
       // Setting the audioModulesJSON, audioNodes, and audioModules to their initial state works for clearing previous config
+      setIsReconnectionSuspended(true);
       setAudioModulesJSON(initAudioModulesJSON);
       setAudioNodes(initAudioNodes);
       setAudioModules(JSON.parse(initAudioModulesJSON[0]));
@@ -1708,7 +1719,9 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
         // save current audio module configuration
         audioModulesJSON[currentTrackIdx] = JSON.stringify(config);
       }
+
       setAudioModulesJSON(audioModulesJSON);
+      setIsReconnectionSuspended(false);
 
       return true;
     } catch (e) {
