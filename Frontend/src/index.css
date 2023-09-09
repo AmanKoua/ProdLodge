@@ -166,7 +166,7 @@ form button {
 }
 
 .profileData{
-    width: 80%;
+    width: 35%;
     margin-top:10px;
     align-self:center;
     /* background-color:red; */
@@ -175,7 +175,7 @@ form button {
 .profileData h1{
     display: block;
     font-size: 1em;
-    text-align:center;
+    text-align:left;
     /* background-color:red; */
 }
 
@@ -186,6 +186,6 @@ form button {
 
 .profileEditInput{
     align-self: center;
-    margin-left: 40%;
+    /* margin-left: 40%; */
     /* background-color: red; */
 }

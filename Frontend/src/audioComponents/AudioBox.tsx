@@ -1656,7 +1656,7 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
       */
 
       // Setting the audioModulesJSON, audioNodes, and audioModules to their initial state works for clearing previous config
-      setIsReconnectionSuspended(true);
+      setIsReconnectionSuspended(true); // required to prevent critical reconnection bug
       setAudioModulesJSON(initAudioModulesJSON);
       setAudioNodes(initAudioNodes);
       setAudioModules(JSON.parse(initAudioModulesJSON[0]));
