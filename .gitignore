@@ -9,6 +9,8 @@ lerna-debug.log*
 
 downloads
 uploads
+# Dont upload tailwindcss generated css file
+Frontend/src/styles.css
 routes..
 node_modules
 assets
