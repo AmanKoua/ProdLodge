@@ -1,30 +1,44 @@
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useContext, useEffect, useRef } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useContext, useEffect, useRef, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
 
 const NavBar = () => {
   const authContext = useContext(AuthContext);
-  const location = useLocation();
   const navigate = useNavigate();
+  let [triggerProfileItemsSearch, setTriggerProfileItemsSearch] =
+    useState(false);
 
   useEffect(() => {
     let profileName;
     let profileDropdown;
-    let searchCount = 0;
+
+    console.log("-");
 
     let profileInterval = setInterval(() => {
       profileName = document.getElementById("profileName");
       profileDropdown = document.getElementById("profileDropdown");
-      searchCount += 1;
 
-      if ((profileName && profileDropdown) || searchCount > 100) {
+      if (profileName && profileDropdown) {
         if (profileName && profileDropdown) {
           profileName.addEventListener("mouseenter", () => {
             if (profileDropdown.classList.contains("hidden")) {
               profileDropdown.classList.remove("hidden");
             }
           });
+
           profileName.addEventListener("mouseleave", () => {
+            if (!profileDropdown.classList.contains("hidden")) {
+              profileDropdown.classList.add("hidden");
+            }
+          });
+
+          profileDropdown.addEventListener("mouseenter", () => {
+            if (profileDropdown.classList.contains("hidden")) {
+              profileDropdown.classList.remove("hidden");
+            }
+          });
+
+          profileDropdown.addEventListener("mouseleave", () => {
             if (!profileDropdown.classList.contains("hidden")) {
               profileDropdown.classList.add("hidden");
             }
@@ -43,7 +57,7 @@ const NavBar = () => {
     // profileName?.addEventListener("mouseleave", () => {
     //   profileDropdown?.classList.add("hidden");
     // });
-  }, []);
+  }, [triggerProfileItemsSearch]);
 
   const generateSongOptionsSection = () => {
     return (
@@ -65,13 +79,11 @@ const NavBar = () => {
     };
 
     if (authContext.user) {
+      triggerProfileItemsSearch = !triggerProfileItemsSearch;
       return (
         <>
-          <div
-            className="bg-prodPrimary h-6 ml-auto mr-5 mt-auto mb-auto relative prodDropdown"
-            id="profileName"
-          >
-            <Link to="/myProfile" className="no-underline p-2">
+          <div className="bg-prodPrimary h-6 ml-auto mr-5 mt-auto mb-auto relative prodDropdown">
+            <Link to="/myProfile" className="no-underline p-2" id="profileName">
               <span className="m-1 text-black border border-prodSecondary rounded-sm p-1 shadow-md hover:shadow-lg">
                 {authContext.user.userName === ""
                   ? authContext.user.email
@@ -110,6 +122,7 @@ const NavBar = () => {
         </>
       );
     } else {
+      triggerProfileItemsSearch = !triggerProfileItemsSearch;
       return (
         <>
           <div className="w-max h-7 ml-auto mt-auto mb-auto mr-5">
