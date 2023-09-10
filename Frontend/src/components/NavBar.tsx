@@ -53,15 +53,6 @@ const NavBar = () => {
         clearInterval(profileInterval);
       }
     }, 100);
-
-    // profileName?.addEventListener("mouseover", () => {
-    //   alert("test");
-    //   profileDropdown?.classList.remove("hidden");
-    // });
-
-    // profileName?.addEventListener("mouseleave", () => {
-    //   profileDropdown?.classList.add("hidden");
-    // });
   }, [localStorage.getItem("user")]);
 
   const generateSongOptionsSection = () => {
@@ -96,7 +87,7 @@ const NavBar = () => {
               </span>
             </Link>
             <div
-              className="absolute w-full bg-prodPrimary shadow-md border border-slate-600 mt-1 flex-col align-middle hidden"
+              className="absolute w-full bg-prodPrimary shadow-md border border-slate-600 mt-1 flex-col align-middle z-10 hidden"
               id="profileDropdown"
             >
               <Link
