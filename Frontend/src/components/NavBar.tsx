@@ -11,14 +11,17 @@ const NavBar = () => {
   useEffect(() => {
     let profileName;
     let profileDropdown;
-
-    console.log("-");
+    let user;
 
     let profileInterval = setInterval(() => {
       profileName = document.getElementById("profileName");
       profileDropdown = document.getElementById("profileDropdown");
+      user = localStorage.getItem("user");
 
-      if (profileName && profileDropdown) {
+      if (user) {
+        profileName = document.getElementById("profileName");
+        profileDropdown = document.getElementById("profileDropdown");
+
         if (profileName && profileDropdown) {
           profileName.addEventListener("mouseenter", () => {
             if (profileDropdown.classList.contains("hidden")) {
@@ -46,6 +49,8 @@ const NavBar = () => {
         }
 
         clearInterval(profileInterval);
+      } else {
+        clearInterval(profileInterval);
       }
     }, 100);
 
@@ -57,7 +62,7 @@ const NavBar = () => {
     // profileName?.addEventListener("mouseleave", () => {
     //   profileDropdown?.classList.add("hidden");
     // });
-  }, [triggerProfileItemsSearch]);
+  }, [localStorage.getItem("user")]);
 
   const generateSongOptionsSection = () => {
     return (
@@ -84,7 +89,7 @@ const NavBar = () => {
         <>
           <div className="bg-prodPrimary h-6 ml-auto mr-5 mt-auto mb-auto relative prodDropdown">
             <Link to="/myProfile" className="no-underline p-2" id="profileName">
-              <span className="m-1 text-black border border-prodSecondary rounded-sm p-1 shadow-md hover:shadow-lg">
+              <span className="m-1 text-black border border-prodSecondary rounded-sm p-1 shadow-sm hover:shadow-lg">
                 {authContext.user.userName === ""
                   ? authContext.user.email
                   : authContext.user.userName}
@@ -114,7 +119,7 @@ const NavBar = () => {
             </div>
             <button
               onClick={handleLogoutClick}
-              className=" text-black border pl-1 pr-1 border-prodSecondary rounded-sm shadow-md hover:shadow-lg"
+              className=" text-black border pl-1 pr-1 border-prodSecondary rounded-sm shadow-sm hover:shadow-lg"
             >
               logout
             </button>
