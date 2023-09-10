@@ -932,6 +932,7 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
     textAlign: "center",
     backgroundColor: "lavender",
     opacity: isSettingsHover ? "100%" : "45%",
+    overflow: "hidden",
     zIndex: "10",
   };
 

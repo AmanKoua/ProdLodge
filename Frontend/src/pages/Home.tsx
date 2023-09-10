@@ -60,7 +60,7 @@ const Home = () => {
   };
 
   return (
-    <div className="bg-prodPrimary w-full sm:w-8/12 h-screen mr-auto ml-auto ">
+    <div className="bg-prodPrimary w-full sm:w-8/12 h-screen mr-auto ml-auto hide-scrollbar overflow-y-scroll">
       {/* Do not allow the displaying of audioBoxes on mobile sized screens */}
       <div className=" w-full h-max mt-56 bg-prodSecondary rounded-lg z-50 fixed sm:hidden">
         <h3 className="ml-auto mr-auto p-5 font-bold text-4xl">

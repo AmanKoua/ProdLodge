@@ -104,6 +104,7 @@ const AudioSettingsDrawer = ({
     fontSize: "10px",
     textAlign: "center",
     // backgroundColor: "blue",
+    overflow: "hidden",
     zIndex: "2",
   };
 
@@ -135,6 +136,7 @@ const AudioSettingsDrawer = ({
     fontSize: "10px",
     textAlign: "center",
     // backgroundColor: "blue",
+    overflow: "hidden",
     zIndex: "2",
   };
 

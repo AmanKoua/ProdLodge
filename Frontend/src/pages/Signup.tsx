@@ -103,7 +103,7 @@ const Signup = () => {
               className="w-full mr-auto ml-auto p-2"
             />
           </div>
-          <div className="w-max mr-auto ml-auto p-2 ">
+          <div className="w-max mr-auto ml-auto p-2 mt-4">
             <button className="btn">Sign up</button>
           </div>
           {error && <div className="error">{error}</div>}
