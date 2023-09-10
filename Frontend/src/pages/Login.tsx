@@ -62,7 +62,7 @@ const Login = () => {
   };
 
   return (
-    <div className="login">
+    <div className="w-4/12  h-10 bg-slate-950 THISERINO">
       <form onSubmit={handleSubmit}>
         <h3>Log In</h3>
         <label>Email</label>

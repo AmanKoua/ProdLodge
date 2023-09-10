@@ -12,7 +12,8 @@ import EditSong from "./pages/EditSong";
 
 import { AuthContext } from "./context/AuthContext";
 
-import "./index.css";
+// import "./index.css"; // old pre-tailwind css
+import "./styles.css";
 
 const useAuthContext = () => {
   const context = useContext(AuthContext);
@@ -63,7 +64,7 @@ function App() {
   }, []);
 
   return (
-    <div className="app">
+    <div className="app w-full h-screen">
       <BrowserRouter>
         <NavBar />
         <div className="pages">

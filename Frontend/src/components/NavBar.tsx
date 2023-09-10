@@ -1,12 +1,49 @@
-import React from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useRef } from "react";
 import { AuthContext } from "../context/AuthContext";
 
 const NavBar = () => {
   const authContext = useContext(AuthContext);
   const location = useLocation();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    let profileName;
+    let profileDropdown;
+    let searchCount = 0;
+
+    let profileInterval = setInterval(() => {
+      profileName = document.getElementById("profileName");
+      profileDropdown = document.getElementById("profileDropdown");
+      searchCount += 1;
+
+      if ((profileName && profileDropdown) || searchCount > 100) {
+        if (profileName && profileDropdown) {
+          profileName.addEventListener("mouseenter", () => {
+            if (profileDropdown.classList.contains("hidden")) {
+              profileDropdown.classList.remove("hidden");
+            }
+          });
+          profileName.addEventListener("mouseleave", () => {
+            if (!profileDropdown.classList.contains("hidden")) {
+              profileDropdown.classList.add("hidden");
+            }
+          });
+        }
+
+        clearInterval(profileInterval);
+      }
+    }, 100);
+
+    // profileName?.addEventListener("mouseover", () => {
+    //   alert("test");
+    //   profileDropdown?.classList.remove("hidden");
+    // });
+
+    // profileName?.addEventListener("mouseleave", () => {
+    //   profileDropdown?.classList.add("hidden");
+    // });
+  }, []);
 
   const generateSongOptionsSection = () => {
     return (
@@ -30,31 +67,43 @@ const NavBar = () => {
     if (authContext.user) {
       return (
         <>
-          <div className="navbar-right-item">
-            <Link to="/myProfile" className="userName">
-              <span>
+          <div
+            className="bg-prodPrimary h-6 ml-auto mr-5 mt-auto mb-auto relative prodDropdown"
+            id="profileName"
+          >
+            <Link to="/myProfile" className="no-underline p-2">
+              <span className="m-1 text-black border border-prodSecondary rounded-sm p-1 shadow-md hover:shadow-lg">
                 {authContext.user.userName === ""
                   ? authContext.user.email
                   : authContext.user.userName}
               </span>
             </Link>
-            <div className="userNameDropDown">
-              <Link to="/newSong">
+            <div
+              className="absolute w-full bg-prodPrimary shadow-md border border-slate-600 mt-1 flex-col align-middle hidden"
+              id="profileDropdown"
+            >
+              <Link
+                to="/newSong"
+                className="bg-slate-400 text-black no-underline text-xl"
+              >
                 <center>
-                  <p style={{ border: "1px solid black", marginBottom: "0px" }}>
+                  <p className="w-max h-max p-2 text-black border-b-2 border-t-0 border-l-0 border-prodSecondary rounded-sm font-semibold hover:font-bold">
                     New Song
                   </p>
                 </center>
               </Link>
-              <Link to="/editSong">
+              <Link to="/editSong" className="text-black no-underline text-xl">
                 <center>
-                  <p style={{ border: "1px solid black", marginBottom: "0px" }}>
+                  <p className="w-max h-max p-2 text-black border-b-2 border-prodSecondary rounded-sm font-semibold hover:font-bold">
                     Edit Song
                   </p>
                 </center>
               </Link>
             </div>
-            <button className="navbarButton" onClick={handleLogoutClick}>
+            <button
+              onClick={handleLogoutClick}
+              className=" text-black border pl-1 pr-1 border-prodSecondary rounded-sm shadow-md hover:shadow-lg"
+            >
               logout
             </button>
           </div>
@@ -63,11 +112,17 @@ const NavBar = () => {
     } else {
       return (
         <>
-          <div className="navbar-right-item">
-            <Link to="/login">
+          <div className="w-max h-7 ml-auto mt-auto mb-auto mr-5">
+            <Link
+              to="/login"
+              className="m-1 text-black border border-prodSecondary rounded-sm p-1 shadow-md hover:shadow-lg"
+            >
               <button className="navbarButton">Login</button>
             </Link>
-            <Link to="/signup">
+            <Link
+              to="/signup"
+              className="m-1 text-black border border-prodSecondary rounded-sm p-1 shadow-md hover:shadow-lg"
+            >
               <button className="navbarButton">Sign Up</button>
             </Link>
           </div>
@@ -77,9 +132,12 @@ const NavBar = () => {
   };
 
   return (
-    <div className="navbar">
-      <Link to="/">
-        <h1> ProdLodge </h1>
+    <div className="bg-prodPrimary h-16 mb-3 relative flex">
+      <Link
+        to="/"
+        className="no-underline hover:underline decoration-prodSecondary block p-1"
+      >
+        <h1 className="text-black mt-auto mb-auto text-4xl p-1"> ProdLodge </h1>
       </Link>
       {generateUserAuthSection()}
     </div>

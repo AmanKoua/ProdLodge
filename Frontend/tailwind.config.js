@@ -18,11 +18,12 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: "#ff6363",
-        secondary: {
-          100: "#e2e2d5",
-          200: "#888883",
-        }
+        prodPrimary: "#edf4fc",
+        prodSecondary: "#add0f7",
+        prodMainArea: "#c5d2e0",
+        prodError: "#f59a9a",
+        prodMessage: "#c4ffc4",
+        prodWarning: "#fe5d5d",
       },
     },
   },
