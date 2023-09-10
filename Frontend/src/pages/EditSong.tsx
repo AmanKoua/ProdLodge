@@ -138,13 +138,18 @@ const SongEntry = ({ songData, authContext, editSong, deleteSong }: Props) => {
         <input
           type="text"
           value={songTitle}
-          style={{ width: "100%", height: "35px", display: "block" }}
+          style={{
+            width: "100%",
+            height: "35px",
+            display: "block",
+            border: "1px solid black",
+          }}
           onChange={handleTitleChange}
         />
         <input
           type="text"
           value={songDescription}
-          style={{ width: "100%", height: "35px" }}
+          style={{ width: "100%", height: "35px", border: "1px solid black" }}
           onChange={handleDescriptionChange}
         />
         <div
@@ -315,11 +320,13 @@ const EditSong = () => {
   };
 
   return (
-    <div className="mainArea">
-      <h3>Edit an existing song</h3>
+    <div className="bg-prodPrimary overflow-hidden w-full h-screen sm:w-8/12 ml-auto mr-auto flex-col jusitfy-items-center">
+      <h3 className="w-max mr-auto ml-auto p-2 font-bold">
+        Edit an existing song
+      </h3>
       {generateSongEntries()}
-      {error && <div className="error">{error}</div>}
-      {message && <div className="message">{message}</div>}
+      {error && <div className="error mt-2">{error}</div>}
+      {message && <div className="message mt-2">{message}</div>}
     </div>
   );
 };
