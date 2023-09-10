@@ -62,16 +62,36 @@ const Login = () => {
   };
 
   return (
-    <div className="w-4/12  h-10 bg-slate-950 THISERINO">
-      <form onSubmit={handleSubmit}>
-        <h3>Log In</h3>
-        <label>Email</label>
-        <input type="email" value={email} onChange={updateEmail} />
-        <label>Password</label>
-        <input type="password" value={password} onChange={updatePassword} />
-        <button>Log in</button>
-        {error && <div className="error">{error}</div>}
-      </form>
+    <div className="bg-prodPrimary w-full sm:w-8/12 h-screen mr-auto ml-auto ">
+      <div className="w-7/12 mr-auto ml-auto">
+        <form onSubmit={handleSubmit}>
+          <h3 className="w-max mr-auto ml-auto p-2 font-bold">Log In</h3>
+          <div className="mr-auto ml-auto w-10/12">
+            <label className="w-max mr-auto ml-auto p-2 font-bold">Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={updateEmail}
+              className="w-full mr-auto ml-auto p-2"
+            />
+          </div>
+          <div className="mr-auto ml-auto w-10/12">
+            <label className="w-max mr-auto ml-auto p-2 font-bold">
+              Password
+            </label>
+            <input
+              type="password"
+              value={password}
+              onChange={updatePassword}
+              className="w-full mr-auto ml-auto p-2"
+            />
+          </div>
+          <div className="w-max mr-auto ml-auto p-2 ">
+            <button className="font-bold mt-3 btn">Log in</button>
+          </div>
+          {error && <div className="error mt-2 mb-2 p-1">{error}</div>}
+        </form>
+      </div>
     </div>
   );
 };
