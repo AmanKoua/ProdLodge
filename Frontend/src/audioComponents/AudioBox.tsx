@@ -1780,9 +1780,9 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
 
   return (
     <>
-      <div className="w-9/12 mr-auto ml-auto">
-        <div style={SongDataContainerStyle}>
-          <div style={SongDataContainerElementStyle}>
+      <div className="w-12/12 lg:w-9/12 h-max mr-auto ml-auto pt-3">
+        <div className="h-10 w-full bg-prodSecondary overflow-hidden flex justify-between">
+          <div className="w-6/12 mt-auto mb-auto inline-block">
             <h1
               style={{
                 fontSize: "15px",
@@ -1793,7 +1793,7 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
               Title: {songData.title}
             </h1>
           </div>
-          <div style={SongDataContainerElementStyle}>
+          <div className=" w-6/12 mt-auto mb-auto inline-block">
             <h1
               style={{
                 fontSize: "15px",
