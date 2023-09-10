@@ -110,7 +110,7 @@ const NavBar = () => {
             </div>
             <button
               onClick={handleLogoutClick}
-              className=" text-black border pl-1 pr-1 border-prodSecondary rounded-sm shadow-sm hover:shadow-lg"
+              className="text-black border pl-1 pr-1 border-prodSecondary rounded-sm shadow-sm hover:shadow-lg"
             >
               logout
             </button>
@@ -141,7 +141,7 @@ const NavBar = () => {
   };
 
   return (
-    <div className="bg-prodPrimary h-16 mb-3 relative flex">
+    <div className="bg-prodPrimary h-16 mb-2 relative flex">
       <Link
         to="/"
         className="no-underline hover:underline decoration-prodSecondary block p-1"

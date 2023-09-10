@@ -13,7 +13,7 @@ import EditSong from "./pages/EditSong";
 import { AuthContext } from "./context/AuthContext";
 
 // import "./index.css"; // old pre-tailwind css
-import "./styles.css";
+import "./styles.css"; // tailwindcss styles
 
 const useAuthContext = () => {
   const context = useContext(AuthContext);

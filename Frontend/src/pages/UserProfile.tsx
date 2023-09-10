@@ -281,114 +281,142 @@ const UserProfile = () => {
   }, [profileContext]);
 
   return (
-    <div className="mainArea">
-      <h3>{`${userName === "null" ? email : userName}'s Profile`}</h3>
-      <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"></img>{" "}
+    <div className="bg-prodPrimary overflow-hidden w-full sm:w-8/12 ml-auto mr-auto flex-col jusitfy-items-center">
+      <h3 className="w-max ml-auto mr-auto p-2 text-4xl font-bold">{`${
+        userName === "null" ? email : userName
+      }'s Profile`}</h3>
       {/* Temp Image */}
-      <div className="profileData">
-        <h1>Email: {email} </h1>
+      <img
+        className="w-64 ml-auto mr-auto object-cover"
+        src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+      ></img>
+
+      <div className="overflow-hidden w-max ml-auto mr-auto mt-3 mb-3 border-prodSecondary border-t-2 border-b-2">
+        <div className="w-max mr-auto">
+          <h1 className="text-xl">Email: {email} </h1>
+        </div>
+        <div className="w-max  mr-auto ">
+          <h1 className="text-xl">
+            User Name: {userName === "null" ? "N/A" : userName}{" "}
+          </h1>
+        </div>
+        <div className="w-max  mr-auto ">
+          <h1 className="text-xl">
+            soundcloud URL: {!isInEditMode && soundcloudURL}
+            {isInEditMode && (
+              <input
+                className="p-1"
+                type="text"
+                value={soundcloudURL}
+                onChange={editsoundcloudURL}
+              ></input>
+            )}
+          </h1>
+        </div>
+        <div className="w-max  mr-auto ">
+          <h1 className="text-xl">
+            Bandcamp URL: {!isInEditMode && bandcampURL}{" "}
+            {isInEditMode && (
+              <input
+                className="p-1"
+                type="text"
+                value={bandcampURL}
+                onChange={editBandcampURL}
+              ></input>
+            )}
+          </h1>
+        </div>
+        <div className="w-max  mr-auto ">
+          <h1 className="text-xl">
+            Spotify URL: {!isInEditMode && spotifyURL}{" "}
+            {isInEditMode && (
+              <input
+                className="p-1"
+                type="text"
+                value={spotifyURL}
+                onChange={editSpotifyURL}
+              ></input>
+            )}
+          </h1>
+        </div>
+        <div className="w-max  mr-auto ">
+          <h1 className="text-xl">
+            Youtube URL: {!isInEditMode && youtubeURL}{" "}
+            {isInEditMode && (
+              <input
+                className="p-1"
+                type="text"
+                value={youtubeURL}
+                onChange={editYoutubeURL}
+              ></input>
+            )}
+          </h1>
+        </div>
+        <div className="w-max  mr-auto ">
+          <h1 className="text-xl">
+            Twitter URL: {!isInEditMode && twitterURL}{" "}
+            {isInEditMode && (
+              <input
+                className="p-1"
+                type="text"
+                value={twitterURL}
+                onChange={editTwitterURL}
+              ></input>
+            )}
+          </h1>
+        </div>
+        <div className="w-max  mr-auto ">
+          <h1 className="text-xl">
+            Facebook URL: {!isInEditMode && facebookURL}{" "}
+            {isInEditMode && (
+              <input
+                className="p-1"
+                type="text"
+                value={facebookURL}
+                onChange={editFacebookURL}
+              ></input>
+            )}
+          </h1>
+        </div>
+        <div className="w-max  mr-auto ">
+          <h1 className="text-xl">
+            Instagram URL: {!isInEditMode && instagramURL}{" "}
+            {isInEditMode && (
+              <input
+                className="p-1"
+                type="text"
+                value={instagramURL}
+                onChange={editInstagramURL}
+              ></input>
+            )}
+          </h1>
+        </div>
+        <div className="w-max  mr-auto ">
+          <h1 className="text-xl">
+            Visibility: {!isInEditMode && visibility}{" "}
+            {isInEditMode && (
+              <select
+                className="p-1"
+                value={visibility}
+                onChange={editVisibility}
+              >
+                <option value="Public">Public</option>
+                <option value="Private">Private</option>
+                <option value="FriendsOnly">FriendsOnly</option>
+              </select>
+            )}
+          </h1>
+        </div>
       </div>
-      <div className="profileData">
-        <h1>User Name: {userName === "null" ? "N/A" : userName} </h1>
-      </div>
-      <div className="profileData">
-        <h1>soundcloud URL: {soundcloudURL} </h1>
-        {isInEditMode && (
-          <input
-            className="profileEditInput"
-            type="text"
-            value={soundcloudURL}
-            onChange={editsoundcloudURL}
-          ></input>
-        )}
-      </div>
-      <div className="profileData">
-        <h1>Bandcamp URL: {bandcampURL} </h1>
-        {isInEditMode && (
-          <input
-            className="profileEditInput"
-            type="text"
-            value={bandcampURL}
-            onChange={editBandcampURL}
-          ></input>
-        )}
-      </div>
-      <div className="profileData">
-        <h1>Spotify URL: {spotifyURL} </h1>
-        {isInEditMode && (
-          <input
-            className="profileEditInput"
-            type="text"
-            value={spotifyURL}
-            onChange={editSpotifyURL}
-          ></input>
-        )}
-      </div>
-      <div className="profileData">
-        <h1>Youtube URL: {youtubeURL} </h1>
-        {isInEditMode && (
-          <input
-            className="profileEditInput"
-            type="text"
-            value={youtubeURL}
-            onChange={editYoutubeURL}
-          ></input>
-        )}
-      </div>
-      <div className="profileData">
-        <h1>Twitter URL: {twitterURL} </h1>
-        {isInEditMode && (
-          <input
-            className="profileEditInput"
-            type="text"
-            value={twitterURL}
-            onChange={editTwitterURL}
-          ></input>
-        )}
-      </div>
-      <div className="profileData">
-        <h1>Facebook URL: {facebookURL} </h1>
-        {isInEditMode && (
-          <input
-            className="profileEditInput"
-            type="text"
-            value={facebookURL}
-            onChange={editFacebookURL}
-          ></input>
-        )}
-      </div>
-      <div className="profileData">
-        <h1>Instagram URL: {instagramURL} </h1>
-        {isInEditMode && (
-          <input
-            className="profileEditInput"
-            type="text"
-            value={instagramURL}
-            onChange={editInstagramURL}
-          ></input>
-        )}
-      </div>
-      <div className="profileData">
-        <h1>Visibility: {visibility} </h1>
-        {isInEditMode && (
-          <select
-            className="profileEditInput"
-            value={visibility}
-            onChange={editVisibility}
-          >
-            <option value="Public">Public</option>
-            <option value="Private">Private</option>
-            <option value="FriendsOnly">FriendsOnly</option>
-          </select>
-        )}
-      </div>
-      <div className="profileEdit">
-        <button onClick={toggleEditMode}>
+      <div className="w-max ml-auto mr-auto ">
+        <button onClick={toggleEditMode} className="btn mb-1">
           {isInEditMode ? "Save profile" : "Edit Profile"}
         </button>
       </div>
-      <div className="profileEdit">
-        <button onClick={deleteProfile}>Delete profile</button>
+      <div className="w-max ml-auto mr-auto ">
+        <button onClick={deleteProfile} className="btn mb-3">
+          Delete profile
+        </button>
       </div>
       {error && <div className="error">{error}</div>}
       {message && <div className="message">{message}</div>}
