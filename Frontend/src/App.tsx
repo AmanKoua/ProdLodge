@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import { useContext, useEffect } from "react";
 
 import AudioBox from "./audioComponents/AudioBox";
@@ -36,8 +36,29 @@ function App() {
 
     if (!user) {
       // user is not authenticated
+      authContext.dispatch({ type: "LOGOUT", payload: {} });
+      return;
     } else {
-      authContext.dispatch({ type: "LOGIN", payload: JSON.parse(user) }); // set context state to stored user
+      // check that token is still valid before logging in
+
+      const token = JSON.parse(user).token;
+      const tokenCreationTime = JSON.parse(user).tokenCreationTime;
+
+      const verifyToken = async () => {
+        const isTokenExpired =
+          Math.abs(Date.now() - parseInt(tokenCreationTime)) > 259200000; // If longer than 3 days in ms, invalidate token
+
+        if (isTokenExpired) {
+          localStorage.removeItem("user");
+          authContext.dispatch({ type: "LOGOUT", payload: {} });
+          return;
+        } else {
+          authContext.dispatch({ type: "LOGIN", payload: JSON.parse(user) }); // set context state to stored user
+          return;
+        }
+      };
+
+      verifyToken();
     }
   }, []);
 

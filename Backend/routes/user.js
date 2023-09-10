@@ -41,7 +41,6 @@ const verifyTokenAndGetUser = async (req, res, next) => {
     req.body.verifiedUser = verifiedUsers[0];
 
     next();
-
 }
 
 router.post('/signup', async (req, res) => {
@@ -88,6 +87,7 @@ router.post('/login', async (req, res) => {
 
     let retrievedUser = undefined;
     let token = undefined;
+    let tokenCreationTime = undefined;
 
     if (!email || !password) {
         return res.status(401).json({ error: "Required fields missing!" });
@@ -96,6 +96,7 @@ router.post('/login', async (req, res) => {
     try {
         retrievedUser = await user.login(email, password);
         token = createToken(retrievedUser._id);
+        tokenCreationTime = Date.now();
     } catch (e) {
         return res.status(401).json({ error: `${e}` })
     }
@@ -105,9 +106,13 @@ router.post('/login', async (req, res) => {
     }
     else {
         const userName = retrievedUser.userName;
-        return res.status(200).json({ email, userName, token })
+        return res.status(200).json({ email, userName, token, tokenCreationTime })
     }
 
+})
+
+router.get('/isAuth', verifyTokenAndGetUser, async (req, res) => { // Check if token is still valid after user has not logged in for longer than token expiration time
+    return res.status(200).json({ message: "Token is valid!" });
 })
 
 router.get('/profile', async (req, res) => {
