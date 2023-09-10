@@ -49,7 +49,7 @@ const BlankAudioModule = ({ addModule }: Props) => {
   };
 
   return (
-    <div className="w-4/12 h-full rounded-md border-black border-r-2 border-l-2 border-t-2 border-b-2 shadow-sm">
+    <div className="w-4/12 h-full ml-1 mr-1 rounded-md border-gray-400 border-r-2 border-l-2 border-t-2 border-b-2 shadow-sm">
       <div className="w-10/12 h-full ml-auto mr-auto">
         <h1 className="w-max text-xl ml-auto mr-auto pt-2">Add Module</h1>
         <img

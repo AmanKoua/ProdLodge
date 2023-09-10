@@ -51,23 +51,27 @@ const NewAudioModule = ({ position, setModuleType }: Props) => {
   };
 
   return (
-    <div style={NewAudioModuleStyle}>
-      <div style={CenterDivStyle}>
-        <h1 style={SelectModuleTextStyle}>Select Module Type</h1>
-        <select
-          name={"newModuleType"}
-          style={SelectorStyle}
-          onChange={handleSelectionChange}
-        >
-          <option value={"Invalid"}>Select Type</option>
-          <option value={"Highpass"}>HighPass</option>
-          <option value={"Lowpass"}>LowPass</option>
-          <option value={"Peak"}>Peak (filter)</option>
-          <option value={"Reverb"}>Reverb</option>
-          <option value={"Waveshaper"}>Waveshaper</option>
-          <option value={"Gain"}>Gain</option>
-          <option value={"Compression"}>Compression</option>
-        </select>
+    <div className="w-4/12 h-full ml-1 mr-1 rounded-md border-gray-400 border-r-2 border-l-2 border-t-2 border-b-2 shadow-sm">
+      <div className="w-10/12 h-full ml-auto mr-auto">
+        <h1 className="w-12/12 text-xl ml-auto mr-auto pt-2 text-center">
+          Select Module Type
+        </h1>
+        <div className="w-max h-max ml-auto mr-auto">
+          <select
+            name={"newModuleType"}
+            onChange={handleSelectionChange}
+            className="w-max mt-12 bg-prodSecondary"
+          >
+            <option value={"Invalid"}>Select Type</option>
+            <option value={"Highpass"}>HighPass</option>
+            <option value={"Lowpass"}>LowPass</option>
+            <option value={"Peak"}>Peak (filter)</option>
+            <option value={"Reverb"}>Reverb</option>
+            <option value={"Waveshaper"}>Waveshaper</option>
+            <option value={"Gain"}>Gain</option>
+            <option value={"Compression"}>Compression</option>
+          </select>
+        </div>
       </div>
     </div>
   );
