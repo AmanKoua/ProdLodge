@@ -860,7 +860,7 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
   const MasterContainerStyle: CSS.Properties = {
     width: "50%",
     height: "340px",
-    marginTop: "55px",
+    // marginTop: "55px",
     marginLeft: "auto",
     marginRight: "auto",
     transition: "all 0.3s",
@@ -1780,7 +1780,7 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
 
   return (
     <>
-      <div style={MasterContainerStyle}>
+      <div className="w-9/12 mr-auto ml-auto">
         <div style={SongDataContainerStyle}>
           <div style={SongDataContainerElementStyle}>
             <h1

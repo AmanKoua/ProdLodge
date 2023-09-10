@@ -59,7 +59,19 @@ const Home = () => {
     return audioBoxFragment;
   };
 
-  return <div className="home">{generateAudioBoxes()}</div>;
+  return (
+    <div className="bg-prodPrimary w-full sm:w-8/12 h-screen mr-auto ml-auto ">
+      {/* Do not allow the displaying of audioBoxes on mobile sized screens */}
+      <div className=" w-full h-max mt-56 bg-prodSecondary rounded-lg z-50 fixed sm:hidden">
+        <h3 className="ml-auto mr-auto p-5 font-bold text-4xl">
+          We're sorry, but we cannot support mobile devices!
+        </h3>
+      </div>
+      <div className="blur-sm sm:blur-none sm:pointer-events-auto pointer-events-none">
+        {generateAudioBoxes()}
+      </div>
+    </div>
+  );
 };
 
 export default Home;
