@@ -60,7 +60,7 @@ const NavBar = () => {
       <>
         <div className="navbar-left-item">
           <Link to="/newSong">
-            <button className="navbarButton">Create new song!</button>
+            <button className="btn">Create new song!</button>
           </Link>
         </div>
       </>
@@ -95,14 +95,14 @@ const NavBar = () => {
                 className="bg-slate-400 text-black no-underline text-xl"
               >
                 <center>
-                  <p className="w-max h-max p-2 text-black border-b-2 border-t-0 border-l-0 border-prodSecondary rounded-sm font-semibold hover:font-bold">
+                  <p className="w-max h-max mt-2 p-2 shadow-sm text-black border-b-2 border-t-0 border-l-0 border-prodSecondary rounded-sm font-semibold hover:font-bold">
                     New Song
                   </p>
                 </center>
               </Link>
               <Link to="/editSong" className="text-black no-underline text-xl">
                 <center>
-                  <p className="w-max h-max p-2 text-black border-b-2 border-prodSecondary rounded-sm font-semibold hover:font-bold">
+                  <p className="w-max h-max p-2 shadow-sm text-black border-b-2 border-prodSecondary rounded-sm font-semibold hover:font-bold">
                     Edit Song
                   </p>
                 </center>
