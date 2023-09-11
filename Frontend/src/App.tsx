@@ -65,10 +65,10 @@ function App() {
   }, []);
 
   return (
-    <div className="app w-full h-screen TOPLEVEL">
+    <div className="app w-full h-screen">
       <BrowserRouter>
         <NavBar />
-        <div className="pages PAGES">
+        <div className="pages">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />

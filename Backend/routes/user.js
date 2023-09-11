@@ -214,7 +214,7 @@ router.delete("/profile", async (req, res) => {
     }
 
     /*
-    delete songs, tracks, and images associated with user account!
+    delete songs, comments, tracks, and images associated with user account!
     */
 
     const userProfileId = profile[0]._id;
@@ -348,6 +348,10 @@ router.patch("/song", verifyTokenAndGetUser, async (req, res) => {
 })
 
 router.delete('/song', verifyTokenAndGetUser, async (req, res) => {
+
+    /*
+        Todo: Delete all comments associated with a song!
+    */
 
     if (!req.body || !req.body.songId) {
         return res.status(400).json({ error: "Invalid request body!" })

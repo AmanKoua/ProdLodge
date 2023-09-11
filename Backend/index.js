@@ -8,6 +8,7 @@ const userRouter = require('./routes/user');
 const uploadRouter = require('./routes/upload');
 const tracksRouter = require("./routes/tracks");
 const chainsRouter = require('./routes/chain')
+const commentRouter = require('./routes/comment');
 
 require('dotenv').config();
 
@@ -20,6 +21,7 @@ app.use('/user', userRouter);
 app.use('/upload', uploadRouter);
 app.use('/tracks', tracksRouter);
 app.use('/chain', chainsRouter);
+app.use('/comment', commentRouter);
 
 app.get('/', (req, res) => {
     res.status(200).json({ message: "Hello to prodlodge!" })

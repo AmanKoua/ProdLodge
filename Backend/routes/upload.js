@@ -109,9 +109,7 @@ router.post("/songInit", async (req, res) => {
         return res.status(404).json({ error: "No user found!" });
     }
 
-    const tempCommendsId = new ObjectId(0xA95554925A5505E5); // temp random ID
-
-    let tempSong = await song.initialize(decodedToken._id, req.body.name, req.body.description, "public", tempCommendsId, [], [], []);
+    let tempSong = await song.initialize(decodedToken._id, req.body.name, req.body.description, "public", [], [], []);
     const songToken = createToken(tempSong._id);
 
     return res.status(200).json({ message: "Song initialized!", token: songToken });
