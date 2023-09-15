@@ -447,7 +447,7 @@ router.patch("/song", verifyTokenAndGetUser, async (req, res) => {
 router.delete('/song', verifyTokenAndGetUser, async (req, res) => {
 
     /*
-        Todo: Delete all comments associated with a song!
+        Todo: Delete all comments and chains associated with a song!
     */
 
     if (!req.body || !req.body.songId) {

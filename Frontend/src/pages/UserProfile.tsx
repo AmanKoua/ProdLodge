@@ -280,6 +280,9 @@ const UserProfile = () => {
 
     if (json.profile.doesUserHaveProfileImage) {
       await getUserProfileImage();
+    } else {
+      document.getElementById("profileImage").src =
+        "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
     }
 
     profileContext.dispatch({ type: "SET", payload: json.profile }); // save profile to context
@@ -370,8 +373,8 @@ const UserProfile = () => {
       <div className="w-3/12 h-max ml-auto mr-auto overflow-hidden">
         {/* Temp Image */}
         <img
-          className="w-64 ml-auto mr-auto object-cover"
-          src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+          className="w-64 ml-auto mr-auto rounded-3xl object-cover"
+          src=""
           id="profileImage"
         ></img>
 
@@ -517,13 +520,11 @@ const UserProfile = () => {
           </h1>
         </div>
       </div>
-      <div className="w-max ml-auto mr-auto ">
-        <button onClick={toggleEditMode} className="btn mb-1">
+      <div className="w-4/12 ml-auto mr-auto mb-3 flex justify-around">
+        <button onClick={toggleEditMode} className="btn">
           {isInEditMode ? "Save profile" : "Edit Profile"}
         </button>
-      </div>
-      <div className="w-max ml-auto mr-auto ">
-        <button onClick={deleteProfile} className="btn mb-3">
+        <button onClick={deleteProfile} className="btn">
           Delete profile
         </button>
       </div>
