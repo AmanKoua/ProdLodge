@@ -14,7 +14,8 @@ interface Props {
   editSong: (
     songId: string,
     title: string,
-    description: string
+    description: string,
+    visibility: string
   ) => Promise<void>;
   deleteSong: (songId: string) => Promise<void>;
 }
@@ -23,6 +24,7 @@ const SongEntry = ({ songData, authContext, editSong, deleteSong }: Props) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [songTitle, setSongTitle] = useState("");
   const [songDescription, setSongDescription] = useState("");
+  const [songVisibility, setSongVisibility] = useState("");
 
   useEffect(() => {
     if (songTitle || songDescription) {
@@ -46,7 +48,7 @@ const SongEntry = ({ songData, authContext, editSong, deleteSong }: Props) => {
     overflow: "hidden",
   };
 
-  SongEntryStyle.height = isExpanded ? "140px" : "35px";
+  SongEntryStyle.height = isExpanded ? "175px" : "35px";
 
   const SongTitleContainerStyle: CSS.Properties = {
     position: "relative",
@@ -91,6 +93,10 @@ const SongEntry = ({ songData, authContext, editSong, deleteSong }: Props) => {
 
   const handleDescriptionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSongDescription(e.target.value);
+  };
+
+  const handleVisibilityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSongVisibility(e.target.value);
   };
 
   return (
@@ -152,6 +158,14 @@ const SongEntry = ({ songData, authContext, editSong, deleteSong }: Props) => {
           style={{ width: "100%", height: "35px", border: "1px solid black" }}
           onChange={handleDescriptionChange}
         />
+        <select
+          style={{ width: "100%", height: "35px", border: "1px solid black" }}
+          onChange={handleVisibilityChange}
+        >
+          <option value="public">public</option>
+          <option value="private">private</option>
+          <option value="restricted">restricted</option>
+        </select>
         <div
           style={{
             width: "100%",
@@ -164,7 +178,12 @@ const SongEntry = ({ songData, authContext, editSong, deleteSong }: Props) => {
           <p
             style={{ marginTop: "5px" }}
             onClick={async () => {
-              await editSong(songData.id, songTitle, songDescription);
+              await editSong(
+                songData.id,
+                songTitle,
+                songDescription,
+                songVisibility
+              );
             }}
           >
             Edit song data
@@ -227,7 +246,8 @@ const EditSong = () => {
   const editSong = async (
     songId: string,
     title: string,
-    description: string
+    description: string,
+    visibility: string
   ) => {
     const response = await fetch("http://localhost:8005/user/song", {
       method: "PATCH",
@@ -239,6 +259,7 @@ const EditSong = () => {
         songId: songId,
         title: title,
         description: description,
+        visibility: visibility,
       }),
     });
 

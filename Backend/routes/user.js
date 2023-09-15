@@ -397,13 +397,14 @@ router.get("/songs", verifyTokenAndGetUser, async (req, res) => {
 
 router.patch("/song", verifyTokenAndGetUser, async (req, res) => {
 
-    if (!req.body || !req.body.songId || !req.body.title || !req.body.description) {
+    if (!req.body || !req.body.songId || !req.body.title || !req.body.description || !req.body.visibility) {
         return res.status(400).json({ error: "Invalid request body!" })
     }
 
     const songId = req.body.songId;
     const title = req.body.title;
     const description = req.body.description;
+    const visibility = req.body.visibility;
     let songs = [];
 
     if (songId.length !== 24) {
@@ -433,6 +434,7 @@ router.patch("/song", verifyTokenAndGetUser, async (req, res) => {
             $set: {
                 title: title,
                 description: description,
+                visibility: visibility,
             }
         })
     } catch (e) {
