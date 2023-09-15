@@ -129,9 +129,6 @@ const uploadImageToGridFSBucket = async (req, res, next) => {
 
         // Delete old user picture if there is one
         const tempUserProfile = await userProfile.findOne({ userId: new ObjectId(userId) });
-        if (tempUserProfile.pictureId) {
-            await bucket.delete(tempUserProfile.pictureId);
-        }
 
         const filePath = path.join(__dirname, "../../uploads", fileName);
         const uploadStream = bucket.openUploadStream(fileName);
@@ -141,9 +138,15 @@ const uploadImageToGridFSBucket = async (req, res, next) => {
         uploadStream.on("finish", async () => {
             const cursor = bucket.find({ "filename": fileName });
             for await (const item of cursor) {
+
+                if (tempUserProfile.pictureId) {
+                    await bucket.delete(tempUserProfile.pictureId);
+                }
+
                 await userProfile.updateOne({
                     userId: new ObjectId(userId)
                 }, { $set: { pictureId: item._id } })
+
             }
             fs.unlinkSync(path.join(__dirname, "../../uploads", fileName));
             await client.close();

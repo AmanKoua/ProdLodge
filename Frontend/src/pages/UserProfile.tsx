@@ -12,6 +12,7 @@ const UserProfile = () => {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [isInEditMode, setIsInEditMode] = useState(false);
+  const [triggerProfileFetch, setTriggerProfileFetch] = useState(true);
 
   const [profileImage, setProfileImage] = useState<any>();
   const [userName, setUserName] = useState("null");
@@ -90,51 +91,53 @@ const UserProfile = () => {
       } else {
         setError(json.error);
       }
-
-      // logout and delete cookie upon acct deletion
     }
   };
 
-  const uploadProfileImg = async () => {
-    const permittedFileTypes = [".jpg", ".png"];
+  const uploadProfileImg = () => {
+    return new Promise(async (res, rej) => {
+      const permittedFileTypes = [".jpg", ".png"];
 
-    if (!profileImage) {
-      alert("No file selected!");
-      return;
-    }
+      if (!profileImage) {
+        res(false);
+        return;
+      }
 
-    const fileType = profileImage.name.substring(
-      profileImage.name.length - 4,
-      profileImage.name.length
-    );
+      const fileType = profileImage.name.substring(
+        profileImage.name.length - 4,
+        profileImage.name.length
+      );
 
-    if (!permittedFileTypes.includes(fileType)) {
-      alert(`Invalid file type : ${fileType}`);
-      return;
-    }
+      if (!permittedFileTypes.includes(fileType)) {
+        alert(`Invalid file type : ${fileType}`);
+        return;
+      }
 
-    if (profileImage.size > 1000000) {
-      // 1000000 ~ 1Mb
-      alert("File exceeds 1MB limit!");
-      return;
-    }
+      if (profileImage.size > 1000000) {
+        // 1000000 ~ 1Mb
+        alert("File exceeds 1MB limit!");
+        return;
+      }
 
-    const formData = new FormData();
-    formData.append("profileImage", profileImage);
+      const formData = new FormData();
+      formData.append("profileImage", profileImage);
 
-    let response = await fetch("http://localhost:8005/upload/profileImage", {
-      method: "POST",
-      body: formData,
-      headers: {
-        Authorization: `Bearer ${authContext.user.token}`,
-      },
+      let response = await fetch("http://localhost:8005/upload/profileImage", {
+        method: "POST",
+        body: formData,
+        headers: {
+          Authorization: `Bearer ${authContext.user.token}`,
+        },
+      });
+
+      if (response.ok) {
+        console.log("image uplading successful!");
+        res(true);
+      } else {
+        console.log("Image uploading failed");
+        rej();
+      }
     });
-
-    if (response.ok) {
-      console.log("image uplading successful!");
-    } else {
-      console.log("Image uploading failed");
-    }
   };
 
   const toggleEditMode = async () => {
@@ -201,7 +204,8 @@ const UserProfile = () => {
         temp["instagram"] = instagramURL;
       }
 
-      await uploadProfileImg();
+      const wasImageUploaded = await uploadProfileImg();
+      const timeout = wasImageUploaded ? 1500 : 0; // determine timeout based on whether or not image was uploaded
 
       let updateObject = {
         profile: {
@@ -221,7 +225,13 @@ const UserProfile = () => {
       });
 
       if (response.ok) {
-        getUserProfile(); // fetch user profile again from server to update screen
+        // getUserProfile(); // fetch user profile again from server to update screen
+
+        setTimeout(() => {
+          // Wait if profile image was just updated
+          setTriggerProfileFetch(true);
+        }, timeout);
+
         setMessage("Profile successfully updated");
       } else {
         setError("Failed to update user data!");
@@ -268,7 +278,27 @@ const UserProfile = () => {
       setIsInEditMode(true);
     }
 
+    if (json.profile.doesUserHaveProfileImage) {
+      await getUserProfileImage();
+    }
+
     profileContext.dispatch({ type: "SET", payload: json.profile }); // save profile to context
+  };
+
+  const getUserProfileImage = async () => {
+    const response = await fetch("http://localhost:8005/user/profileImage", {
+      method: "GET",
+      headers: { Authorization: `Bearer ${authContext.user.token}` },
+    });
+
+    if (!response.ok) {
+      console.log("Failed fetching profile image!");
+      return;
+    }
+
+    const blob = await response.blob();
+    const objectURL = URL.createObjectURL(blob);
+    document.getElementById("profileImage").src = objectURL;
   };
 
   const updateProfileData = async () => {
@@ -317,8 +347,15 @@ const UserProfile = () => {
   }, []); // Check if logged in, and check if profile is set
 
   useEffect(() => {
-    getUserProfile();
-  }, [authContext]); // rerun when authContext is changed
+    if (triggerProfileFetch) {
+      // mechanism to ensure that profile is only fetched once!
+      console.log("Fetching user profile!");
+      getUserProfile();
+      setTriggerProfileFetch(false);
+    } else {
+      return;
+    }
+  }, [authContext, triggerProfileFetch]); // rerun when authContext is changed
 
   useEffect(() => {
     // update profle data when profile context changes
@@ -335,6 +372,7 @@ const UserProfile = () => {
         <img
           className="w-64 ml-auto mr-auto object-cover"
           src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+          id="profileImage"
         ></img>
 
         {isInEditMode && (
