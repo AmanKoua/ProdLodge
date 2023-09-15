@@ -363,6 +363,7 @@ router.get("/songs", verifyTokenAndGetUser, async (req, res) => {
         tempSong.title = songs[i].title;
         tempSong.description = songs[i].description;
         tempSong.id = songs[i]._id;
+        tempSong.visibility = songs[i].visibility;
 
         for (let j = 0; j < songs[i].trackList.length; j++) {
             tempTrackIds.push(songs[i].trackList[j]._id.valueOf());

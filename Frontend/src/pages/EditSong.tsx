@@ -28,12 +28,13 @@ const SongEntry = ({ songData, authContext, editSong, deleteSong }: Props) => {
   const [restrictedAccessList, setRestrictedAccessList] = useState([]);
 
   useEffect(() => {
-    if (songTitle || songDescription) {
+    if (songTitle || songDescription || songVisibility) {
       return;
     }
 
     setSongTitle(`${songData.title}`);
     setSongDescription(`${songData.description}`);
+    setSongVisibility(`${songData.visibility}`);
   }, []);
 
   const SongEntryStyle: CSS.Properties = {
@@ -166,9 +167,11 @@ const SongEntry = ({ songData, authContext, editSong, deleteSong }: Props) => {
         <select
           style={{ width: "100%", height: "35px", border: "1px solid black" }}
           onChange={handleVisibilityChange}
+          value={songVisibility}
         >
           <option value="public">public</option>
           <option value="private">private</option>
+          <option value="friendsonly">friends only</option>
           <option value="restricted">restricted</option>
         </select>
         {songVisibility === "restricted" && (
