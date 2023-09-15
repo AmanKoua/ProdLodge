@@ -14,7 +14,7 @@ const userFriends = require("../models/userFriendsModel");
 const song = require("../models/songModel");
 const chain = require("../models/chainModel");
 
-function generateRandomString(length) { // required to create random ID for song comments
+function generateRandomString(length) { // required to create random requestID
     const charset = "ABCDEF0123456789";
     let result = "";
 

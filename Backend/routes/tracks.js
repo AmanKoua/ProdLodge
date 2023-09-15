@@ -13,6 +13,18 @@ const userActionItems = require("../models/userActionItemsModel");
 const userFriends = require("../models/userFriendsModel");
 const song = require("../models/songModel");
 
+function generateRandomString(length) { // required to create random requestID
+    const charset = "ABCDEF0123456789";
+    let result = "";
+
+    for (let i = 0; i < length; i++) {
+        const randomIndex = Math.floor(Math.random() * charset.length);
+        result += charset.charAt(randomIndex);
+    }
+
+    return result;
+}
+
 const verifyTokenAndGetUser = async (req, res, next) => {
     if (!req.headers || !req.headers.authorization) {
         return res.status(401).json({ error: "Invalid request header!" });
@@ -41,7 +53,7 @@ const verifyTokenAndGetUser = async (req, res, next) => {
     next();
 }
 
-const downloadTrack = (trackId) => {
+const downloadTrack = (trackId, requestId) => {
 
     return new Promise(async (res, rej) => {
 
@@ -51,7 +63,9 @@ const downloadTrack = (trackId) => {
         const db = client.db("ProdCluster");
         const bucket = new GridFSBucket(db);
 
-        const dlPath = path.join(__dirname, '../../downloads/', `${trackId}.mp3`);
+        fs.mkdirSync(path.join(__dirname, `../../downloads/${requestId}/`));
+
+        const dlPath = path.join(__dirname, `../../downloads/${requestId}/`, `${trackId}.mp3`);
         const dlStream = bucket.openDownloadStream(new ObjectId(trackId));
         const fileStream = fs.createWriteStream(dlPath);
         dlStream.pipe(fileStream);
@@ -80,6 +94,7 @@ router.get('/:id', verifyTokenAndGetUser, async (req, res) => {
 
     let trackId = req.params.id;
     let trackName = undefined;
+    const requestId = generateRandomString(30).toLowerCase();
 
     const client = new MongoClient(process.env.MONGO_URI);
     await client.connect();
@@ -92,9 +107,10 @@ router.get('/:id', verifyTokenAndGetUser, async (req, res) => {
     }
 
     await client.close();
-    await downloadTrack(trackId);
+    await downloadTrack(trackId, requestId);
 
-    const filePath = path.join(__dirname, '../../downloads/', `${trackId}.mp3`);
+    const folderPath = path.join(__dirname, `../../downloads/${requestId}/`);
+    const filePath = path.join(__dirname, `../../downloads/${requestId}/`, `${trackId}.mp3`);
     const stats = await Fs.stat(filePath);
     const fileSize = stats.size;
 
@@ -108,7 +124,13 @@ router.get('/:id', verifyTokenAndGetUser, async (req, res) => {
             return res.status(500).json({ error: "Failure in transmitting file to user!" });
         }
         else {
-            fs.unlinkSync(filePath);
+            if (fs.existsSync(filePath)) {
+                fs.unlinkSync(filePath);
+                setTimeout(() => {
+                    fs.rmdirSync(folderPath);
+                }, 1000)
+
+            }
         }
     })
 
