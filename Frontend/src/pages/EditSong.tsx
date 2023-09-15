@@ -25,6 +25,7 @@ const SongEntry = ({ songData, authContext, editSong, deleteSong }: Props) => {
   const [songTitle, setSongTitle] = useState("");
   const [songDescription, setSongDescription] = useState("");
   const [songVisibility, setSongVisibility] = useState("");
+  const [restrictedAccessList, setRestrictedAccessList] = useState([]);
 
   useEffect(() => {
     if (songTitle || songDescription) {
@@ -48,7 +49,11 @@ const SongEntry = ({ songData, authContext, editSong, deleteSong }: Props) => {
     overflow: "hidden",
   };
 
-  SongEntryStyle.height = isExpanded ? "175px" : "35px";
+  SongEntryStyle.height = isExpanded
+    ? songVisibility === "restricted"
+      ? "270px"
+      : "175px"
+    : "35px";
 
   const SongTitleContainerStyle: CSS.Properties = {
     position: "relative",
@@ -79,11 +84,11 @@ const SongEntry = ({ songData, authContext, editSong, deleteSong }: Props) => {
     display: "flex",
     flexDirection: "column",
     width: "100%",
-    height: "165px",
+    height: "300px",
     marginLeft: "0px",
     marginTop: "35px",
-    // border: "1px solid black",
-    // backgroundColor: "red",
+    border: "1px solid black",
+    // backgroundColor: "green",
     overflow: "hidden",
   };
 
@@ -100,7 +105,7 @@ const SongEntry = ({ songData, authContext, editSong, deleteSong }: Props) => {
   };
 
   return (
-    <div style={SongEntryStyle}>
+    <div style={SongEntryStyle} className="hide-scrollbar">
       <div style={SongTitleContainerStyle}>
         <p
           style={{
@@ -166,6 +171,16 @@ const SongEntry = ({ songData, authContext, editSong, deleteSong }: Props) => {
           <option value="private">private</option>
           <option value="restricted">restricted</option>
         </select>
+        {songVisibility === "restricted" && (
+          <div
+            style={{
+              width: "100%",
+              height: "94px",
+              marginBottom: "0px",
+              backgroundColor: "white",
+            }}
+          ></div>
+        )}
         <div
           style={{
             width: "100%",
