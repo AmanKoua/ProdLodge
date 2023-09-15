@@ -37,10 +37,9 @@ const songCommentsSchema = new Schema({
 
     interactionData: { // Stores the number of likes, disklikes, and children comments the comment contains
         // ["likes", "dislikes", "chidren"]
-        type: Map,
-        of: Number,
-        required: true,
-        unique: false,
+        likes: { type: Number, required: true, unique: false },
+        dislikes: { type: Number, required: true, unique: false },
+        children: { type: Number, required: true, unique: false },
     },
 
     chainId: { // FKs to chain schema

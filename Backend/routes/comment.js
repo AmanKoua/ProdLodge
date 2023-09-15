@@ -9,7 +9,7 @@ const user = require('../models/userModel');
 const userProfile = require("../models/userProfileModel");
 const song = require('../models/songModel');
 const chain = require('../models/chainModel');
-const comment = require('../models/chainModel');
+const comment = require('../models/commentsModel');
 
 const verifyTokenAndGetUser = async (req, res, next) => {
     if (!req.headers || !req.headers.authorization) {
@@ -41,14 +41,13 @@ const verifyTokenAndGetUser = async (req, res, next) => {
 
 router.post("/", verifyTokenAndGetUser, async (req, res) => {
 
-
     if (!req.body || !req.body.songId || !req.body.data) {
         return res.status(400).json({ error: "Invalid comment upload request body!" });
     }
 
     const userId = req.body.verifiedUser._id.valueOf();
     const creationTime = Date.now();
-    const parentId = new ObjectId("0000000000000000000000"); // Temp parent ObjectId
+    const parentId = req.body.parentId !== undefined ? new ObjectId(req.body.parentId) : new ObjectId("000000000000000000000000") // Invalid parent ObjectId
 
     if (req.body.songId.length !== 24) {
         return res.status(400).json({ error: "Invalid song ID!" });
@@ -61,20 +60,27 @@ router.post("/", verifyTokenAndGetUser, async (req, res) => {
     }
 
     const data = req.body.data;
-    const interactionData = {};
+    const initInteractionData = { // Initial comment post will not have any user interaction history
+        likes: 0,
+        dislikes: 0,
+        children: 0,
+    };
 
     /*
-    TODO: Stopped here! Change interactionData to be a nested object with likes, dislikes, and child comment count!
+    Request will come with chainID If chain had been created beforehand
     */
 
+    const chainId = req.body.chainId !== undefined ? new ObjectId(req.body.chainId) : new ObjectId("000000000000000000000000"); // Temp chain ObjectId
+
     try {
-        comment.initialize(new ObjectId(userId), creationTime, parentId, songId, data,)
+        await comment.initialize(new ObjectId(userId), creationTime, parentId, songId, data, initInteractionData, chainId);
     } catch (e) {
         console.log(e);
         return res.status(500).json({ error: "Error creating comment!" });
     }
 
-    return res.status(200).json({ message: "Successfully uploaded a comment" });
+    return res.status(200).json({ message: "Successfully uploaded comment" });
+
 })
 
 module.exports = router;
