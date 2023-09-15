@@ -70,7 +70,7 @@ const verifyTokenAndGetUser = async (req, res, next) => {
         return res.status(500).json({ error: "Multiple users with same ID" });
     }
 
-    req.body.verifiedUser = verifiedUsers[0];
+    req.headers.verifiedUser = verifiedUsers[0];
 
     next();
 }
@@ -120,26 +120,23 @@ const storage = multer.diskStorage({
         callBack(null, "../uploads");
     },
     filename: (req, file, callBack) => {
-        const fileName = req.body.trackName + "@" + req.verifiedSongId + ".mp3";
-        req.fileNames = [fileName];
+
+        let fileName;
+
+        if (file.fieldname === "track") {
+            fileName = req.body.trackName + "@" + req.verifiedSongId + ".mp3";
+            req.fileNames = [fileName];
+        }
+        else if (file.fieldname === "profileImage") {
+            fileName = req.headers.verifiedUser._id.valueOf() + "@" + file.originalname;
+            req.fileNames = [fileName];
+        }
         callBack(null, fileName);
+
     }
 })
 
 const upload = multer({ storage });
-
-const imageStorage = multer.diskStorage({
-    destination: (req, file, callBack) => {
-        callBack(null, "../uploads");
-    },
-    filename: (req, file, callBack) => {
-        const fileName = "test file.jpg";
-        req.fileNames = [fileName];
-        callBack(null, fileName);
-    }
-})
-
-const uploadImage = multer({ imageStorage });
 
 router.post("/songInit", async (req, res) => {
 
@@ -177,7 +174,7 @@ router.post("/track", verifySongToken, upload.single('track'), uploadTrackToGrid
     return res.status(200).json({ message: "File uploaded successfully!" });
 })
 
-router.post("/profileImage", verifyTokenAndGetUser, uploadImage.single('profileImage'), (req, res) => {
+router.post("/profileImage", verifyTokenAndGetUser, upload.single('profileImage'), (req, res) => {
     return res.status(200).json({ message: "File uploaded successfully!" });
 })
 

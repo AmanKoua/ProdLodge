@@ -130,7 +130,12 @@ const UserProfile = () => {
       },
     });
 
-    alert(response.ok);
+    if (response.ok) {
+      const json = await response.json();
+      console.log(json);
+    } else {
+      console.log("Response not ok!");
+    }
   };
 
   const toggleEditMode = async () => {
@@ -197,7 +202,7 @@ const UserProfile = () => {
         temp["instagram"] = instagramURL;
       }
 
-      uploadProfileImg();
+      await uploadProfileImg();
 
       let updateObject = {
         profile: {
