@@ -131,10 +131,9 @@ const UserProfile = () => {
     });
 
     if (response.ok) {
-      const json = await response.json();
-      console.log(json);
+      console.log("image uplading successful!");
     } else {
-      console.log("Response not ok!");
+      console.log("Image uploading failed");
     }
   };
 

@@ -113,6 +113,46 @@ const uploadTrackToGridFSBucket = async (req, res, next) => {
 
 const uploadImageToGridFSBucket = async (req, res, next) => {
 
+    const fileName = req.fileNames[0];
+    const files = fs.readdirSync(path.join(__dirname, "../../uploads"))
+
+    const client = new MongoClient(process.env.MONGO_URI);
+
+    if (files.includes(fileName)) {
+
+        await client.connect();
+        const db = client.db("ProdCluster")
+        const bucket = new GridFSBucket(db);
+
+        const fileNameSplit = fileName.split("@");
+        const userId = fileNameSplit[0];
+
+        // Delete old user picture if there is one
+        const tempUserProfile = await userProfile.findOne({ userId: new ObjectId(userId) });
+        if (tempUserProfile.pictureId) {
+            await bucket.delete(tempUserProfile.pictureId);
+        }
+
+        const filePath = path.join(__dirname, "../../uploads", fileName);
+        const uploadStream = bucket.openUploadStream(fileName);
+        const fileStream = fs.createReadStream(filePath);
+        fileStream.pipe(uploadStream);
+
+        uploadStream.on("finish", async () => {
+            const cursor = bucket.find({ "filename": fileName });
+            for await (const item of cursor) {
+                await userProfile.updateOne({
+                    userId: new ObjectId(userId)
+                }, { $set: { pictureId: item._id } })
+            }
+            fs.unlinkSync(path.join(__dirname, "../../uploads", fileName));
+            await client.close();
+        })
+
+    }
+
+    next();
+
 }
 
 const storage = multer.diskStorage({
@@ -131,6 +171,7 @@ const storage = multer.diskStorage({
             fileName = req.headers.verifiedUser._id.valueOf() + "@" + file.originalname;
             req.fileNames = [fileName];
         }
+
         callBack(null, fileName);
 
     }
@@ -174,7 +215,7 @@ router.post("/track", verifySongToken, upload.single('track'), uploadTrackToGrid
     return res.status(200).json({ message: "File uploaded successfully!" });
 })
 
-router.post("/profileImage", verifyTokenAndGetUser, upload.single('profileImage'), (req, res) => {
+router.post("/profileImage", verifyTokenAndGetUser, upload.single('profileImage'), uploadImageToGridFSBucket, (req, res) => {
     return res.status(200).json({ message: "File uploaded successfully!" });
 })
 
