@@ -13,6 +13,7 @@ const UserProfile = () => {
   const [message, setMessage] = useState("");
   const [isInEditMode, setIsInEditMode] = useState(false);
   const [triggerProfileFetch, setTriggerProfileFetch] = useState(true);
+  const [selectedPage, setSelectedPage] = useState("profile");
 
   const [profileImage, setProfileImage] = useState<any>();
   const [userName, setUserName] = useState("null");
@@ -367,169 +368,203 @@ const UserProfile = () => {
 
   return (
     <div className="bg-prodPrimary overflow-hidden w-full sm:w-8/12 ml-auto mr-auto flex-col jusitfy-items-center">
-      <h3 className="w-max ml-auto mr-auto p-2 text-4xl font-bold">{`${
-        userName === "null" ? email : userName
-      }'s Profile`}</h3>
-      <div className="w-3/12 h-max ml-auto mr-auto overflow-hidden">
-        {/* Temp Image */}
-        <img
-          className="w-64 ml-auto mr-auto rounded-3xl object-cover"
-          src=""
-          id="profileImage"
-        ></img>
-
-        {isInEditMode && (
-          <>
-            <div className="w-max ml-auto mr-auto mt-3">
-              <span
-                className="material-symbols-outlined ml-auto mr-auto"
-                onClick={() => {
-                  let temp = document.getElementById("hiddenImageUpload");
-                  temp?.click();
-                }}
-              >
-                file_open
-              </span>
-            </div>
-            <input
-              type="file"
-              accept="image/png, image/jpeg"
-              className="hidden"
-              id="hiddenImageUpload"
-              onChange={(e) => {
-                setProfileImage(e.target.files![0]);
+      <div className="w-6/12 h-7 ml-auto mr-auto overflow-hidden flex justify-around">
+        <div className="w-max h-max inline-block">
+          {selectedPage === "profile" && (
+            <p className="hover:font-bold border-b-2 border-black">Profile</p>
+          )}
+          {selectedPage !== "profile" && (
+            <p
+              className="hover:font-bold"
+              onClick={() => {
+                setSelectedPage("profile");
               }}
-            />
-          </>
-        )}
-      </div>
-      <div className="overflow-hidden w-max ml-auto mr-auto mt-3 mb-3 border-prodSecondary border-t-2 border-b-2">
-        <div className="w-max mr-auto">
-          <h1 className="text-xl">Email: {email} </h1>
+            >
+              Profile
+            </p>
+          )}
         </div>
-        <div className="w-max  mr-auto ">
-          <h1 className="text-xl">
-            User Name: {userName === "null" ? "N/A" : userName}{" "}
-          </h1>
-        </div>
-        <div className="w-max  mr-auto ">
-          <h1 className="text-xl">
-            soundcloud URL: {!isInEditMode && soundcloudURL}
-            {isInEditMode && (
-              <input
-                className="p-1"
-                type="text"
-                value={soundcloudURL}
-                onChange={editsoundcloudURL}
-              ></input>
-            )}
-          </h1>
-        </div>
-        <div className="w-max  mr-auto ">
-          <h1 className="text-xl">
-            Bandcamp URL: {!isInEditMode && bandcampURL}{" "}
-            {isInEditMode && (
-              <input
-                className="p-1"
-                type="text"
-                value={bandcampURL}
-                onChange={editBandcampURL}
-              ></input>
-            )}
-          </h1>
-        </div>
-        <div className="w-max  mr-auto ">
-          <h1 className="text-xl">
-            Spotify URL: {!isInEditMode && spotifyURL}{" "}
-            {isInEditMode && (
-              <input
-                className="p-1"
-                type="text"
-                value={spotifyURL}
-                onChange={editSpotifyURL}
-              ></input>
-            )}
-          </h1>
-        </div>
-        <div className="w-max  mr-auto ">
-          <h1 className="text-xl">
-            Youtube URL: {!isInEditMode && youtubeURL}{" "}
-            {isInEditMode && (
-              <input
-                className="p-1"
-                type="text"
-                value={youtubeURL}
-                onChange={editYoutubeURL}
-              ></input>
-            )}
-          </h1>
-        </div>
-        <div className="w-max  mr-auto ">
-          <h1 className="text-xl">
-            Twitter URL: {!isInEditMode && twitterURL}{" "}
-            {isInEditMode && (
-              <input
-                className="p-1"
-                type="text"
-                value={twitterURL}
-                onChange={editTwitterURL}
-              ></input>
-            )}
-          </h1>
-        </div>
-        <div className="w-max  mr-auto ">
-          <h1 className="text-xl">
-            Facebook URL: {!isInEditMode && facebookURL}{" "}
-            {isInEditMode && (
-              <input
-                className="p-1"
-                type="text"
-                value={facebookURL}
-                onChange={editFacebookURL}
-              ></input>
-            )}
-          </h1>
-        </div>
-        <div className="w-max  mr-auto ">
-          <h1 className="text-xl">
-            Instagram URL: {!isInEditMode && instagramURL}{" "}
-            {isInEditMode && (
-              <input
-                className="p-1"
-                type="text"
-                value={instagramURL}
-                onChange={editInstagramURL}
-              ></input>
-            )}
-          </h1>
-        </div>
-        <div className="w-max  mr-auto ">
-          <h1 className="text-xl">
-            Visibility: {!isInEditMode && visibility}{" "}
-            {isInEditMode && (
-              <select
-                className="p-1"
-                value={visibility}
-                onChange={editVisibility}
-              >
-                <option value="Public">Public</option>
-                <option value="Private">Private</option>
-                <option value="FriendsOnly">FriendsOnly</option>
-              </select>
-            )}
-          </h1>
+        <div className="w-max h-max inline-block">
+          {selectedPage === "friends" && (
+            <p className="hover:font-bold border-b-2 border-black">Friends</p>
+          )}
+          {selectedPage !== "friends" && (
+            <p
+              className="hover:font-bold"
+              onClick={() => {
+                setSelectedPage("friends");
+              }}
+            >
+              Friends
+            </p>
+          )}
         </div>
       </div>
-      <div className="w-4/12 ml-auto mr-auto mb-3 flex justify-around">
-        <button onClick={toggleEditMode} className="btn">
-          {isInEditMode ? "Save profile" : "Edit Profile"}
-        </button>
-        <button onClick={deleteProfile} className="btn">
-          Delete profile
-        </button>
+      <div className="w-6/12 ml-auto mr-auto">
+        <h3 className="w-max ml-auto mr-auto p-2 text-4xl font-bold">{`${
+          userName === "null" ? email : userName
+        }'s Profile`}</h3>
+        <div className="w-3/12 h-max ml-auto mr-auto overflow-hidden">
+          {/* Temp Image */}
+          <img
+            className="w-64 ml-auto mr-auto rounded-3xl object-cover"
+            src=""
+            id="profileImage"
+          ></img>
+
+          {isInEditMode && (
+            <>
+              <div className="w-max ml-auto mr-auto mt-3">
+                <span
+                  className="material-symbols-outlined ml-auto mr-auto"
+                  onClick={() => {
+                    let temp = document.getElementById("hiddenImageUpload");
+                    temp?.click();
+                  }}
+                >
+                  file_open
+                </span>
+              </div>
+              <input
+                type="file"
+                accept="image/png, image/jpeg"
+                className="hidden"
+                id="hiddenImageUpload"
+                onChange={(e) => {
+                  setProfileImage(e.target.files![0]);
+                }}
+              />
+            </>
+          )}
+        </div>
+        <div className="overflow-hidden w-max ml-auto mr-auto mt-3 mb-3 border-prodSecondary border-t-2 border-b-2">
+          <div className="w-max mr-auto">
+            <h1 className="text-xl">Email: {email} </h1>
+          </div>
+          <div className="w-max  mr-auto ">
+            <h1 className="text-xl">
+              User Name: {userName === "null" ? "N/A" : userName}{" "}
+            </h1>
+          </div>
+          <div className="w-max  mr-auto ">
+            <h1 className="text-xl">
+              soundcloud URL: {!isInEditMode && soundcloudURL}
+              {isInEditMode && (
+                <input
+                  className="p-1"
+                  type="text"
+                  value={soundcloudURL}
+                  onChange={editsoundcloudURL}
+                ></input>
+              )}
+            </h1>
+          </div>
+          <div className="w-max  mr-auto ">
+            <h1 className="text-xl">
+              Bandcamp URL: {!isInEditMode && bandcampURL}{" "}
+              {isInEditMode && (
+                <input
+                  className="p-1"
+                  type="text"
+                  value={bandcampURL}
+                  onChange={editBandcampURL}
+                ></input>
+              )}
+            </h1>
+          </div>
+          <div className="w-max  mr-auto ">
+            <h1 className="text-xl">
+              Spotify URL: {!isInEditMode && spotifyURL}{" "}
+              {isInEditMode && (
+                <input
+                  className="p-1"
+                  type="text"
+                  value={spotifyURL}
+                  onChange={editSpotifyURL}
+                ></input>
+              )}
+            </h1>
+          </div>
+          <div className="w-max  mr-auto ">
+            <h1 className="text-xl">
+              Youtube URL: {!isInEditMode && youtubeURL}{" "}
+              {isInEditMode && (
+                <input
+                  className="p-1"
+                  type="text"
+                  value={youtubeURL}
+                  onChange={editYoutubeURL}
+                ></input>
+              )}
+            </h1>
+          </div>
+          <div className="w-max  mr-auto ">
+            <h1 className="text-xl">
+              Twitter URL: {!isInEditMode && twitterURL}{" "}
+              {isInEditMode && (
+                <input
+                  className="p-1"
+                  type="text"
+                  value={twitterURL}
+                  onChange={editTwitterURL}
+                ></input>
+              )}
+            </h1>
+          </div>
+          <div className="w-max  mr-auto ">
+            <h1 className="text-xl">
+              Facebook URL: {!isInEditMode && facebookURL}{" "}
+              {isInEditMode && (
+                <input
+                  className="p-1"
+                  type="text"
+                  value={facebookURL}
+                  onChange={editFacebookURL}
+                ></input>
+              )}
+            </h1>
+          </div>
+          <div className="w-max  mr-auto ">
+            <h1 className="text-xl">
+              Instagram URL: {!isInEditMode && instagramURL}{" "}
+              {isInEditMode && (
+                <input
+                  className="p-1"
+                  type="text"
+                  value={instagramURL}
+                  onChange={editInstagramURL}
+                ></input>
+              )}
+            </h1>
+          </div>
+          <div className="w-max  mr-auto ">
+            <h1 className="text-xl">
+              Visibility: {!isInEditMode && visibility}{" "}
+              {isInEditMode && (
+                <select
+                  className="p-1"
+                  value={visibility}
+                  onChange={editVisibility}
+                >
+                  <option value="Public">Public</option>
+                  <option value="Private">Private</option>
+                  <option value="FriendsOnly">FriendsOnly</option>
+                </select>
+              )}
+            </h1>
+          </div>
+        </div>
+        <div className="w-10/12 ml-auto mr-auto mb-3 flex justify-around">
+          <button onClick={toggleEditMode} className="btn">
+            {isInEditMode ? "Save profile" : "Edit Profile"}
+          </button>
+          <button onClick={deleteProfile} className="btn">
+            Delete profile
+          </button>
+        </div>
+        {error && <div className="error">{error}</div>}
+        {message && <div className="message">{message}</div>}
       </div>
-      {error && <div className="error">{error}</div>}
-      {message && <div className="message">{message}</div>}
     </div>
   );
 };
