@@ -53,16 +53,16 @@ const AudioSettingsDrawer = ({
     marginLeft: "95%",
     width: "70%",
     height: "68%",
-    // backgroundColor: "#e1f5fa",
-    // backgroundColor: "#d4e6fc",
     backgroundColor: "#edf4fc",
-    opacity: "95%",
     transition: "all 0.3s", // for expansion and contraction
     borderRadius: "15px",
     overflow: "scroll",
     overflowX: "hidden",
+    // backdropFilter: "blur(64px)", // doesen't work for whatever reason :/
     zIndex: "1",
   };
+
+  SettingsDrawerStyle.marginLeft = isSettingsExpanded ? "30%" : "100%";
 
   const ConfigurationsDivStyle: CSS.Properties = {
     position: "relative",
@@ -104,6 +104,7 @@ const AudioSettingsDrawer = ({
     fontSize: "10px",
     textAlign: "center",
     // backgroundColor: "blue",
+    overflow: "hidden",
     zIndex: "2",
   };
 
@@ -135,6 +136,7 @@ const AudioSettingsDrawer = ({
     fontSize: "10px",
     textAlign: "center",
     // backgroundColor: "blue",
+    overflow: "hidden",
     zIndex: "2",
   };
 
@@ -145,8 +147,6 @@ const AudioSettingsDrawer = ({
     height: "120px",
     // backgroundColor: "red",
   };
-
-  SettingsDrawerStyle.marginLeft = isSettingsExpanded ? "30%" : "100%";
 
   const ErrorMessageStyle: CSS.Properties = {
     width: "80%",

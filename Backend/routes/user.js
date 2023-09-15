@@ -2,6 +2,9 @@ const express = require("express");
 const mongoose = require("mongoose");
 const { ObjectId, MongoClient, GridFSBucket } = require("mongodb");
 const jwt = require("jsonwebtoken");
+const path = require("path");
+const fs = require("fs");
+const Fs = require('fs/promises'); // imported to retrieve file size
 const router = express.Router();
 
 const user = require('../models/userModel');
@@ -10,6 +13,18 @@ const userActionItems = require("../models/userActionItemsModel");
 const userFriends = require("../models/userFriendsModel");
 const song = require("../models/songModel");
 const chain = require("../models/chainModel");
+
+function generateRandomString(length) { // required to create random requestID
+    const charset = "ABCDEF0123456789";
+    let result = "";
+
+    for (let i = 0; i < length; i++) {
+        const randomIndex = Math.floor(Math.random() * charset.length);
+        result += charset.charAt(randomIndex);
+    }
+
+    return result;
+}
 
 const createToken = (_id) => {
     return jwt.sign({ _id: _id, }, process.env.SECRET, { expiresIn: '3d' })
@@ -41,7 +56,6 @@ const verifyTokenAndGetUser = async (req, res, next) => {
     req.body.verifiedUser = verifiedUsers[0];
 
     next();
-
 }
 
 router.post('/signup', async (req, res) => {
@@ -88,6 +102,7 @@ router.post('/login', async (req, res) => {
 
     let retrievedUser = undefined;
     let token = undefined;
+    let tokenCreationTime = undefined;
 
     if (!email || !password) {
         return res.status(401).json({ error: "Required fields missing!" });
@@ -96,6 +111,7 @@ router.post('/login', async (req, res) => {
     try {
         retrievedUser = await user.login(email, password);
         token = createToken(retrievedUser._id);
+        tokenCreationTime = Date.now();
     } catch (e) {
         return res.status(401).json({ error: `${e}` })
     }
@@ -105,9 +121,13 @@ router.post('/login', async (req, res) => {
     }
     else {
         const userName = retrievedUser.userName;
-        return res.status(200).json({ email, userName, token })
+        return res.status(200).json({ email, userName, token, tokenCreationTime })
     }
 
+})
+
+router.get('/isAuth', verifyTokenAndGetUser, async (req, res) => { // Check if token is still valid after user has not logged in for longer than token expiration time
+    return res.status(200).json({ message: "Token is valid!" });
 })
 
 router.get('/profile', async (req, res) => {
@@ -127,6 +147,15 @@ router.get('/profile', async (req, res) => {
 
     const profile = await userProfile.find({ userId: new ObjectId(decodedToken._id) }).exec(); // return array of items matching query
 
+    let doesUserHaveProfileImage;
+
+    if (profile[0].pictureId) {
+        doesUserHaveProfileImage = true;
+    }
+    else {
+        doesUserHaveProfileImage = false;
+    }
+
     if (profile.length === 0) { // could potentially be the case after a user has deleted their account but has not cleared a token
         return res.status(404).json({ error: "No user found!" });
     }
@@ -135,9 +164,82 @@ router.get('/profile', async (req, res) => {
         socialMediaHandles: profile[0].socialMediaHandles ? profile[0].socialMediaHandles : null,
         visibility: profile[0].visibility,
         hasProfileBeenSet: profile[0].hasProfileBeenSet,
+        doesUserHaveProfileImage: doesUserHaveProfileImage,
     }
 
     return res.status(200).json({ profile: profileSlice });
+
+})
+
+const downloadProfileImage = (imageId, fileName, requestId) => {
+
+    return new Promise(async (res, rej) => {
+
+        const client = new MongoClient(process.env.MONGO_URI);
+
+        await client.connect();
+        const db = client.db("ProdCluster");
+        const bucket = new GridFSBucket(db);
+
+        fs.mkdirSync(path.join(__dirname, `../../downloads/${requestId}/`));
+
+        const dlPath = path.join(__dirname, `../../downloads/${requestId}/`, `${fileName}`);
+        const dlStream = bucket.openDownloadStream(new ObjectId(imageId));
+        const fileStream = fs.createWriteStream(dlPath);
+        dlStream.pipe(fileStream);
+
+        fileStream.on("finish", async () => {
+            await client.close();
+            res("DL finished!");
+        })
+
+    });
+}
+
+router.get('/profileImage', verifyTokenAndGetUser, async (req, res) => {
+
+    const requestId = generateRandomString(30).toLowerCase();
+    req.body.requestId = requestId;
+
+    const userId = req.body.verifiedUser._id;
+    const tempUserProfile = await userProfile.findOne({ userId: userId }).exec();
+    const imageId = tempUserProfile.pictureId.valueOf();
+    let profileImageFileName;
+
+    const client = new MongoClient(process.env.MONGO_URI);
+    await client.connect();
+    const db = client.db("ProdCluster");
+    const bucket = new GridFSBucket(db);
+
+    const cursor = bucket.find({ _id: tempUserProfile.pictureId });
+
+    for await (const item of cursor) {
+        profileImageFileName = item.filename;
+    }
+
+    await downloadProfileImage(imageId, profileImageFileName, req.body.requestId);
+
+    const folderPath = path.join(__dirname, `../../downloads/${req.body.requestId}/`);
+    const filePath = path.join(__dirname, `../../downloads/${req.body.requestId}/`, `${profileImageFileName}`);
+    const stats = await Fs.stat(filePath);
+    const fileSize = stats.size;
+
+    res.setHeader('Content-Length', fileSize);
+
+    return res.status(200).download(filePath, (err) => {
+        if (err) {
+            console.log(err);
+            return res.status(500).json({ error: "Failure in transmitting file to user!" });
+        }
+        else {
+            if (fs.existsSync(filePath)) {
+                fs.unlinkSync(filePath);
+                setTimeout(() => {
+                    fs.rmdirSync(folderPath);
+                }, 1000)
+            }
+        }
+    })
 
 })
 
@@ -209,7 +311,7 @@ router.delete("/profile", async (req, res) => {
     }
 
     /*
-    delete songs, tracks, and images associated with user account!
+    delete songs, comments, tracks, and images associated with user account!
     */
 
     const userProfileId = profile[0]._id;
@@ -343,6 +445,10 @@ router.patch("/song", verifyTokenAndGetUser, async (req, res) => {
 })
 
 router.delete('/song', verifyTokenAndGetUser, async (req, res) => {
+
+    /*
+        Todo: Delete all comments associated with a song!
+    */
 
     if (!req.body || !req.body.songId) {
         return res.status(400).json({ error: "Invalid request body!" })

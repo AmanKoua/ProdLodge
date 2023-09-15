@@ -92,12 +92,7 @@ const LowPassModule = ({
   };
 
   const IsEnabledButton: CSS.Properties = {
-    marginLeft: "30%",
-    marginTop: "4%",
-    position: "absolute",
-    width: "10%",
-    height: "13%",
-    borderRadius: "25px", // turn div into a circle
+    borderRadius: "10px", // turn div into a circle
     backgroundColor: data.isEnabled ? "#16fa19" : "red",
   };
 
@@ -154,51 +149,59 @@ const LowPassModule = ({
   };
 
   return (
-    <div style={AudioModuleStyle}>
-      <div style={CenterDivStyle}>
-        <img
-          src={moveLeftButton}
-          style={MoveLeftButtonStyle}
-          onClick={handleLeftButtonClick}
-        ></img>
-        <img
-          src={moveRightButton}
-          style={MoveRightButtonStyle}
-          onClick={handleRightButtonClick}
-        ></img>
-        <h1 style={ModuleNameTextStyle}>LowPass</h1>
-        <div style={CenterAttributeTextDivStyle}>
-          <p style={AttributeTextStyle}>Frequency : {data.frequency}</p>
+    <div className=" w-4/12 h-full ml-1 mr-1 rounded-md border-gray-400 border-r-2 border-l-2 border-t-2 border-b-2 shadow-sm">
+      <div className=" w-10/12 h-full ml-auto mr-auto pt-1 overflow-y-scroll hide-scrollbar ">
+        <div className="flex justify-between">
+          <img
+            src={moveLeftButton}
+            onClick={handleLeftButtonClick}
+            className="w-2/12"
+          ></img>
+          <img
+            src={moveRightButton}
+            onClick={handleRightButtonClick}
+            className="w-2/12"
+          ></img>
         </div>
-        <input
-          type={"range"}
-          value={data.frequency}
-          min={20}
-          max={21000}
-          style={SliderStyle}
-          onChange={handleFreqSliderChange}
-        ></input>
-        <div style={CenterAttributeTextDivStyle}>
-          <p style={AttributeTextStyle}>Resonance : {data.resonance}</p>
+        <h1 className="text-xl w-max mr-auto ml-auto">LowPass</h1>
+        <div className="w-max mr-auto ml-auto">
+          <p>Frequency : {data.frequency}</p>
         </div>
-        <input
-          type={"range"}
-          min={-25}
-          max={25}
-          style={SliderStyle}
-          value={data.resonance}
-          onChange={handleResonanceSliderChange}
-        ></input>
+        <div className="w-max mr-auto ml-auto">
+          <input
+            type={"range"}
+            value={data.frequency}
+            min={20}
+            max={21000}
+            onChange={handleFreqSliderChange}
+          ></input>
+        </div>
+        <div className="w-max mr-auto ml-auto">
+          <p>Resonance : {data.resonance}</p>
+        </div>
+        <div className=" w-max mr-auto ml-auto">
+          <input
+            type={"range"}
+            min={-25}
+            max={25}
+            value={data.resonance}
+            onChange={handleResonanceSliderChange}
+          ></input>
+        </div>
         <br></br>
-        <img
-          src={deleteButton}
-          style={DeleteButtonStyle}
-          onClick={handleDeleteIconClick}
-        ></img>
-        <div
-          style={IsEnabledButton}
-          onClick={handleToggleEnabledButtonClick}
-        ></div>
+        <div className="w-10/12 mr-auto ml-auto pb-2 flex justify-between">
+          <div
+            onClick={handleToggleEnabledButtonClick}
+            style={IsEnabledButton}
+            className="w-2/12 h-6/6"
+          ></div>
+
+          <img
+            src={deleteButton}
+            onClick={handleDeleteIconClick}
+            className="w-2/12"
+          ></img>
+        </div>
       </div>
     </div>
   );

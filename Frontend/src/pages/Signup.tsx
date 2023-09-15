@@ -68,18 +68,47 @@ const Signup = () => {
   };
 
   return (
-    <div className="signup">
-      <form onSubmit={handleSubmit}>
-        <h3>Sign up</h3>
-        <label>Email</label>
-        <input type="email" value={email} onChange={updateEmail} />
-        <label>Password</label>
-        <input type="password" value={password} onChange={updatePassword} />
-        <label>User Name (optional)</label>
-        <input type="text" value={userName} onChange={updateUserName} />
-        <button>Sign up</button>
-        {error && <div className="error">{error}</div>}
-      </form>
+    <div className="bg-prodPrimary w-full sm:w-8/12 h-screen mr-auto ml-auto ">
+      <div className="w-7/12 mr-auto ml-auto">
+        <form onSubmit={handleSubmit}>
+          <h3 className="w-max mr-auto ml-auto p-2 font-bold">Sign up</h3>
+          <div>
+            <label className="w-max mr-auto ml-auto p-2 font-bold">Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={updateEmail}
+              className="w-full mr-auto ml-auto p-2"
+            />
+          </div>
+          <div>
+            <label className="w-max mr-auto ml-auto p-2 font-bold">
+              Password
+            </label>
+            <input
+              type="password"
+              value={password}
+              onChange={updatePassword}
+              className="w-full mr-auto ml-auto p-2"
+            />
+          </div>
+          <div>
+            <label className="w-max mr-auto ml-auto p-2 font-bold">
+              User Name (optional)
+            </label>
+            <input
+              type="text"
+              value={userName}
+              onChange={updateUserName}
+              className="w-full mr-auto ml-auto p-2"
+            />
+          </div>
+          <div className="w-max mr-auto ml-auto p-2 mt-4">
+            <button className="btn">Sign up</button>
+          </div>
+          {error && <div className="error">{error}</div>}
+        </form>
+      </div>
     </div>
   );
 };

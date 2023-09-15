@@ -860,7 +860,7 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
   const MasterContainerStyle: CSS.Properties = {
     width: "50%",
     height: "340px",
-    marginTop: "55px",
+    // marginTop: "55px",
     marginLeft: "auto",
     marginRight: "auto",
     transition: "all 0.3s",
@@ -932,6 +932,7 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
     textAlign: "center",
     backgroundColor: "lavender",
     opacity: isSettingsHover ? "100%" : "45%",
+    overflow: "hidden",
     zIndex: "10",
   };
 
@@ -1780,9 +1781,9 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
 
   return (
     <>
-      <div style={MasterContainerStyle}>
-        <div style={SongDataContainerStyle}>
-          <div style={SongDataContainerElementStyle}>
+      <div className="w-12/12 lg:w-9/12 h-max mr-auto ml-auto pt-3">
+        <div className="h-10 w-full bg-prodSecondary overflow-hidden flex justify-between">
+          <div className="w-6/12 mt-auto mb-auto inline-block">
             <h1
               style={{
                 fontSize: "15px",
@@ -1793,7 +1794,7 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
               Title: {songData.title}
             </h1>
           </div>
-          <div style={SongDataContainerElementStyle}>
+          <div className=" w-6/12 mt-auto mb-auto inline-block">
             <h1
               style={{
                 fontSize: "15px",

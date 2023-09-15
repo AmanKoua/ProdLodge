@@ -31,16 +31,11 @@ const AudioSettingsTrack = ({
   setAudioNodesChanged,
 }: Props) => {
   let AudioSettingsTrackDiv = useRef(null);
+  let IsEnabledButtonDiv = useRef(null);
 
   const AudioSettingsTrackStyle: CSS.Properties = {
-    position: "relative",
-    marginTop: "12px",
-    width: "100%",
-    height: "35px",
-    borderRadius: "100px",
-    border: currentTrackIdx === idx ? "3px solid black" : "1px solid black",
+    border: currentTrackIdx === idx ? "2px solid black" : "1px solid black",
     opacity: settingsTracksData![idx].isEnabled ? "100%" : "40%",
-    // backgroundColor: "blanchedalmond",
   };
 
   const TrackNameStyle: CSS.Properties = {
@@ -62,12 +57,6 @@ const AudioSettingsTrack = ({
   };
 
   const IsEnabledButton: CSS.Properties = {
-    position: "absolute",
-    marginLeft: "30%",
-    marginTop: "7.5px",
-    width: "20px",
-    height: "20px",
-    borderRadius: "25px", // turn div into a circle
     backgroundColor: settingsTracksData![idx].isEnabled ? "#16fa19" : "red",
     zIndex: "1",
   };
@@ -81,7 +70,7 @@ const AudioSettingsTrack = ({
   };
 
   const handleTrackChange = async (event: any) => {
-    if (event.target != AudioSettingsTrackDiv.current) {
+    if (event.target === IsEnabledButtonDiv.current) {
       return;
     }
 
@@ -113,16 +102,24 @@ const AudioSettingsTrack = ({
 
   return (
     <div
-      style={AudioSettingsTrackStyle}
       onClick={handleTrackChange}
       ref={AudioSettingsTrackDiv}
+      style={AudioSettingsTrackStyle}
+      className="w-11/12 h-6 m-2 z-50 rounded-lg flex"
     >
-      <p style={TrackNameStyle}>{settingsTracksData![idx].name}</p>
       <div
-        style={IsEnabledButton}
         onClick={handleToggleEnabledButtonClick}
+        style={IsEnabledButton}
+        className="w-1/12 h-5/6 mt-auto mb-auto rounded-xl mr-1 ml-1 z-0"
+        ref={IsEnabledButtonDiv}
       ></div>
-      <div style={AudioModulesCountStyle}>{generateModuleCountText()}</div>
+
+      <p className="w-5/12 h-full pl-2 overflow-hidden z-0">
+        {settingsTracksData![idx].name}
+      </p>
+      <div className="  w-5/12 ml-2 overflow-hidden z-0">
+        {generateModuleCountText()}
+      </div>
     </div>
   );
 };
