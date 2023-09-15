@@ -56,6 +56,7 @@ const SongUploadContainer = ({
 
   const TrackNameInputStyle: CSS.Properties = {
     // position: "relative",
+    padding: "10px",
     backgroundColor: "#edf4fc",
     marginLeft: "3%",
     width: "79%",

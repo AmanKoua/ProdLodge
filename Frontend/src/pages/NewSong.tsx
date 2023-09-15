@@ -21,6 +21,8 @@ const NewSong = () => {
 
   const SongNameInputStyle: CSS.Properties = {
     // position: "relative",
+    display: "block",
+    padding: "10px",
     backgroundColor: "#edf4fc",
     marginLeft: "auto",
     marginRight: "auto",
@@ -31,6 +33,8 @@ const NewSong = () => {
 
   const SongDescInputStyle: CSS.Properties = {
     // position: "relative",
+    display: "block",
+    padding: "10px",
     backgroundColor: "#edf4fc",
     marginTop: "15px",
     marginLeft: "auto",
@@ -236,8 +240,10 @@ const NewSong = () => {
   };
 
   return (
-    <div className="mainArea">
-      <h3>Upload a new song!</h3>
+    <div className="bg-prodPrimary overflow-hidden w-full h-screen sm:w-8/12 ml-auto mr-auto flex-col jusitfy-items-center">
+      <h3 className="w-max mr-auto ml-auto p-2 font-bold">
+        Upload a new song!
+      </h3>
       <input
         type="text"
         placeholder="Song Name"
@@ -253,11 +259,13 @@ const NewSong = () => {
         style={SongDescInputStyle}
       />
       {generateSongUploadContainers()}
-      <button style={SubmitButtonStyle} onClick={initSongAndUploadTracks}>
-        Upload Tracks!
-      </button>
-      {error && <div className="error">{error}</div>}
-      {message && <div className="message">{message}</div>}
+      <div className="ml-auto mr-auto mt-3 w-max">
+        <button className="btn" onClick={initSongAndUploadTracks}>
+          Upload Tracks!
+        </button>
+      </div>
+      {error && <div className="error mt-2">{error}</div>}
+      {message && <div className="message mt-2">{message}</div>}
     </div>
   );
 };

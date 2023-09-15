@@ -32,7 +32,7 @@ const songSchema = new Schema({
     commentsId: {
         type: ObjectId,
         required: true,
-        unique: true,
+        unique: false,
     },
 
     accessList: {
@@ -47,7 +47,7 @@ const songSchema = new Schema({
         unique: false,
     },
 
-    chainsList: {
+    chainsList: { // List of chains created by the song creator
         type: [], // [chainId, ...]
         required: true,
         unique: false,
@@ -56,7 +56,7 @@ const songSchema = new Schema({
 });
 
 songSchema.statics.initialize = async function (userId, title, description, visibility, commentsId, accessList, trackList, chainsList) {
-    let song = await this.create({ userId: userId, title: title, description: description, visibility: visibility, commentsId, accessList, trackList, chainsList })
+    let song = await this.create({ userId: userId, title: title, description: description, visibility: visibility, commentsId: commentsId, accessList, trackList, chainsList })
     return song;
 }
 
