@@ -69,7 +69,7 @@ const ProfilePage = ({
       <h3 className="w-max ml-auto mr-auto p-2 text-4xl font-bold">{`${
         userName === "null" ? email : userName
       }'s Profile`}</h3>
-      <div className="w-3/12 h-max ml-auto mr-auto overflow-hidden">
+      <div className="w-5/12 h-max ml-auto mr-auto overflow-hidden">
         {/* Temp Image */}
         <img
           className="w-64 ml-auto mr-auto rounded-3xl object-cover"
