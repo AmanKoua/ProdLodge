@@ -29,9 +29,11 @@ const songSchema = new Schema({
         unique: false,
     },
 
-    /*
-    Comments ID was removed. Comments will be queried when a user loads a song.
-    */
+    commentsId: {
+        type: ObjectId,
+        required: true,
+        unique: false,
+    },
 
     accessList: {
         type: [],
@@ -53,8 +55,8 @@ const songSchema = new Schema({
 
 });
 
-songSchema.statics.initialize = async function (userId, title, description, visibility, accessList, trackList, chainsList) {
-    let song = await this.create({ userId: userId, title: title, description: description, visibility: visibility, accessList, trackList, chainsList })
+songSchema.statics.initialize = async function (userId, title, description, visibility, commentsId, accessList, trackList, chainsList) {
+    let song = await this.create({ userId: userId, title: title, description: description, visibility: visibility, commentsId: commentsId, accessList, trackList, chainsList })
     return song;
 }
 

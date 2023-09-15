@@ -12,6 +12,18 @@ const userProfile = require("../models/userProfileModel");
 const song = require('../models/songModel');
 const chain = require('../models/chainModel');
 
+function generateRandomString(length) { // required to create random ID for song comments
+    const charset = "ABCDEF0123456789";
+    let result = "";
+
+    for (let i = 0; i < length; i++) {
+        const randomIndex = Math.floor(Math.random() * charset.length);
+        result += charset.charAt(randomIndex);
+    }
+
+    return result;
+}
+
 const createToken = (songId) => {
     return jwt.sign({ songId: songId }, process.env.SECRET, { expiresIn: '5m' })
 }
@@ -31,6 +43,34 @@ const verifySongToken = (req, res, next) => {
     }
 
     req.verifiedSongId = decodedToken.songId;
+
+    next();
+}
+
+const verifyTokenAndGetUser = async (req, res, next) => {
+    if (!req.headers || !req.headers.authorization) {
+        return res.status(401).json({ error: "Invalid request header!" });
+    }
+
+    const token = req.headers.authorization.split(" ")[1];
+    let decodedToken;
+
+    try {
+        decodedToken = jwt.verify(token, process.env.SECRET) // fields: _id, iat, exp
+    } catch (e) {
+        return res.status(401).json({ error: "JWT verification failed!" });
+    }
+
+    const verifiedUsers = await user.find({ _id: new ObjectId(decodedToken._id) }).exec(); // return array of items matching query
+
+    if (verifiedUsers.length === 0) { // could potentially be the case after a user has deleted their account but has not cleared a token
+        return res.status(404).json({ error: "No user found!" });
+    }
+    else if (verifiedUsers.length > 1) {
+        return res.status(500).json({ error: "Multiple users with same ID" });
+    }
+
+    req.body.verifiedUser = verifiedUsers[0];
 
     next();
 }
@@ -71,6 +111,10 @@ const uploadTrackToGridFSBucket = async (req, res, next) => {
 
 }
 
+const uploadImageToGridFSBucket = async (req, res, next) => {
+
+}
+
 const storage = multer.diskStorage({
     destination: (req, file, callBack) => {
         callBack(null, "../uploads");
@@ -83,6 +127,19 @@ const storage = multer.diskStorage({
 })
 
 const upload = multer({ storage });
+
+const imageStorage = multer.diskStorage({
+    destination: (req, file, callBack) => {
+        callBack(null, "../uploads");
+    },
+    filename: (req, file, callBack) => {
+        const fileName = "test file.jpg";
+        req.fileNames = [fileName];
+        callBack(null, fileName);
+    }
+})
+
+const uploadImage = multer({ imageStorage });
 
 router.post("/songInit", async (req, res) => {
 
@@ -109,7 +166,7 @@ router.post("/songInit", async (req, res) => {
         return res.status(404).json({ error: "No user found!" });
     }
 
-    let tempSong = await song.initialize(decodedToken._id, req.body.name, req.body.description, "public", [], [], []);
+    let tempSong = await song.initialize(decodedToken._id, req.body.name, req.body.description, "public", new ObjectId(generateRandomString(24).toLowerCase()), [], [], []);
     const songToken = createToken(tempSong._id);
 
     return res.status(200).json({ message: "Song initialized!", token: songToken });
@@ -117,6 +174,10 @@ router.post("/songInit", async (req, res) => {
 })
 
 router.post("/track", verifySongToken, upload.single('track'), uploadTrackToGridFSBucket, (req, res) => { // Require that a track be initiilzed first!
+    return res.status(200).json({ message: "File uploaded successfully!" });
+})
+
+router.post("/profileImage", verifyTokenAndGetUser, uploadImage.single('profileImage'), (req, res) => {
     return res.status(200).json({ message: "File uploaded successfully!" });
 })
 

@@ -13,6 +13,7 @@ const UserProfile = () => {
   const [message, setMessage] = useState("");
   const [isInEditMode, setIsInEditMode] = useState(false);
 
+  const [profileImage, setProfileImage] = useState<any>();
   const [userName, setUserName] = useState("null");
   const [email, setEmail] = useState("null");
   const [soundcloudURL, setsoundcloudURL] = useState("");
@@ -94,6 +95,44 @@ const UserProfile = () => {
     }
   };
 
+  const uploadProfileImg = async () => {
+    const permittedFileTypes = [".jpg", ".png"];
+
+    if (!profileImage) {
+      alert("No file selected!");
+      return;
+    }
+
+    const fileType = profileImage.name.substring(
+      profileImage.name.length - 4,
+      profileImage.name.length
+    );
+
+    if (!permittedFileTypes.includes(fileType)) {
+      alert(`Invalid file type : ${fileType}`);
+      return;
+    }
+
+    if (profileImage.size > 1000000) {
+      // 1000000 ~ 1Mb
+      alert("File exceeds 1MB limit!");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("profileImage", profileImage);
+
+    let response = await fetch("http://localhost:8005/upload/profileImage", {
+      method: "POST",
+      body: formData,
+      headers: {
+        Authorization: `Bearer ${authContext.user.token}`,
+      },
+    });
+
+    alert(response.ok);
+  };
+
   const toggleEditMode = async () => {
     setError("");
     setMessage("");
@@ -157,6 +196,8 @@ const UserProfile = () => {
 
         temp["instagram"] = instagramURL;
       }
+
+      uploadProfileImg();
 
       let updateObject = {
         profile: {
@@ -285,12 +326,38 @@ const UserProfile = () => {
       <h3 className="w-max ml-auto mr-auto p-2 text-4xl font-bold">{`${
         userName === "null" ? email : userName
       }'s Profile`}</h3>
-      {/* Temp Image */}
-      <img
-        className="w-64 ml-auto mr-auto object-cover"
-        src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
-      ></img>
+      <div className="w-3/12 h-max ml-auto mr-auto overflow-hidden">
+        {/* Temp Image */}
+        <img
+          className="w-64 ml-auto mr-auto object-cover"
+          src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+        ></img>
 
+        {isInEditMode && (
+          <>
+            <div className="w-max ml-auto mr-auto mt-3">
+              <span
+                className="material-symbols-outlined ml-auto mr-auto"
+                onClick={() => {
+                  let temp = document.getElementById("hiddenImageUpload");
+                  temp?.click();
+                }}
+              >
+                file_open
+              </span>
+            </div>
+            <input
+              type="file"
+              accept="image/png, image/jpeg"
+              className="hidden"
+              id="hiddenImageUpload"
+              onChange={(e) => {
+                setProfileImage(e.target.files![0]);
+              }}
+            />
+          </>
+        )}
+      </div>
       <div className="overflow-hidden w-max ml-auto mr-auto mt-3 mb-3 border-prodSecondary border-t-2 border-b-2">
         <div className="w-max mr-auto">
           <h1 className="text-xl">Email: {email} </h1>
