@@ -6,6 +6,7 @@ import { AuthContext } from "../context/AuthContext";
 import { ProfileContext } from "../context/ProfileContext";
 
 interface ProfilePageProps {
+  profileImageObjURL: string;
   userName: string;
   email: string;
   isInEditMode: boolean;
@@ -36,6 +37,7 @@ interface ProfilePageProps {
 }
 
 const ProfilePage = ({
+  profileImageObjURL,
   userName,
   email,
   isInEditMode,
@@ -65,7 +67,7 @@ const ProfilePage = ({
   message,
 }: ProfilePageProps) => {
   return (
-    <div className="w-6/12 ml-auto mr-auto">
+    <div className="w-12/12 h-max">
       <h3 className="w-max ml-auto mr-auto p-2 text-4xl font-bold">{`${
         userName === "null" ? email : userName
       }'s Profile`}</h3>
@@ -73,7 +75,7 @@ const ProfilePage = ({
         {/* Temp Image */}
         <img
           className="w-64 ml-auto mr-auto rounded-3xl object-cover"
-          src=""
+          src={profileImageObjURL}
           id="profileImage"
         ></img>
 
@@ -241,6 +243,7 @@ const UserProfile = () => {
   const [message, setMessage] = useState("");
   const [isInEditMode, setIsInEditMode] = useState(false);
   const [triggerProfileFetch, setTriggerProfileFetch] = useState(true);
+  const [profileImageObjURL, setProfileImageObjURL] = useState("");
   const [selectedPage, setSelectedPage] = useState("profile");
 
   const [profileImage, setProfileImage] = useState<any>();
@@ -530,7 +533,8 @@ const UserProfile = () => {
 
     const blob = await response.blob();
     const objectURL = URL.createObjectURL(blob);
-    document.getElementById("profileImage").src = objectURL;
+    setProfileImageObjURL(objectURL);
+    // document.getElementById("profileImage").src = objectURL;
   };
 
   const updateProfileData = async () => {
@@ -628,32 +632,41 @@ const UserProfile = () => {
           )}
         </div>
       </div>
-      <ProfilePage
-        userName={userName}
-        email={email}
-        isInEditMode={isInEditMode}
-        setProfileImage={setProfileImage}
-        soundcloudURL={soundcloudURL}
-        editsoundcloudURL={editsoundcloudURL}
-        bandcampURL={bandcampURL}
-        editBandcampURL={editBandcampURL}
-        spotifyURL={spotifyURL}
-        editSpotifyURL={editSpotifyURL}
-        youtubeURL={youtubeURL}
-        editYoutubeURL={editYoutubeURL}
-        twitterURL={twitterURL}
-        editTwitterURL={editTwitterURL}
-        facebookURL={facebookURL}
-        editFacebookURL={editFacebookURL}
-        instagramURL={instagramURL}
-        editInstagramURL={editInstagramURL}
-        visibility={visibility}
-        editVisibility={editVisibility}
-        toggleEditMode={toggleEditMode}
-        deleteProfile={deleteProfile}
-        error={error}
-        message={message}
-      ></ProfilePage>
+      <div className="w-6/12 mr-auto ml-auto">
+        {selectedPage === "profile" && (
+          <ProfilePage
+            profileImageObjURL={profileImageObjURL}
+            userName={userName}
+            email={email}
+            isInEditMode={isInEditMode}
+            setProfileImage={setProfileImage}
+            soundcloudURL={soundcloudURL}
+            editsoundcloudURL={editsoundcloudURL}
+            bandcampURL={bandcampURL}
+            editBandcampURL={editBandcampURL}
+            spotifyURL={spotifyURL}
+            editSpotifyURL={editSpotifyURL}
+            youtubeURL={youtubeURL}
+            editYoutubeURL={editYoutubeURL}
+            twitterURL={twitterURL}
+            editTwitterURL={editTwitterURL}
+            facebookURL={facebookURL}
+            editFacebookURL={editFacebookURL}
+            instagramURL={instagramURL}
+            editInstagramURL={editInstagramURL}
+            visibility={visibility}
+            editVisibility={editVisibility}
+            toggleEditMode={toggleEditMode}
+            deleteProfile={deleteProfile}
+            error={error}
+            message={message}
+          ></ProfilePage>
+        )}
+
+        {selectedPage === "friends" && (
+          <div className="bg-red-500 w-12/12 h-56">This need to work!</div>
+        )}
+      </div>
     </div>
   );
 };
