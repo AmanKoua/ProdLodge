@@ -6,6 +6,7 @@ interface FriendsProps {
   addFriendEmail: string;
   friendRequests: Object[];
   setAddFriendEmail: (val: any) => void;
+  addFriend: () => Promise<void>;
   setTriggerFriendRequestsFetch: (val: boolean) => void;
 }
 
@@ -15,6 +16,7 @@ const FriendsPage = ({
   addFriendEmail,
   friendRequests,
   setAddFriendEmail,
+  addFriend,
   setTriggerFriendRequestsFetch,
 }: FriendsProps) => {
   const [incommingRequests, setIncommingRequests] = useState<Object[]>([]);
@@ -110,7 +112,9 @@ const FriendsPage = ({
           }}
         ></input>
         <div className="w-max mr-auto ml-auto p-2 ">
-          <button className="font-bold mt-1 mb-1 btn">Add Friend</button>
+          <button className="font-bold mt-1 mb-1 btn" onClick={addFriend}>
+            Add Friend
+          </button>
         </div>
       </div>
       <div className="border-b-2 border-prodSecondary w-12/12 h-max pb-3">
@@ -121,42 +125,11 @@ const FriendsPage = ({
         <div className="w-max block">
           <p className="font-semibold">Incomming</p>
         </div>
-
-        {/* Display card with friend requests */}
-
-        {/* <div className="mt-2 shadow-md  flex">
-          <p className=" text-lg w-5/6 overflow-hidden p-2">
-            Email : thegnomezone@gmail.com
-          </p>
-          <div className="w-1/6 h-full mt-auto mb-auto overflow-hidden flex justify-around">
-            <span className="material-symbols-outlined">check</span>
-            <span className="material-symbols-outlined">close</span>
-          </div>
-        </div> */}
-
         {generateIncommingRequestCards()}
-
-        {/* End sample friends cards */}
-
         <div className="w-max block">
           <p className="font-semibold mt-3">Outgoing</p>
         </div>
-
-        {/* Sample outgoing cards */}
-
-        {/* <div className="mt-2 pt-1 pb-1 shadow-md flex justify-around">
-          <p className="text-lg w-9/12 h-max mt-auto mb-auto overflow-hidden">
-            Email : thegnomezone@gmail.com
-          </p>
-          <p className="bg-yellow-300 rounded-lg text-center mt-auto mb-auto">
-            Pending
-          </p>
-          <span className="material-symbols-outlined opacity-0">close</span>{" "}
-        </div> */}
-
         {generateOutgoingRequestCards()}
-
-        {/* End sample outgoing cards */}
       </div>
       <div className="mb-3 border-b-2 border-prodSecondary w-12/12 h-max pb-3">
         <div className="w-max h-max ml-auto mr-auto">

@@ -310,6 +310,41 @@ const UserProfile = () => {
     }
   };
 
+  const addFriend = async () => {
+    setError("");
+    setMessage("");
+
+    if (!addFriendEmail) {
+      setError("Cannot add friend without email!");
+      return;
+    }
+
+    if (addFriendEmail == authContext.user.email) {
+      setError("Cannot send a friend request to yourself!");
+      return;
+    }
+
+    let response = await fetch("http://localhost:8005/user/addFriend", {
+      method: "POST",
+      headers: {
+        "Content-type": "application/json",
+        Authorization: `Bearer ${authContext.user.token}`,
+      },
+      body: JSON.stringify({ email: addFriendEmail }),
+    });
+
+    if (response.ok) {
+      setMessage("Friend request sent successfully!");
+      setTimeout(() => {
+        setTriggerFriendRequestsFetch(true);
+      }, 1000);
+      return;
+    } else {
+      const json = await response.json();
+      setError(json.error);
+    }
+  };
+
   const getUserProfileImage = async () => {
     const response = await fetch("http://localhost:8005/user/profileImage", {
       method: "GET",
@@ -469,6 +504,7 @@ const UserProfile = () => {
             addFriendEmail={addFriendEmail}
             friendRequests={friendRequests}
             setAddFriendEmail={setAddFriendEmail}
+            addFriend={addFriend}
             setTriggerFriendRequestsFetch={setTriggerFriendRequestsFetch}
           ></FriendsPage>
         )}
