@@ -536,9 +536,9 @@ router.post('/addFriend', verifyTokenAndGetUser, async (req, res) => {
     const tempUserActionItems = await userActionItems.findOne({ _id: tempUserProfile.actionItemsId });
 
     for (let i = 0; i < tempUserActionItems.items.length; i++) {
-        if (tempUserActionItems.items[i].type == "outgoingFriendRequest") {
+        if (tempUserActionItems.items[i].type == "outgoingFriendRequest" || tempUserActionItems.items[i].type == "incommingFriendRequest") {
             if (tempUserActionItems.items[i].data.email == friendEmail) {
-                return res.status(400).json({ error: "Cannot send multiple simultaneous friend request to a user" });
+                return res.status(400).json({ error: "Cannot send friend request while incomming / outgoing friend request is pending!" });
             }
         }
     }
@@ -565,6 +565,26 @@ router.post('/addFriend', verifyTokenAndGetUser, async (req, res) => {
     await userActionItems.updateOne({ _id: friendProfile.actionItemsId }, { $push: { items: friendActionItem } });
 
     return res.status(200).json({ message: "Friend request sent successfully!" });
+
+})
+
+router.get('/friendRequests', verifyTokenAndGetUser, async (req, res) => {
+
+    const userId = req.body.verifiedUser._id; // user ObjectId
+    const userEmail = req.body.verifiedUser.email;
+    let payload = [];
+
+    const tempUserProfile = await userProfile.findOne({ userId: userId });
+    const tempUserActionItems = await userActionItems.findOne({ _id: tempUserProfile.actionItemsId });
+
+    for (let i = 0; i < tempUserActionItems.items.length; i++) {
+        if (tempUserActionItems.items[i].type == "outgoingFriendRequest" || tempUserActionItems.items[i].type == "incommingFriendRequest") {
+            payload.push(tempUserActionItems.items[i]);
+        }
+    }
+
+    return res.status(200).json({ payload });
+
 })
 
 module.exports = router;
