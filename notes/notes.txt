@@ -63,8 +63,3 @@ How to enable multiple Tracks
       [module, module, module],
       [...]
     ]
-
-------------------------------------------------------------------------------------------------------
-
-Todo: 
-  - Retrive the list of current friends for a user
