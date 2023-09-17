@@ -325,6 +325,7 @@ const FriendsPage = ({
           <p className="bg-red-300 rounded-lg text-center mt-auto mb-auto">
             Rejected
           </p>
+          <span className="material-symbols-outlined">close</span>
         </div>
 
         <div className="mt-2 pt-1 pb-1 shadow-md flex justify-around">
@@ -334,6 +335,7 @@ const FriendsPage = ({
           <p className="bg-green-300 rounded-lg text-center mt-auto mb-auto">
             Accepted
           </p>
+          <span className="material-symbols-outlined">close</span>
         </div>
 
         {/* End sample outgoing cards */}
