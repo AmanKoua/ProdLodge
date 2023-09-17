@@ -316,6 +316,8 @@ const FriendsPage = ({
           <p className="bg-yellow-300 rounded-lg text-center mt-auto mb-auto">
             Pending
           </p>
+          <span className="material-symbols-outlined opacity-0">close</span>{" "}
+          {/*Add dummy icon so all cards align properly*/}
         </div>
 
         <div className="mt-2 pt-1 pb-1 shadow-md flex justify-around">
