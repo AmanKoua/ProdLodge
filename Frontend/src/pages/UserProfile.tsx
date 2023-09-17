@@ -5,395 +5,8 @@ import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { ProfileContext } from "../context/ProfileContext";
 
-interface ProfilePageProps {
-  profileImageObjURL: string;
-  userName: string;
-  email: string;
-  isInEditMode: boolean;
-
-  setProfileImage: (val: any) => void;
-  soundcloudURL: string;
-  editsoundcloudURL: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  bandcampURL: string;
-  editBandcampURL: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  spotifyURL: string;
-  editSpotifyURL: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  youtubeURL: string;
-  editYoutubeURL: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  twitterURL: string;
-  editTwitterURL: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  facebookURL: string;
-  editFacebookURL: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  instagramURL: string;
-  editInstagramURL: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  visibility: string;
-  editVisibility: (event: React.ChangeEvent<HTMLSelectElement>) => void;
-
-  toggleEditMode: () => Promise<void>;
-  deleteProfile: () => Promise<void>;
-
-  error: string;
-  message: string;
-}
-
-const ProfilePage = ({
-  profileImageObjURL,
-  userName,
-  email,
-  isInEditMode,
-
-  setProfileImage,
-  soundcloudURL,
-  editsoundcloudURL,
-  bandcampURL,
-  editBandcampURL,
-  spotifyURL,
-  editSpotifyURL,
-  youtubeURL,
-  editYoutubeURL,
-  twitterURL,
-  editTwitterURL,
-  facebookURL,
-  editFacebookURL,
-  instagramURL,
-  editInstagramURL,
-  visibility,
-  editVisibility,
-
-  toggleEditMode,
-  deleteProfile,
-
-  error,
-  message,
-}: ProfilePageProps) => {
-  return (
-    <div className="w-12/12 h-max">
-      <h3 className="w-max ml-auto mr-auto p-2 text-4xl font-bold">{`${
-        userName === "null" ? email : userName
-      }'s Profile`}</h3>
-      <div className="w-5/12 h-max ml-auto mr-auto overflow-hidden">
-        {/* Temp Image */}
-        <img
-          className="w-64 ml-auto mr-auto rounded-3xl object-cover"
-          src={profileImageObjURL}
-          id="profileImage"
-        ></img>
-
-        {isInEditMode && (
-          <>
-            <div className="w-max ml-auto mr-auto mt-3">
-              <span
-                className="material-symbols-outlined ml-auto mr-auto"
-                onClick={() => {
-                  let temp = document.getElementById("hiddenImageUpload");
-                  temp?.click();
-                }}
-              >
-                file_open
-              </span>
-            </div>
-            <input
-              type="file"
-              accept="image/png, image/jpeg"
-              className="hidden"
-              id="hiddenImageUpload"
-              onChange={(e) => {
-                setProfileImage(e.target.files![0]);
-              }}
-            />
-          </>
-        )}
-      </div>
-      <div className="overflow-hidden w-max ml-auto mr-auto mt-3 mb-3 border-prodSecondary border-t-2 border-b-2">
-        <div className="w-max mr-auto">
-          <h1 className="text-xl">Email: {email} </h1>
-        </div>
-        <div className="w-max  mr-auto ">
-          <h1 className="text-xl">
-            User Name: {userName === "null" ? "N/A" : userName}{" "}
-          </h1>
-        </div>
-        <div className="w-max  mr-auto ">
-          <h1 className="text-xl">
-            soundcloud URL: {!isInEditMode && soundcloudURL}
-            {isInEditMode && (
-              <input
-                className="p-1"
-                type="text"
-                value={soundcloudURL}
-                onChange={editsoundcloudURL}
-              ></input>
-            )}
-          </h1>
-        </div>
-        <div className="w-max  mr-auto ">
-          <h1 className="text-xl">
-            Bandcamp URL: {!isInEditMode && bandcampURL}{" "}
-            {isInEditMode && (
-              <input
-                className="p-1"
-                type="text"
-                value={bandcampURL}
-                onChange={editBandcampURL}
-              ></input>
-            )}
-          </h1>
-        </div>
-        <div className="w-max  mr-auto ">
-          <h1 className="text-xl">
-            Spotify URL: {!isInEditMode && spotifyURL}{" "}
-            {isInEditMode && (
-              <input
-                className="p-1"
-                type="text"
-                value={spotifyURL}
-                onChange={editSpotifyURL}
-              ></input>
-            )}
-          </h1>
-        </div>
-        <div className="w-max  mr-auto ">
-          <h1 className="text-xl">
-            Youtube URL: {!isInEditMode && youtubeURL}{" "}
-            {isInEditMode && (
-              <input
-                className="p-1"
-                type="text"
-                value={youtubeURL}
-                onChange={editYoutubeURL}
-              ></input>
-            )}
-          </h1>
-        </div>
-        <div className="w-max  mr-auto ">
-          <h1 className="text-xl">
-            Twitter URL: {!isInEditMode && twitterURL}{" "}
-            {isInEditMode && (
-              <input
-                className="p-1"
-                type="text"
-                value={twitterURL}
-                onChange={editTwitterURL}
-              ></input>
-            )}
-          </h1>
-        </div>
-        <div className="w-max  mr-auto ">
-          <h1 className="text-xl">
-            Facebook URL: {!isInEditMode && facebookURL}{" "}
-            {isInEditMode && (
-              <input
-                className="p-1"
-                type="text"
-                value={facebookURL}
-                onChange={editFacebookURL}
-              ></input>
-            )}
-          </h1>
-        </div>
-        <div className="w-max  mr-auto ">
-          <h1 className="text-xl">
-            Instagram URL: {!isInEditMode && instagramURL}{" "}
-            {isInEditMode && (
-              <input
-                className="p-1"
-                type="text"
-                value={instagramURL}
-                onChange={editInstagramURL}
-              ></input>
-            )}
-          </h1>
-        </div>
-        <div className="w-max  mr-auto ">
-          <h1 className="text-xl">
-            Visibility: {!isInEditMode && visibility}{" "}
-            {isInEditMode && (
-              <select
-                className="p-1"
-                value={visibility}
-                onChange={editVisibility}
-              >
-                <option value="Public">Public</option>
-                <option value="Private">Private</option>
-                <option value="FriendsOnly">FriendsOnly</option>
-              </select>
-            )}
-          </h1>
-        </div>
-      </div>
-      <div className="w-10/12 ml-auto mr-auto mb-3 flex justify-around">
-        <button onClick={toggleEditMode} className="btn">
-          {isInEditMode ? "Save profile" : "Edit Profile"}
-        </button>
-        <button onClick={deleteProfile} className="btn">
-          Delete profile
-        </button>
-      </div>
-      {error && <div className="error">{error}</div>}
-      {message && <div className="message">{message}</div>}
-    </div>
-  );
-};
-
-interface FriendsProps {
-  error: string;
-  message: string;
-  addFriendEmail: string;
-  setAddFriendEmail: (val: any) => void;
-}
-
-const FriendsPage = ({
-  error,
-  message,
-  addFriendEmail,
-  setAddFriendEmail,
-}: FriendsProps) => {
-  return (
-    <div className="w-12/12 h-screen mt-2">
-      <div className="border-b-2 border-prodSecondary w-12/12 h-max">
-        <input
-          type="email"
-          value={addFriendEmail}
-          placeholder="Friend's email"
-          className="w-full mr-auto ml-auto p-2"
-          onChange={(e) => {
-            setAddFriendEmail(e.target.value);
-          }}
-        ></input>
-        <div className="w-max mr-auto ml-auto p-2 ">
-          <button className="font-bold mt-1 mb-1 btn">Add Friend</button>
-        </div>
-      </div>
-      <div className="border-b-2 border-prodSecondary w-12/12 h-max pb-3">
-        <div className="w-max h-max ml-auto mr-auto">
-          <p className="font-bold text-xl p-2">Friend Requests</p>
-        </div>
-
-        <div className="w-max block">
-          <p className="font-semibold">Incomming</p>
-        </div>
-
-        {/* Display card with friend requests */}
-        <div className="mt-2 shadow-md  flex">
-          <p className=" text-lg w-5/6 overflow-hidden p-2">
-            Email : thegnomezone@gmail.com
-          </p>
-          <div className="w-1/6 h-full mt-auto mb-auto overflow-hidden flex justify-around">
-            <span className="material-symbols-outlined">check</span>
-            <span className="material-symbols-outlined">close</span>
-          </div>
-        </div>
-        <div className="mt-2 shadow-md  flex">
-          <p className=" text-lg w-5/6 overflow-hidden p-2">
-            Email : thegnomezone@gmail.com
-          </p>
-          <div className="w-1/6 h-full mt-auto mb-auto overflow-hidden flex justify-around">
-            <span className="material-symbols-outlined">check</span>
-            <span className="material-symbols-outlined">close</span>
-          </div>
-        </div>
-        <div className="mt-2 shadow-md flex">
-          <p className=" text-lg w-5/6 overflow-hidden p-2">
-            Email : thegnomezone@gmail.com
-          </p>
-          <div className="w-1/6 h-full mt-auto mb-auto overflow-hidden flex justify-around">
-            <span className="material-symbols-outlined">check</span>
-            <span className="material-symbols-outlined">close</span>
-          </div>
-        </div>
-        {/* End sample friends cards */}
-
-        <div className="w-max block">
-          <p className="font-semibold mt-3">Outgoing</p>
-        </div>
-
-        {/* Sample outgoing cards */}
-
-        <div className="mt-2 pt-1 pb-1 shadow-md flex justify-around">
-          <p className="text-lg w-9/12 h-max mt-auto mb-auto overflow-hidden">
-            Email : thegnomezone@gmail.com
-          </p>
-          <p className="bg-yellow-300 rounded-lg text-center mt-auto mb-auto">
-            Pending
-          </p>
-          <span className="material-symbols-outlined opacity-0">close</span>{" "}
-          {/*Add dummy icon so all cards align properly*/}
-        </div>
-
-        <div className="mt-2 pt-1 pb-1 shadow-md flex justify-around">
-          <p className="text-lg w-9/12 h-max mt-auto mb-auto overflow-hidden">
-            Email : thegnomezone@gmail.com
-          </p>
-          <p className="bg-red-300 rounded-lg text-center mt-auto mb-auto">
-            Rejected
-          </p>
-          <span className="material-symbols-outlined">close</span>
-        </div>
-
-        <div className="mt-2 pt-1 pb-1 shadow-md flex justify-around">
-          <p className="text-lg w-9/12 h-max mt-auto mb-auto overflow-hidden">
-            Email : thegnomezone@gmail.com
-          </p>
-          <p className="bg-green-300 rounded-lg text-center mt-auto mb-auto">
-            Accepted
-          </p>
-          <span className="material-symbols-outlined">close</span>
-        </div>
-
-        {/* End sample outgoing cards */}
-      </div>
-      <div className="mb-3 border-b-2 border-prodSecondary w-12/12 h-max pb-3">
-        <div className="w-max h-max ml-auto mr-auto">
-          <p className="font-bold text-xl p-2">Current Friends</p>
-        </div>
-
-        {/* Sample current friends cards */}
-
-        <div className="mt-2 shadow-md  flex">
-          <p className="text-lg w-5/6 mt-auto mb-auto overflow-hidden">
-            Email : thegnomezone@gmail.com
-          </p>
-          <div className="w-1/6 h-max mt-auto mb-auto overflow-hidden">
-            <div className="flex">
-              <span className="ml-auto mr-auto material-symbols-outlined">
-                close
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-2 shadow-md  flex">
-          <p className="text-lg w-5/6 mt-auto mb-auto overflow-hidden">
-            Email : thegnomezone@gmail.com
-          </p>
-          <div className="w-1/6 h-max mt-auto mb-auto overflow-hidden">
-            <div className="flex">
-              <span className="ml-auto mr-auto material-symbols-outlined">
-                close
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-2 shadow-md  flex">
-          <p className="text-lg w-5/6 mt-auto mb-auto overflow-hidden">
-            Email : thegnomezone@gmail.com
-          </p>
-          <div className="w-1/6 h-max mt-auto mb-auto overflow-hidden">
-            <div className="flex">
-              <span className="ml-auto mr-auto material-symbols-outlined">
-                close
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {error && <div className="error">{error}</div>}
-      {message && <div className="message">{message}</div>}
-    </div>
-  );
-};
+import FriendsPage from "../components/FriendsPage";
+import ProfilePage from "../components/ProfilePage";
 
 const UserProfile = () => {
   const authContext = useContext(AuthContext); // user and dispatch properties
@@ -403,10 +16,13 @@ const UserProfile = () => {
   const [message, setMessage] = useState("");
   const [isInEditMode, setIsInEditMode] = useState(false);
   const [triggerProfileFetch, setTriggerProfileFetch] = useState(true);
+  const [triggerFriendRequestsFetch, setTriggerFriendRequestsFetch] =
+    useState(true);
   const [profileImageObjURL, setProfileImageObjURL] = useState("");
   const [selectedPage, setSelectedPage] = useState("profile");
 
   const [profileImage, setProfileImage] = useState<any>();
+  const [friendRequests, setFriendRequests] = useState<Object[]>([]);
   const [userName, setUserName] = useState("null");
   const [email, setEmail] = useState("null");
   const [soundcloudURL, setsoundcloudURL] = useState("");
@@ -682,6 +298,18 @@ const UserProfile = () => {
     profileContext.dispatch({ type: "SET", payload: json.profile }); // save profile to context
   };
 
+  const getUserFriendRequests = async () => {
+    const response = await fetch("http://localhost:8005/user/friendRequests", {
+      method: "GET",
+      headers: { Authorization: `Bearer ${authContext.user.token}` },
+    });
+
+    if (response.ok) {
+      const payload = await response.json();
+      setFriendRequests(payload);
+    }
+  };
+
   const getUserProfileImage = async () => {
     const response = await fetch("http://localhost:8005/user/profileImage", {
       method: "GET",
@@ -753,7 +381,16 @@ const UserProfile = () => {
     } else {
       return;
     }
-  }, [authContext, triggerProfileFetch]); // rerun when authContext is changed
+  }, [authContext, triggerProfileFetch]);
+
+  useEffect(() => {
+    if (triggerFriendRequestsFetch) {
+      getUserFriendRequests();
+      setTriggerFriendRequestsFetch(false);
+    } else {
+      return;
+    }
+  }, [triggerFriendRequestsFetch]);
 
   useEffect(() => {
     // update profle data when profile context changes
@@ -830,7 +467,9 @@ const UserProfile = () => {
             error={error}
             message={message}
             addFriendEmail={addFriendEmail}
+            friendRequests={friendRequests}
             setAddFriendEmail={setAddFriendEmail}
+            setTriggerFriendRequestsFetch={setTriggerFriendRequestsFetch}
           ></FriendsPage>
         )}
       </div>

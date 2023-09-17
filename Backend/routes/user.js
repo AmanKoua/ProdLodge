@@ -571,7 +571,6 @@ router.post('/addFriend', verifyTokenAndGetUser, async (req, res) => {
 router.get('/friendRequests', verifyTokenAndGetUser, async (req, res) => {
 
     const userId = req.body.verifiedUser._id; // user ObjectId
-    const userEmail = req.body.verifiedUser.email;
     let payload = [];
 
     const tempUserProfile = await userProfile.findOne({ userId: userId });

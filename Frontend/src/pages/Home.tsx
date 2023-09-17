@@ -42,8 +42,6 @@ const Home = () => {
   }, [isUserSongPayloadSet, authContext]);
 
   const generateAudioBoxes = (): JSX.Element => {
-    // TODO : Stopped here!
-
     let audioBoxFragment = (
       <>
         {userSongPayload.map((item, idx) => (
