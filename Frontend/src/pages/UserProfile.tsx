@@ -235,6 +235,162 @@ const ProfilePage = ({
   );
 };
 
+interface FriendsProps {
+  error: string;
+  message: string;
+  addFriendEmail: string;
+  setAddFriendEmail: (val: any) => void;
+}
+
+const FriendsPage = ({
+  error,
+  message,
+  addFriendEmail,
+  setAddFriendEmail,
+}: FriendsProps) => {
+  return (
+    <div className="w-12/12 h-screen mt-2">
+      <div className="border-b-2 border-prodSecondary w-12/12 h-max">
+        <input
+          type="email"
+          value={addFriendEmail}
+          placeholder="Friend's email"
+          className="w-full mr-auto ml-auto p-2"
+          onChange={(e) => {
+            setAddFriendEmail(e.target.value);
+          }}
+        ></input>
+        <div className="w-max mr-auto ml-auto p-2 ">
+          <button className="font-bold mt-1 mb-1 btn">Add Friend</button>
+        </div>
+      </div>
+      <div className="border-b-2 border-prodSecondary w-12/12 h-max pb-3">
+        <div className="w-max h-max ml-auto mr-auto">
+          <p className="font-bold text-xl p-2">Friend Requests</p>
+        </div>
+
+        <div className="w-max block">
+          <p className="font-semibold">Incomming</p>
+        </div>
+
+        {/* Display card with friend requests */}
+        <div className="mt-2 shadow-md  flex">
+          <p className=" text-lg w-5/6 overflow-hidden p-2">
+            Email : thegnomezone@gmail.com
+          </p>
+          <div className="w-1/6 h-full mt-auto mb-auto overflow-hidden flex justify-around">
+            <span className="material-symbols-outlined">check</span>
+            <span className="material-symbols-outlined">close</span>
+          </div>
+        </div>
+        <div className="mt-2 shadow-md  flex">
+          <p className=" text-lg w-5/6 overflow-hidden p-2">
+            Email : thegnomezone@gmail.com
+          </p>
+          <div className="w-1/6 h-full mt-auto mb-auto overflow-hidden flex justify-around">
+            <span className="material-symbols-outlined">check</span>
+            <span className="material-symbols-outlined">close</span>
+          </div>
+        </div>
+        <div className="mt-2 shadow-md flex">
+          <p className=" text-lg w-5/6 overflow-hidden p-2">
+            Email : thegnomezone@gmail.com
+          </p>
+          <div className="w-1/6 h-full mt-auto mb-auto overflow-hidden flex justify-around">
+            <span className="material-symbols-outlined">check</span>
+            <span className="material-symbols-outlined">close</span>
+          </div>
+        </div>
+        {/* End sample friends cards */}
+
+        <div className="w-max block">
+          <p className="font-semibold mt-3">Outgoing</p>
+        </div>
+
+        {/* Sample outgoing cards */}
+
+        <div className="mt-2 pt-1 pb-1 shadow-md flex justify-around">
+          <p className="text-lg w-9/12 h-max mt-auto mb-auto overflow-hidden">
+            Email : thegnomezone@gmail.com
+          </p>
+          <p className="bg-yellow-300 rounded-lg text-center mt-auto mb-auto">
+            Pending
+          </p>
+        </div>
+
+        <div className="mt-2 pt-1 pb-1 shadow-md flex justify-around">
+          <p className="text-lg w-9/12 h-max mt-auto mb-auto overflow-hidden">
+            Email : thegnomezone@gmail.com
+          </p>
+          <p className="bg-red-300 rounded-lg text-center mt-auto mb-auto">
+            Rejected
+          </p>
+        </div>
+
+        <div className="mt-2 pt-1 pb-1 shadow-md flex justify-around">
+          <p className="text-lg w-9/12 h-max mt-auto mb-auto overflow-hidden">
+            Email : thegnomezone@gmail.com
+          </p>
+          <p className="bg-green-300 rounded-lg text-center mt-auto mb-auto">
+            Accepted
+          </p>
+        </div>
+
+        {/* End sample outgoing cards */}
+      </div>
+      <div className="mb-3 border-b-2 border-prodSecondary w-12/12 h-max pb-3">
+        <div className="w-max h-max ml-auto mr-auto">
+          <p className="font-bold text-xl p-2">Current Friends</p>
+        </div>
+
+        {/* Sample current friends cards */}
+
+        <div className="mt-2 shadow-md  flex">
+          <p className="text-lg w-5/6 mt-auto mb-auto overflow-hidden">
+            Email : thegnomezone@gmail.com
+          </p>
+          <div className="w-1/6 h-max mt-auto mb-auto overflow-hidden">
+            <div className="flex">
+              <span className="ml-auto mr-auto material-symbols-outlined">
+                close
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-2 shadow-md  flex">
+          <p className="text-lg w-5/6 mt-auto mb-auto overflow-hidden">
+            Email : thegnomezone@gmail.com
+          </p>
+          <div className="w-1/6 h-max mt-auto mb-auto overflow-hidden">
+            <div className="flex">
+              <span className="ml-auto mr-auto material-symbols-outlined">
+                close
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-2 shadow-md  flex">
+          <p className="text-lg w-5/6 mt-auto mb-auto overflow-hidden">
+            Email : thegnomezone@gmail.com
+          </p>
+          <div className="w-1/6 h-max mt-auto mb-auto overflow-hidden">
+            <div className="flex">
+              <span className="ml-auto mr-auto material-symbols-outlined">
+                close
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {error && <div className="error">{error}</div>}
+      {message && <div className="message">{message}</div>}
+    </div>
+  );
+};
+
 const UserProfile = () => {
   const authContext = useContext(AuthContext); // user and dispatch properties
   const profileContext = useContext(ProfileContext);
@@ -257,6 +413,8 @@ const UserProfile = () => {
   const [facebookURL, setFacebookURL] = useState("");
   const [instagramURL, setInstagramURL] = useState("");
   const [visibility, setVisibility] = useState("N/A"); // Public (visible to all users), Private (only visible to owner), Friends (only friends can view)
+
+  const [addFriendEmail, setAddFriendEmail] = useState("");
 
   const navigate = useNavigate();
 
@@ -632,7 +790,7 @@ const UserProfile = () => {
           )}
         </div>
       </div>
-      <div className="w-6/12 mr-auto ml-auto">
+      <div className="hide-scrollbar overflow-scroll w-6/12 mr-auto ml-auto">
         {selectedPage === "profile" && (
           <ProfilePage
             profileImageObjURL={profileImageObjURL}
@@ -664,7 +822,12 @@ const UserProfile = () => {
         )}
 
         {selectedPage === "friends" && (
-          <div className="bg-red-500 w-12/12 h-56">This need to work!</div>
+          <FriendsPage
+            error={error}
+            message={message}
+            addFriendEmail={addFriendEmail}
+            setAddFriendEmail={setAddFriendEmail}
+          ></FriendsPage>
         )}
       </div>
     </div>

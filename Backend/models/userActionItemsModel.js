@@ -5,10 +5,8 @@ const Schema = mongoose.Schema;
 
 const userActionItemsSchema = new Schema({
 
-    // Id field will be automatically generated with the object
-
     items: {
-        type: [],
+        type: [], // [ {id: ... , type:.... email: ...., status: ....} ]
         required: true,
         unique: false,
     },
