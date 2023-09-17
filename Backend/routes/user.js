@@ -171,6 +171,114 @@ router.get('/profile', async (req, res) => {
 
 })
 
+router.patch('/profile', async (req, res) => {
+
+    if (!req.headers || !req.headers.authorization) {
+        return res.status(401).json({ error: "Invalid request header!" });
+    }
+
+    if (!req.body || !req.body.profile) {
+        return res.status(401).json({ error: "Invalid request body!" });
+    }
+
+    const token = req.headers.authorization.split(" ")[1]; // bearer token...
+    let decodedToken;
+
+    try {
+        decodedToken = jwt.verify(token, process.env.SECRET) // fields: _id, iat, exp
+    } catch (e) {
+        return res.status(401).json({ error: "JWT verification failed!" });
+    }
+
+    const filter = { userId: new ObjectId(decodedToken._id) };
+    let updateObject = {};
+    let profileProperties = Object.keys(req.body.profile);
+
+    if (profileProperties.includes("userId") || profileProperties.includes("actionItemsId") || profileProperties.includes("friendsListId") || profileProperties.includes("_id")) { // dont allow modification of these properties!
+        return res.status(401).json({ error: "Invalid profile properties modification!" });
+    }
+
+    for (let i = 0; i < profileProperties.length; i++) {
+        updateObject[profileProperties[i]] = req.body.profile[profileProperties[i]];
+    }
+
+    const update = {
+        $set: updateObject,
+    };
+
+    const profile = await userProfile.updateOne(filter, update); // return array of items matching query
+
+    return res.status(200).json({ profile: profile }); // CORS will never allow a profile obj to be sent ...
+
+});
+
+router.delete("/profile", async (req, res) => {
+
+    // TODO : Update delete enpoint when user tracks, images, etc have been added!
+
+    if (!req.headers || !req.headers.authorization) {
+        return res.status(401).json({ error: "Invalid request header!" });
+    }
+
+    const token = req.headers.authorization.split(" ")[1];
+    let decodedToken;
+
+    try {
+        decodedToken = jwt.verify(token, process.env.SECRET) // fields: _id, iat, exp
+    } catch (e) {
+        return res.status(401).json({ error: "JWT verification failed!" });
+    }
+
+    const profile = await userProfile.find({ userId: new ObjectId(decodedToken._id) }).exec(); // return array of items matching query
+
+    if (profile.length === 0) {
+        return res.status(400).json({ error: "No users found for given ID" })
+    }
+    else if (profile.length > 1) {
+        return res.status(400).json({ error: "More than 1 user found for given ID" })
+    }
+
+    /*
+    delete songs, comments, tracks, and images associated with user account!
+    */
+
+    const userProfileId = profile[0]._id;
+    const userId = profile[0].userId;
+    const friendsListId = profile[0].friendsListId;
+    const actionItemsId = profile[0].actionItemsId;
+
+    const userSongs = await song.find({ userId: userId }).exec();
+
+    const client = new MongoClient(process.env.MONGO_URI);
+    await client.connect();
+    const db = client.db("ProdCluster");
+    const bucket = new GridFSBucket(db);
+
+    for (let i = 0; i < userSongs.length; i++) {
+        let tempTrackList = userSongs[i].trackList
+
+        for (let j = 0; j < tempTrackList.length; j++) { // delete all tracks associated with a song
+            await bucket.delete(tempTrackList[j]);
+        }
+
+        await song.deleteOne({ _id: userSongs[i]._id }).exec();
+    }
+
+    await client.close();
+
+    try {
+        await userActionItems.findOneAndDelete({ _id: actionItemsId });
+        await userFriends.findOneAndDelete({ _id: friendsListId });
+        await userProfile.findOneAndDelete({ _id: userProfileId });
+        await user.findOneAndDelete({ _id: userId });
+    } catch (e) {
+        return res.status(500).json({ error: e.message });
+    }
+
+    return res.status(200).json({ mssg: "Successful data deletion!" });
+
+})
+
 const downloadProfileImage = (imageId, fileName, requestId) => {
 
     return new Promise(async (res, rej) => {
@@ -240,114 +348,6 @@ router.get('/profileImage', verifyTokenAndGetUser, async (req, res) => {
             }
         }
     })
-
-})
-
-router.patch('/profile', async (req, res) => {
-
-    if (!req.headers || !req.headers.authorization) {
-        return res.status(401).json({ error: "Invalid request header!" });
-    }
-
-    if (!req.body || !req.body.profile) {
-        return res.status(401).json({ error: "Invalid request body!" });
-    }
-
-    const token = req.headers.authorization.split(" ")[1]; // bearer token...
-    let decodedToken;
-
-    try {
-        decodedToken = jwt.verify(token, process.env.SECRET) // fields: _id, iat, exp
-    } catch (e) {
-        return res.status(401).json({ error: "JWT verification failed!" });
-    }
-
-    const filter = { userId: new ObjectId(decodedToken._id) };
-    let updateObject = {};
-    let profileProperties = Object.keys(req.body.profile);
-
-    if (profileProperties.includes("userId") || profileProperties.includes("actionItemsId") || profileProperties.includes("friendsListId") || profileProperties.includes("_id")) { // dont allow modification of these properties!
-        return res.status(401).json({ error: "Invalid profile properties modification!" });
-    }
-
-    for (let i = 0; i < profileProperties.length; i++) {
-        updateObject[profileProperties[i]] = req.body.profile[profileProperties[i]];
-    }
-
-    const update = {
-        $set: updateObject,
-    };
-
-    const profile = await userProfile.updateOne(filter, update); // return array of items matching query
-
-    return res.status(200).json({ profile: profile }); // CORS will never allow a profole obj to be sent ...
-
-});
-
-router.delete("/profile", async (req, res) => {
-
-    // TODO : Update delete enpoint when user tracks, images, etc have been added!
-
-    if (!req.headers || !req.headers.authorization) {
-        return res.status(401).json({ error: "Invalid request header!" });
-    }
-
-    const token = req.headers.authorization.split(" ")[1];
-    let decodedToken;
-
-    try {
-        decodedToken = jwt.verify(token, process.env.SECRET) // fields: _id, iat, exp
-    } catch (e) {
-        return res.status(401).json({ error: "JWT verification failed!" });
-    }
-
-    const profile = await userProfile.find({ userId: new ObjectId(decodedToken._id) }).exec(); // return array of items matching query
-
-    if (profile.length === 0) {
-        return res.status(400).json({ error: "No users found for given ID" })
-    }
-    else if (profile.length > 1) {
-        return res.status(400).json({ error: "More than 1 user found for given ID" })
-    }
-
-    /*
-    delete songs, comments, tracks, and images associated with user account!
-    */
-
-    const userProfileId = profile[0]._id;
-    const userId = profile[0].userId;
-    const friendsListId = profile[0].friendsListId;
-    const actionItemsId = profile[0].actionItemsId;
-
-    const userSongs = await song.find({ userId: userId }).exec();
-
-    const client = new MongoClient(process.env.MONGO_URI);
-    await client.connect();
-    const db = client.db("ProdCluster");
-    const bucket = new GridFSBucket(db);
-
-    for (let i = 0; i < userSongs.length; i++) {
-        let tempTrackList = userSongs[i].trackList
-
-        for (let j = 0; j < tempTrackList.length; j++) { // delete all tracks associated with a song
-            await bucket.delete(tempTrackList[j]);
-        }
-
-        await song.deleteOne({ _id: userSongs[i]._id }).exec();
-    }
-
-    await client.close();
-
-    try {
-        await userActionItems.findOneAndDelete({ _id: actionItemsId });
-        await userFriends.findOneAndDelete({ _id: friendsListId });
-        await userProfile.findOneAndDelete({ _id: userProfileId });
-        await user.findOneAndDelete({ _id: userId });
-    } catch (e) {
-        return res.status(500).json({ error: e.message });
-    }
-
-    return res.status(200).json({ mssg: "Successful data deletion!" });
 
 })
 
@@ -502,6 +502,69 @@ router.delete('/song', verifyTokenAndGetUser, async (req, res) => {
 
     return res.status(200).json({ message: "Song deleted successfully!" })
 
+})
+
+router.post('/addFriend', verifyTokenAndGetUser, async (req, res) => {
+
+    if (!req.body || !req.body.email) {
+        return res.status(400).json({ error: "Invalid friend request body!" });
+    }
+
+    const userId = req.body.verifiedUser._id; // user ObjectId
+    const userEmail = req.body.verifiedUser.email;
+    const friendEmail = req.body.email;
+
+    if (userEmail == friendEmail) {
+        return res.status(500).json({ error: "Cannot add yourself as a friend!" });
+    }
+
+    const friend = await user.findOne({ email: friendEmail });
+
+    if (!friend) {
+        return res.status(400).json({ error: "No user is registered to provided friend email!" });
+    }
+
+    const tempUserProfile = await userProfile.findOne({ userId: userId });
+    const friendProfile = await userProfile.findOne({ userId: friend._id });
+
+    const tempUserFriendsList = await userFriends.findOne({ _id: tempUserProfile.friendsListId });
+
+    if (tempUserFriendsList.friendsList.includes(friendEmail)) {
+        return res.status(400).json({ error: "Cannot add user that's already a friend!" });
+    }
+
+    const tempUserActionItems = await userActionItems.findOne({ _id: tempUserProfile.actionItemsId });
+
+    for (let i = 0; i < tempUserActionItems.items.length; i++) {
+        if (tempUserActionItems.items[i].type == "outgoingFriendRequest") {
+            if (tempUserActionItems.items[i].data.email == friendEmail) {
+                return res.status(400).json({ error: "Cannot send multiple simultaneous friend request to a user" });
+            }
+        }
+    }
+
+    const userActionItem = {
+        id: generateRandomString(35),
+        type: "outgoingFriendRequest",
+        data: {
+            email: friendEmail,
+            status: "pending",
+        }
+    }
+
+    const friendActionItem = {
+        id: generateRandomString(35),
+        type: "incommingFriendRequest",
+        data: {
+            email: userEmail,
+            status: "pending",
+        }
+    }
+
+    await userActionItems.updateOne({ _id: tempUserProfile.actionItemsId }, { $push: { items: userActionItem } });
+    await userActionItems.updateOne({ _id: friendProfile.actionItemsId }, { $push: { items: friendActionItem } });
+
+    return res.status(200).json({ message: "Friend request sent successfully!" });
 })
 
 module.exports = router;
