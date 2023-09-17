@@ -586,4 +586,58 @@ router.get('/friendRequests', verifyTokenAndGetUser, async (req, res) => {
 
 })
 
+router.post("/handleFriendRequest", verifyTokenAndGetUser, async (req, res) => {
+
+    if (!req.body || !req.body.requestId || !req.body.response) {
+        return res.status(400).json({ error: "Invalid request body" });
+    }
+
+    const acceptableResponses = ["accept", "reject"];
+
+    if (!acceptableResponses.includes(req.body.response)) {
+        return res.status(400).json({ error: "Invalid response type" });
+    }
+
+    const userId = req.body.verifiedUser._id; // user ObjectId
+
+    const tempUserProfile = await userProfile.findOne({ userId: userId });
+    const tempUserActionItems = await userActionItems.findOne({ _id: tempUserProfile.actionItemsId });
+    let updateIndex = undefined;
+
+    for (let i = 0; i < tempUserActionItems.items.length; i++) {
+        if (tempUserActionItems.items[i].id == req.body.requestId) {
+            updateIndex = i;
+            break;
+        }
+    }
+
+    if (updateIndex === undefined) {
+        return res.status(400).json({ error: "Invalid request Id" });
+    }
+
+    if (tempUserActionItems.items[updateIndex].data.status != "pending") {
+        return res.status(400).json({ error: "Cannot set response that's already set" });
+    }
+
+    let updatedActionItem = tempUserActionItems.items[updateIndex];
+    updatedActionItem.data.status = req.body.response;
+
+    await userActionItems.updateOne({ _id: tempUserProfile.actionItemsId }, { $set: { [`items.${updateIndex}`]: updatedActionItem } });
+
+    /*
+    Todo: Finished here!
+    - When action item response is set:
+        - Accept:
+            - Add the userId to the friends list of both users, remove action item from user, set action item status for friend.
+        - Reject:
+            - Do not add userId to the friends list of users, remvoe action item from user, set action item status for friend.
+
+
+    - Attach backend to UI.
+    */
+
+    return res.status(200).json({ message: "Success" });
+
+})
+
 module.exports = router;
