@@ -537,7 +537,7 @@ router.post('/addFriend', verifyTokenAndGetUser, async (req, res) => {
 
     for (let i = 0; i < tempUserActionItems.items.length; i++) {
         if (tempUserActionItems.items[i].type == "outgoingFriendRequest" || tempUserActionItems.items[i].type == "incommingFriendRequest") {
-            if (tempUserActionItems.items[i].data.email == friendEmail) {
+            if (tempUserActionItems.items[i].data.email == friendEmail && (tempUserActionItems.items[i].data.status == "pending")) {
                 return res.status(400).json({ error: "Cannot send friend request while incomming / outgoing friend request is pending!" });
             }
         }
@@ -623,6 +623,9 @@ router.post("/handleFriendRequest", verifyTokenAndGetUser, async (req, res) => {
     updatedActionItem.data.status = req.body.response;
 
     await userActionItems.updateOne({ _id: tempUserProfile.actionItemsId }, { $set: { [`items.${updateIndex}`]: updatedActionItem } });
+
+    // To remove an element from a specific index, do not use unset & pull as it is not an atomic operation.
+    // Instead copy it, replace the undesired element, set the items array to the new array
 
     /*
     Todo: Finished here!

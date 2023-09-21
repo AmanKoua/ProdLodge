@@ -155,17 +155,28 @@ const SongEntry = ({ songData, authContext, editSong, deleteSong }: Props) => {
             height: "35px",
             display: "block",
             border: "1px solid black",
+            padding: "3px",
           }}
           onChange={handleTitleChange}
         />
         <input
           type="text"
           value={songDescription}
-          style={{ width: "100%", height: "35px", border: "1px solid black" }}
+          style={{
+            width: "100%",
+            height: "35px",
+            border: "1px solid black",
+            padding: "3px",
+          }}
           onChange={handleDescriptionChange}
         />
         <select
-          style={{ width: "100%", height: "35px", border: "1px solid black" }}
+          style={{
+            width: "100%",
+            height: "35px",
+            border: "1px solid black",
+            padding: "3px",
+          }}
           onChange={handleVisibilityChange}
           value={songVisibility}
         >

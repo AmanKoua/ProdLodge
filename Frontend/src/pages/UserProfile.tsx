@@ -337,7 +337,7 @@ const UserProfile = () => {
       setMessage("Friend request sent successfully!");
       setTimeout(() => {
         setTriggerFriendRequestsFetch(true);
-      }, 1000);
+      }, 1500);
       return;
     } else {
       const json = await response.json();
