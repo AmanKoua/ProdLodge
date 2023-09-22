@@ -11,6 +11,7 @@ const Home = () => {
   const [userSongPayload, setUserSongPayload] = useState([]);
   const [isUserSongPayloadSet, setIsUserSongPayloadSet] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedPage, setSelectedPage] = useState("My Songs");
   const authContext = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -77,6 +78,42 @@ const Home = () => {
   return (
     <div className="bg-prodPrimary w-full sm:w-8/12 h-screen mr-auto ml-auto hide-scrollbar overflow-y-scroll">
       {/* Do not allow the displaying of audioBoxes on mobile sized screens */}
+
+      <div className="w-6/12 h-7 ml-auto mr-auto mt-2 overflow-hidden flex justify-around">
+        <div className="w-max h-max inline-block">
+          {selectedPage === "My Songs" && (
+            <p className="hover:font-bold border-b-2 border-black">My Songs</p>
+          )}
+          {selectedPage !== "My Songs" && (
+            <p
+              className="hover:font-bold"
+              onClick={() => {
+                setSelectedPage("My Songs");
+              }}
+            >
+              My Songs
+            </p>
+          )}
+        </div>
+        <div className="w-max h-max inline-block">
+          {selectedPage === "Friend's Songs" && (
+            <p className="hover:font-bold border-b-2 border-black">
+              Friend's Songs
+            </p>
+          )}
+          {selectedPage !== "Friend's Songs" && (
+            <p
+              className="hover:font-bold"
+              onClick={() => {
+                setSelectedPage("Friend's Songs");
+              }}
+            >
+              Friend's Songs
+            </p>
+          )}
+        </div>
+      </div>
+
       <div className=" w-full h-max mt-56 bg-prodSecondary rounded-lg z-50 fixed sm:hidden">
         <h3 className="ml-auto mr-auto p-5 font-bold text-4xl">
           We're sorry, but we cannot support mobile devices!
