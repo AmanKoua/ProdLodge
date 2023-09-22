@@ -19,6 +19,8 @@ const FriendsPage = ({
   addFriend,
   setTriggerFriendRequestsFetch,
 }: FriendsProps) => {
+  console.log(friendRequests);
+
   const [incommingRequests, setIncommingRequests] = useState<Object[]>([]);
   const [outgoingRequests, setOutgoingRequests] = useState<Object[]>([]);
 
@@ -60,11 +62,11 @@ const FriendsPage = ({
               {request.data.status == "pending" && (
                 <p className={pendingClass}>{request.data.status}</p>
               )}
-              {request.data.status == "accepted" && (
-                <p className={acceptedClass}>{request.data.status}</p>
+              {request.data.status == "accept" && (
+                <p className={acceptedClass}>Accepted</p>
               )}
-              {request.data.status == "rejected" && (
-                <p className={rejectedClass}>{request.data.status}</p>
+              {request.data.status == "reject" && (
+                <p className={rejectedClass}>Rejected</p>
               )}
               <span className="material-symbols-outlined opacity-0">close</span>{" "}
               {/*Add dummy icon so all cards align properly*/}

@@ -388,7 +388,14 @@ const EditSong = () => {
       <h3 className="w-max mr-auto ml-auto p-2 font-bold">
         Edit an existing song
       </h3>
-      {isUserSongPayloadSet && generateSongEntries()}
+      {isUserSongPayloadSet &&
+        userSongPayload.length > 0 &&
+        generateSongEntries()}
+      {isUserSongPayloadSet && userSongPayload.length == 0 && (
+        <div className="w-max h-max ml-auto mr-auto mt-5 border-b-2 border-black ">
+          <h3 className="">Sorry, but you have no songs to show.</h3>
+        </div>
+      )}
       {!isUserSongPayloadSet && generatePlaceholderSongEntries()}
       {error && <div className="error mt-2">{error}</div>}
       {message && <div className="message mt-2">{message}</div>}

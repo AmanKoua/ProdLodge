@@ -504,6 +504,29 @@ router.delete('/song', verifyTokenAndGetUser, async (req, res) => {
 
 })
 
+router.get("/friends", verifyTokenAndGetUser, async (req, res) => {
+
+    const tempUserProfile = await userProfile.findOne({ userId: req.body.verifiedUser._id });
+    const tempUserFriends = await userFriends.findOne({ _id: tempUserProfile.friendsListId });
+    const tempUserFriendsList = tempUserFriends.friendsList; // [ObjectId]
+    let friends = []; // [{id: ObjectId, userName, email}]
+
+    for (let i = 0; i < tempUserFriendsList.length; i++) {
+
+        let temp = {}
+        let tempFriendUser = await user.findOne({ userId: tempUserFriendsList[i] })
+
+        temp.id = tempUserFriendsList[i];
+        temp.userName = !tempFriendUser.userName ? "" : tempFriendUser.userName;
+        temp.email = tempFriendUser.email;
+
+        friends.push(temp);
+    }
+
+    return res.status(200).json({ friends });
+
+})
+
 router.post('/addFriend', verifyTokenAndGetUser, async (req, res) => {
 
     if (!req.body || !req.body.email) {
@@ -568,6 +591,10 @@ router.post('/addFriend', verifyTokenAndGetUser, async (req, res) => {
 
 })
 
+router.delete('/deleteFriend', verifyTokenAndGetUser, async (req, res) => {
+
+})
+
 router.get('/friendRequests', verifyTokenAndGetUser, async (req, res) => {
 
     const userId = req.body.verifiedUser._id; // user ObjectId
@@ -599,47 +626,145 @@ router.post("/handleFriendRequest", verifyTokenAndGetUser, async (req, res) => {
     }
 
     const userId = req.body.verifiedUser._id; // user ObjectId
-
     const tempUserProfile = await userProfile.findOne({ userId: userId });
     const tempUserActionItems = await userActionItems.findOne({ _id: tempUserProfile.actionItemsId });
-    let updateIndex = undefined;
+    const tempUserFriendsList = await userFriends.findOne({ _id: tempUserProfile.friendsListId });
+
+    let actionItemIndex = undefined;
+
+    let target;
+    let targetProfile;
+    let targetActionItems;
+    let targetFriendsList;
+    let targetEmail = "";
 
     for (let i = 0; i < tempUserActionItems.items.length; i++) {
         if (tempUserActionItems.items[i].id == req.body.requestId) {
-            updateIndex = i;
+            targetEmail = tempUserActionItems.items[i].data.email;
+            actionItemIndex = i;
             break;
         }
     }
 
-    if (updateIndex === undefined) {
+    if (actionItemIndex === undefined) {
         return res.status(400).json({ error: "Invalid request Id" });
     }
 
-    if (tempUserActionItems.items[updateIndex].data.status != "pending") {
+    if (tempUserActionItems.items[actionItemIndex].data.status != "pending") { // Status should never be pending, as items are deleted once handled
         return res.status(400).json({ error: "Cannot set response that's already set" });
     }
 
-    let updatedActionItem = tempUserActionItems.items[updateIndex];
-    updatedActionItem.data.status = req.body.response;
+    target = await user.findOne({ email: targetEmail });
 
-    await userActionItems.updateOne({ _id: tempUserProfile.actionItemsId }, { $set: { [`items.${updateIndex}`]: updatedActionItem } });
+    if (!target || target == null) {
+        return res.status(400).json({ error: "Cannot find friend account!" });
+    }
 
-    // To remove an element from a specific index, do not use unset & pull as it is not an atomic operation.
-    // Instead copy it, replace the undesired element, set the items array to the new array
+    targetProfile = await userProfile.findOne({ userId: target._id });
+    targetActionItems = await userActionItems.findOne({ _id: targetProfile.actionItemsId });
+    targetFriendsList = await userFriends.findOne({ _id: targetProfile.friendsListId });
 
-    /*
-    Todo: Finished here!
-    - When action item response is set:
-        - Accept:
-            - Add the userId to the friends list of both users, remove action item from user, set action item status for friend.
-        - Reject:
-            - Do not add userId to the friends list of users, remvoe action item from user, set action item status for friend.
+    // let tempUserObjectId = userId;
+    let targetUserObjectId = target._id;
+    let currentUserFriendsList = tempUserFriendsList.friendsList;
+    let newUserFriendsList = [];
+    let currentUserActionItems = tempUserActionItems.items;
+    let newUserActionItems = [];
+    let currentTargetFriendsList = targetFriendsList.friendsList;
+    let newTargetFriendsList = [];
+    let currentTargetActionItems = targetActionItems.items;
+    let newTargetActionItems = [];
 
+    if (req.body.response == "accept") {
 
-    - Attach backend to UI.
-    */
+        let targetActionItemIndex = undefined;
+        let updatedTargetActionItem = undefined;
 
-    return res.status(200).json({ message: "Success" });
+        if (!currentUserFriendsList.includes(targetUserObjectId)) {
+            await tempUserFriendsList.updateOne({ $push: { friendsList: targetUserObjectId } })
+        }
+
+        if (!currentTargetFriendsList.includes(userId)) {
+            await targetFriendsList.updateOne({ $push: { friendsList: userId } });
+        }
+
+        // Remove handled action item for user
+
+        for (let i = 0; i < currentUserActionItems.length; i++) {
+            if (currentUserActionItems[i].id != req.body.requestId) {
+                newUserActionItems.push(currentUserActionItems[i]);
+            }
+            else {
+                continue;
+            }
+        }
+
+        await userActionItems.updateOne({ _id: tempUserProfile.actionItemsId }, { $set: { items: newUserActionItems } });
+
+        // Update handled action item for target
+
+        for (let i = 0; i < currentTargetActionItems.length; i++) {
+            if (currentTargetActionItems[i].type != "outgoingFriendRequest") {
+                continue;
+            }
+            else if ((currentTargetActionItems[i].data.email == req.body.verifiedUser.email) && (currentTargetActionItems[i].data.status == "pending")) {
+                targetActionItemIndex = i;
+                break;
+            }
+        }
+
+        if (targetActionItemIndex == undefined) {
+            return res.status(500).json({ error: "Cannot find corresponding friend action item to update!" });
+        }
+
+        updatedTargetActionItem = currentTargetActionItems[targetActionItemIndex];
+        updatedTargetActionItem.data.status = req.body.response;
+
+        await targetActionItems.updateOne({ $set: { [`items.${targetActionItemIndex}`]: updatedTargetActionItem } });
+
+    } else if (req.body.response == "reject") {
+
+        let targetActionItemIndex = undefined;
+        let updatedTargetActionItem = undefined;
+
+        // Remove handled action item for user
+
+        for (let i = 0; i < currentUserActionItems.length; i++) {
+            if (currentUserActionItems[i].id != req.body.requestId) {
+                newUserActionItems.push(currentUserActionItems[i]);
+            }
+            else {
+                continue;
+            }
+        }
+
+        await userActionItems.updateOne({ _id: tempUserProfile.actionItemsId }, { $set: { items: newUserActionItems } });
+
+        // Update handled action item for target
+
+        console.log(currentTargetActionItems);
+
+        for (let i = 0; i < currentTargetActionItems.length; i++) {
+            if (currentTargetActionItems[i].type != "outgoingFriendRequest") {
+                continue;
+            }
+            else if ((currentTargetActionItems[i].data.email == req.body.verifiedUser.email) && (currentTargetActionItems[i].data.status == "pending")) {
+                targetActionItemIndex = i;
+                break;
+            }
+        }
+
+        if (targetActionItemIndex == undefined) {
+            return res.status(500).json({ error: "Cannot find corresponding friend action item to update!" });
+        }
+
+        updatedTargetActionItem = currentTargetActionItems[targetActionItemIndex];
+        updatedTargetActionItem.data.status = req.body.response;
+
+        await targetActionItems.updateOne({ $set: { [`items.${targetActionItemIndex}`]: updatedTargetActionItem } });
+    }
+
+    return res.status(200).json({ message: "Successfully handled friend request" });
 
 })
 

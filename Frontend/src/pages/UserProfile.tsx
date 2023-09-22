@@ -292,9 +292,13 @@ const UserProfile = () => {
     if (json.profile.doesUserHaveProfileImage) {
       await getUserProfileImage();
     } else {
-      document.getElementById("profileImage").src =
-        "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
+      // document.getElementById("profileImage").src =
+      //   "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
+      const temp = "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"; // Temporary icon.
+      setProfileImageObjURL(temp);
     }
+
+    setIsImageLoading(false);
 
     profileContext.dispatch({ type: "SET", payload: json.profile }); // save profile to context
   };
@@ -436,7 +440,7 @@ const UserProfile = () => {
 
   return (
     <div className="bg-prodPrimary overflow-hidden w-full sm:w-8/12 ml-auto mr-auto flex-col jusitfy-items-center">
-      <div className="w-6/12 h-7 ml-auto mr-auto overflow-hidden flex justify-around">
+      <div className="w-6/12 h-7 ml-auto mr-auto mt-2 overflow-hidden flex justify-around">
         <div className="w-max h-max inline-block">
           {selectedPage === "profile" && (
             <p className="hover:font-bold border-b-2 border-black">Profile</p>
