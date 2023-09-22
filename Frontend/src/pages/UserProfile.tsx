@@ -327,6 +327,26 @@ const UserProfile = () => {
     }
   };
 
+  const removeRequestNotification = async (id: string) => {
+    let response = await fetch(
+      "http://localhost:8005/user/requestNotification",
+      {
+        method: "DELETE",
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Bearer ${authContext.user.token}`,
+        },
+        body: JSON.stringify({ id: id }),
+      }
+    );
+
+    if (response.ok) {
+      setTriggerFriendDataFetch(true);
+    } else {
+      setError("Request notification removal failed!");
+    }
+  };
+
   const addFriend = async () => {
     setError("");
     setMessage("");
@@ -363,6 +383,11 @@ const UserProfile = () => {
   };
 
   const getUserProfileImage = async () => {
+    if (!authContext || !authContext.user || !authContext.user.token) {
+      console.log("No token avaiable to fetch profile image!");
+      return;
+    }
+
     const response = await fetch("http://localhost:8005/user/profileImage", {
       method: "GET",
       headers: { Authorization: `Bearer ${authContext.user.token}` },
@@ -526,6 +551,7 @@ const UserProfile = () => {
             userFriends={userFriends}
             setAddFriendEmail={setAddFriendEmail}
             addFriend={addFriend}
+            removeRequestNotification={removeRequestNotification}
             setTriggerFriendDataFetch={setTriggerFriendDataFetch}
           ></FriendsPage>
         )}

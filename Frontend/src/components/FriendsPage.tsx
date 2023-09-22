@@ -8,6 +8,7 @@ interface FriendsProps {
   userFriends: Object[];
   setAddFriendEmail: (val: any) => void;
   addFriend: () => Promise<void>;
+  removeRequestNotification: (id: string) => Promise<void>;
   setTriggerFriendDataFetch: (val: boolean) => void;
 }
 
@@ -19,10 +20,9 @@ const FriendsPage = ({
   userFriends,
   setAddFriendEmail,
   addFriend,
+  removeRequestNotification,
   setTriggerFriendDataFetch,
 }: FriendsProps) => {
-  console.log(userFriends);
-
   const [incommingRequests, setIncommingRequests] = useState<Object[]>([]);
   const [outgoingRequests, setOutgoingRequests] = useState<Object[]>([]);
 
@@ -52,11 +52,13 @@ const FriendsPage = ({
     const pendingClass = "bg-yellow-300 rounded-lg text-center mt-auto mb-auto";
     const acceptedClass = "bg-green-300 rounded-lg text-center mt-auto mb-auto";
     const rejectedClass = "bg-red-300 rounded-lg text-center mt-auto mb-auto";
+    const removeItemClass = "material-symbols-outlined hover:font-bold";
+    const pendingItemClass = "material-symbols-outlined opacity-0";
 
     let temp = (
       <>
         {outgoingRequests.map((request, idx) => (
-          <>
+          <div key={idx}>
             <div
               key={idx}
               className="mt-2 pt-1 pb-1 shadow-md flex justify-around"
@@ -73,10 +75,23 @@ const FriendsPage = ({
               {request.data.status == "reject" && (
                 <p className={rejectedClass}>Rejected</p>
               )}
-              <span className="material-symbols-outlined opacity-0">close</span>{" "}
+              {request.data.status == "pending" && (
+                <span className={pendingItemClass}>close</span>
+              )}
+              {request.data.status != "pending" && (
+                <span
+                  className={removeItemClass}
+                  onClick={() => {
+                    removeRequestNotification(request.id);
+                  }}
+                >
+                  close
+                </span>
+              )}
+
               {/*Add dummy icon so all cards align properly*/}
             </div>
-          </>
+          </div>
         ))}
       </>
     );
@@ -88,7 +103,7 @@ const FriendsPage = ({
     let temp = (
       <>
         {userFriends.map((item, idx) => (
-          <div className="mt-2 shadow-md  flex">
+          <div key={idx} className="mt-2 shadow-md  flex">
             <p className="text-lg w-5/6 mt-auto mb-auto overflow-hidden">
               {item.userName && `user name : ${item.userName}`}
               {item.email && !item.userName && `email : ${item.email}`}

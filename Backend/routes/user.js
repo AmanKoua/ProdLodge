@@ -592,7 +592,7 @@ router.post('/addFriend', verifyTokenAndGetUser, async (req, res) => {
 })
 
 router.delete('/deleteFriend', verifyTokenAndGetUser, async (req, res) => {
-
+    // TODO: Implement logic to delete friend
 })
 
 router.get('/friendRequests', verifyTokenAndGetUser, async (req, res) => {
@@ -766,6 +766,37 @@ router.post("/handleFriendRequest", verifyTokenAndGetUser, async (req, res) => {
 
     return res.status(200).json({ message: "Successfully handled friend request" });
 
+})
+
+router.delete("/requestNotification", verifyTokenAndGetUser, async (req, res) => {
+
+    if (!req.body || !req.body.id) {
+        return res.status(400).json({ error: "Invalid request body" });
+    }
+
+    let actionItemFound = false;
+    const tempUserProfile = await userProfile.findOne({ userId: req.body.verifiedUser._id });
+    const tempUserActionItems = await userActionItems.findOne({ _id: tempUserProfile.actionItemsId });
+    let currentUserActionItems = tempUserActionItems.items;
+    let newUserActionItems = [];
+
+    for (let i = 0; i < currentUserActionItems.length; i++) {
+        if (currentUserActionItems[i].id == req.body.id) {
+            actionItemFound = true;
+            continue;
+        }
+        else {
+            newUserActionItems.push(currentUserActionItems[i]);
+        }
+    }
+
+    if (!actionItemFound) {
+        return res.status(400).json({ error: "Invalid request notification ID!" });
+    }
+
+    await tempUserActionItems.updateOne({ $set: { items: newUserActionItems } });
+
+    return res.status(200).json({ message: "request notification deleted" });
 })
 
 module.exports = router;
