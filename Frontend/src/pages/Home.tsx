@@ -66,7 +66,12 @@ const Home = () => {
         </h3>
       </div>
       <div className="blur-sm sm:blur-none sm:pointer-events-auto pointer-events-none">
-        {generateAudioBoxes()}
+        {userSongPayload.length > 0 && generateAudioBoxes()}
+        {userSongPayload.length == 0 && (
+          <div className="w-max h-max ml-auto mr-auto mt-5 border-b-2 border-black ">
+            <h3 className="">Sorry, but you have no songs to show.</h3>
+          </div>
+        )}
       </div>
     </div>
   );
