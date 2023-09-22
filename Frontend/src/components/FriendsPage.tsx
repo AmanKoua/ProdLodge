@@ -8,6 +8,7 @@ interface FriendsProps {
   userFriends: Object[];
   setAddFriendEmail: (val: any) => void;
   addFriend: () => Promise<void>;
+  removeFriend: (id: string) => Promise<void>;
   removeRequestNotification: (id: string) => Promise<void>;
   setTriggerFriendDataFetch: (val: boolean) => void;
 }
@@ -20,6 +21,7 @@ const FriendsPage = ({
   userFriends,
   setAddFriendEmail,
   addFriend,
+  removeFriend,
   removeRequestNotification,
   setTriggerFriendDataFetch,
 }: FriendsProps) => {
@@ -110,7 +112,23 @@ const FriendsPage = ({
             </p>
             <div className="w-1/6 h-max mt-auto mb-auto overflow-hidden">
               <div className="flex">
-                <span className="ml-auto mr-auto material-symbols-outlined">
+                <span
+                  className="ml-auto mr-auto material-symbols-outlined hover:font-bold"
+                  onClick={() => {
+                    const chosenName = item.userName
+                      ? item.userName
+                      : item.email;
+                    const isConfirmed = confirm(
+                      `Are you sure you want to remove ${chosenName} as a friend?`
+                    );
+
+                    if (isConfirmed) {
+                      removeFriend(item.id);
+                    } else {
+                      return;
+                    }
+                  }}
+                >
                   close
                 </span>
               </div>
@@ -188,7 +206,7 @@ const FriendsPage = ({
           <p className="font-bold text-xl p-2">Current Friends</p>
         </div>
 
-        {/* Sample current friends cards */}
+        {/*current friends cards */}
 
         {userFriends.length > 0 && generateCurrentFriendsCards()}
         {userFriends.length == 0 && <p className="w-max mr-auto">No friends</p>}

@@ -591,8 +591,49 @@ router.post('/addFriend', verifyTokenAndGetUser, async (req, res) => {
 
 })
 
-router.delete('/deleteFriend', verifyTokenAndGetUser, async (req, res) => {
-    // TODO: Implement logic to delete friend
+router.delete('/removeFriend', verifyTokenAndGetUser, async (req, res) => {
+    if (!req.body || !req.body.id) {
+        return res.status(400).json({ error: "Invalid request body" });
+    }
+
+    const tempUserProfile = await userProfile.findOne({ userId: req.body.verifiedUser._id });
+    const tempUserFriends = await userFriends.findOne({ _id: tempUserProfile.friendsListId });
+    const currentUserFriendsList = tempUserFriends.friendsList;
+    let newUserFriendsList = [];
+
+    let friendId
+    try {
+        friendId = new ObjectId(req.body.id);
+    } catch (e) {
+        return res.status(400).json({ error: "Invalid friend object id!" });
+    }
+    const friendProfile = await userProfile.findOne({ userId: friendId });
+
+    if (friendProfile == null) {
+        return res.status(400).json({ error: "Invalid friend id!" });
+    }
+
+    const friendFriends = await userFriends.findOne({ _id: friendProfile.friendsListId });
+    const currentFriendFriendsList = friendFriends.friendsList;
+    let newFriendFriendsList = [];
+
+    let userDeleteIdx = currentUserFriendsList.indexOf(friendId);
+    let friendDeleteIdx = currentFriendFriendsList.indexOf(req.body.verifiedUser._id);
+
+    if (userDeleteIdx < 0 || friendDeleteIdx < 0) {
+        return res.status(500).json({ error: "Internal server error!" });
+    }
+
+    newUserFriendsList = currentUserFriendsList;
+    newUserFriendsList.splice(userDeleteIdx, 1);
+    await tempUserFriends.updateOne({ $set: { friendsList: newUserFriendsList } });
+
+    newFriendFriendsList = currentFriendFriendsList;
+    newFriendFriendsList.splice(friendDeleteIdx, 1);
+    await friendFriends.updateOne({ $set: { friendsList: newFriendFriendsList } });
+
+    return res.status(200).json({ message: "successfully removed friend" });
+
 })
 
 router.get('/friendRequests', verifyTokenAndGetUser, async (req, res) => {

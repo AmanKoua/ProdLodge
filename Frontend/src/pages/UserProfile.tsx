@@ -341,7 +341,9 @@ const UserProfile = () => {
     );
 
     if (response.ok) {
-      setTriggerFriendDataFetch(true);
+      setTimeout(() => {
+        setTriggerFriendDataFetch(true);
+      }, 500);
     } else {
       setError("Request notification removal failed!");
     }
@@ -379,6 +381,25 @@ const UserProfile = () => {
     } else {
       const json = await response.json();
       setError(json.error);
+    }
+  };
+
+  const removeFriend = async (id: string) => {
+    let response = await fetch("http://localhost:8005/user/removeFriend", {
+      method: "DELETE",
+      headers: {
+        "Content-type": "application/json",
+        Authorization: `Bearer ${authContext.user.token}`,
+      },
+      body: JSON.stringify({ id: id }),
+    });
+
+    if (response.ok) {
+      setTimeout(() => {
+        setTriggerFriendDataFetch(true);
+      }, 500);
+    } else {
+      setError("Friend removal failed!");
     }
   };
 
@@ -551,6 +572,7 @@ const UserProfile = () => {
             userFriends={userFriends}
             setAddFriendEmail={setAddFriendEmail}
             addFriend={addFriend}
+            removeFriend={removeFriend}
             removeRequestNotification={removeRequestNotification}
             setTriggerFriendDataFetch={setTriggerFriendDataFetch}
           ></FriendsPage>
