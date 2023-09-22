@@ -351,6 +351,20 @@ const EditSong = () => {
     backgroundColor: "#edf4fc",
   };
 
+  const generatePlaceholderSongEntries = (): JSX.Element => {
+    const tempSongPayloadArr = new Array(5).fill(0);
+
+    return (
+      <>
+        {tempSongPayloadArr.map((item, idx) => {
+          return (
+            <div className="bg-gray-200 w-6/12 h-10 mt-3 ml-auto mr-auto animate-pulse"></div>
+          );
+        })}
+      </>
+    );
+  };
+
   const generateSongEntries = (): JSX.Element => {
     return (
       <>
@@ -374,7 +388,8 @@ const EditSong = () => {
       <h3 className="w-max mr-auto ml-auto p-2 font-bold">
         Edit an existing song
       </h3>
-      {generateSongEntries()}
+      {isUserSongPayloadSet && generateSongEntries()}
+      {!isUserSongPayloadSet && generatePlaceholderSongEntries()}
       {error && <div className="error mt-2">{error}</div>}
       {message && <div className="message mt-2">{message}</div>}
     </div>
