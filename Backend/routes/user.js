@@ -514,7 +514,7 @@ router.get("/friends", verifyTokenAndGetUser, async (req, res) => {
     for (let i = 0; i < tempUserFriendsList.length; i++) {
 
         let temp = {}
-        let tempFriendUser = await user.findOne({ userId: tempUserFriendsList[i] })
+        let tempFriendUser = await user.findOne({ _id: tempUserFriendsList[i] })
 
         temp.id = tempUserFriendsList[i];
         temp.userName = !tempFriendUser.userName ? "" : tempFriendUser.userName;

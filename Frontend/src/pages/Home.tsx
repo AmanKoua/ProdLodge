@@ -67,7 +67,10 @@ const Home = () => {
     let audioBoxFragment = (
       <>
         {placeHolderArr.map((item, idx) => (
-          <div className="bg-gray-300 w-12/12 lg:w-9/12 h-20 mr-auto ml-auto mt-3 pt-3 animate-pulse"></div>
+          <div
+            key={idx}
+            className="bg-gray-300 w-12/12 lg:w-9/12 h-20 mr-auto ml-auto mt-3 pt-3 animate-pulse"
+          ></div>
         ))}
       </>
     );

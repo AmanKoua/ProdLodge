@@ -5,9 +5,10 @@ interface FriendsProps {
   message: string;
   addFriendEmail: string;
   friendRequests: Object[];
+  userFriends: Object[];
   setAddFriendEmail: (val: any) => void;
   addFriend: () => Promise<void>;
-  setTriggerFriendRequestsFetch: (val: boolean) => void;
+  setTriggerFriendDataFetch: (val: boolean) => void;
 }
 
 const FriendsPage = ({
@@ -15,11 +16,12 @@ const FriendsPage = ({
   message,
   addFriendEmail,
   friendRequests,
+  userFriends,
   setAddFriendEmail,
   addFriend,
-  setTriggerFriendRequestsFetch,
+  setTriggerFriendDataFetch,
 }: FriendsProps) => {
-  console.log(friendRequests);
+  console.log(userFriends);
 
   const [incommingRequests, setIncommingRequests] = useState<Object[]>([]);
   const [outgoingRequests, setOutgoingRequests] = useState<Object[]>([]);
@@ -55,7 +57,10 @@ const FriendsPage = ({
       <>
         {outgoingRequests.map((request, idx) => (
           <>
-            <div className="mt-2 pt-1 pb-1 shadow-md flex justify-around">
+            <div
+              key={idx}
+              className="mt-2 pt-1 pb-1 shadow-md flex justify-around"
+            >
               <p className="text-lg w-9/12 h-max mt-auto mb-auto overflow-hidden">
                 {request.data.email}
               </p>
@@ -72,6 +77,30 @@ const FriendsPage = ({
               {/*Add dummy icon so all cards align properly*/}
             </div>
           </>
+        ))}
+      </>
+    );
+
+    return temp;
+  };
+
+  const generateCurrentFriendsCards = (): JSX.Element => {
+    let temp = (
+      <>
+        {userFriends.map((item, idx) => (
+          <div className="mt-2 shadow-md  flex">
+            <p className="text-lg w-5/6 mt-auto mb-auto overflow-hidden">
+              {item.userName && `user name : ${item.userName}`}
+              {item.email && !item.userName && `email : ${item.email}`}
+            </p>
+            <div className="w-1/6 h-max mt-auto mb-auto overflow-hidden">
+              <div className="flex">
+                <span className="ml-auto mr-auto material-symbols-outlined">
+                  close
+                </span>
+              </div>
+            </div>
+          </div>
         ))}
       </>
     );
@@ -127,11 +156,17 @@ const FriendsPage = ({
         <div className="w-max block">
           <p className="font-semibold">Incomming</p>
         </div>
-        {generateIncommingRequestCards()}
+        {incommingRequests.length > 0 && generateIncommingRequestCards()}
+        {incommingRequests.length == 0 && (
+          <p className="w-max mr-auto">No incomming requests</p>
+        )}
         <div className="w-max block">
           <p className="font-semibold mt-3">Outgoing</p>
         </div>
-        {generateOutgoingRequestCards()}
+        {outgoingRequests.length > 0 && generateOutgoingRequestCards()}
+        {outgoingRequests.length == 0 && (
+          <p className="w-max mr-auto">No outgoing requests</p>
+        )}
       </div>
       <div className="mb-3 border-b-2 border-prodSecondary w-12/12 h-max pb-3">
         <div className="w-max h-max ml-auto mr-auto">
@@ -140,44 +175,8 @@ const FriendsPage = ({
 
         {/* Sample current friends cards */}
 
-        <div className="mt-2 shadow-md  flex">
-          <p className="text-lg w-5/6 mt-auto mb-auto overflow-hidden">
-            Email : thegnomezone@gmail.com
-          </p>
-          <div className="w-1/6 h-max mt-auto mb-auto overflow-hidden">
-            <div className="flex">
-              <span className="ml-auto mr-auto material-symbols-outlined">
-                close
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-2 shadow-md  flex">
-          <p className="text-lg w-5/6 mt-auto mb-auto overflow-hidden">
-            Email : thegnomezone@gmail.com
-          </p>
-          <div className="w-1/6 h-max mt-auto mb-auto overflow-hidden">
-            <div className="flex">
-              <span className="ml-auto mr-auto material-symbols-outlined">
-                close
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-2 shadow-md  flex">
-          <p className="text-lg w-5/6 mt-auto mb-auto overflow-hidden">
-            Email : thegnomezone@gmail.com
-          </p>
-          <div className="w-1/6 h-max mt-auto mb-auto overflow-hidden">
-            <div className="flex">
-              <span className="ml-auto mr-auto material-symbols-outlined">
-                close
-              </span>
-            </div>
-          </div>
-        </div>
+        {userFriends.length > 0 && generateCurrentFriendsCards()}
+        {userFriends.length == 0 && <p className="w-max mr-auto">No friends</p>}
       </div>
 
       {error && <div className="error">{error}</div>}

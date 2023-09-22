@@ -17,13 +17,13 @@ const UserProfile = () => {
   const [isInEditMode, setIsInEditMode] = useState(false);
   const [isImageLoading, setIsImageLoading] = useState(true);
   const [triggerProfileFetch, setTriggerProfileFetch] = useState(true);
-  const [triggerFriendRequestsFetch, setTriggerFriendRequestsFetch] =
-    useState(true);
+  const [triggerFriendDataFetch, setTriggerFriendDataFetch] = useState(true);
   const [profileImageObjURL, setProfileImageObjURL] = useState("");
   const [selectedPage, setSelectedPage] = useState("profile");
 
   const [profileImage, setProfileImage] = useState<any>();
   const [friendRequests, setFriendRequests] = useState<Object[]>([]);
+  const [userFriends, setUserFriends] = useState<Object[]>([]);
   const [userName, setUserName] = useState("null");
   const [email, setEmail] = useState("null");
   const [soundcloudURL, setsoundcloudURL] = useState("");
@@ -303,6 +303,18 @@ const UserProfile = () => {
     profileContext.dispatch({ type: "SET", payload: json.profile }); // save profile to context
   };
 
+  const getUserFriends = async () => {
+    const response = await fetch("http://localhost:8005/user/friends", {
+      method: "GET",
+      headers: { Authorization: `Bearer ${authContext.user.token}` },
+    });
+
+    if (response.ok) {
+      const payload = await response.json();
+      setUserFriends(payload.friends);
+    }
+  };
+
   const getUserFriendRequests = async () => {
     const response = await fetch("http://localhost:8005/user/friendRequests", {
       method: "GET",
@@ -341,8 +353,8 @@ const UserProfile = () => {
     if (response.ok) {
       setMessage("Friend request sent successfully!");
       setTimeout(() => {
-        setTriggerFriendRequestsFetch(true);
-      }, 1500);
+        setTriggerFriendDataFetch(true);
+      }, 100);
       return;
     } else {
       const json = await response.json();
@@ -425,13 +437,14 @@ const UserProfile = () => {
   }, [authContext, triggerProfileFetch]);
 
   useEffect(() => {
-    if (triggerFriendRequestsFetch) {
+    if (triggerFriendDataFetch) {
       getUserFriendRequests();
-      setTriggerFriendRequestsFetch(false);
+      getUserFriends();
+      setTriggerFriendDataFetch(false);
     } else {
       return;
     }
-  }, [triggerFriendRequestsFetch]);
+  }, [triggerFriendDataFetch]);
 
   useEffect(() => {
     // update profle data when profile context changes
@@ -510,9 +523,10 @@ const UserProfile = () => {
             message={message}
             addFriendEmail={addFriendEmail}
             friendRequests={friendRequests}
+            userFriends={userFriends}
             setAddFriendEmail={setAddFriendEmail}
             addFriend={addFriend}
-            setTriggerFriendRequestsFetch={setTriggerFriendRequestsFetch}
+            setTriggerFriendDataFetch={setTriggerFriendDataFetch}
           ></FriendsPage>
         )}
       </div>
