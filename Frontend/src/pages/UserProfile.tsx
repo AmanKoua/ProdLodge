@@ -15,6 +15,7 @@ const UserProfile = () => {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [isInEditMode, setIsInEditMode] = useState(false);
+  const [isImageLoading, setIsImageLoading] = useState(true);
   const [triggerProfileFetch, setTriggerProfileFetch] = useState(true);
   const [triggerFriendRequestsFetch, setTriggerFriendRequestsFetch] =
     useState(true);
@@ -359,6 +360,7 @@ const UserProfile = () => {
     const blob = await response.blob();
     const objectURL = URL.createObjectURL(blob);
     setProfileImageObjURL(objectURL);
+    setIsImageLoading(false);
     // document.getElementById("profileImage").src = objectURL;
   };
 
@@ -473,6 +475,7 @@ const UserProfile = () => {
             userName={userName}
             email={email}
             isInEditMode={isInEditMode}
+            isImageLoading={isImageLoading}
             setProfileImage={setProfileImage}
             soundcloudURL={soundcloudURL}
             editsoundcloudURL={editsoundcloudURL}

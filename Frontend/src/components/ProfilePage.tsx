@@ -3,6 +3,7 @@ interface ProfilePageProps {
   userName: string;
   email: string;
   isInEditMode: boolean;
+  isImageLoading: boolean;
 
   setProfileImage: (val: any) => void;
   soundcloudURL: string;
@@ -34,6 +35,7 @@ const ProfilePage = ({
   userName,
   email,
   isInEditMode,
+  isImageLoading,
 
   setProfileImage,
   soundcloudURL,
@@ -66,11 +68,21 @@ const ProfilePage = ({
       }'s Profile`}</h3>
       <div className="w-5/12 h-max ml-auto mr-auto overflow-hidden">
         {/* Temp Image */}
-        <img
-          className="w-64 ml-auto mr-auto rounded-3xl object-cover"
-          src={profileImageObjURL}
-          id="profileImage"
-        ></img>
+        {!isImageLoading && (
+          <img
+            className="w-64 ml-auto mr-auto rounded-3xl object-cover"
+            src={profileImageObjURL}
+            id="profileImage"
+          ></img>
+        )}
+        {isImageLoading && (
+          <div className="h-full w-full bg-gray-500 ml-auto mr-auto rounded-3xl animate-pulse block">
+            {/*Text is requied to giv placeholder div dimension*/}
+            <h1 className="opacity-0">
+              This is sample text his is sample text h
+            </h1>
+          </div>
+        )}
 
         {isInEditMode && (
           <>
