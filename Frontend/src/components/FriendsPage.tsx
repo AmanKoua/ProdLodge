@@ -9,6 +9,7 @@ interface FriendsProps {
   setAddFriendEmail: (val: any) => void;
   addFriend: () => Promise<void>;
   removeFriend: (id: string) => Promise<void>;
+  resolveFriendRequest: (id: string, isAccepted: boolean) => Promise<void>;
   removeRequestNotification: (id: string) => Promise<void>;
   setTriggerFriendDataFetch: (val: boolean) => void;
 }
@@ -22,6 +23,7 @@ const FriendsPage = ({
   setAddFriendEmail,
   addFriend,
   removeFriend,
+  resolveFriendRequest,
   removeRequestNotification,
   setTriggerFriendDataFetch,
 }: FriendsProps) => {
@@ -38,8 +40,22 @@ const FriendsPage = ({
                 {`Email: ${request.data.email}`}
               </p>
               <div className="w-1/6 h-full overflow-hidden flex justify-around">
-                <span className="material-symbols-outlined">check</span>
-                <span className="material-symbols-outlined">close</span>
+                <span
+                  className="material-symbols-outlined hover:font-bold"
+                  onClick={() => {
+                    resolveFriendRequest(request.id, true);
+                  }}
+                >
+                  check
+                </span>
+                <span
+                  className="material-symbols-outlined hover:font-bold"
+                  onClick={() => {
+                    resolveFriendRequest(request.id, false);
+                  }}
+                >
+                  close
+                </span>
               </div>
             </div>
           </>

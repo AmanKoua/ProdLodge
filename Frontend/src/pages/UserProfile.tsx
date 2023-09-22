@@ -216,7 +216,7 @@ const UserProfile = () => {
       }
 
       const wasImageUploaded = await uploadProfileImg();
-      const timeout = wasImageUploaded ? 1500 : 0; // determine timeout based on whether or not image was uploaded
+      const timeout = wasImageUploaded ? 500 : 0; // determine timeout based on whether or not image was uploaded
 
       let updateObject = {
         profile: {
@@ -376,7 +376,7 @@ const UserProfile = () => {
       setMessage("Friend request sent successfully!");
       setTimeout(() => {
         setTriggerFriendDataFetch(true);
-      }, 100);
+      }, 500);
       return;
     } else {
       const json = await response.json();
@@ -400,6 +400,30 @@ const UserProfile = () => {
       }, 500);
     } else {
       setError("Friend removal failed!");
+    }
+  };
+
+  const resolveFriendRequest = async (id: string, isAccepted: boolean) => {
+    let requestResponse = isAccepted ? "accept" : "reject";
+
+    let response = await fetch(
+      "http://localhost:8005/user/handleFriendRequest",
+      {
+        method: "POST",
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Bearer ${authContext.user.token}`,
+        },
+        body: JSON.stringify({ requestId: id, response: requestResponse }),
+      }
+    );
+
+    if (response.ok) {
+      setTimeout(() => {
+        setTriggerFriendDataFetch(true);
+      }, 500);
+    } else {
+      setError("Friend request handling failed!");
     }
   };
 
@@ -573,6 +597,7 @@ const UserProfile = () => {
             setAddFriendEmail={setAddFriendEmail}
             addFriend={addFriend}
             removeFriend={removeFriend}
+            resolveFriendRequest={resolveFriendRequest}
             removeRequestNotification={removeRequestNotification}
             setTriggerFriendDataFetch={setTriggerFriendDataFetch}
           ></FriendsPage>
