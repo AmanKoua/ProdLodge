@@ -78,7 +78,7 @@ const ProfilePage = ({
         {isImageLoading && (
           <div className="h-full w-full bg-gray-500 ml-auto mr-auto rounded-3xl animate-pulse block">
             {/*Text is requied to giv placeholder div dimension*/}
-            <h1 className="opacity-0">
+            <h1 className="opacity-0 overflow-y-hidden">
               This is sample text his is sample text h
             </h1>
           </div>

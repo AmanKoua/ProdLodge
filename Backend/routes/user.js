@@ -67,7 +67,7 @@ router.post('/signup', async (req, res) => {
     let createdUser = undefined;
     let token = undefined;
 
-    if (!email || !password) {
+    if (!email || !password || !userName) {
         return res.status(401).json({ error: "Required fields missing!" });
     }
 
@@ -877,9 +877,20 @@ router.get("/friendProfile/:id", verifyTokenAndGetUser, async (req, res) => {
         return res.status(500).json({ error: "Internal system error!" });
     }
 
-    const profileSlice = { // dont send all profile data to frontend
-        socialMediaHandles: friendProfile.socialMediaHandles ? friendProfile.socialMediaHandles : null,
-        doesUserHaveProfileImage: doesUserHaveProfileImage,
+    let profileSlice = {}
+
+    if (doesUserHaveProfileImage) {
+        profileSlice = { // dont send all profile data to frontend
+            userName: friend.userName,
+            socialMediaHandles: friendProfile.socialMediaHandles ? friendProfile.socialMediaHandles : null,
+            pictureId: friendProfile.pictureId,
+        }
+    }
+    else {
+        profileSlice = { // dont send all profile data to frontend
+            userName: friend.userName,
+            socialMediaHandles: friendProfile.socialMediaHandles ? friendProfile.socialMediaHandles : null,
+        }
     }
 
     if (friendProfile.visibility == "Public") {

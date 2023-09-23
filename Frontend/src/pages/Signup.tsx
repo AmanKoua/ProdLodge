@@ -45,7 +45,7 @@ const Signup = () => {
 
     setError("");
 
-    if (!email || !password || !passwordDup) {
+    if (!email || !password || !passwordDup || !userName) {
       setError("Required fields missing!");
       return;
     }
@@ -53,10 +53,6 @@ const Signup = () => {
     if (password !== passwordDup) {
       setError("Passwords do not match!");
       return;
-    }
-
-    if (!userName) {
-      setUserName("");
     }
 
     const response = await fetch("http://localhost:8005/user/signup", {
@@ -114,7 +110,7 @@ const Signup = () => {
           </div>
           <div>
             <label className="w-max mr-auto ml-auto p-2 font-bold">
-              User Name (optional)
+              User Name
             </label>
             <input
               type="text"

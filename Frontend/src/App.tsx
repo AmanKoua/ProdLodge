@@ -13,7 +13,7 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import UserProfile from "./pages/UserProfile";
-import FriendProfilePage from "./components/FriendProfilePage";
+import FriendProfilePage from "./pages/FriendProfilePage";
 import NewSong from "./pages/NewSong";
 import EditSong from "./pages/EditSong";
 import InvalidRoute from "./pages/InvalidRoute";
