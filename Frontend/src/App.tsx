@@ -1,4 +1,10 @@
-import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  useNavigate,
+} from "react-router-dom";
 import { useContext, useEffect } from "react";
 
 import AudioBox from "./audioComponents/AudioBox";
@@ -7,8 +13,10 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import UserProfile from "./pages/UserProfile";
+import FriendProfilePage from "./components/FriendProfilePage";
 import NewSong from "./pages/NewSong";
 import EditSong from "./pages/EditSong";
+import InvalidRoute from "./pages/InvalidRoute";
 
 import { AuthContext } from "./context/AuthContext";
 
@@ -74,8 +82,15 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/myProfile" element={<UserProfile />} />
+            <Route
+              path="/userProfile/:id"
+              element={<FriendProfilePage />}
+            ></Route>
             <Route path="/newSong" element={<NewSong />} />
             <Route path="/editSong" element={<EditSong />} />
+            <Route path="/404" element={<InvalidRoute />} />
+            <Route path="*" element={<Navigate to="/404" />} />{" "}
+            {/* Catch all for unregistered routes */}
           </Routes>
         </div>
       </BrowserRouter>
