@@ -840,4 +840,64 @@ router.delete("/requestNotification", verifyTokenAndGetUser, async (req, res) =>
     return res.status(200).json({ message: "request notification deleted" });
 })
 
+router.get("/friendProfile/:id", verifyTokenAndGetUser, async (req, res) => {
+
+    if (!req.params || !req.params.id) {
+        return res.status(401).json({ error: "Request id parameter missing!" });
+    }
+
+    if (req.params.id.length != 24) {
+        return res.status(400).json({ error: "Invalid friend ID!" });
+    }
+
+    const friendId = new ObjectId(req.params.id);
+    const friend = await user.findOne({ _id: friendId });
+    let friendProfile = undefined;
+    let friendFriends = undefined;
+    let doesUserHaveProfileImage = false;
+
+    if (!friend) {
+        return res.status(404).json({ error: "Friend not found!" });
+    }
+
+    friendProfile = await userProfile.findOne({ userId: friendId });
+
+    if (!friendProfile) {
+        return res.status(500).json({ error: "Internal system error!" });
+    }
+
+    if (friendProfile.visibility == "Private") {
+        return res.status(403).json({ error: "You are not authorized to view this user's profile!" });
+    }
+
+    doesUserHaveProfileImage = friendProfile.pictureId ? true : false;
+    friendFriends = await userFriends.findOne({ _id: friendProfile.friendsListId });
+
+    if (!friendFriends) {
+        return res.status(500).json({ error: "Internal system error!" });
+    }
+
+    const profileSlice = { // dont send all profile data to frontend
+        socialMediaHandles: friendProfile.socialMediaHandles ? friendProfile.socialMediaHandles : null,
+        doesUserHaveProfileImage: doesUserHaveProfileImage,
+    }
+
+    if (friendProfile.visibility == "Public") {
+        return res.status(200).json({ profile: profileSlice });
+    }
+    else if (friendProfile.visibility == "FriendsOnly") {
+
+        if (friendFriends.friendsList.includes(req.body.verifiedUser._id)) {
+            return res.status(200).json({ profile: profileSlice });
+        }
+        else {
+            return res.status(403).json({ error: "You are not authorized to view this user's profile!" });
+        }
+
+    }
+
+    return res.status(500).json({ error: "Internal system error" });
+
+})
+
 module.exports = router;
