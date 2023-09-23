@@ -226,7 +226,7 @@ const UserProfile = () => {
       }
 
       const wasImageUploaded = await uploadProfileImg();
-      const timeout = wasImageUploaded ? 1500 : 0; // determine timeout based on whether or not image was uploaded
+      const timeout = wasImageUploaded ? 100 : 0; // determine timeout based on whether or not image was uploaded
 
       let updateObject = {
         profile: {
@@ -314,6 +314,12 @@ const UserProfile = () => {
   };
 
   const getUserFriends = async () => {
+    if (!authContext || !authContext.user || !authContext.user.token) {
+      if (!tryLoginFromToken()) {
+        return;
+      }
+    }
+
     const response = await fetch("http://localhost:8005/user/friends", {
       method: "GET",
       headers: { Authorization: `Bearer ${authContext.user.token}` },
@@ -358,7 +364,7 @@ const UserProfile = () => {
     if (response.ok) {
       setTimeout(() => {
         setTriggerFriendDataFetch(true);
-      }, 1500);
+      }, 100);
     } else {
       setError("Request notification removal failed!");
     }
@@ -391,7 +397,7 @@ const UserProfile = () => {
       setMessage("Friend request sent successfully!");
       setTimeout(() => {
         setTriggerFriendDataFetch(true);
-      }, 1500);
+      }, 100);
       return;
     } else {
       const json = await response.json();
@@ -412,7 +418,7 @@ const UserProfile = () => {
     if (response.ok) {
       setTimeout(() => {
         setTriggerFriendDataFetch(true);
-      }, 1500);
+      }, 100);
     } else {
       setError("Friend removal failed!");
     }
@@ -436,7 +442,7 @@ const UserProfile = () => {
     if (response.ok) {
       setTimeout(() => {
         setTriggerFriendDataFetch(true);
-      }, 1500);
+      }, 100);
     } else {
       alert("Friend data fecthing failed!");
       setError("Friend request handling failed!");
