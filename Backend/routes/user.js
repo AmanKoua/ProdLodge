@@ -783,8 +783,6 @@ router.post("/handleFriendRequest", verifyTokenAndGetUser, async (req, res) => {
 
         // Update handled action item for target
 
-        console.log(currentTargetActionItems);
-
         for (let i = 0; i < currentTargetActionItems.length; i++) {
             if (currentTargetActionItems[i].type != "outgoingFriendRequest") {
                 continue;

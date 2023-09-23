@@ -39,6 +39,15 @@ const UserProfile = () => {
 
   const navigate = useNavigate();
 
+  const sleep = (time: number) => {
+    // sleeping utility function
+    return new Promise((res, rej) => {
+      setTimeout(() => {
+        res("");
+      }, time);
+    });
+  };
+
   const tryLoginFromToken = () => {
     const user = localStorage.getItem("user");
     if (user) {
@@ -317,7 +326,14 @@ const UserProfile = () => {
     if (!authContext || !authContext.user || !authContext.user.token) {
       if (!tryLoginFromToken()) {
         return;
+      } else {
+        await sleep(100);
       }
+    }
+
+    if (!authContext || !authContext.user || !authContext.user.token) {
+      setError("Authentication not present when querying friends!");
+      return;
     }
 
     const response = await fetch("http://localhost:8005/user/friends", {
