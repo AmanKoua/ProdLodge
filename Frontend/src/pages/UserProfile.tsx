@@ -39,6 +39,16 @@ const UserProfile = () => {
 
   const navigate = useNavigate();
 
+  const tryLoginFromToken = () => {
+    const user = localStorage.getItem("user");
+    if (user) {
+      authContext.dispatch({ type: "LOGIN", payload: JSON.parse(user) }); // save returned object to global state
+      return true;
+    } else {
+      return false;
+    }
+  };
+
   const editsoundcloudURL = (event: React.ChangeEvent<HTMLInputElement>) => {
     setsoundcloudURL(event.target.value);
   };
@@ -514,6 +524,12 @@ const UserProfile = () => {
 
   useEffect(() => {
     if (triggerFriendDataFetch) {
+      if (!authContext || !authContext.user || !authContext.user.token) {
+        if (!tryLoginFromToken()) {
+          return;
+        }
+      }
+
       getUserFriendRequests();
       getUserFriends();
       setTriggerFriendDataFetch(false);

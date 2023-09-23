@@ -122,10 +122,13 @@ const FriendsPage = ({
       <>
         {userFriends.map((item, idx) => (
           <div key={idx} className="mt-2 shadow-md  flex">
-            <p className="text-lg w-5/6 mt-auto mb-auto overflow-hidden">
+            <a
+              href={`/userProfile/${item.id}`}
+              className="text-lg w-5/6 mt-auto mb-auto overflow-hidden text-black decoration-transparent"
+            >
               {item.userName && `user name : ${item.userName}`}
               {item.email && !item.userName && `email : ${item.email}`}
-            </p>
+            </a>
             <div className="w-1/6 h-max mt-auto mb-auto overflow-hidden">
               <div className="flex">
                 <span
