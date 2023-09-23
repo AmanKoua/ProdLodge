@@ -8,6 +8,7 @@ export interface Chain {
 export interface SongData {
   chains: Chain[];
   description: string;
+  visibility: string;
   id: string;
   title: string;
   trackIds: string[];

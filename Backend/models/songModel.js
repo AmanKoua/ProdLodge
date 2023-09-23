@@ -23,7 +23,7 @@ const songSchema = new Schema({
         unique: false,
     },
 
-    visibility: {
+    visibility: { // public - visible to all, private - visible to only the owner, restricted visible to only specified friends.
         type: String,
         required: true,
         unique: false,

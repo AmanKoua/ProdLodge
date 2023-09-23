@@ -14,7 +14,8 @@ interface Props {
   editSong: (
     songId: string,
     title: string,
-    description: string
+    description: string,
+    visibility: string
   ) => Promise<void>;
   deleteSong: (songId: string) => Promise<void>;
 }
@@ -23,14 +24,17 @@ const SongEntry = ({ songData, authContext, editSong, deleteSong }: Props) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [songTitle, setSongTitle] = useState("");
   const [songDescription, setSongDescription] = useState("");
+  const [songVisibility, setSongVisibility] = useState("");
+  // const [restrictedAccessList, setRestrictedAccessList] = useState([]);
 
   useEffect(() => {
-    if (songTitle || songDescription) {
+    if (songTitle || songDescription || songVisibility) {
       return;
     }
 
     setSongTitle(`${songData.title}`);
     setSongDescription(`${songData.description}`);
+    setSongVisibility(`${songData.visibility}`);
   }, []);
 
   const SongEntryStyle: CSS.Properties = {
@@ -46,7 +50,11 @@ const SongEntry = ({ songData, authContext, editSong, deleteSong }: Props) => {
     overflow: "hidden",
   };
 
-  SongEntryStyle.height = isExpanded ? "140px" : "35px";
+  SongEntryStyle.height = isExpanded
+    ? songVisibility === "restricted"
+      ? "270px"
+      : "175px"
+    : "35px";
 
   const SongTitleContainerStyle: CSS.Properties = {
     position: "relative",
@@ -77,11 +85,11 @@ const SongEntry = ({ songData, authContext, editSong, deleteSong }: Props) => {
     display: "flex",
     flexDirection: "column",
     width: "100%",
-    height: "165px",
+    height: "300px",
     marginLeft: "0px",
     marginTop: "35px",
-    // border: "1px solid black",
-    // backgroundColor: "red",
+    border: "1px solid black",
+    // backgroundColor: "green",
     overflow: "hidden",
   };
 
@@ -93,8 +101,12 @@ const SongEntry = ({ songData, authContext, editSong, deleteSong }: Props) => {
     setSongDescription(e.target.value);
   };
 
+  const handleVisibilityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSongVisibility(e.target.value);
+  };
+
   return (
-    <div style={SongEntryStyle}>
+    <div style={SongEntryStyle} className="hide-scrollbar">
       <div style={SongTitleContainerStyle}>
         <p
           style={{
@@ -143,15 +155,46 @@ const SongEntry = ({ songData, authContext, editSong, deleteSong }: Props) => {
             height: "35px",
             display: "block",
             border: "1px solid black",
+            padding: "3px",
           }}
           onChange={handleTitleChange}
         />
         <input
           type="text"
           value={songDescription}
-          style={{ width: "100%", height: "35px", border: "1px solid black" }}
+          style={{
+            width: "100%",
+            height: "35px",
+            border: "1px solid black",
+            padding: "3px",
+          }}
           onChange={handleDescriptionChange}
         />
+        <select
+          style={{
+            width: "100%",
+            height: "35px",
+            border: "1px solid black",
+            padding: "3px",
+          }}
+          onChange={handleVisibilityChange}
+          value={songVisibility}
+        >
+          <option value="public">public</option>
+          <option value="private">private</option>
+          <option value="friendsonly">friends only</option>
+          {/* <option value="restricted">restricted</option> */}
+        </select>
+        {/* {songVisibility === "restricted" && (
+          <div
+            style={{
+              width: "100%",
+              height: "94px",
+              marginBottom: "0px",
+              backgroundColor: "white",
+            }}
+          ></div>
+        )} */}
         <div
           style={{
             width: "100%",
@@ -164,7 +207,12 @@ const SongEntry = ({ songData, authContext, editSong, deleteSong }: Props) => {
           <p
             style={{ marginTop: "5px" }}
             onClick={async () => {
-              await editSong(songData.id, songTitle, songDescription);
+              await editSong(
+                songData.id,
+                songTitle,
+                songDescription,
+                songVisibility
+              );
             }}
           >
             Edit song data
@@ -227,7 +275,8 @@ const EditSong = () => {
   const editSong = async (
     songId: string,
     title: string,
-    description: string
+    description: string,
+    visibility: string
   ) => {
     const response = await fetch("http://localhost:8005/user/song", {
       method: "PATCH",
@@ -239,6 +288,7 @@ const EditSong = () => {
         songId: songId,
         title: title,
         description: description,
+        visibility: visibility,
       }),
     });
 
@@ -301,6 +351,20 @@ const EditSong = () => {
     backgroundColor: "#edf4fc",
   };
 
+  const generatePlaceholderSongEntries = (): JSX.Element => {
+    const tempSongPayloadArr = new Array(5).fill(0);
+
+    return (
+      <>
+        {tempSongPayloadArr.map((item, idx) => {
+          return (
+            <div className="bg-gray-200 w-6/12 h-10 mt-3 ml-auto mr-auto animate-pulse"></div>
+          );
+        })}
+      </>
+    );
+  };
+
   const generateSongEntries = (): JSX.Element => {
     return (
       <>
@@ -324,7 +388,15 @@ const EditSong = () => {
       <h3 className="w-max mr-auto ml-auto p-2 font-bold">
         Edit an existing song
       </h3>
-      {generateSongEntries()}
+      {isUserSongPayloadSet &&
+        userSongPayload.length > 0 &&
+        generateSongEntries()}
+      {isUserSongPayloadSet && userSongPayload.length == 0 && (
+        <div className="w-max h-max ml-auto mr-auto mt-5 border-b-2 border-black ">
+          <h3 className="">Sorry, but you have no songs to show.</h3>
+        </div>
+      )}
+      {!isUserSongPayloadSet && generatePlaceholderSongEntries()}
       {error && <div className="error mt-2">{error}</div>}
       {message && <div className="message mt-2">{message}</div>}
     </div>

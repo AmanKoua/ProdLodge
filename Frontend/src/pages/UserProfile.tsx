@@ -5,6 +5,9 @@ import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { ProfileContext } from "../context/ProfileContext";
 
+import FriendsPage from "../components/FriendsPage";
+import ProfilePage from "../components/ProfilePage";
+
 const UserProfile = () => {
   const authContext = useContext(AuthContext); // user and dispatch properties
   const profileContext = useContext(ProfileContext);
@@ -12,9 +15,15 @@ const UserProfile = () => {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [isInEditMode, setIsInEditMode] = useState(false);
+  const [isImageLoading, setIsImageLoading] = useState(true);
   const [triggerProfileFetch, setTriggerProfileFetch] = useState(true);
+  const [triggerFriendDataFetch, setTriggerFriendDataFetch] = useState(true);
+  const [profileImageObjURL, setProfileImageObjURL] = useState("");
+  const [selectedPage, setSelectedPage] = useState("profile");
 
   const [profileImage, setProfileImage] = useState<any>();
+  const [friendRequests, setFriendRequests] = useState<Object[]>([]);
+  const [userFriends, setUserFriends] = useState<Object[]>([]);
   const [userName, setUserName] = useState("null");
   const [email, setEmail] = useState("null");
   const [soundcloudURL, setsoundcloudURL] = useState("");
@@ -25,6 +34,8 @@ const UserProfile = () => {
   const [facebookURL, setFacebookURL] = useState("");
   const [instagramURL, setInstagramURL] = useState("");
   const [visibility, setVisibility] = useState("N/A"); // Public (visible to all users), Private (only visible to owner), Friends (only friends can view)
+
+  const [addFriendEmail, setAddFriendEmail] = useState("");
 
   const navigate = useNavigate();
 
@@ -280,12 +291,149 @@ const UserProfile = () => {
 
     if (json.profile.doesUserHaveProfileImage) {
       await getUserProfileImage();
+    } else {
+      // document.getElementById("profileImage").src =
+      //   "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
+      const temp = "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"; // Temporary icon.
+      setProfileImageObjURL(temp);
     }
+
+    setIsImageLoading(false);
 
     profileContext.dispatch({ type: "SET", payload: json.profile }); // save profile to context
   };
 
+  const getUserFriends = async () => {
+    const response = await fetch("http://localhost:8005/user/friends", {
+      method: "GET",
+      headers: { Authorization: `Bearer ${authContext.user.token}` },
+    });
+
+    if (response.ok) {
+      const payload = await response.json();
+      setUserFriends(payload.friends);
+    }
+  };
+
+  const getUserFriendRequests = async () => {
+    const response = await fetch("http://localhost:8005/user/friendRequests", {
+      method: "GET",
+      headers: { Authorization: `Bearer ${authContext.user.token}` },
+    });
+
+    if (response.ok) {
+      const payload = await response.json();
+      setFriendRequests(payload);
+    }
+  };
+
+  const removeRequestNotification = async (id: string) => {
+    let response = await fetch(
+      "http://localhost:8005/user/requestNotification",
+      {
+        method: "DELETE",
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Bearer ${authContext.user.token}`,
+        },
+        body: JSON.stringify({ id: id }),
+      }
+    );
+
+    if (response.ok) {
+      setTimeout(() => {
+        setTriggerFriendDataFetch(true);
+      }, 1500);
+    } else {
+      setError("Request notification removal failed!");
+    }
+  };
+
+  const addFriend = async () => {
+    setError("");
+    setMessage("");
+
+    if (!addFriendEmail) {
+      setError("Cannot add friend without email!");
+      return;
+    }
+
+    if (addFriendEmail == authContext.user.email) {
+      setError("Cannot send a friend request to yourself!");
+      return;
+    }
+
+    let response = await fetch("http://localhost:8005/user/addFriend", {
+      method: "POST",
+      headers: {
+        "Content-type": "application/json",
+        Authorization: `Bearer ${authContext.user.token}`,
+      },
+      body: JSON.stringify({ email: addFriendEmail }),
+    });
+
+    if (response.ok) {
+      setMessage("Friend request sent successfully!");
+      setTimeout(() => {
+        setTriggerFriendDataFetch(true);
+      }, 1500);
+      return;
+    } else {
+      const json = await response.json();
+      setError(json.error);
+    }
+  };
+
+  const removeFriend = async (id: string) => {
+    let response = await fetch("http://localhost:8005/user/removeFriend", {
+      method: "DELETE",
+      headers: {
+        "Content-type": "application/json",
+        Authorization: `Bearer ${authContext.user.token}`,
+      },
+      body: JSON.stringify({ id: id }),
+    });
+
+    if (response.ok) {
+      setTimeout(() => {
+        setTriggerFriendDataFetch(true);
+      }, 1500);
+    } else {
+      setError("Friend removal failed!");
+    }
+  };
+
+  const resolveFriendRequest = async (id: string, isAccepted: boolean) => {
+    let requestResponse = isAccepted ? "accept" : "reject";
+
+    let response = await fetch(
+      "http://localhost:8005/user/handleFriendRequest",
+      {
+        method: "POST",
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Bearer ${authContext.user.token}`,
+        },
+        body: JSON.stringify({ requestId: id, response: requestResponse }),
+      }
+    );
+
+    if (response.ok) {
+      setTimeout(() => {
+        setTriggerFriendDataFetch(true);
+      }, 1500);
+    } else {
+      alert("Friend data fecthing failed!");
+      setError("Friend request handling failed!");
+    }
+  };
+
   const getUserProfileImage = async () => {
+    if (!authContext || !authContext.user || !authContext.user.token) {
+      console.log("No token avaiable to fetch profile image!");
+      return;
+    }
+
     const response = await fetch("http://localhost:8005/user/profileImage", {
       method: "GET",
       headers: { Authorization: `Bearer ${authContext.user.token}` },
@@ -298,7 +446,9 @@ const UserProfile = () => {
 
     const blob = await response.blob();
     const objectURL = URL.createObjectURL(blob);
-    document.getElementById("profileImage").src = objectURL;
+    setProfileImageObjURL(objectURL);
+    setIsImageLoading(false);
+    // document.getElementById("profileImage").src = objectURL;
   };
 
   const updateProfileData = async () => {
@@ -355,7 +505,18 @@ const UserProfile = () => {
     } else {
       return;
     }
-  }, [authContext, triggerProfileFetch]); // rerun when authContext is changed
+  }, [authContext, triggerProfileFetch]);
+
+  useEffect(() => {
+    if (triggerFriendDataFetch) {
+      console.log("Fetching friend data!");
+      getUserFriendRequests();
+      getUserFriends();
+      setTriggerFriendDataFetch(false);
+    } else {
+      return;
+    }
+  }, [triggerFriendDataFetch]);
 
   useEffect(() => {
     // update profle data when profile context changes
@@ -364,171 +525,87 @@ const UserProfile = () => {
 
   return (
     <div className="bg-prodPrimary overflow-hidden w-full sm:w-8/12 ml-auto mr-auto flex-col jusitfy-items-center">
-      <h3 className="w-max ml-auto mr-auto p-2 text-4xl font-bold">{`${
-        userName === "null" ? email : userName
-      }'s Profile`}</h3>
-      <div className="w-3/12 h-max ml-auto mr-auto overflow-hidden">
-        {/* Temp Image */}
-        <img
-          className="w-64 ml-auto mr-auto object-cover"
-          src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
-          id="profileImage"
-        ></img>
-
-        {isInEditMode && (
-          <>
-            <div className="w-max ml-auto mr-auto mt-3">
-              <span
-                className="material-symbols-outlined ml-auto mr-auto"
-                onClick={() => {
-                  let temp = document.getElementById("hiddenImageUpload");
-                  temp?.click();
-                }}
-              >
-                file_open
-              </span>
-            </div>
-            <input
-              type="file"
-              accept="image/png, image/jpeg"
-              className="hidden"
-              id="hiddenImageUpload"
-              onChange={(e) => {
-                setProfileImage(e.target.files![0]);
+      <div className="w-6/12 h-7 ml-auto mr-auto mt-2 overflow-hidden flex justify-around">
+        <div className="w-max h-max inline-block">
+          {selectedPage === "profile" && (
+            <p className="hover:font-bold border-b-2 border-black">Profile</p>
+          )}
+          {selectedPage !== "profile" && (
+            <p
+              className="hover:font-bold"
+              onClick={() => {
+                setSelectedPage("profile");
               }}
-            />
-          </>
+            >
+              Profile
+            </p>
+          )}
+        </div>
+        <div className="w-max h-max inline-block">
+          {selectedPage === "friends" && (
+            <p className="hover:font-bold border-b-2 border-black">Friends</p>
+          )}
+          {selectedPage !== "friends" && (
+            <p
+              className="hover:font-bold"
+              onClick={() => {
+                setTriggerFriendDataFetch(true);
+                setSelectedPage("friends");
+              }}
+            >
+              Friends
+            </p>
+          )}
+        </div>
+      </div>
+      <div className="hide-scrollbar overflow-scroll w-6/12 mr-auto ml-auto">
+        {selectedPage === "profile" && (
+          <ProfilePage
+            profileImageObjURL={profileImageObjURL}
+            userName={userName}
+            email={email}
+            isInEditMode={isInEditMode}
+            isImageLoading={isImageLoading}
+            setProfileImage={setProfileImage}
+            soundcloudURL={soundcloudURL}
+            editsoundcloudURL={editsoundcloudURL}
+            bandcampURL={bandcampURL}
+            editBandcampURL={editBandcampURL}
+            spotifyURL={spotifyURL}
+            editSpotifyURL={editSpotifyURL}
+            youtubeURL={youtubeURL}
+            editYoutubeURL={editYoutubeURL}
+            twitterURL={twitterURL}
+            editTwitterURL={editTwitterURL}
+            facebookURL={facebookURL}
+            editFacebookURL={editFacebookURL}
+            instagramURL={instagramURL}
+            editInstagramURL={editInstagramURL}
+            visibility={visibility}
+            editVisibility={editVisibility}
+            toggleEditMode={toggleEditMode}
+            deleteProfile={deleteProfile}
+            error={error}
+            message={message}
+          ></ProfilePage>
+        )}
+
+        {selectedPage === "friends" && (
+          <FriendsPage
+            error={error}
+            message={message}
+            addFriendEmail={addFriendEmail}
+            friendRequests={friendRequests}
+            userFriends={userFriends}
+            setAddFriendEmail={setAddFriendEmail}
+            addFriend={addFriend}
+            removeFriend={removeFriend}
+            resolveFriendRequest={resolveFriendRequest}
+            removeRequestNotification={removeRequestNotification}
+            setTriggerFriendDataFetch={setTriggerFriendDataFetch}
+          ></FriendsPage>
         )}
       </div>
-      <div className="overflow-hidden w-max ml-auto mr-auto mt-3 mb-3 border-prodSecondary border-t-2 border-b-2">
-        <div className="w-max mr-auto">
-          <h1 className="text-xl">Email: {email} </h1>
-        </div>
-        <div className="w-max  mr-auto ">
-          <h1 className="text-xl">
-            User Name: {userName === "null" ? "N/A" : userName}{" "}
-          </h1>
-        </div>
-        <div className="w-max  mr-auto ">
-          <h1 className="text-xl">
-            soundcloud URL: {!isInEditMode && soundcloudURL}
-            {isInEditMode && (
-              <input
-                className="p-1"
-                type="text"
-                value={soundcloudURL}
-                onChange={editsoundcloudURL}
-              ></input>
-            )}
-          </h1>
-        </div>
-        <div className="w-max  mr-auto ">
-          <h1 className="text-xl">
-            Bandcamp URL: {!isInEditMode && bandcampURL}{" "}
-            {isInEditMode && (
-              <input
-                className="p-1"
-                type="text"
-                value={bandcampURL}
-                onChange={editBandcampURL}
-              ></input>
-            )}
-          </h1>
-        </div>
-        <div className="w-max  mr-auto ">
-          <h1 className="text-xl">
-            Spotify URL: {!isInEditMode && spotifyURL}{" "}
-            {isInEditMode && (
-              <input
-                className="p-1"
-                type="text"
-                value={spotifyURL}
-                onChange={editSpotifyURL}
-              ></input>
-            )}
-          </h1>
-        </div>
-        <div className="w-max  mr-auto ">
-          <h1 className="text-xl">
-            Youtube URL: {!isInEditMode && youtubeURL}{" "}
-            {isInEditMode && (
-              <input
-                className="p-1"
-                type="text"
-                value={youtubeURL}
-                onChange={editYoutubeURL}
-              ></input>
-            )}
-          </h1>
-        </div>
-        <div className="w-max  mr-auto ">
-          <h1 className="text-xl">
-            Twitter URL: {!isInEditMode && twitterURL}{" "}
-            {isInEditMode && (
-              <input
-                className="p-1"
-                type="text"
-                value={twitterURL}
-                onChange={editTwitterURL}
-              ></input>
-            )}
-          </h1>
-        </div>
-        <div className="w-max  mr-auto ">
-          <h1 className="text-xl">
-            Facebook URL: {!isInEditMode && facebookURL}{" "}
-            {isInEditMode && (
-              <input
-                className="p-1"
-                type="text"
-                value={facebookURL}
-                onChange={editFacebookURL}
-              ></input>
-            )}
-          </h1>
-        </div>
-        <div className="w-max  mr-auto ">
-          <h1 className="text-xl">
-            Instagram URL: {!isInEditMode && instagramURL}{" "}
-            {isInEditMode && (
-              <input
-                className="p-1"
-                type="text"
-                value={instagramURL}
-                onChange={editInstagramURL}
-              ></input>
-            )}
-          </h1>
-        </div>
-        <div className="w-max  mr-auto ">
-          <h1 className="text-xl">
-            Visibility: {!isInEditMode && visibility}{" "}
-            {isInEditMode && (
-              <select
-                className="p-1"
-                value={visibility}
-                onChange={editVisibility}
-              >
-                <option value="Public">Public</option>
-                <option value="Private">Private</option>
-                <option value="FriendsOnly">FriendsOnly</option>
-              </select>
-            )}
-          </h1>
-        </div>
-      </div>
-      <div className="w-max ml-auto mr-auto ">
-        <button onClick={toggleEditMode} className="btn mb-1">
-          {isInEditMode ? "Save profile" : "Edit Profile"}
-        </button>
-      </div>
-      <div className="w-max ml-auto mr-auto ">
-        <button onClick={deleteProfile} className="btn mb-3">
-          Delete profile
-        </button>
-      </div>
-      {error && <div className="error">{error}</div>}
-      {message && <div className="message">{message}</div>}
     </div>
   );
 };

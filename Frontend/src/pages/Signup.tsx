@@ -6,6 +6,7 @@ import { AuthContext } from "../context/AuthContext";
 const Signup = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [passwordDup, setPasswordDup] = useState("");
   const [userName, setUserName] = useState("");
   const [error, setError] = useState("");
   const authContext = useContext(AuthContext); // user and dispatch properties
@@ -32,6 +33,9 @@ const Signup = () => {
     setPassword(e.target.value);
   };
 
+  const updatePasswordDup = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPasswordDup(e.target.value);
+  };
   const updateUserName = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUserName(e.target.value);
   };
@@ -41,8 +45,13 @@ const Signup = () => {
 
     setError("");
 
-    if (!email || !password) {
+    if (!email || !password || !passwordDup) {
       setError("Required fields missing!");
+      return;
+    }
+
+    if (password !== passwordDup) {
+      setError("Passwords do not match!");
       return;
     }
 
@@ -89,6 +98,17 @@ const Signup = () => {
               type="password"
               value={password}
               onChange={updatePassword}
+              className="w-full mr-auto ml-auto p-2"
+            />
+          </div>
+          <div>
+            <label className="w-max mr-auto ml-auto p-2 font-bold">
+              Password (re-enter)
+            </label>
+            <input
+              type="password"
+              value={passwordDup}
+              onChange={updatePasswordDup}
               className="w-full mr-auto ml-auto p-2"
             />
           </div>
