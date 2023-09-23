@@ -69,6 +69,7 @@ const FriendProfilePage = () => {
       setUserProfile(json.profile);
       setIsProfileLoading(false);
     } else if (response.status == 403) {
+      setIsProfileLoading(false);
       setIsForbidden(true);
     } else {
       setError("Error fetching user profile");
@@ -141,6 +142,18 @@ const FriendProfilePage = () => {
           This is some sample text This is some sample textThis is some sample
           textThis is some sample text
         </h3>
+      </div>
+    );
+  } else if (!isProfileLoading && isForbidden) {
+    return (
+      <div className="bg-prodPrimary overflow-hidden w-full sm:w-8/12 ml-auto mr-auto flex-col jusitfy-items-center">
+        <div className="bg-prodPrimary w-full h-screen pt-40">
+          <div className=" w-7/12 h-max ml-auto mr-auto bg-prodSecondary rounded-lg z-50">
+            <h3 className="ml-auto mr-auto p-5 font-bold text-4xl">
+              We're sorry, but you cannot access this user's profile!
+            </h3>
+          </div>
+        </div>
       </div>
     );
   } else {
