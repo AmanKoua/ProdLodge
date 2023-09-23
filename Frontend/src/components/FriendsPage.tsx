@@ -180,7 +180,7 @@ const FriendsPage = ({
     };
 
     partitionRequests();
-  }, []);
+  }, [friendRequests]);
 
   return (
     <div className="w-12/12 h-screen mt-2">
