@@ -316,6 +316,11 @@ const UserProfile = () => {
   };
 
   const getUserFriendRequests = async () => {
+    if (!authContext || !authContext.user || !authContext.user.token) {
+      console.log("Cannot fetch friends without a token!");
+      return;
+    }
+
     const response = await fetch("http://localhost:8005/user/friendRequests", {
       method: "GET",
       headers: { Authorization: `Bearer ${authContext.user.token}` },
@@ -509,7 +514,6 @@ const UserProfile = () => {
 
   useEffect(() => {
     if (triggerFriendDataFetch) {
-      console.log("Fetching friend data!");
       getUserFriendRequests();
       getUserFriends();
       setTriggerFriendDataFetch(false);

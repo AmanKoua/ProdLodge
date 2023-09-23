@@ -120,7 +120,10 @@ const ProfilePage = ({
         </div>
         <div className="w-max  mr-auto ">
           <h1 className="text-xl">
-            soundcloud URL: {!isInEditMode && soundcloudURL}
+            soundcloud URL:{" "}
+            {!isInEditMode && (
+              <a href={`http://${soundcloudURL}`}>{soundcloudURL}</a>
+            )}
             {isInEditMode && (
               <input
                 className="p-1"
@@ -133,7 +136,10 @@ const ProfilePage = ({
         </div>
         <div className="w-max  mr-auto ">
           <h1 className="text-xl">
-            Bandcamp URL: {!isInEditMode && bandcampURL}{" "}
+            Bandcamp URL:
+            {!isInEditMode && (
+              <a href={`http://${bandcampURL}`}>{bandcampURL}</a>
+            )}
             {isInEditMode && (
               <input
                 className="p-1"
@@ -146,7 +152,8 @@ const ProfilePage = ({
         </div>
         <div className="w-max  mr-auto ">
           <h1 className="text-xl">
-            Spotify URL: {!isInEditMode && spotifyURL}{" "}
+            Spotify URL:
+            {!isInEditMode && <a href={`http://${spotifyURL}`}>{spotifyURL}</a>}
             {isInEditMode && (
               <input
                 className="p-1"
@@ -159,7 +166,8 @@ const ProfilePage = ({
         </div>
         <div className="w-max  mr-auto ">
           <h1 className="text-xl">
-            Youtube URL: {!isInEditMode && youtubeURL}{" "}
+            Youtube URL:
+            {!isInEditMode && <a href={`http://${youtubeURL}`}>{youtubeURL}</a>}
             {isInEditMode && (
               <input
                 className="p-1"
@@ -172,7 +180,8 @@ const ProfilePage = ({
         </div>
         <div className="w-max  mr-auto ">
           <h1 className="text-xl">
-            Twitter URL: {!isInEditMode && twitterURL}{" "}
+            Twitter URL:
+            {!isInEditMode && <a href={`http://${twitterURL}`}>{twitterURL}</a>}
             {isInEditMode && (
               <input
                 className="p-1"
@@ -185,7 +194,10 @@ const ProfilePage = ({
         </div>
         <div className="w-max  mr-auto ">
           <h1 className="text-xl">
-            Facebook URL: {!isInEditMode && facebookURL}{" "}
+            Facebook URL:{" "}
+            {!isInEditMode && (
+              <a href={`http://${facebookURL}`}>{facebookURL}</a>
+            )}
             {isInEditMode && (
               <input
                 className="p-1"
@@ -198,7 +210,10 @@ const ProfilePage = ({
         </div>
         <div className="w-max  mr-auto ">
           <h1 className="text-xl">
-            Instagram URL: {!isInEditMode && instagramURL}{" "}
+            Instagram URL:{" "}
+            {!isInEditMode && (
+              <a href={`http://${instagramURL}`}>{instagramURL}</a>
+            )}
             {isInEditMode && (
               <input
                 className="p-1"
@@ -211,7 +226,7 @@ const ProfilePage = ({
         </div>
         <div className="w-max  mr-auto ">
           <h1 className="text-xl">
-            Visibility: {!isInEditMode && visibility}{" "}
+            Visibility: {!isInEditMode && visibility}
             {isInEditMode && (
               <select
                 className="p-1"
