@@ -216,7 +216,7 @@ const UserProfile = () => {
       }
 
       const wasImageUploaded = await uploadProfileImg();
-      const timeout = wasImageUploaded ? 500 : 0; // determine timeout based on whether or not image was uploaded
+      const timeout = wasImageUploaded ? 1500 : 0; // determine timeout based on whether or not image was uploaded
 
       let updateObject = {
         profile: {
@@ -343,7 +343,7 @@ const UserProfile = () => {
     if (response.ok) {
       setTimeout(() => {
         setTriggerFriendDataFetch(true);
-      }, 500);
+      }, 1500);
     } else {
       setError("Request notification removal failed!");
     }
@@ -376,7 +376,7 @@ const UserProfile = () => {
       setMessage("Friend request sent successfully!");
       setTimeout(() => {
         setTriggerFriendDataFetch(true);
-      }, 500);
+      }, 1500);
       return;
     } else {
       const json = await response.json();
@@ -397,7 +397,7 @@ const UserProfile = () => {
     if (response.ok) {
       setTimeout(() => {
         setTriggerFriendDataFetch(true);
-      }, 500);
+      }, 1500);
     } else {
       setError("Friend removal failed!");
     }
@@ -421,8 +421,9 @@ const UserProfile = () => {
     if (response.ok) {
       setTimeout(() => {
         setTriggerFriendDataFetch(true);
-      }, 500);
+      }, 1500);
     } else {
+      alert("Friend data fecthing failed!");
       setError("Friend request handling failed!");
     }
   };
@@ -508,6 +509,7 @@ const UserProfile = () => {
 
   useEffect(() => {
     if (triggerFriendDataFetch) {
+      console.log("Fetching friend data!");
       getUserFriendRequests();
       getUserFriends();
       setTriggerFriendDataFetch(false);
@@ -547,6 +549,7 @@ const UserProfile = () => {
             <p
               className="hover:font-bold"
               onClick={() => {
+                setTriggerFriendDataFetch(true);
                 setSelectedPage("friends");
               }}
             >
