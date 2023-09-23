@@ -75,6 +75,43 @@ const FriendProfilePage = () => {
     }
   };
 
+  const getFriendProfileImage = async () => {
+    if (!authContext || !authContext.user || !authContext.user.token) {
+      if (!tryLoginFromToken()) {
+        return;
+      }
+    }
+
+    if (!userProfile) {
+      return;
+    }
+
+    const response = await fetch(
+      "http://localhost:8005/user/friendProfileImage",
+      {
+        method: "GET",
+        headers: {
+          "Content-type": "application/json; charset=UTF-8", // content type seems to fix CORS errors...
+          Authorization: `Bearer ${authContext.user.token}`,
+          friendId: `${id}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      console.log("Failed fetching profile image!");
+      const temp = "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"; // Temporary icon.
+      setProfileImageObjURL(temp);
+      setIsImageLoading(false);
+      return;
+    }
+
+    const blob = await response.blob();
+    const objectURL = URL.createObjectURL(blob);
+    setProfileImageObjURL(objectURL);
+    setIsImageLoading(false);
+  };
+
   useEffect(() => {
     // Navigate to 404 page is user id is invalid
     if (id.length != 24) {
@@ -89,13 +126,13 @@ const FriendProfilePage = () => {
     }
   }, [isProfileFetched]);
 
-  // useEffect(() => {
-  //   if (!userProfile) {
-  //     return;
-  //   }
+  useEffect(() => {
+    if (!userProfile) {
+      return;
+    }
 
-  //   console.log(userProfile);
-  // }, [userProfile]);
+    getFriendProfileImage();
+  }, [userProfile]);
 
   if (isProfileLoading) {
     return (
@@ -109,7 +146,7 @@ const FriendProfilePage = () => {
   } else {
     return (
       <div className="bg-prodPrimary overflow-hidden w-full sm:w-8/12 ml-auto mr-auto flex-col jusitfy-items-center">
-        <div className="w-12/12 h-max">
+        <div className="w-6/12 h-max ml-auto mr-auto">
           <h3 className="w-max ml-auto mr-auto p-2 text-4xl font-bold">{`${userProfile.userName}'s Profile`}</h3>
           <div className="w-5/12 h-max ml-auto mr-auto overflow-hidden">
             {/* Temp Image */}

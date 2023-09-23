@@ -911,4 +911,75 @@ router.get("/friendProfile/:id", verifyTokenAndGetUser, async (req, res) => {
 
 })
 
+router.get('/friendProfileImage', verifyTokenAndGetUser, async (req, res) => {
+
+    const friendId = req.header("friendId")
+
+    if (!req.headers || !friendId) {
+        return res.status(400).json({ error: "Invalid request headers!" })
+    }
+
+    const requestId = generateRandomString(30).toLowerCase();
+    req.body.requestId = requestId;
+    const friend = await user.findOne({ _id: new ObjectId(friendId) });
+    let friendProfile;
+
+    if (!friend) {
+        return res.status(404).json({ error: "Specified friend not found!" });
+    }
+
+    friendProfile = await userProfile.findOne({ userId: friend._id });
+
+    if (!friendProfile) {
+        return res.status(500).json({ error: "Internal system error!" });
+    }
+
+    if (friendProfile.visibility == "Private") {
+        return res.status(403).json({ error: "Forbidden image download request!" });
+    }
+
+    if (!friendProfile.pictureId) {
+        return res.status(404).json({ error: "User does not have a profile image!" });
+    }
+
+    const imageId = friendProfile.pictureId.valueOf();
+    let profileImageFileName;
+
+    const client = new MongoClient(process.env.MONGO_URI);
+    await client.connect();
+    const db = client.db("ProdCluster");
+    const bucket = new GridFSBucket(db);
+
+    const cursor = bucket.find({ _id: friendProfile.pictureId });
+
+    for await (const item of cursor) {
+        profileImageFileName = item.filename;
+    }
+
+    await downloadProfileImage(imageId, profileImageFileName, req.body.requestId);
+
+    const folderPath = path.join(__dirname, `../../downloads/${req.body.requestId}/`);
+    const filePath = path.join(__dirname, `../../downloads/${req.body.requestId}/`, `${profileImageFileName}`);
+    const stats = await Fs.stat(filePath);
+    const fileSize = stats.size;
+
+    res.setHeader('Content-Length', fileSize);
+
+    return res.status(200).download(filePath, (err) => {
+        if (err) {
+            console.log(err);
+            return res.status(500).json({ error: "Failure in transmitting file to user!" });
+        }
+        else {
+            if (fs.existsSync(filePath)) {
+                fs.unlinkSync(filePath);
+                setTimeout(() => {
+                    fs.rmdirSync(folderPath);
+                }, 1000)
+            }
+        }
+    })
+
+})
+
 module.exports = router;
