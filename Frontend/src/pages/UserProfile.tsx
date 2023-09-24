@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { ProfileContext } from "../context/ProfileContext";
 
+import { UserFriend } from "../customTypes";
+
 import FriendsPage from "../components/FriendsPage";
 import ProfilePage from "../components/ProfilePage";
 
@@ -22,8 +24,8 @@ const UserProfile = () => {
   const [selectedPage, setSelectedPage] = useState("profile");
 
   const [profileImage, setProfileImage] = useState<any>();
-  const [friendRequests, setFriendRequests] = useState<Object[]>([]);
-  const [userFriends, setUserFriends] = useState<Object[]>([]);
+  const [friendRequests, setFriendRequests] = useState<Object>({});
+  const [userFriends, setUserFriends] = useState<UserFriend[]>([]);
   const [userName, setUserName] = useState("null");
   const [email, setEmail] = useState("null");
   const [soundcloudURL, setsoundcloudURL] = useState("");

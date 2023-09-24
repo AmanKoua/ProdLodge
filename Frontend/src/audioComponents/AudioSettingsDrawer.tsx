@@ -3,7 +3,7 @@ import CSS from "csstype";
 import AudioSettingsTrack from "./AudioSettingsTrack";
 import "../invisibleScrollbar.css";
 
-import { Chain } from "../customTypes";
+import { Chain, TrackData } from "../customTypes";
 
 interface Props {
   songChains: Chain[];
@@ -321,7 +321,7 @@ const AudioSettingsDrawer = ({
           // CHANGE CODE HERE!
           return (
             <AudioSettingsTrack
-              settingsTracksData={settingsTracksData}
+              settingsTracksData={settingsTracksData as TrackData[]}
               audioModulesJSON={audioModulesJSON}
               audioModules={audioModules}
               idx={idx}

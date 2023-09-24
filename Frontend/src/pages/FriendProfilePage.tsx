@@ -3,6 +3,8 @@ import { useEffect, useState, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 
+import { FriendProfile } from "../customTypes";
+
 // interface FriendProfilePageProps {
 //   userName: string;
 //   isImageLoading: boolean;
@@ -31,7 +33,9 @@ const FriendProfilePage = () => {
 
   const [isForbidden, setIsForbidden] = useState(false);
   const [isProfileFetched, setIsProfileFetched] = useState(false);
-  const [userProfile, setUserProfile] = useState(undefined);
+  const [userProfile, setUserProfile] = useState<FriendProfile | undefined>(
+    undefined
+  );
   const [profileImageObjURL, setProfileImageObjURL] = useState("");
 
   const tryLoginFromToken = () => {
@@ -115,7 +119,7 @@ const FriendProfilePage = () => {
 
   useEffect(() => {
     // Navigate to 404 page is user id is invalid
-    if (id.length != 24) {
+    if (id!.length != 24) {
       navigate("/404");
     }
   }, []);
@@ -160,7 +164,9 @@ const FriendProfilePage = () => {
     return (
       <div className="bg-prodPrimary overflow-hidden w-full sm:w-8/12 ml-auto mr-auto flex-col jusitfy-items-center">
         <div className="w-6/12 h-max ml-auto mr-auto">
-          <h3 className="w-max ml-auto mr-auto p-2 text-4xl font-bold">{`${userProfile.userName}'s Profile`}</h3>
+          <h3 className="w-max ml-auto mr-auto p-2 text-4xl font-bold">{`${
+            userProfile!.userName
+          }'s Profile`}</h3>
           <div className="w-5/12 h-max ml-auto mr-auto overflow-hidden">
             {/* Temp Image */}
             {!isImageLoading && (
@@ -181,16 +187,18 @@ const FriendProfilePage = () => {
           </div>
           <div className="overflow-hidden w-max ml-auto mr-auto mt-3 mb-3 border-prodSecondary border-t-2 border-b-2">
             <div className="w-max  mr-auto ">
-              <h1 className="text-xl">User Name: {userProfile.userName}</h1>
+              <h1 className="text-xl">User Name: {userProfile!.userName}</h1>
             </div>
             <div className="w-max  mr-auto ">
               <h1 className="text-xl">
                 soundcloud URL:
-                {userProfile.socialMediaHandles.soundcloud && (
+                {userProfile!.socialMediaHandles.soundcloud && (
                   <a
-                    href={`http://${userProfile.socialMediaHandles.soundcloud}`}
+                    href={`http://${
+                      userProfile!.socialMediaHandles.soundcloud
+                    }`}
                   >
-                    {userProfile.socialMediaHandles.soundcloud}
+                    {userProfile!.socialMediaHandles.soundcloud}
                   </a>
                 )}
               </h1>
@@ -198,9 +206,11 @@ const FriendProfilePage = () => {
             <div className="w-max  mr-auto ">
               <h1 className="text-xl">
                 Bandcamp URL:
-                {userProfile.socialMediaHandles.bandcamp && (
-                  <a href={`http://${userProfile.socialMediaHandles.bandcamp}`}>
-                    {userProfile.socialMediaHandles.bandcamp}
+                {userProfile!.socialMediaHandles.bandcamp && (
+                  <a
+                    href={`http://${userProfile!.socialMediaHandles.bandcamp}`}
+                  >
+                    {userProfile!.socialMediaHandles.bandcamp}
                   </a>
                 )}
               </h1>
@@ -208,9 +218,9 @@ const FriendProfilePage = () => {
             <div className="w-max  mr-auto ">
               <h1 className="text-xl">
                 Spotify URL:
-                {userProfile.socialMediaHandles.spotify && (
-                  <a href={`http://${userProfile.socialMediaHandles.spotify}`}>
-                    {userProfile.socialMediaHandles.spotify}
+                {userProfile!.socialMediaHandles.spotify && (
+                  <a href={`http://${userProfile!.socialMediaHandles.spotify}`}>
+                    {userProfile!.socialMediaHandles.spotify}
                   </a>
                 )}
               </h1>
@@ -218,9 +228,9 @@ const FriendProfilePage = () => {
             <div className="w-max  mr-auto ">
               <h1 className="text-xl">
                 Youtube URL:
-                {userProfile.socialMediaHandles.youtube && (
-                  <a href={`http://${userProfile.socialMediaHandles.youtube}`}>
-                    {userProfile.socialMediaHandles.youtube}
+                {userProfile!.socialMediaHandles.youtube && (
+                  <a href={`http://${userProfile!.socialMediaHandles.youtube}`}>
+                    {userProfile!.socialMediaHandles.youtube}
                   </a>
                 )}
               </h1>
@@ -228,9 +238,9 @@ const FriendProfilePage = () => {
             <div className="w-max  mr-auto ">
               <h1 className="text-xl">
                 Twitter URL:
-                {userProfile.socialMediaHandles.twitter && (
-                  <a href={`http://${userProfile.socialMediaHandles.twitter}`}>
-                    {userProfile.socialMediaHandles.twitter}
+                {userProfile!.socialMediaHandles.twitter && (
+                  <a href={`http://${userProfile!.socialMediaHandles.twitter}`}>
+                    {userProfile!.socialMediaHandles.twitter}
                   </a>
                 )}
               </h1>
@@ -238,9 +248,11 @@ const FriendProfilePage = () => {
             <div className="w-max  mr-auto ">
               <h1 className="text-xl">
                 Facebook URL:
-                {userProfile.socialMediaHandles.facebook && (
-                  <a href={`http://${userProfile.socialMediaHandles.facebook}`}>
-                    {userProfile.socialMediaHandles.facebook}
+                {userProfile!.socialMediaHandles.facebook && (
+                  <a
+                    href={`http://${userProfile!.socialMediaHandles.facebook}`}
+                  >
+                    {userProfile!.socialMediaHandles.facebook}
                   </a>
                 )}
               </h1>
@@ -248,11 +260,11 @@ const FriendProfilePage = () => {
             <div className="w-max  mr-auto ">
               <h1 className="text-xl">
                 Instagram URL:
-                {userProfile.socialMediaHandles.instagram && (
+                {userProfile!.socialMediaHandles.instagram && (
                   <a
-                    href={`http://${userProfile.socialMediaHandles.instagram}`}
+                    href={`http://${userProfile!.socialMediaHandles.instagram}`}
                   >
-                    {userProfile.socialMediaHandles.instagram}
+                    {userProfile!.socialMediaHandles.instagram}
                   </a>
                 )}
               </h1>

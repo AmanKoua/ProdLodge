@@ -1,11 +1,17 @@
 import { useState, useEffect } from "react";
 
+import {
+  FriendRequestData,
+  UserFriend,
+  FriendRequestResponse,
+} from "../customTypes";
+
 interface FriendsProps {
   error: string;
   message: string;
   addFriendEmail: string;
-  friendRequests: Object[];
-  userFriends: Object[];
+  friendRequests: Object;
+  userFriends: UserFriend[];
   setAddFriendEmail: (val: any) => void;
   addFriend: () => Promise<void>;
   removeFriend: (id: string) => Promise<void>;
@@ -27,8 +33,12 @@ const FriendsPage = ({
   removeRequestNotification,
   setTriggerFriendDataFetch,
 }: FriendsProps) => {
-  const [incommingRequests, setIncommingRequests] = useState<Object[]>([]);
-  const [outgoingRequests, setOutgoingRequests] = useState<Object[]>([]);
+  const [incommingRequests, setIncommingRequests] = useState<
+    FriendRequestData[]
+  >([]);
+  const [outgoingRequests, setOutgoingRequests] = useState<FriendRequestData[]>(
+    []
+  );
 
   const generateIncommingRequestCards = (): JSX.Element => {
     let temp = (
@@ -162,7 +172,8 @@ const FriendsPage = ({
 
   useEffect(() => {
     const partitionRequests = () => {
-      const requests = friendRequests.payload;
+      let temp = friendRequests as FriendRequestResponse;
+      const requests = temp.payload;
 
       if (!requests) {
         return;
