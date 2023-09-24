@@ -101,7 +101,7 @@ const SongEntry = ({ songData, authContext, editSong, deleteSong }: Props) => {
     setSongDescription(e.target.value);
   };
 
-  const handleVisibilityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleVisibilityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSongVisibility(e.target.value);
   };
 

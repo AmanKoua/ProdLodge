@@ -396,14 +396,18 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
           tempAudioNodes[1][0].connect(aCtx!.destination);
 
           if (settingsTracksData![x].isEnabled) {
-            tempAudioNodes[1][0].gain.value = 1;
+            let tempGainNode = tempAudioNodes[1][0] as GainNode;
+            tempGainNode.gain.value = 1;
           } else {
-            tempAudioNodes[1][0].gain.value = 0;
+            let tempGainNode = tempAudioNodes[1][0] as GainNode;
+            tempGainNode.gain.value = 0;
           }
         } else {
           // loop through audioNodes and connect them one by one
           let currentNode = tempAudioNodes[0][0]; // start with audioSourceBufferNode;
-          let gainNode = tempAudioNodes[tempAudioNodes.length - 1][0]; // gainNode
+          let gainNode = tempAudioNodes[
+            tempAudioNodes.length - 1
+          ][0] as GainNode; // gainNode
           for (let i = 1; i < tempAudioNodes.length - 1; i++) {
             // row
             for (let j = 0; j < tempAudioNodes[i].length; j++) {
@@ -537,7 +541,8 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
 
       for (let i = 0; i < audioNodes.length; i++) {
         // will need to check that they all start at the same time...
-        audioNodes![i][0][0].start(0, songTime);
+        let temp = audioNodes![i][0][0] as AudioBufferSourceNode;
+        temp.start(0, songTime);
       }
     }, [isPlaying]);
   };
@@ -553,7 +558,8 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
       }
 
       for (let i = 0; i < audioNodes.length; i++) {
-        audioNodes[i][0][0].stop();
+        let temp = audioNodes[i][0][0] as AudioBufferSourceNode;
+        temp.stop();
       }
     }, [isPlaying]);
   };
@@ -1133,7 +1139,7 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
       // console.log(tempAudioNodes);
     }
 
-    let tempAudioNode: AudioNode;
+    let tempAudioNode;
 
     switch (
       data.type // crete audioNode based on module Object type and information
@@ -1141,8 +1147,8 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
       case "Highpass":
         tempAudioNode = aCtx!.createBiquadFilter();
         tempAudioNode.type = "highpass";
-        tempAudioNode.frequency.value = data.frequency;
-        tempAudioNode.Q.value = data.resonance;
+        tempAudioNode.frequency.value = data.frequency!;
+        tempAudioNode.Q.value = data.resonance!;
         insertAudioNode(audioNodes, tempAudioNode, currentTrackIdx);
         setAudioNodes(audioNodes);
         setTimeout(() => {
@@ -1152,8 +1158,8 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
       case "Lowpass":
         tempAudioNode = aCtx!.createBiquadFilter();
         tempAudioNode.type = "lowpass";
-        tempAudioNode.frequency.value = data.frequency;
-        tempAudioNode.Q.value = data.resonance;
+        tempAudioNode.frequency.value = data.frequency!;
+        tempAudioNode.Q.value = data.resonance!;
         insertAudioNode(audioNodes, tempAudioNode, currentTrackIdx);
         setAudioNodes(audioNodes);
         setTimeout(() => {
@@ -1163,9 +1169,9 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
       case "Peak":
         tempAudioNode = aCtx!.createBiquadFilter();
         tempAudioNode.type = "peaking";
-        tempAudioNode.frequency.value = data.frequency;
-        tempAudioNode.Q.value = data.resonance;
-        tempAudioNode.gain.value = data.gain;
+        tempAudioNode.frequency.value = data.frequency!;
+        tempAudioNode.Q.value = data.resonance!;
+        tempAudioNode.gain.value = data.gain!;
         insertAudioNode(audioNodes, tempAudioNode, currentTrackIdx);
         setAudioNodes(audioNodes);
         setTimeout(() => {
@@ -1192,7 +1198,7 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
         break;
       case "Gain":
         tempAudioNode = aCtx!.createGain();
-        tempAudioNode.gain.value = data.amount;
+        tempAudioNode.gain.value = data.amount!;
         insertAudioNode(audioNodes, tempAudioNode, currentTrackIdx);
         setAudioNodes(audioNodes);
         setTimeout(() => {
@@ -1201,12 +1207,12 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
         break;
       case "Compression":
         tempAudioNode = aCtx!.createDynamicsCompressor();
-        tempAudioNode.threshold.value = data.threshold;
-        tempAudioNode.knee.value = data.knee;
-        tempAudioNode.ratio.value = data.ratio;
+        tempAudioNode.threshold.value = data.threshold!;
+        tempAudioNode.knee.value = data.knee!;
+        tempAudioNode.ratio.value = data.ratio!;
         // tempAudioNode.reduction = data.reduction;
-        tempAudioNode.attack.value = data.attack;
-        tempAudioNode.release.value = data.release;
+        tempAudioNode.attack.value = data.attack!;
+        tempAudioNode.release.value = data.release!;
         insertAudioNode(audioNodes, tempAudioNode, currentTrackIdx);
         setAudioNodes(audioNodes);
         setTimeout(() => {
@@ -1429,27 +1435,30 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
       data.type === "Lowpass" ||
       data.type === "Peak"
     ) {
-      tempAudioNodesSubArr![row][column].frequency.value = data.frequency;
-      tempAudioNodesSubArr![row][column].Q.value = data.resonance;
+      let temp = tempAudioNodesSubArr![row][column] as BiquadFilterNode;
+      temp.frequency.value = data.frequency!;
+      temp.Q.value = data.resonance!;
       if (data.type === "Peak") {
-        tempAudioNodesSubArr![row][column].gain.value = data.gain;
+        let temp = tempAudioNodesSubArr![row][column] as BiquadFilterNode;
+        temp.gain.value = data.gain!;
       }
     } else if (data.type === "Reverb") {
-      tempAudioNodesSubArr![row][column].buffer =
-        impulseBuffers![data.impulse!];
+      let temp = tempAudioNodesSubArr![row][column] as ConvolverNode;
+      temp.buffer = impulseBuffers![data.impulse!];
     } else if (data.type === "Waveshaper") {
-      tempAudioNodesSubArr![row][column].curve = generateDistcurve(
-        data.amount!
-      );
+      let temp = tempAudioNodesSubArr![row][column] as WaveShaperNode;
+      temp.curve = generateDistcurve(data.amount!);
     } else if (data.type === "Gain") {
-      tempAudioNodesSubArr![row][column].gain.value = data.amount;
+      let temp = tempAudioNodesSubArr![row][column] as GainNode;
+      temp.gain.value = data.amount!;
     } else if (data.type === "Compression") {
-      tempAudioNodesSubArr![row][column].threshold.value = data.threshold;
-      tempAudioNodesSubArr![row][column].knee.value = data.knee;
-      tempAudioNodesSubArr![row][column].ratio.value = data.ratio;
+      let temp = tempAudioNodesSubArr![row][column] as DynamicsCompressorNode;
+      temp.threshold.value = data.threshold!;
+      temp.knee.value = data.knee!;
+      temp.ratio.value = data.ratio!;
       // tempAudioNodesSubArr![row][column].reduction = data.reduction;
-      tempAudioNodesSubArr![row][column].attack.value = data.attack / 1000;
-      tempAudioNodesSubArr![row][column].release.value = data.release / 1000;
+      temp.attack.value = data.attack! / 1000;
+      temp.release.value = data.release! / 1000;
     } else if (data.type === "TrackChange") {
       // currentTrackIdx is changed in AudioSettingsTrack, which should automatically update currently selected track
     }

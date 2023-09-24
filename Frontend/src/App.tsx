@@ -63,7 +63,7 @@ function App() {
           authContext.dispatch({ type: "LOGOUT", payload: {} });
           return;
         } else {
-          authContext.dispatch({ type: "LOGIN", payload: JSON.parse(user) }); // set context state to stored user
+          authContext.dispatch({ type: "LOGIN", payload: JSON.parse(user!) }); // set context state to stored user
           return;
         }
       };

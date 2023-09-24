@@ -12,17 +12,17 @@ const NavBar = () => {
 
   useEffect(() => {
     let profileName;
-    let profileDropdown;
+    let profileDropdown: HTMLElement;
     let user;
 
     let profileInterval = setInterval(() => {
       profileName = document.getElementById("profileName");
-      profileDropdown = document.getElementById("profileDropdown");
+      profileDropdown = document.getElementById("profileDropdown")!;
       user = localStorage.getItem("user");
 
       if (user) {
         profileName = document.getElementById("profileName");
-        profileDropdown = document.getElementById("profileDropdown");
+        profileDropdown = document.getElementById("profileDropdown")!;
 
         if (profileName && profileDropdown) {
           profileName.addEventListener("mouseenter", () => {
