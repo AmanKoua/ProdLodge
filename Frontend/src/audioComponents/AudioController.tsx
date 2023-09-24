@@ -12,6 +12,7 @@ let audioControlImageRef: any;
 interface Props {
   hasUserGestured: boolean;
   isPlaying: boolean;
+  isVisualizing: boolean;
   isExpanded: boolean;
   isSettingsExpanded: boolean;
   songTime: number;
@@ -35,6 +36,7 @@ interface Props {
 const AudioController = ({
   hasUserGestured,
   isPlaying,
+  isVisualizing,
   isExpanded,
   isSettingsExpanded,
   songTime,
@@ -78,6 +80,11 @@ const AudioController = ({
   };
 
   AudioControllerStyle.height = isExpanded ? "100px" : "40px";
+
+  const PlaceholderStyle: CSS.Properties = {
+    marginTop: isExpanded ? "30px" : "7px",
+    transition: "all 0.3s",
+  };
 
   const imgStyle: CSS.Properties = {
     width: "30px",
@@ -151,6 +158,16 @@ const AudioController = ({
   return (
     <>
       <div style={AudioControllerStyle} ref={audioControllerRef}>
+        {hasUserGestured && !isVisualizing && (
+          <div
+            style={PlaceholderStyle}
+            className="w-full h-3/6 absolute z-0 pointer-events-none"
+          >
+            <p className="w-max ml-auto mr-auto text-2xl animate-pulse relative">
+              Please wait, tracks are loading...
+            </p>
+          </div>
+        )}
         <div
           style={ExpandButtonStyle}
           onClick={() => {

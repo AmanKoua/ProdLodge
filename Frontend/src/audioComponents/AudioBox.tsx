@@ -1846,6 +1846,7 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
           <AudioController
             hasUserGestured={hasUserGestured}
             isPlaying={isPlaying}
+            isVisualizing={isVisualizing}
             isExpanded={isExpanded}
             isSettingsExpanded={isSettingsExpanded}
             songTime={songTime}

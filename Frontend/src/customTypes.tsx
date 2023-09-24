@@ -74,22 +74,6 @@ export interface FriendsListRequestResponse {
 
 // Friend Profile page types
 
-/*
-    "profile": {
-        "userName": "the gnome zone",
-        "socialMediaHandles": {
-            "soundcloud": "soundcloud.com/gnome",
-            "bandcamp": "bandcamp.com/gnome",
-            "spotify": "spotify.com/gnome",
-            "youtube": "youtube.com/gnome",
-            "twitter": "twitter.com/gnome",
-            "facebook": "facebook.com/gnome",
-            "instagram": "instagram.com/gnome"
-        },
-        "pictureId": "6504a7d8fe944622570e268d"
-    }
-*/
-
 export interface FriendProfile {
   userName: string;
   socialMediaHandles: {
