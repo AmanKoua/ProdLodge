@@ -23,7 +23,7 @@ interface ProfilePageProps {
   visibility: string;
   editVisibility: (event: React.ChangeEvent<HTMLSelectElement>) => void;
 
-  toggleEditMode: () => Promise<void>;
+  toggleEditMode: (val: boolean) => Promise<void>;
   deleteProfile: () => Promise<void>;
 
   error: string;
@@ -242,9 +242,24 @@ const ProfilePage = ({
         </div>
       </div>
       <div className="w-10/12 ml-auto mr-auto mb-3 flex justify-around">
-        <button onClick={toggleEditMode} className="btn">
+        <button
+          onClick={() => {
+            toggleEditMode(false);
+          }}
+          className="btn"
+        >
           {isInEditMode ? "Save profile" : "Edit Profile"}
         </button>
+        {isInEditMode && (
+          <button
+            onClick={() => {
+              toggleEditMode(true);
+            }}
+            className="btn"
+          >
+            Cancel
+          </button>
+        )}
         <button onClick={deleteProfile} className="btn">
           Delete profile
         </button>

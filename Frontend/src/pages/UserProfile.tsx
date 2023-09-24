@@ -172,9 +172,15 @@ const UserProfile = () => {
     });
   };
 
-  const toggleEditMode = async () => {
+  const toggleEditMode = async (isCancel: boolean) => {
     setError("");
     setMessage("");
+
+    if (isCancel) {
+      setIsInEditMode(!isInEditMode);
+      setTriggerProfileFetch(true); // to reset state built while in edit mode
+      return;
+    }
 
     if (isInEditMode) {
       let temp: any = {};
