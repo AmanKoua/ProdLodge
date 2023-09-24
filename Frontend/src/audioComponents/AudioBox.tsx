@@ -141,6 +141,8 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
   let setIsSettingsHover: (val: boolean) => void;
   let isSettingsExpanded: boolean;
   let setIsSettingsExpanded: (val: boolean) => void;
+  let isConfigurationLoading: boolean;
+  let setIsConfigurationLoading: (val: boolean) => void;
 
   canvasRef = useRef(null); // reference to canvas
 
@@ -150,6 +152,7 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
   [isVisualizing, setIsVisualizing] = useState(false);
   [isPlaying, setIsPlaying] = useState(false); // need to make these global!
   [hasUserGestured, setHasUserGestured] = useState(false); // Keep track of first gesture required to initialize audioCtx
+  [isConfigurationLoading, setIsConfigurationLoading] = useState(false);
 
   [audioModules, setAudioModules] = useState(tempModuleData); // Initial module will be the blank module
   [initAudioModulesJSON, setInitAudioModulesJSON] = useState([
@@ -1657,6 +1660,10 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
   // };
 
   const loadConfiguration = async (payload: string): Promise<boolean> => {
+    if (isConfigurationLoading) {
+      return false;
+    }
+
     const sleepFactor = 0.01; // Require sleeping to avoid audioModules undefined error when reconnecting audioNodes
 
     try {
@@ -1667,6 +1674,7 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
 
       // Setting the audioModulesJSON, audioNodes, and audioModules to their initial state works for clearing previous config
       setIsReconnectionSuspended(true); // required to prevent critical reconnection bug
+      setIsConfigurationLoading(true);
       setAudioModulesJSON(initAudioModulesJSON);
       setAudioNodes(initAudioNodes);
       setAudioModules(JSON.parse(initAudioModulesJSON[0]));
@@ -1732,6 +1740,7 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
 
       setAudioModulesJSON(audioModulesJSON);
       setIsReconnectionSuspended(false);
+      setIsConfigurationLoading(false);
 
       return true;
     } catch (e) {
