@@ -1977,7 +1977,14 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
             setIsCommentsTabHover(false);
           }}
         >
-          <p className="hover:font-bold">Open comments</p>
+          <p
+            className="hover:font-bold"
+            onClick={() => {
+              setIsCommentsSectionDisplayed(!isCommentsSectionDisplayed);
+            }}
+          >
+            Open comments
+          </p>
         </div>
         {isCommentsSectionDisplayed && (
           <div className="bg-prodPrimary shadow-lg w-12/12 h-max pt-1 pb-3">
