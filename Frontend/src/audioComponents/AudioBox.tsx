@@ -1983,7 +1983,7 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
               setIsCommentsSectionDisplayed(!isCommentsSectionDisplayed);
             }}
           >
-            Open comments
+            {isCommentsSectionDisplayed ? "Close comments" : "Open comments"}
           </p>
         </div>
         {isCommentsSectionDisplayed && (
