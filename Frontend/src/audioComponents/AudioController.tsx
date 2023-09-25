@@ -21,6 +21,7 @@ interface Props {
   setIsPlaying: (val: boolean) => void;
   setIsExpanded: (val: boolean) => void;
   setIsSettingsExpanded: (val: boolean) => void;
+  setIsAudioControllerHover: (val: boolean) => void;
   playSong: (val: number | null) => void;
   stopSong: () => void;
   setSongTime: (val: number) => void;
@@ -45,6 +46,7 @@ const AudioController = ({
   setIsPlaying,
   setIsExpanded,
   setIsSettingsExpanded,
+  setIsAudioControllerHover,
   playSong,
   stopSong,
   setSongTime,
@@ -157,7 +159,16 @@ const AudioController = ({
 
   return (
     <>
-      <div style={AudioControllerStyle} ref={audioControllerRef}>
+      <div
+        style={AudioControllerStyle}
+        ref={audioControllerRef}
+        onMouseEnter={() => {
+          setIsAudioControllerHover(true);
+        }}
+        onMouseLeave={() => {
+          setIsAudioControllerHover(false);
+        }}
+      >
         {hasUserGestured && !isVisualizing && (
           <div
             style={PlaceholderStyle}

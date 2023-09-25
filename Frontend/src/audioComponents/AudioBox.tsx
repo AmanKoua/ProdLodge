@@ -145,6 +145,12 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
   let setIsConfigurationLoading: (val: boolean) => void;
   let isSongDataContainerHover: boolean;
   let setIsSongDataContainerHover: (val: boolean) => void;
+  let isCommentsSectionDisplayed: boolean;
+  let setIsCommentsSectionDisplayed: (val: boolean) => void;
+  let isCommentsTabHover: boolean;
+  let setIsCommentsTabHover: (val: boolean) => void;
+  let isAudioControllerHover: boolean;
+  let setIsAudioControllerHover: (val: boolean) => void;
 
   canvasRef = useRef(null); // reference to canvas
 
@@ -156,6 +162,9 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
   [hasUserGestured, setHasUserGestured] = useState(false); // Keep track of first gesture required to initialize audioCtx
   [isConfigurationLoading, setIsConfigurationLoading] = useState(false);
   [isSongDataContainerHover, setIsSongDataContainerHover] = useState(false);
+  [isCommentsSectionDisplayed, setIsCommentsSectionDisplayed] = useState(false);
+  [isCommentsTabHover, setIsCommentsTabHover] = useState(false);
+  [isAudioControllerHover, setIsAudioControllerHover] = useState(false);
 
   [audioModules, setAudioModules] = useState(tempModuleData); // Initial module will be the blank module
   [initAudioModulesJSON, setInitAudioModulesJSON] = useState([
@@ -1857,7 +1866,10 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
 
   return (
     <>
-      <div className="w-12/12 lg:w-9/12 h-max mr-auto ml-auto pt-3">
+      <div
+        className="w-12/12 lg:w-9/12 h-max mr-auto ml-auto pt-3 transition-all"
+        // style={{ transition: "all 10s" }}
+      >
         <div
           style={SongDataContainerStyle}
           className={SongDataContainerClassName}
@@ -1943,6 +1955,7 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
             setIsPlaying={setIsPlaying}
             setIsExpanded={setIsExpanded}
             setIsSettingsExpanded={setIsSettingsExpanded}
+            setIsAudioControllerHover={setIsAudioControllerHover}
             playSong={playSong}
             stopSong={stopSong}
             setSongTime={setSongTime}
@@ -1950,58 +1963,79 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
             useAttachEventListener={useAttachEventListener}
           ></AudioController>
         </div>
-        <div className="bg-prodPrimary shadow-lg w-12/12 h-max pt-1 pb-3">
-          <div className="bg-white rounded-lg w-11/12 h-20 ml-auto mr-auto mt-3">
-            <div className="w-full h-4/6">
-              <input type="text" className="w-full h-full" />
-            </div>
-
-            <div className="w-4/6 h-2/6 ml-auto mr-auto flex justify-start">
-              <div className="w-6/12 h-full flex justify-center">
-                <div
-                  style={{
-                    position: "absolute",
-                    width: "max",
-                    paddingLeft: "15px",
-                    paddingRight: "15px",
-                    height: "15px",
-                    marginTop: "7px",
-                    border: "1px solid black",
-                    borderRadius: "6px",
-                    fontSize: "10px",
-                    textAlign: "center",
-                    overflow: "hidden",
-                    // background: "purple",
-                  }}
-                >
-                  Submit
-                </div>
-              </div>
-              <div className="w-6/12 h-full flex justify-center">
-                <div
-                  style={{
-                    position: "absolute",
-                    width: "max",
-                    paddingLeft: "15px",
-                    paddingRight: "15px",
-                    height: "15px",
-                    marginTop: "7px",
-                    border: "1px solid black",
-                    borderRadius: "6px",
-                    fontSize: "10px",
-                    textAlign: "center",
-                    overflow: "hidden",
-                    // background: "purple",
-                  }}
-                >
-                  Attach current configuration
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {generateSongComments()}
+        <div
+          className={
+            isAudioControllerHover || isCommentsTabHover
+              ? "bg-prodSecondary h-6 flex ml-auto mr-auto justify-center overflow-hidden"
+              : "bg-prodSecondary h-0 flex ml-auto mr-auto justify-center overflow-hidden"
+          }
+          style={{ transition: "all 0.3s" }}
+          onMouseEnter={() => {
+            setIsCommentsTabHover(true);
+          }}
+          onMouseLeave={() => {
+            setIsCommentsTabHover(false);
+          }}
+        >
+          <p className="hover:font-bold">Open comments</p>
         </div>
+        {isCommentsSectionDisplayed && (
+          <div className="bg-prodPrimary shadow-lg w-12/12 h-max pt-1 pb-3">
+            <div className="bg-white rounded-lg w-11/12 h-20 ml-auto mr-auto mt-3">
+              <div className="w-full h-4/6">
+                <input
+                  type="text"
+                  className="w-full h-full pl-1 pr-1"
+                  placeholder="Your comment here"
+                />
+              </div>
+
+              <div className="w-4/6 h-2/6 ml-auto mr-auto flex justify-start">
+                <div className="w-6/12 h-full flex justify-center">
+                  <div
+                    style={{
+                      position: "absolute",
+                      width: "max",
+                      paddingLeft: "15px",
+                      paddingRight: "15px",
+                      height: "15px",
+                      marginTop: "7px",
+                      border: "1px solid black",
+                      borderRadius: "6px",
+                      fontSize: "10px",
+                      textAlign: "center",
+                      overflow: "hidden",
+                      // background: "purple",
+                    }}
+                  >
+                    Submit
+                  </div>
+                </div>
+                <div className="w-6/12 h-full flex justify-center">
+                  <div
+                    style={{
+                      position: "absolute",
+                      width: "max",
+                      paddingLeft: "15px",
+                      paddingRight: "15px",
+                      height: "15px",
+                      marginTop: "7px",
+                      border: "1px solid black",
+                      borderRadius: "6px",
+                      fontSize: "10px",
+                      textAlign: "center",
+                      overflow: "hidden",
+                      // background: "purple",
+                    }}
+                  >
+                    Attach current configuration
+                  </div>
+                </div>
+              </div>
+            </div>
+            {generateSongComments()}
+          </div>
+        )}
       </div>
     </>
   );

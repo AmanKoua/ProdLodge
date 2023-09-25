@@ -58,6 +58,7 @@ const AudioSettingsDrawer = ({
     borderRadius: "15px",
     overflow: "scroll",
     overflowX: "hidden",
+    border: "1px solid black",
     // backdropFilter: "blur(64px)", // doesen't work for whatever reason :/
     zIndex: "1",
   };
