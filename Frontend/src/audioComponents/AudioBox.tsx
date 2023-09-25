@@ -883,15 +883,14 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
   MasterContainerStyle.marginBottom = isExpanded ? "120px" : "55px";
 
   const SongDataContainerStyle: CSS.Properties = {
-    display: "flex",
-    justifyContent: "space-evenly",
-    width: "100%",
-    height: "40px",
     transition: "all 0.3s",
-    backgroundColor: "#edf4fc",
   };
 
-  SongDataContainerStyle.height = isExpanded ? "100px" : "40px";
+  const SongDataContainerClassName = !isExpanded
+    ? "w-full h-9 overflow-hidden bg-prodSecondary"
+    : "w-full h-28 overflow-hidden bg-prodSecondary"; // toggle height with tailwind
+
+  // SongDataContainerStyle.height = isExpanded ? "100px" : "40px";
 
   const SongDataContainerElementStyle: CSS.Properties = {
     width: "47.5%",
@@ -1800,8 +1799,22 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
   return (
     <>
       <div className="w-12/12 lg:w-9/12 h-max mr-auto ml-auto pt-3">
-        <div className="h-10 w-full bg-prodSecondary overflow-hidden flex justify-between">
-          <div className="w-6/12 mt-auto mb-auto inline-block">
+        <div
+          style={SongDataContainerStyle}
+          className={SongDataContainerClassName}
+        >
+          <div className="w-6/12 h-9 overflow-y-scroll mb-auto inline-block hide-scrollbar">
+            <h1
+              style={{
+                fontSize: "15px",
+                marginTop: "8px",
+                textAlign: "center",
+              }}
+            >
+              Creator: {songData.owner}
+            </h1>
+          </div>
+          <div className="w-6/12 h-9 overflow-y-scroll mb-auto inline-block hide-scrollbar">
             <h1
               style={{
                 fontSize: "15px",
@@ -1812,13 +1825,14 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
               Title: {songData.title}
             </h1>
           </div>
-          <div className=" w-6/12 mt-auto mb-auto inline-block">
+          <div className="w-12/12 h-16 overflow-y-scroll mb-auto block hide-scrollbar">
             <h1
               style={{
                 fontSize: "15px",
                 marginTop: "8px",
                 textAlign: "center",
               }}
+              className="ml-1"
             >
               Description: {songData.description}
             </h1>

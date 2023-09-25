@@ -7,6 +7,7 @@ export interface Chain {
 }
 
 export interface SongData {
+  owner: string;
   chains: Chain[];
   description: string;
   visibility: string;

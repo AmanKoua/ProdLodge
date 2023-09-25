@@ -360,6 +360,7 @@ router.get("/songs", verifyTokenAndGetUser, async (req, res) => {
         let tempSong = {};
         let tempTrackIds = [];
         let tempChainsData = [];
+        tempSong.owner = req.body.verifiedUser.userName;
         tempSong.title = songs[i].title;
         tempSong.description = songs[i].description;
         tempSong.id = songs[i]._id;
