@@ -162,7 +162,7 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
   [hasUserGestured, setHasUserGestured] = useState(false); // Keep track of first gesture required to initialize audioCtx
   [isConfigurationLoading, setIsConfigurationLoading] = useState(false);
   [isSongDataContainerHover, setIsSongDataContainerHover] = useState(false);
-  [isCommentsSectionDisplayed, setIsCommentsSectionDisplayed] = useState(true);
+  [isCommentsSectionDisplayed, setIsCommentsSectionDisplayed] = useState(false);
   [isCommentsTabHover, setIsCommentsTabHover] = useState(false);
   [isAudioControllerHover, setIsAudioControllerHover] = useState(false);
 
@@ -1819,9 +1819,9 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
               className="w-12/12 h-max border-r border-l border-t border-black flex justify-center"
               // style={{ height: "55px" }}
             >
-              <div className="bg-green-500 w-1/6 h-6 ml-auto mr-auto inline-block">
+              {/* <div className="bg-green-500 w-1/6 h-6 ml-auto mr-auto inline-block">
                 Temp
-              </div>
+              </div> */}
               <div className="w-4/6 h-6 ml-auto mr-auto inline-block">
                 <div className="border-b border-gray-400 w-6/12 h-full overflow-hidden inline-block">
                   <p className="w-max h-max ml-auto mr-auto font-bold">
@@ -1848,10 +1848,15 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
                 </div>
               </div>
               <div
-                className="bg-green-500 w-1/6 h-6 mt-0 ml-auto mr-auto inline-block overflow-hidden"
+                className=" border-b border-gray-400 w-2/6 h-6 mt-0 ml-auto mr-auto overflow-hidden flex justify-around"
                 style={{ marginTop: "500px" }}
               >
-                data: 153
+                <span className="material-symbols-outlined">arrow_upward</span>
+                <p>1.4M</p>
+                <span className="material-symbols-outlined">
+                  arrow_downward
+                </span>
+                <p>5.5M</p>
               </div>
             </div>
             <div className="  border-black border-b border-r border-l pt-3 pr-3 pl-3 pb-3 h-max">
