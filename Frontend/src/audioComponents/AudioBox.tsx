@@ -891,7 +891,7 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
 
   const SongDataContainerClassName = !isSongDataContainerHover
     ? "w-full h-9 overflow-hidden bg-prodSecondary"
-    : "w-full h-28 overflow-hidden bg-prodSecondary"; // toggle height with tailwind
+    : "w-full h-24 overflow-hidden bg-prodSecondary"; // toggle height with tailwind
 
   // SongDataContainerStyle.height = isExpanded ? "100px" : "40px";
 
@@ -1805,7 +1805,58 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
     return (
       <>
         {temp.map((item, idx) => (
-          <div className="bg-blue-400 w-11/12 h-10 rounded-lg ml-auto mr-auto mt-1"></div>
+          <div className="bg-blue-100 w-11/12 h-max ml-auto mr-auto mt-4">
+            <div
+              className="w-12/12 border-r border-l border-t border-black block"
+              style={{ height: "25px" }}
+            >
+              <div className="border-b border-black w-1/2 h-full overflow-hidden inline-block">
+                <p className="w-max h-max ml-auto mr-auto">the gnome zone</p>
+              </div>
+              <div className="border-b border-black w-1/2 h-full overflow-hidden inline-block">
+                <div className="w-full h-full flex align-middle justify-center pt-1">
+                  <div
+                    style={{
+                      position: "absolute",
+                      width: "10%",
+                      height: "15px",
+                      border: "1px solid black",
+                      borderRadius: "6px",
+                      fontSize: "10px",
+                      textAlign: "center",
+                    }}
+                  >
+                    Load confiuration
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="border-b border-black border-r border-l pt-2 h-max">
+              There is some stuff here that needs to be expanded! There is some
+              stuff here that needs to be expanded! There is some stuff
+              hereThere is some stuff here that needs to be expanded! There is
+              some stuff here that needs to be expanded! There is some stuff
+              hereThere is some stuff here that needs to be expanded! There is
+              some stuff here that needs to be expanded! There is some stuff
+              hereThere is some stuff here that needs to be expanded! There is
+              some stuff here that needs to be expanded! There is some stuff
+              hereThere is some stuff here that needs to be expanded! There is
+              some stuff here that needs to be expanded! There is some stuff
+              hereThere is some stuff here that needs to be expanded! There is
+              some stuff here that needs to be expanded! There is some stuff
+              hereThere is some stuff here that needs to be expanded! There is
+              some stuff here that needs to be expanded! There is some stuff
+              hereThere is some stuff here that needs to be expanded! There is
+              some stuff here that needs to be expanded! There is some stuff
+              hereThere is some stuff here that needs to be expanded! There is
+              some stuff here that needs to be expanded! There is some stuff
+              hereThere is some stuff here that needs to be expanded! There is
+              some stuff here that needs to be expanded! There is some stuff
+              hereThere is some stuff here that needs to be expanded! There is
+              some stuff here that needs to be expanded! There is some stuff
+              here
+            </div>
+          </div>
         ))}
       </>
     );
@@ -1906,7 +1957,9 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
             useAttachEventListener={useAttachEventListener}
           ></AudioController>
         </div>
-        <div className="bg-red-200 w-12/12 h-max">{generateSongComments()}</div>
+        <div className="bg-prodPrimary shadow-lg w-12/12 h-max pt-1 pb-1">
+          {generateSongComments()}
+        </div>
       </div>
     </>
   );
