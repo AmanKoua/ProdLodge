@@ -1821,7 +1821,7 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
                     <div
                       style={{
                         position: "absolute",
-                        width: "10%",
+                        width: "15%",
                         height: "15px",
                         border: "1px solid black",
                         borderRadius: "6px",
@@ -1836,7 +1836,7 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
                 </div>
               </div>
             </div>
-            <div className=" border-black border-b border-r border-l pt-3 pr-3 pl-3 h-max">
+            <div className="  border-black border-b border-r border-l pt-3 pr-3 pl-3 pb-3 h-max">
               There is some stuff here that needs to be expanded! There is some
               stuff here that needs to be expanded! There is some stuff
               hereThere is some stuff here that needs to be expanded! There is
@@ -1950,7 +1950,56 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
             useAttachEventListener={useAttachEventListener}
           ></AudioController>
         </div>
-        <div className="bg-prodPrimary shadow-lg w-12/12 h-max pt-1 pb-1">
+        <div className="bg-prodPrimary shadow-lg w-12/12 h-max pt-1 pb-3">
+          <div className="bg-white rounded-lg w-11/12 h-20 ml-auto mr-auto mt-3">
+            <div className="w-full h-4/6">
+              <input type="text" className="w-full h-full" />
+            </div>
+
+            <div className="w-4/6 h-2/6 ml-auto mr-auto flex justify-start">
+              <div className="w-6/12 h-full flex justify-center">
+                <div
+                  style={{
+                    position: "absolute",
+                    width: "max",
+                    paddingLeft: "15px",
+                    paddingRight: "15px",
+                    height: "15px",
+                    marginTop: "7px",
+                    border: "1px solid black",
+                    borderRadius: "6px",
+                    fontSize: "10px",
+                    textAlign: "center",
+                    overflow: "hidden",
+                    // background: "purple",
+                  }}
+                >
+                  Submit
+                </div>
+              </div>
+              <div className="w-6/12 h-full flex justify-center">
+                <div
+                  style={{
+                    position: "absolute",
+                    width: "max",
+                    paddingLeft: "15px",
+                    paddingRight: "15px",
+                    height: "15px",
+                    marginTop: "7px",
+                    border: "1px solid black",
+                    borderRadius: "6px",
+                    fontSize: "10px",
+                    textAlign: "center",
+                    overflow: "hidden",
+                    // background: "purple",
+                  }}
+                >
+                  Attach current configuration
+                </div>
+              </div>
+            </div>
+          </div>
+
           {generateSongComments()}
         </div>
       </div>
