@@ -2000,63 +2000,68 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
             {isCommentsSectionDisplayed ? "Close comments" : "Open comments"}
           </p>
         </div>
-        {isCommentsSectionDisplayed && (
-          <div className="bg-prodPrimary shadow-lg w-12/12 h-max pt-1 pb-3">
-            <div className="bg-white rounded-lg w-11/12 h-20 ml-auto mr-auto mt-3">
-              <div className="w-full h-4/6">
-                <input
-                  type="text"
-                  className="w-full h-full pl-1 pr-1"
-                  placeholder="Your comment here"
-                />
-              </div>
+        <div
+          className={
+            isCommentsSectionDisplayed
+              ? "bg-prodPrimary shadow-lg w-12/12 h-max pt-1 pb-3"
+              : "bg-prodPrimary shadow-lg w-12/12 h-0 pt-1 pb-3 hidden"
+          }
+          style={{ transition: "all 0.5s" }}
+        >
+          <div className="bg-white rounded-lg w-11/12 h-20 ml-auto mr-auto mt-3">
+            <div className="w-full h-4/6">
+              <input
+                type="text"
+                className="w-full h-full pl-1 pr-1 border-b"
+                placeholder="Write a new comment"
+              />
+            </div>
 
-              <div className="w-4/6 h-2/6 ml-auto mr-auto flex justify-start">
-                <div className="w-6/12 h-full flex justify-center">
-                  <div
-                    style={{
-                      position: "absolute",
-                      width: "max",
-                      paddingLeft: "15px",
-                      paddingRight: "15px",
-                      height: "15px",
-                      marginTop: "7px",
-                      border: "1px solid black",
-                      borderRadius: "6px",
-                      fontSize: "10px",
-                      textAlign: "center",
-                      overflow: "hidden",
-                      // background: "purple",
-                    }}
-                  >
-                    Submit
-                  </div>
+            <div className="w-4/6 h-2/6 ml-auto mr-auto flex justify-start">
+              <div className="w-6/12 h-full flex justify-center">
+                <div
+                  style={{
+                    position: "absolute",
+                    width: "max",
+                    paddingLeft: "15px",
+                    paddingRight: "15px",
+                    height: "15px",
+                    marginTop: "7px",
+                    border: "1px solid black",
+                    borderRadius: "6px",
+                    fontSize: "10px",
+                    textAlign: "center",
+                    overflow: "hidden",
+                    // background: "purple",
+                  }}
+                >
+                  Submit
                 </div>
-                <div className="w-6/12 h-full flex justify-center">
-                  <div
-                    style={{
-                      position: "absolute",
-                      width: "max",
-                      paddingLeft: "15px",
-                      paddingRight: "15px",
-                      height: "15px",
-                      marginTop: "7px",
-                      border: "1px solid black",
-                      borderRadius: "6px",
-                      fontSize: "10px",
-                      textAlign: "center",
-                      overflow: "hidden",
-                      // background: "purple",
-                    }}
-                  >
-                    Attach current configuration
-                  </div>
+              </div>
+              <div className="w-6/12 h-full flex justify-center">
+                <div
+                  style={{
+                    position: "absolute",
+                    width: "max",
+                    paddingLeft: "15px",
+                    paddingRight: "15px",
+                    height: "15px",
+                    marginTop: "7px",
+                    border: "1px solid black",
+                    borderRadius: "6px",
+                    fontSize: "10px",
+                    textAlign: "center",
+                    overflow: "hidden",
+                    // background: "purple",
+                  }}
+                >
+                  Attach current configuration
                 </div>
               </div>
             </div>
-            {generateSongComments()}
           </div>
-        )}
+          {generateSongComments()}
+        </div>
       </div>
     </>
   );
