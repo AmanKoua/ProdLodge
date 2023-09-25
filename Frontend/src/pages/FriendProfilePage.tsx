@@ -191,7 +191,7 @@ const FriendProfilePage = () => {
             </div>
             <div className="w-max  mr-auto ">
               <h1 className="text-xl">
-                soundcloud URL:
+                soundcloud URL:{" "}
                 {userProfile!.socialMediaHandles.soundcloud && (
                   <a
                     href={`http://${
@@ -205,7 +205,7 @@ const FriendProfilePage = () => {
             </div>
             <div className="w-max  mr-auto ">
               <h1 className="text-xl">
-                Bandcamp URL:
+                Bandcamp URL:{" "}
                 {userProfile!.socialMediaHandles.bandcamp && (
                   <a
                     href={`http://${userProfile!.socialMediaHandles.bandcamp}`}
@@ -217,7 +217,7 @@ const FriendProfilePage = () => {
             </div>
             <div className="w-max  mr-auto ">
               <h1 className="text-xl">
-                Spotify URL:
+                Spotify URL:{" "}
                 {userProfile!.socialMediaHandles.spotify && (
                   <a href={`http://${userProfile!.socialMediaHandles.spotify}`}>
                     {userProfile!.socialMediaHandles.spotify}
@@ -227,7 +227,7 @@ const FriendProfilePage = () => {
             </div>
             <div className="w-max  mr-auto ">
               <h1 className="text-xl">
-                Youtube URL:
+                Youtube URL:{" "}
                 {userProfile!.socialMediaHandles.youtube && (
                   <a href={`http://${userProfile!.socialMediaHandles.youtube}`}>
                     {userProfile!.socialMediaHandles.youtube}
@@ -237,7 +237,7 @@ const FriendProfilePage = () => {
             </div>
             <div className="w-max  mr-auto ">
               <h1 className="text-xl">
-                Twitter URL:
+                Twitter URL:{" "}
                 {userProfile!.socialMediaHandles.twitter && (
                   <a href={`http://${userProfile!.socialMediaHandles.twitter}`}>
                     {userProfile!.socialMediaHandles.twitter}
@@ -247,7 +247,7 @@ const FriendProfilePage = () => {
             </div>
             <div className="w-max  mr-auto ">
               <h1 className="text-xl">
-                Facebook URL:
+                Facebook URL:{" "}
                 {userProfile!.socialMediaHandles.facebook && (
                   <a
                     href={`http://${userProfile!.socialMediaHandles.facebook}`}
@@ -259,7 +259,7 @@ const FriendProfilePage = () => {
             </div>
             <div className="w-max  mr-auto ">
               <h1 className="text-xl">
-                Instagram URL:
+                Instagram URL:{" "}
                 {userProfile!.socialMediaHandles.instagram && (
                   <a
                     href={`http://${userProfile!.socialMediaHandles.instagram}`}

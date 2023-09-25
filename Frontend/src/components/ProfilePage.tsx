@@ -136,7 +136,7 @@ const ProfilePage = ({
         </div>
         <div className="w-max  mr-auto ">
           <h1 className="text-xl">
-            Bandcamp URL:
+            Bandcamp URL:{" "}
             {!isInEditMode && (
               <a href={`http://${bandcampURL}`}>{bandcampURL}</a>
             )}
@@ -152,7 +152,7 @@ const ProfilePage = ({
         </div>
         <div className="w-max  mr-auto ">
           <h1 className="text-xl">
-            Spotify URL:
+            Spotify URL:{" "}
             {!isInEditMode && <a href={`http://${spotifyURL}`}>{spotifyURL}</a>}
             {isInEditMode && (
               <input
@@ -166,7 +166,7 @@ const ProfilePage = ({
         </div>
         <div className="w-max  mr-auto ">
           <h1 className="text-xl">
-            Youtube URL:
+            Youtube URL:{" "}
             {!isInEditMode && <a href={`http://${youtubeURL}`}>{youtubeURL}</a>}
             {isInEditMode && (
               <input
@@ -180,7 +180,7 @@ const ProfilePage = ({
         </div>
         <div className="w-max  mr-auto ">
           <h1 className="text-xl">
-            Twitter URL:
+            Twitter URL:{" "}
             {!isInEditMode && <a href={`http://${twitterURL}`}>{twitterURL}</a>}
             {isInEditMode && (
               <input
