@@ -1814,7 +1814,13 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
     return (
       <>
         {temp.map((item, idx) => (
-          <div className="bg-blue-100 w-11/12 h-max ml-auto mr-auto mt-4">
+          <div
+            className="bg-blue-100 w-10/12 h-max ml-auto mr-auto mt-4"
+            style={{
+              marginLeft:
+                "8%" /* Shift comments over based on whether or not it is a reply. Standard is 8% */,
+            }}
+          >
             <div
               className="w-12/12 h-max border-r border-l border-t border-black flex justify-center"
               // style={{ height: "55px" }}
