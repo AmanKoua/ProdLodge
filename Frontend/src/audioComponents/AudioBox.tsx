@@ -1836,7 +1836,7 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
                 </div>
               </div>
             </div>
-            <div className="border-b border-black border-r border-l p-3 h-max">
+            <div className=" border-black border-b border-r border-l pt-3 pr-3 pl-3 h-max">
               There is some stuff here that needs to be expanded! There is some
               stuff here that needs to be expanded! There is some stuff
               hereThere is some stuff here that needs to be expanded! There is
