@@ -12,7 +12,7 @@ import ProfilePage from "../components/ProfilePage";
 
 const UserProfile = () => {
   const authContext = useContext(AuthContext); // user and dispatch properties
-  const profileContext = useContext(ProfileContext);
+  let profileContext = useContext(ProfileContext);
 
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
@@ -20,6 +20,7 @@ const UserProfile = () => {
   const [isImageLoading, setIsImageLoading] = useState(true);
   const [triggerProfileFetch, setTriggerProfileFetch] = useState(true);
   const [triggerFriendDataFetch, setTriggerFriendDataFetch] = useState(true);
+  const [triggerPageRefresh, setTriggerPageRefresh] = useState(0);
   const [profileImageObjURL, setProfileImageObjURL] = useState("");
   const [selectedPage, setSelectedPage] = useState("profile");
 
@@ -301,7 +302,14 @@ const UserProfile = () => {
   };
 
   const getUserProfile = async () => {
-    if (!authContext || !authContext.user || !authContext.user.token) {
+    if (
+      !authContext ||
+      !authContext.user ||
+      !authContext.user.token ||
+      !profileContext ||
+      !profileContext.dispatch
+    ) {
+      console.log("getUserProfile dependencies missing!");
       return;
     }
 
@@ -335,12 +343,13 @@ const UserProfile = () => {
       if (!tryLoginFromToken()) {
         return;
       } else {
-        await sleep(100);
+        await sleep(5000);
       }
     }
 
     if (!authContext || !authContext.user || !authContext.user.token) {
       setError("Authentication not present when querying friends!");
+      setTriggerPageRefresh(triggerPageRefresh + 1);
       return;
     }
 
@@ -356,19 +365,36 @@ const UserProfile = () => {
   };
 
   const getUserFriendRequests = async () => {
+    let isCanceled = false;
+
     if (!authContext || !authContext.user || !authContext.user.token) {
-      console.log("Cannot fetch friends without a token!");
-      return;
+      console.log("Cannot fetch friends without a token! ----------");
+
+      if (!tryLoginFromToken()) {
+        console.log("login from token failed!");
+        return;
+      } else {
+        await sleep(1000);
+
+        if (!authContext || !authContext.user || !authContext.user.token) {
+          isCanceled = true;
+        }
+      }
     }
 
-    const response = await fetch("http://localhost:8005/user/friendRequests", {
-      method: "GET",
-      headers: { Authorization: `Bearer ${authContext.user.token}` },
-    });
+    if (!isCanceled) {
+      const response = await fetch(
+        "http://localhost:8005/user/friendRequests",
+        {
+          method: "GET",
+          headers: { Authorization: `Bearer ${authContext.user.token}` },
+        }
+      );
 
-    if (response.ok) {
-      const payload = await response.json();
-      setFriendRequests(payload);
+      if (response.ok) {
+        const payload = await response.json();
+        setFriendRequests(payload);
+      }
     }
   };
 

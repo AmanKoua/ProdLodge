@@ -552,7 +552,7 @@ router.post('/addFriend', verifyTokenAndGetUser, async (req, res) => {
 
     const tempUserFriendsList = await userFriends.findOne({ _id: tempUserProfile.friendsListId });
 
-    if (tempUserFriendsList.friendsList.includes(friendEmail)) {
+    if (tempUserFriendsList.friendsList.includes(friend._id)) {
         return res.status(400).json({ error: "Cannot add user that's already a friend!" });
     }
 
