@@ -348,6 +348,7 @@ const UserProfile = () => {
 
     if (!authContext || !authContext.user || !authContext.user.token) {
       setError("Authentication not present when querying friends!");
+      navigate("/");
       return;
     }
 
