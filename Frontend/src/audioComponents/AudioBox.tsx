@@ -143,6 +143,8 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
   let setIsSettingsExpanded: (val: boolean) => void;
   let isConfigurationLoading: boolean;
   let setIsConfigurationLoading: (val: boolean) => void;
+  let isSongDataContainerHover: boolean;
+  let setIsSongDataContainerHover: (val: boolean) => void;
 
   canvasRef = useRef(null); // reference to canvas
 
@@ -153,6 +155,7 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
   [isPlaying, setIsPlaying] = useState(false); // need to make these global!
   [hasUserGestured, setHasUserGestured] = useState(false); // Keep track of first gesture required to initialize audioCtx
   [isConfigurationLoading, setIsConfigurationLoading] = useState(false);
+  [isSongDataContainerHover, setIsSongDataContainerHover] = useState(false);
 
   [audioModules, setAudioModules] = useState(tempModuleData); // Initial module will be the blank module
   [initAudioModulesJSON, setInitAudioModulesJSON] = useState([
@@ -886,7 +889,7 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
     transition: "all 0.3s",
   };
 
-  const SongDataContainerClassName = !isExpanded
+  const SongDataContainerClassName = !isSongDataContainerHover
     ? "w-full h-9 overflow-hidden bg-prodSecondary"
     : "w-full h-28 overflow-hidden bg-prodSecondary"; // toggle height with tailwind
 
@@ -1802,6 +1805,12 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
         <div
           style={SongDataContainerStyle}
           className={SongDataContainerClassName}
+          onMouseEnter={() => {
+            setIsSongDataContainerHover(true);
+          }}
+          onMouseLeave={() => {
+            setIsSongDataContainerHover(false);
+          }}
         >
           <div className="w-6/12 h-9 overflow-y-scroll mb-auto inline-block hide-scrollbar">
             <h1
