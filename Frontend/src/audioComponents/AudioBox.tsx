@@ -1817,8 +1817,9 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
           <div
             className="bg-blue-100 w-10/12 h-max ml-auto mr-auto mt-4"
             style={{
-              marginLeft:
-                "8%" /* Shift comments over based on whether or not it is a reply. Standard is 8% */,
+              marginLeft: `${
+                idx * 2 + 8
+              }%` /* Shift comments over based on whether or not it is a reply. Standard is 8% */,
             }}
           >
             <div
@@ -1853,10 +1854,7 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
                   </div>
                 </div>
               </div>
-              <div
-                className=" border-b border-gray-400 w-2/6 h-6 mt-0 ml-auto mr-auto overflow-hidden flex justify-around"
-                style={{ marginTop: "500px" }}
-              >
+              <div className=" border-b border-gray-400 w-2/6 h-6 mt-0 ml-auto mr-auto overflow-hidden flex justify-around">
                 <span className="material-symbols-outlined">arrow_upward</span>
                 <p>1.4M</p>
                 <span className="material-symbols-outlined">
