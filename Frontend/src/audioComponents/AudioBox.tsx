@@ -1810,28 +1810,33 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
               className="w-12/12 border-r border-l border-t border-black block"
               style={{ height: "25px" }}
             >
-              <div className="border-b border-black w-1/2 h-full overflow-hidden inline-block">
-                <p className="w-max h-max ml-auto mr-auto">the gnome zone</p>
-              </div>
-              <div className="border-b border-black w-1/2 h-full overflow-hidden inline-block">
-                <div className="w-full h-full flex align-middle justify-center pt-1">
-                  <div
-                    style={{
-                      position: "absolute",
-                      width: "10%",
-                      height: "15px",
-                      border: "1px solid black",
-                      borderRadius: "6px",
-                      fontSize: "10px",
-                      textAlign: "center",
-                    }}
-                  >
-                    Load confiuration
+              <div className="w-4/6 h-6 mt-1 ml-auto mr-auto flex justify-around">
+                <div className="border-b border-gray-400 w-6/12 h-full overflow-hidden inline-block">
+                  <p className="w-max h-max ml-auto mr-auto font-bold">
+                    the gnome zone
+                  </p>
+                </div>
+                <div className="border-b border-gray-400 w-6/12 h-full overflow-hidden inline-block">
+                  <div className="w-full h-max flex align-middle justify-center pt-1">
+                    <div
+                      style={{
+                        position: "absolute",
+                        width: "10%",
+                        height: "15px",
+                        border: "1px solid black",
+                        borderRadius: "6px",
+                        fontSize: "10px",
+                        textAlign: "center",
+                        overflow: "hidden",
+                      }}
+                    >
+                      Load confiuration
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-            <div className="border-b border-black border-r border-l pt-2 h-max">
+            <div className="border-b border-black border-r border-l p-3 h-max">
               There is some stuff here that needs to be expanded! There is some
               stuff here that needs to be expanded! There is some stuff
               hereThere is some stuff here that needs to be expanded! There is
@@ -1843,18 +1848,6 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
               hereThere is some stuff here that needs to be expanded! There is
               some stuff here that needs to be expanded! There is some stuff
               hereThere is some stuff here that needs to be expanded! There is
-              some stuff here that needs to be expanded! There is some stuff
-              hereThere is some stuff here that needs to be expanded! There is
-              some stuff here that needs to be expanded! There is some stuff
-              hereThere is some stuff here that needs to be expanded! There is
-              some stuff here that needs to be expanded! There is some stuff
-              hereThere is some stuff here that needs to be expanded! There is
-              some stuff here that needs to be expanded! There is some stuff
-              hereThere is some stuff here that needs to be expanded! There is
-              some stuff here that needs to be expanded! There is some stuff
-              hereThere is some stuff here that needs to be expanded! There is
-              some stuff here that needs to be expanded! There is some stuff
-              here
             </div>
           </div>
         ))}
