@@ -20,7 +20,6 @@ const UserProfile = () => {
   const [isImageLoading, setIsImageLoading] = useState(true);
   const [triggerProfileFetch, setTriggerProfileFetch] = useState(true);
   const [triggerFriendDataFetch, setTriggerFriendDataFetch] = useState(true);
-  const [triggerPageRefresh, setTriggerPageRefresh] = useState(0);
   const [profileImageObjURL, setProfileImageObjURL] = useState("");
   const [selectedPage, setSelectedPage] = useState("profile");
 
@@ -343,13 +342,12 @@ const UserProfile = () => {
       if (!tryLoginFromToken()) {
         return;
       } else {
-        await sleep(5000);
+        await sleep(500);
       }
     }
 
     if (!authContext || !authContext.user || !authContext.user.token) {
       setError("Authentication not present when querying friends!");
-      setTriggerPageRefresh(triggerPageRefresh + 1);
       return;
     }
 
