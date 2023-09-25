@@ -1799,6 +1799,18 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
     return audioSettingsFragment;
   };
 
+  const generateSongComments = (): JSX.Element => {
+    let temp = new Array(5).fill(0);
+
+    return (
+      <>
+        {temp.map((item, idx) => (
+          <div className="bg-blue-400 w-11/12 h-10 rounded-lg ml-auto mr-auto mt-1"></div>
+        ))}
+      </>
+    );
+  };
+
   return (
     <>
       <div className="w-12/12 lg:w-9/12 h-max mr-auto ml-auto pt-3">
@@ -1894,6 +1906,7 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
             useAttachEventListener={useAttachEventListener}
           ></AudioController>
         </div>
+        <div className="bg-red-200 w-12/12 h-max">{generateSongComments()}</div>
       </div>
     </>
   );
