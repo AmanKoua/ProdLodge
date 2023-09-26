@@ -1879,9 +1879,9 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
                 <p>5.5M</p>
               </div>
               <div className="border-t border-gray-400 w-6/12 h-full overflow-hidden flex justify-around">
-                <span class="material-symbols-outlined">reply</span>
+                <span className="material-symbols-outlined">reply</span>
                 <p>reply</p>
-                <span class="material-symbols-outlined">delete</span>
+                <span className="material-symbols-outlined">delete</span>
                 <p>delete</p>
               </div>
             </div>
