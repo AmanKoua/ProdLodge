@@ -162,7 +162,7 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
   [hasUserGestured, setHasUserGestured] = useState(false); // Keep track of first gesture required to initialize audioCtx
   [isConfigurationLoading, setIsConfigurationLoading] = useState(false);
   [isSongDataContainerHover, setIsSongDataContainerHover] = useState(false);
-  [isCommentsSectionDisplayed, setIsCommentsSectionDisplayed] = useState(false);
+  [isCommentsSectionDisplayed, setIsCommentsSectionDisplayed] = useState(true);
   [isCommentsTabHover, setIsCommentsTabHover] = useState(false);
   [isAudioControllerHover, setIsAudioControllerHover] = useState(false);
 
@@ -1815,7 +1815,7 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
       <>
         {temp.map((item, idx) => (
           <div
-            className="bg-blue-100 w-10/12 h-max ml-auto mr-auto mt-4"
+            className="bg-blue-100 w-10/12 h-max ml-auto mr-auto mt-4 pb-1 border border-black"
             style={{
               marginLeft: `${
                 // idx * 1.5 + 8
@@ -1824,7 +1824,7 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
             }}
           >
             <div
-              className="w-12/12 h-max border-r border-l border-t border-black flex justify-center"
+              className="w-12/12 h-max  flex justify-center"
               // style={{ height: "55px" }}
             >
               {/* <div className="bg-green-500 w-1/6 h-6 ml-auto mr-auto inline-block">
@@ -1855,16 +1855,8 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
                   </div>
                 </div>
               </div>
-              <div className=" border-b border-gray-400 w-2/6 h-6 mt-0 ml-auto mr-auto overflow-hidden flex justify-around">
-                <span className="material-symbols-outlined">arrow_upward</span>
-                <p>1.4M</p>
-                <span className="material-symbols-outlined">
-                  arrow_downward
-                </span>
-                <p>5.5M</p>
-              </div>
             </div>
-            <div className="  border-black border-b border-r border-l pt-3 pr-3 pl-3 pb-3 h-max">
+            <div className="pt-3 pr-3 pl-3 pb-3 h-max block">
               There is some stuff here that needs to be expanded! There is some
               stuff here that needs to be expanded! There is some stuff
               hereThere is some stuff here that needs to be expanded! There is
@@ -1876,6 +1868,22 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
               hereThere is some stuff here that needs to be expanded! There is
               some stuff here that needs to be expanded! There is some stuff
               hereThere is some stuff here that needs to be expanded! There is
+            </div>
+            <div className="w-4/6 h-6 ml-auto mr-auto flex">
+              <div className=" border-t border-gray-400 w-3/6 h-6 mt-0 ml-auto mr-auto overflow-hidden flex justify-around">
+                <span className="material-symbols-outlined">arrow_upward</span>
+                <p>1.4M</p>
+                <span className="material-symbols-outlined">
+                  arrow_downward
+                </span>
+                <p>5.5M</p>
+              </div>
+              <div className="border-t border-gray-400 w-6/12 h-full overflow-hidden flex justify-around">
+                <span class="material-symbols-outlined">reply</span>
+                <p>reply</p>
+                <span class="material-symbols-outlined">delete</span>
+                <p>delete</p>
+              </div>
             </div>
           </div>
         ))}
