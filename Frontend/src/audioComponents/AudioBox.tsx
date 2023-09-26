@@ -1818,7 +1818,8 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
             className="bg-blue-100 w-10/12 h-max ml-auto mr-auto mt-4"
             style={{
               marginLeft: `${
-                idx * 2 + 8
+                // idx * 1.5 + 8
+                8
               }%` /* Shift comments over based on whether or not it is a reply. Standard is 8% */,
             }}
           >
