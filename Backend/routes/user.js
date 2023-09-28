@@ -13,6 +13,7 @@ const userActionItems = require("../models/userActionItemsModel");
 const userFriends = require("../models/userFriendsModel");
 const song = require("../models/songModel");
 const chain = require("../models/chainModel");
+const comment = require("../models/commentsModel");
 
 function generateRandomString(length) { // required to create random requestID
     const charset = "ABCDEF0123456789";
@@ -121,7 +122,7 @@ router.post('/login', async (req, res) => {
     }
     else {
         const userName = retrievedUser.userName;
-        return res.status(200).json({ email, userName, token, tokenCreationTime })
+        return res.status(200).json({ email, userName, token, id: retrievedUser._id, tokenCreationTime })
     }
 
 })
@@ -365,6 +366,7 @@ router.get("/songs", verifyTokenAndGetUser, async (req, res) => {
         tempSong.description = songs[i].description;
         tempSong.id = songs[i]._id;
         tempSong.visibility = songs[i].visibility;
+        tempSong.commentsList = songs[i].commentsList;
 
         for (let j = 0; j < songs[i].trackList.length; j++) {
             tempTrackIds.push(songs[i].trackList[j]._id.valueOf());
@@ -498,7 +500,19 @@ router.delete('/song', verifyTokenAndGetUser, async (req, res) => {
 
     } catch (e) {
         console.log(e);
-        return res.status(500).json({ error: "Error deleting song!" });
+        return res.status(500).json({ error: "Error deleting tracks!" });
+    }
+
+    let commentsList = songs[0].commentsList;
+
+    for (let i = 0; i < commentsList.length; i++) {
+        await comment.deleteOne({ _id: commentsList[i] })
+    }
+
+    let chainsList = songs[0].chainsList;
+
+    for (let i = 0; i < chainsList.length; i++) {
+        await chain.deleteOne({ _id: chainsList[i] });
     }
 
     return res.status(200).json({ message: "Song deleted successfully!" })

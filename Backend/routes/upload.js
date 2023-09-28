@@ -207,7 +207,7 @@ router.post("/songInit", async (req, res) => {
         return res.status(404).json({ error: "No user found!" });
     }
 
-    let tempSong = await song.initialize(decodedToken._id, req.body.name, req.body.description, "public", new ObjectId(generateRandomString(24).toLowerCase()), [], [], []);
+    let tempSong = await song.initialize(decodedToken._id, req.body.name, req.body.description, "public", [], [], [], []);
     const songToken = createToken(tempSong._id);
 
     return res.status(200).json({ message: "Song initialized!", token: songToken });

@@ -3,8 +3,6 @@ import { createContext, useReducer, ReactNode } from "react";
 export const AuthContext = createContext(Object());
 
 let authContextReducer = (state: any, action: any) => {
-  console.log("DISPATCHING!");
-
   switch (action.type) {
     case "LOGIN":
       return {

@@ -29,8 +29,8 @@ const songSchema = new Schema({
         unique: false,
     },
 
-    commentsId: {
-        type: ObjectId,
+    commentsList: {
+        type: [], // [ObjectId]
         required: true,
         unique: false,
     },
@@ -55,8 +55,8 @@ const songSchema = new Schema({
 
 });
 
-songSchema.statics.initialize = async function (userId, title, description, visibility, commentsId, accessList, trackList, chainsList) {
-    let song = await this.create({ userId: userId, title: title, description: description, visibility: visibility, commentsId: commentsId, accessList, trackList, chainsList })
+songSchema.statics.initialize = async function (userId, title, description, visibility, commentsList, accessList, trackList, chainsList) {
+    let song = await this.create({ userId: userId, title: title, description: description, visibility: visibility, commentsList: commentsList, accessList, trackList, chainsList })
     return song;
 }
 

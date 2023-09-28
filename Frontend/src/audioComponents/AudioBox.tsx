@@ -41,6 +41,7 @@ interface Props {
 
 const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
   // console.log("AudioBox Rerender!");
+  // console.log(songData);
 
   let impulses: Object = {
     // impulse0: impulse0,
@@ -1671,6 +1672,8 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
   // };
 
   const loadConfiguration = async (payload: string): Promise<boolean> => {
+    console.log(payload);
+
     if (isConfigurationLoading) {
       return false;
     }
