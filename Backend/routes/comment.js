@@ -184,8 +184,8 @@ router.post("/", verifyTokenAndGetUser, async (req, res) => {
         } else {
 
             const tempChain = {
-                name: "",
-                data: "",
+                name: "N/A",
+                data: "N/A",
             }
 
             createdComment = await comment.initialize(targetSong._id, new ObjectId(userId), userName, Date.now(), req.body.data, hasChain, tempChain, replyId);
