@@ -1672,7 +1672,7 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
   // };
 
   const loadConfiguration = async (payload: string): Promise<boolean> => {
-    console.log(payload);
+    // console.log(payload);
 
     if (isConfigurationLoading) {
       return false;

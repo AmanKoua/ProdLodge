@@ -42,7 +42,13 @@ const verifyTokenAndGetUser = async (req, res, next) => {
 
 router.post("/", verifyTokenAndGetUser, async (req, res) => {
 
-    if (!req.body || !req.body.songId || !req.body.data || !req.body.replyId || !req.body.hasChain || !req.body.chain || !req.body.chain.name || !req.body.chain.data) {
+    if (!req.body) {
+        return res.status(400).json({ error: "Invalid comment upload request body!" });
+    }
+
+    const reqFields = Object.keys(req.body);
+
+    if (!reqFields.includes("songId") || !reqFields.includes("data") || !reqFields.includes("hasChain") || !reqFields.includes("chain")) {
         return res.status(400).json({ error: "Invalid comment upload request body!" });
     }
 
@@ -58,6 +64,41 @@ router.post("/", verifyTokenAndGetUser, async (req, res) => {
 
     if (!hasChainPossibilities.includes(req.body.hasChain)) {
         return res.status(400).json({ error: "Invalid has chain value!" });
+    }
+
+    let chain = undefined;
+
+    try {
+        chain = JSON.parse(req.body.chain);
+    } catch (e) {
+        console.log(e);
+        return res.status(400).json({ error: "Invalid chain JSON!" });
+    }
+
+    if (!chain.data || !chain.name) {
+        return res.status(400).json({ error: "Invalid chain object structure!" });
+    }
+
+    // mutate chain to adhere to comment schema
+    chain.data = JSON.stringify(chain.data);
+    // chain.name = JSON.stringify(chain.name);
+
+    if (!(req.body.replyId.length == 0 || req.body.replyId.length == 24)) {
+        return res.status(400).json({ error: "Invalid reply Id!" });
+    }
+
+    if (req.body.replyId.length == 24) {
+        try {
+            const tempTargetComment = await comment.findOne({ _id: new ObjectId(req.body.replyId) });
+
+            if (!tempTargetComment) {
+                return res.status(400).json({ error: "No comment to reply to found!" });
+            }
+
+        } catch (e) {
+            console.log(e);
+            return res.status(400).json({ error: "failed seting reply id song ObjectId!" });
+        }
     }
 
     const userId = req.body.verifiedUser._id.valueOf();
@@ -76,7 +117,10 @@ router.post("/", verifyTokenAndGetUser, async (req, res) => {
     let createdComment = undefined;
 
     if (isReply) {
-        replyId = new ObjectId(req.body.replyId);
+        replyId = req.body.replyId;
+    }
+    else {
+        replyId = "empty";
     }
 
     songId = new ObjectId(req.body.songId);
@@ -104,35 +148,47 @@ router.post("/", verifyTokenAndGetUser, async (req, res) => {
             return res.status(500).json({ error: "Internal server error. No song creator found" });
         }
 
-        targetSongCreatorProfile = await userProfile.findOne({ userId: targetSongCreator._id })
+        if (targetSongCreator._id.valueOf() != userId) { // If comment poster is not the owner of the song!
 
-        if (!targetSongCreatorProfile) {
-            return res.status(500).json({ error: "Internal server error. No song creator profile found" });
+            targetSongCreatorProfile = await userProfile.findOne({ userId: targetSongCreator._id })
+
+            if (!targetSongCreatorProfile) {
+                return res.status(500).json({ error: "Internal server error. No song creator profile found" });
+            }
+
+            targetSongCreatorFriendsList = await userFriends.findOne({ _id: targetSongCreatorProfile.friendsListId });
+
+            if (!targetSongCreatorFriendsList) {
+                return res.status(500).json({ error: "Internal server error. No song creator profile friend list found" });
+            }
+
+            friendsList = targetSongCreatorFriendsList.friendsList;
+
+            if (!friendsList.includes(new ObjectId(userId))) {
+                return res.status(403).json({ error: "Invalid permissions to comment on specified song!" });
+            }
+
         }
-
-        targetSongCreatorFriendsList = await userFriends.findOne({ _id: targetSongCreatorProfile.friendsListId });
-
-        if (!targetSongCreatorFriendsList) {
-            return res.status(500).json({ error: "Internal server error. No song creator profile friend list found" });
-        }
-
-        friendsList = targetSongCreatorFriendsList.friendsList;
-
-        if (!friendsList.includes(new ObjectId(userId))) {
-            return res.status(403).json({ error: "Invalid permissions to comment on specified song!" });
+        else {
+            // do nothing
         }
 
     }
 
     try {
-        JSON.parse(req.body.chain.data);
-    } catch (e) {
-        console.log(e);
-        return res.status(400).json({ error: "Provided JSON chain data is invalid!" });
-    }
 
-    try {
-        createdComment = await comment.initialize(targetSong._id, new ObjectId(userId), userName, Date.now(), hasChain, req.body.chain, "");
+        if (hasChain) {
+            createdComment = await comment.initialize(targetSong._id, new ObjectId(userId), userName, Date.now(), hasChain, chain, replyId);
+        } else {
+
+            const tempChain = {
+                name: "",
+                data: "",
+            }
+
+            createdComment = await comment.initialize(targetSong._id, new ObjectId(userId), userName, Date.now(), hasChain, tempChain, replyId);
+        }
+
     } catch (e) {
         console.log(e);
         return res.status(500).json({ error: "Error creating comment!" });
