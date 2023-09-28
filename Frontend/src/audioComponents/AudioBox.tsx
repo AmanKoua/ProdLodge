@@ -1990,11 +1990,12 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
             useAttachEventListener={useAttachEventListener}
           ></AudioController>
         </div>
+        {/* Comments tab */}
         <div
           className={
             isAudioControllerHover || isCommentsTabHover
-              ? "bg-prodSecondary h-6 flex ml-auto mr-auto justify-center overflow-hidden"
-              : "bg-prodSecondary h-0 flex ml-auto mr-auto justify-center overflow-hidden"
+              ? "bg-prodSecondary h-6 w-3/12 rounded-b-lg flex ml-auto mr-auto justify-center overflow-hidden"
+              : "bg-prodSecondary h-0 w-3/12 flex ml-auto mr-auto justify-center overflow-hidden"
           }
           style={{ transition: "all 0.3s" }}
           onMouseEnter={() => {
@@ -2013,6 +2014,7 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
             {isCommentsSectionDisplayed ? "Close comments" : "Open comments"}
           </p>
         </div>
+        {/* Comments section */}
         <div
           className={
             isCommentsSectionDisplayed
