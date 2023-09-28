@@ -1,4 +1,4 @@
-import React, { LegacyRef } from "react";
+import React, { LegacyRef, MutableRefObject } from "react";
 import CSS from "csstype";
 import { useState, useEffect, useContext, useRef } from "react";
 import { useNavigate } from "react-router-dom";
@@ -268,7 +268,7 @@ const EditSong = () => {
   const [pageClassName, setPageClassName] = useState(
     "bg-prodPrimary w-full h-screen sm:w-8/12 ml-auto mr-auto flex-col jusitfy-items-center hide-scrollbar"
   );
-  const editSongPage = useRef<LegacyRef<HTMLDivElement> | undefined>(undefined);
+  const editSongPage = useRef<React.LegacyRef<HTMLDivElement>>(null);
   const navigate = useNavigate();
   let authContext = useContext(AuthContext);
 

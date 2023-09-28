@@ -87,17 +87,19 @@ router.post("/", verifyTokenAndGetUser, async (req, res) => {
         return res.status(400).json({ error: "Invalid reply Id!" });
     }
 
+    let targetComment = undefined;
+
     if (req.body.replyId.length == 24) {
         try {
-            const tempTargetComment = await comment.findOne({ _id: new ObjectId(req.body.replyId) });
+            targetComment = await comment.findOne({ _id: new ObjectId(req.body.replyId) });
 
-            if (!tempTargetComment) {
+            if (!targetComment) {
                 return res.status(400).json({ error: "No comment to reply to found!" });
             }
 
         } catch (e) {
             console.log(e);
-            return res.status(400).json({ error: "failed seting reply id song ObjectId!" });
+            return res.status(400).json({ error: "failed setting reply id song ObjectId!" });
         }
     }
 
@@ -178,7 +180,7 @@ router.post("/", verifyTokenAndGetUser, async (req, res) => {
     try {
 
         if (hasChain) {
-            createdComment = await comment.initialize(targetSong._id, new ObjectId(userId), userName, Date.now(), hasChain, chain, replyId);
+            createdComment = await comment.initialize(targetSong._id, new ObjectId(userId), userName, Date.now(), req.body.data, hasChain, chain, replyId);
         } else {
 
             const tempChain = {
@@ -186,7 +188,7 @@ router.post("/", verifyTokenAndGetUser, async (req, res) => {
                 data: "",
             }
 
-            createdComment = await comment.initialize(targetSong._id, new ObjectId(userId), userName, Date.now(), hasChain, tempChain, replyId);
+            createdComment = await comment.initialize(targetSong._id, new ObjectId(userId), userName, Date.now(), req.body.data, hasChain, tempChain, replyId);
         }
 
     } catch (e) {
@@ -194,7 +196,12 @@ router.post("/", verifyTokenAndGetUser, async (req, res) => {
         return res.status(500).json({ error: "Error creating comment!" });
     }
 
-    await targetSong.updateOne({ $push: { commentsList: createdComment._id } });
+    if (!isReply) {
+        await targetSong.updateOne({ $push: { commentsList: createdComment._id } });
+    }
+    else {
+        await targetComment.updateOne({ $push: { replyList: createdComment._id } });
+    }
 
     return res.status(200).json({ message: "Successfully uploaded comment" });
 

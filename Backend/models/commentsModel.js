@@ -12,6 +12,7 @@ const songCommentsSchema = new Schema({
             creatorId: ObjectId,
             creatorUserName: string,
             creationTime: int (unix epoch time),
+            data: string,
             hasChain: bool,
             chain: {
                 name: string,
@@ -46,6 +47,12 @@ const songCommentsSchema = new Schema({
 
     creationTime: {
         type: Number,
+        required: true,
+        unique: false,
+    },
+
+    data: {
+        type: String,
         required: true,
         unique: false,
     },
@@ -108,8 +115,8 @@ const songCommentsSchema = new Schema({
 
 })
 
-songCommentsSchema.statics.initialize = async function (songId, creatorId, creatorUserName, creationTime, hasChain, chain, replyId) {
-    const songComment = await this.create({ songId: songId, creatorId: creatorId, creatorUserName: creatorUserName, creationTime: creationTime, hasChain: hasChain, chain: chain, replyId: replyId, upvoteCount: 0, downvoteCount: 0, upvotesList: [], downvotesList: [], replyList: [] });
+songCommentsSchema.statics.initialize = async function (songId, creatorId, creatorUserName, creationTime, data, hasChain, chain, replyId) {
+    const songComment = await this.create({ songId: songId, creatorId: creatorId, creatorUserName: creatorUserName, creationTime: creationTime, data: data, hasChain: hasChain, chain: chain, replyId: replyId, upvoteCount: 0, downvoteCount: 0, upvotesList: [], downvotesList: [], replyList: [] });
     return songComment;
 }
 
