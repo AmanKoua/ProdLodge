@@ -332,8 +332,6 @@ const EditSong = () => {
         let shrunkName =
           "bg-prodPrimary w-full h-screen sm:w-8/12 ml-auto mr-auto pb-3 flex-col jusitfy-items-center hide-scrollbar";
 
-        console.log(temp!.scrollHeight, temp!.clientHeight);
-
         if (
           temp!.scrollHeight > temp!.clientHeight &&
           pageClassName != expandedName
@@ -442,13 +440,16 @@ const EditSong = () => {
     const tempSongPayloadArr = new Array(5).fill(0);
 
     return (
-      <>
+      <div>
         {tempSongPayloadArr.map((item, idx) => {
           return (
-            <div className="bg-gray-200 w-6/12 h-10 mt-3 ml-auto mr-auto animate-pulse"></div>
+            <div
+              className="bg-gray-200 w-6/12 h-10 mt-3 ml-auto mr-auto animate-pulse"
+              key={idx}
+            ></div>
           );
         })}
-      </>
+      </div>
     );
   };
 
