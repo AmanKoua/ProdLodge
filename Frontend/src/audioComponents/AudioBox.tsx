@@ -150,12 +150,6 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
   let setIsCommentsSectionDisplayed: (val: boolean) => void;
   let isCommentsTabHover: boolean;
   let setIsCommentsTabHover: (val: boolean) => void;
-  let commentInputPlaceholder: string;
-  let setCommentInputPlaceholder: (val: string) => void;
-  let commentsPayload: Map<string, SongComment>;
-  let setCommentPayload: (val: Map<string, SongComment>) => void;
-  let areParentCommentsFetched: boolean;
-  let setAreParentCommentsFetched: (val: boolean) => void;
   let isAudioControllerHover: boolean;
   let setIsAudioControllerHover: (val: boolean) => void;
 
@@ -171,13 +165,7 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
   [isSongDataContainerHover, setIsSongDataContainerHover] = useState(false);
   [isCommentsSectionDisplayed, setIsCommentsSectionDisplayed] = useState(true);
   [isCommentsTabHover, setIsCommentsTabHover] = useState(false);
-  [commentInputPlaceholder, setCommentInputPlaceholder] = useState(
-    "Write a new comment"
-  );
-  [commentsPayload, setCommentPayload] = useState(
-    new Map<string, SongComment>()
-  );
-  [areParentCommentsFetched, setAreParentCommentsFetched] = useState(false);
+
   [isAudioControllerHover, setIsAudioControllerHover] = useState(false);
 
   [audioModules, setAudioModules] = useState(tempModuleData); // Initial module will be the blank module
@@ -1951,12 +1939,6 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
         <SongCommentSection
           songData={songData}
           isCommentsSectionDisplayed={isCommentsSectionDisplayed}
-          commentInputPlaceholder={commentInputPlaceholder}
-          setCommentInputPlaceholder={setCommentInputPlaceholder}
-          commentsPayload={commentsPayload}
-          setCommentPayload={setCommentPayload}
-          areParentCommentsFetched={areParentCommentsFetched}
-          setAreParentCommentsFetched={setAreParentCommentsFetched}
         ></SongCommentSection>
       </div>
     </>

@@ -6,32 +6,32 @@ import { SongData, CommentRequestResponse, SongComment } from "../customTypes";
 interface Props {
   songData: SongData;
   isCommentsSectionDisplayed: boolean;
-  commentInputPlaceholder: string;
-  setCommentInputPlaceholder: (val: string) => void;
-  commentsPayload: Map<string, SongComment>;
-  setCommentPayload: (val: Map<string, SongComment>) => void;
-  areParentCommentsFetched: boolean;
-  setAreParentCommentsFetched: (val: boolean) => void;
 }
 
 const SongCommentSection = ({
   songData,
   isCommentsSectionDisplayed,
-  commentInputPlaceholder,
-  setCommentInputPlaceholder,
-  commentsPayload,
-  setCommentPayload,
-  areParentCommentsFetched,
-  setAreParentCommentsFetched,
 }: Props) => {
-  const [error, setError] = useState("");
-  const [message, setMessage] = useState("");
+  const [commentsPayload, setCommentPayload] = useState(
+    new Map<string, SongComment>()
+  );
   const [currentComments, setCurrentComments] = useState<
     Map<string, SongComment>
   >(new Map<string, SongComment>());
+  const [areParentCommentsFetched, setAreParentCommentsFetched] =
+    useState(false);
+  const [commentInputPlaceholder, setCommentInputPlaceholder] = useState(
+    "Write a new comment"
+  );
+  const [parentCommentId, setParentCommentId] = useState("empty"); // 6516113906481f1137dcda74 friendsonly comment part 1
+  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
+
   const authContext = useContext(AuthContext);
 
-  const fetchComments = async (commentsList: string[]) => {
+  const fetchComments = async (
+    commentsList: string[]
+  ): Promise<Map<string, SongComment>> => {
     let tempCommentPayload: Map<string, SongComment> = new Map<
       string,
       SongComment
@@ -51,7 +51,10 @@ const SongCommentSection = ({
       if (response.ok) {
         const json = (await response.json()) as CommentRequestResponse;
         tempCommentPayload.set(commentsList[i], json.comment);
-        await fetchReplyComments(json.comment.replyList, tempCommentPayload);
+        tempCommentPayload = await fetchReplyComments(
+          json.comment.replyList,
+          tempCommentPayload
+        );
         //   console.log(json);
       } else {
         const json = await response.json();
@@ -59,13 +62,15 @@ const SongCommentSection = ({
       }
     }
 
-    setCommentPayload(tempCommentPayload);
-    setCurrentComments(tempCommentPayload);
+    return tempCommentPayload;
+
+    // setCommentPayload(tempCommentPayload);
+    // setCurrentComments(tempCommentPayload);
   };
 
   const fetchReplyComments = async (
     replyList: string[],
-    tempCurrentComments: Map<string, SongComment>
+    tempCommentPayload: Map<string, SongComment>
   ): Promise<Map<string, SongComment>> => {
     // Fetch the replies for the currentComments if they are not already fetched
     // Must use map.set and map.get. VERY IMPORTANT
@@ -84,7 +89,7 @@ const SongCommentSection = ({
 
         if (response.ok) {
           const json = (await response.json()) as CommentRequestResponse;
-          tempCurrentComments.set(replyList[i], json.comment);
+          tempCommentPayload.set(replyList[i], json.comment);
           //   console.log(json);
         } else {
           const json = await response.json();
@@ -93,17 +98,26 @@ const SongCommentSection = ({
       }
     }
 
-    return tempCurrentComments;
+    return tempCommentPayload;
   };
 
   useEffect(() => {
     // Fetch song comments and initialize commentsPayload
-    if (!areParentCommentsFetched) {
-      fetchComments(songData.commentsList);
-      setAreParentCommentsFetched(true);
-    } else {
-      // do nothing
-    }
+
+    const fetchInitialComments = async () => {
+      if (!areParentCommentsFetched) {
+        let temp: Map<string, SongComment> = await fetchComments(
+          songData.commentsList
+        );
+        setCommentPayload(temp);
+        setCurrentComments(temp);
+        setAreParentCommentsFetched(true);
+      } else {
+        // do nothing
+      }
+    };
+
+    fetchInitialComments();
   }, [areParentCommentsFetched]);
 
   const generateSongComments = (): JSX.Element => {
@@ -206,6 +220,7 @@ const SongCommentSection = ({
                         </span>
                         <p>delete</p>
                       </div>
+                      {/* {item[1].replyList.length > 0 && <div>Expand Replies</div>} */}
                     </div>
                   </div>
                 </>
