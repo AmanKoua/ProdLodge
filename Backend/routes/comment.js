@@ -40,7 +40,7 @@ const verifyTokenAndGetUser = async (req, res, next) => {
     next();
 }
 
-const deleteAllChildComments = async (commentId) => {
+const deleteAllChildCommentsAndSelf = async (commentId) => {
 
     // if no replyId is included, remove the item from the commentList for the song
 
@@ -51,7 +51,7 @@ const deleteAllChildComments = async (commentId) => {
     }
 
     for (let i = 0; i < targetComment.replyList.length; i++) {
-        deleteAllChildComments(targetComment.replyList[i]);
+        await deleteAllChildCommentsAndSelf(targetComment.replyList[i]);
     }
 
     if (targetComment.replyId.length != 24) { // it must be a parent level comment if not a reply itself
@@ -66,11 +66,26 @@ const deleteAllChildComments = async (commentId) => {
         }
     }
     else {
-        // Do nothing
+        // Clear the reply list from the parent comment of this Id
+
+        const parentComment = await comment.findOne({ _id: new ObjectId(targetComment.replyId) });
+
+        if (!parentComment) {
+            return;
+        }
+
+        const parentCommentReplyList = parentComment.replyList;
+        const targetCommentIdx = parentCommentReplyList.indexOf(targetComment._id);
+
+        if (targetCommentIdx > -1) {
+            let tempParentCommentReplyList = parentComment.replyList;
+            tempParentCommentReplyList.splice(targetCommentIdx, 1);
+            await parentComment.updateOne({ $set: { replyList: tempParentCommentReplyList } });
+        }
+
     }
 
-    comment.deleteOne({ _id: targetComment._id });
-
+    await comment.deleteOne({ _id: targetComment._id });
 }
 
 router.post("/", verifyTokenAndGetUser, async (req, res) => {
@@ -358,7 +373,9 @@ router.delete("/:id", verifyTokenAndGetUser, async (req, res) => {
         return res.status(403).json({ error: "You do not have sufficient permissions to delete this comment" });
     }
 
-    deleteAllChildComments(targetComment._id);
+    deleteAllChildCommentsAndSelf(targetComment._id);
+
+    return res.status(200).json({ message: "Comment deletion in progress" });
 
 })
 
