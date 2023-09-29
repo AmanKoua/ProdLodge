@@ -137,73 +137,85 @@ const SongCommentSection = ({
               const offset = isReply ? 1.5 : 1;
 
               return (
-                <div
-                  className="bg-blue-100 w-10/12 h-max ml-auto mr-auto mt-4 pb-1 border border-black"
-                  style={{
-                    marginLeft: `${
-                      8 * offset
-                    }%` /* Shift comments over based on whether or not it is a reply. Standard is 8% */,
-                  }}
-                >
+                <>
+                  {isReply && (
+                    <div
+                      className="bg-gray-200 w-1 h-28 absolute"
+                      style={{
+                        marginLeft: `${6}%` /* Shift comments over based on whether or not it is a reply. Standard is 8% */,
+                        marginTop: "2.2%",
+                      }}
+                    ></div>
+                  )}
+
                   <div
-                    className="w-12/12 h-max  flex justify-center"
-                    // style={{ height: "55px" }}
+                    className="bg-blue-100 w-10/12 h-max ml-auto mr-auto mt-4 pb-1 border border-black"
+                    style={{
+                      marginLeft: `${
+                        8 * offset
+                      }%` /* Shift comments over based on whether or not it is a reply. Standard is 8% */,
+                    }}
                   >
-                    {/* <div className="bg-green-500 w-1/6 h-6 ml-auto mr-auto inline-block">
+                    <div
+                      className="w-12/12 h-max  flex justify-center"
+                      // style={{ height: "55px" }}
+                    >
+                      {/* <div className="bg-green-500 w-1/6 h-6 ml-auto mr-auto inline-block">
                               Temp
                             </div> */}
-                    <div className="w-4/6 h-6 ml-auto mr-auto inline-block">
-                      <div className="border-b border-gray-400 w-6/12 h-full overflow-hidden inline-block">
-                        <p className="w-max h-max ml-auto mr-auto font-bold hover:text-blue-500 hover:cursor-pointer">
-                          {item[1].creatorUserName}
-                        </p>
-                      </div>
-                      <div className="border-b border-gray-400 w-6/12 h-full overflow-hidden inline-block">
-                        <div className="w-full h-max flex align-middle justify-center pt-1">
-                          <div
-                            style={{
-                              position: "absolute",
-                              width: "15%",
-                              height: "15px",
-                              border: "1px solid black",
-                              borderRadius: "6px",
-                              fontSize: "10px",
-                              textAlign: "center",
-                              overflow: "hidden",
-                            }}
-                          >
-                            Load confiuration
+                      <div className="w-4/6 h-6 ml-auto mr-auto inline-block">
+                        <div className="border-b border-gray-400 w-6/12 h-full overflow-hidden inline-block">
+                          <p className="w-max h-max ml-auto mr-auto font-bold hover:text-blue-500 hover:cursor-pointer">
+                            {item[1].creatorUserName}
+                          </p>
+                        </div>
+                        <div className="border-b border-gray-400 w-6/12 h-full overflow-hidden inline-block">
+                          <div className="w-full h-max flex align-middle justify-center pt-1">
+                            <div
+                              style={{
+                                position: "absolute",
+                                width: "15%",
+                                height: "15px",
+                                border: "1px solid black",
+                                borderRadius: "6px",
+                                fontSize: "10px",
+                                textAlign: "center",
+                                overflow: "hidden",
+                              }}
+                            >
+                              Load confiuration
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="pt-3 pr-3 pl-3 pb-3 h-max block text-center">
-                    {item[1].data}
-                  </div>
-                  <div className="w-4/6 h-6 ml-auto mr-auto flex">
-                    <div className=" border-t border-gray-400 w-3/6 h-6 mt-0 ml-auto mr-auto overflow-hidden flex justify-around">
-                      <span className="material-symbols-outlined hover:font-bold">
-                        arrow_upward
-                      </span>
-                      <p>{item[1].upvoteCount}</p>
-                      <span className="material-symbols-outlined hover:font-bold">
-                        arrow_downward
-                      </span>
-                      <p>{item[1].downvoteCount}</p>
+                    <div className="pt-3 pr-3 pl-3 pb-3 h-max block text-center">
+                      {item[1].data}
                     </div>
-                    <div className="border-t border-gray-400 w-6/12 h-full overflow-hidden flex justify-around">
-                      <span className="material-symbols-outlined hover:font-bold">
-                        reply
-                      </span>
-                      <p>reply</p>
-                      <span className="material-symbols-outlined hover:font-bold">
-                        delete
-                      </span>
-                      <p>delete</p>
+                    <div className="w-4/6 h-6 ml-auto mr-auto flex">
+                      <div className=" border-t border-gray-400 w-3/6 h-6 mt-0 ml-auto mr-auto overflow-hidden flex justify-around">
+                        <span className="material-symbols-outlined hover:font-bold">
+                          arrow_upward
+                        </span>
+                        <p>{item[1].upvoteCount}</p>
+                        <span className="material-symbols-outlined hover:font-bold">
+                          arrow_downward
+                        </span>
+                        <p>{item[1].downvoteCount}</p>
+                      </div>
+                      <div className="border-t border-gray-400 w-6/12 h-full overflow-hidden flex justify-around">
+                        <span className="material-symbols-outlined hover:font-bold">
+                          reply
+                        </span>
+                        <p>reply</p>
+                        <span className="material-symbols-outlined hover:font-bold">
+                          delete
+                        </span>
+                        <p>delete</p>
+                      </div>
                     </div>
                   </div>
-                </div>
+                </>
               );
             })}
           </>
