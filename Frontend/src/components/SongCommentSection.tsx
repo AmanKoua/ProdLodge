@@ -133,13 +133,15 @@ const SongCommentSection = ({
         return (
           <>
             {Array.from(currentComments).map((item, idx) => {
+              const isReply = item[1].replyId != "empty";
+              const offset = isReply ? 1.5 : 1;
+
               return (
                 <div
                   className="bg-blue-100 w-10/12 h-max ml-auto mr-auto mt-4 pb-1 border border-black"
                   style={{
                     marginLeft: `${
-                      // idx * 1.5 + 8
-                      8
+                      8 * offset
                     }%` /* Shift comments over based on whether or not it is a reply. Standard is 8% */,
                   }}
                 >
