@@ -152,7 +152,7 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
   let setIsCommentsTabHover: (val: boolean) => void;
   let commentInputPlaceholder: string;
   let setCommentInputPlaceholder: (val: string) => void;
-  let commentPayload: Map<string, SongComment>;
+  let commentsPayload: Map<string, SongComment>;
   let setCommentPayload: (val: Map<string, SongComment>) => void;
   let areParentCommentsFetched: boolean;
   let setAreParentCommentsFetched: (val: boolean) => void;
@@ -174,7 +174,7 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
   [commentInputPlaceholder, setCommentInputPlaceholder] = useState(
     "Write a new comment"
   );
-  [commentPayload, setCommentPayload] = useState(
+  [commentsPayload, setCommentPayload] = useState(
     new Map<string, SongComment>()
   );
   [areParentCommentsFetched, setAreParentCommentsFetched] = useState(false);
@@ -1953,7 +1953,7 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
           isCommentsSectionDisplayed={isCommentsSectionDisplayed}
           commentInputPlaceholder={commentInputPlaceholder}
           setCommentInputPlaceholder={setCommentInputPlaceholder}
-          commentPayload={commentPayload}
+          commentsPayload={commentsPayload}
           setCommentPayload={setCommentPayload}
           areParentCommentsFetched={areParentCommentsFetched}
           setAreParentCommentsFetched={setAreParentCommentsFetched}

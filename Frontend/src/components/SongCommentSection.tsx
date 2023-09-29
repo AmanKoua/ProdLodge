@@ -8,7 +8,7 @@ interface Props {
   isCommentsSectionDisplayed: boolean;
   commentInputPlaceholder: string;
   setCommentInputPlaceholder: (val: string) => void;
-  commentPayload: Map<string, SongComment>;
+  commentsPayload: Map<string, SongComment>;
   setCommentPayload: (val: Map<string, SongComment>) => void;
   areParentCommentsFetched: boolean;
   setAreParentCommentsFetched: (val: boolean) => void;
@@ -19,48 +19,85 @@ const SongCommentSection = ({
   isCommentsSectionDisplayed,
   commentInputPlaceholder,
   setCommentInputPlaceholder,
-  commentPayload,
+  commentsPayload,
   setCommentPayload,
   areParentCommentsFetched,
   setAreParentCommentsFetched,
 }: Props) => {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const [currentComments, setCurrentComments] = useState<
+    Map<string, SongComment>
+  >(new Map<string, SongComment>());
   const authContext = useContext(AuthContext);
 
-  useEffect(() => {
-    // Fetch song comments and initialize commentPayload
+  const fetchComments = async (commentsList: string[]) => {
+    let tempCommentPayload: Map<string, SongComment> = new Map<
+      string,
+      SongComment
+    >();
 
-    const fetchComments = async (commentsList: string[]) => {
-      let tempCommentPayload: Map<string, SongComment> = new Map<
-        string,
-        SongComment
-      >();
+    for (let i = 0; i < commentsList.length; i++) {
+      let response = await fetch(
+        `http://localhost:8005/comment/${commentsList[i]}`,
+        {
+          method: "GET",
+          headers: {
+            authorization: `Bearer ${authContext.user.token}`,
+          },
+        }
+      );
 
-      for (let i = 0; i < commentsList.length; i++) {
-        let response = await fetch(
-          `http://localhost:8005/comment/${commentsList[i]}`,
-          {
-            method: "GET",
-            headers: {
-              authorization: `Bearer ${authContext.user.token}`,
-            },
+      if (response.ok) {
+        const json = (await response.json()) as CommentRequestResponse;
+        tempCommentPayload.set(commentsList[i], json.comment);
+        //   console.log(json);
+      } else {
+        const json = await response.json();
+        console.log("Comment fetching error", json);
+      }
+    }
+
+    setCommentPayload(tempCommentPayload);
+    setCurrentComments(tempCommentPayload);
+  };
+
+  const fetchReplyComments = () => {
+    // Fetch the replies for the currentComments if they are not already fetched
+    // Must use map.set and map.get. VERY IMPORTANT
+
+    let tempCurrentComments: Map<string, SongComment> = currentComments;
+
+    currentComments.forEach(async (songComment, commentId) => {
+      for (let i = 0; i < songComment.replyList.length; i++) {
+        if (currentComments.get(songComment.replyList[i]) == undefined) {
+          let response = await fetch(
+            `http://localhost:8005/comment/${songComment.replyList[i]}`,
+            {
+              method: "GET",
+              headers: {
+                authorization: `Bearer ${authContext.user.token}`,
+              },
+            }
+          );
+
+          if (response.ok) {
+            const json = (await response.json()) as CommentRequestResponse;
+            tempCurrentComments.set(songComment.replyList[i], json.comment);
+            //   console.log(json);
+          } else {
+            const json = await response.json();
+            console.log("Comment fetching error", json);
           }
-        );
-
-        if (response.ok) {
-          const json = (await response.json()) as CommentRequestResponse;
-          tempCommentPayload.set(commentsList[i], json.comment);
-          //   console.log(json);
-        } else {
-          const json = await response.json();
-          console.log("Comment fetching error", json);
         }
       }
+    });
 
-      setCommentPayload(tempCommentPayload);
-    };
+    setCurrentComments(tempCurrentComments);
+  };
 
+  useEffect(() => {
+    // Fetch song comments and initialize commentsPayload
     if (!areParentCommentsFetched) {
       fetchComments(songData.commentsList);
       setAreParentCommentsFetched(true);
@@ -68,6 +105,13 @@ const SongCommentSection = ({
       // do nothing
     }
   }, [areParentCommentsFetched]);
+
+  useEffect(() => {
+    if (currentComments.size == 0) {
+      return;
+    }
+    fetchReplyComments();
+  }, [currentComments]);
 
   const generateSongComments = (): JSX.Element => {
     let temp = new Array(3).fill(0);
@@ -82,12 +126,13 @@ const SongCommentSection = ({
         </>
       );
     } else {
-      if (commentPayload.size == 0) {
+      if (currentComments.size == 0) {
         // Render nothing
+        return <></>;
       } else {
         return (
           <>
-            {Array.from(commentPayload).map((item, idx) => {
+            {Array.from(currentComments).map((item, idx) => {
               return (
                 <div
                   className="bg-blue-100 w-10/12 h-max ml-auto mr-auto mt-4 pb-1 border border-black"
