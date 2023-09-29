@@ -21,9 +21,10 @@ const SongCommentSection = ({
   const [areParentCommentsFetched, setAreParentCommentsFetched] =
     useState(false);
   const [commentInputPlaceholder, setCommentInputPlaceholder] = useState(
-    "Write a new comment"
+    "Write a new comment ..."
   );
-  const [parentCommentId, setParentCommentId] = useState("empty"); // 65171c7247949859ca1500ab parent comment 2, 65171fd147949859ca1501d1 child comment 2-2
+  const [currentReplyId, setCurrentReplyId] = useState("");
+  const [parentCommentId, setParentCommentId] = useState("empty");
   const [currentHoverTarget, setCurrentHoverTarget] = useState("");
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
@@ -96,6 +97,14 @@ const SongCommentSection = ({
     }
 
     return tempCommentPayload;
+  };
+
+  const generateReplyPlaceholderText = (commentId: string) => {
+    let targetComment = commentsPayload.get(commentId);
+
+    setCommentInputPlaceholder(
+      `Replying to ${targetComment?.creatorUserName}'s comment (click X to cancel) ...`
+    );
   };
 
   useEffect(() => {
@@ -187,7 +196,7 @@ const SongCommentSection = ({
                       className="bg-gray-200 w-1 h-28 absolute"
                       style={{
                         marginLeft: `${6}%` /* Shift comments over based on whether or not it is a reply. Standard is 8% */,
-                        marginTop: "2.2%",
+                        marginTop: "2.4%",
                       }}
                     ></div>
                   )}
@@ -254,7 +263,13 @@ const SongCommentSection = ({
                         <p>{item[1].downvoteCount}</p>
                       </div>
                       <div className="border-t border-gray-400 w-6/12 h-full overflow-hidden flex justify-around">
-                        <span className="material-symbols-outlined hover:font-bold">
+                        <span
+                          className="material-symbols-outlined hover:font-bold"
+                          onClick={() => {
+                            generateReplyPlaceholderText(item[0]);
+                            setCurrentReplyId(item[0]);
+                          }}
+                        >
                           reply
                         </span>
                         <p>reply</p>
@@ -319,6 +334,21 @@ const SongCommentSection = ({
         </div>
 
         <div className="w-4/6 h-2/6 ml-auto mr-auto flex justify-start">
+          {currentReplyId && (
+            <div
+              className="w-max text-sm"
+              style={{ marginLeft: "0px", marginTop: "0px" }}
+              onClick={() => {
+                setCommentInputPlaceholder("Write a new comment ...");
+                setCurrentReplyId("");
+              }}
+            >
+              <span className="material-symbols-outlined opacity-60 hover:font-bold hover:opacity-100">
+                close
+              </span>
+            </div>
+          )}
+
           <div className="w-6/12 h-full flex justify-center">
             <div
               style={{
