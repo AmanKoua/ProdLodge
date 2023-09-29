@@ -379,4 +379,128 @@ router.delete("/:id", verifyTokenAndGetUser, async (req, res) => {
 
 })
 
+router.post("/:id/interact", verifyTokenAndGetUser, async (req, res) => {
+
+    /*
+        Do not check to see that a user has access to a comment, because commentIDs are
+        by defualt only available to authorized users. Also, a upvtote or downvote is 
+        not significant.
+    */
+
+    if (!req.params.id) {
+        return res.status(400).json({ error: "Missing requried request params (id)!" });
+    }
+
+    if (!req.body.interactionStatus) {
+        return res.status(400).json({ error: "Missing requried request params (interactionStatus)!" });
+    }
+
+    const acceptableStatuses = ["0", "1", "2"];
+
+    if (!acceptableStatuses.includes(req.body.interactionStatus)) {
+        return res.status(400).json({ error: "Invalid interaction status!" });
+    }
+
+    let userId = req.body.verifiedUser._id.valueOf();
+    const commentId = req.params.id;
+    const interactionStatus = parseInt(req.body.interactionStatus);
+
+    if (commentId.length != 24) {
+        return res.status(400).json({ error: "Invalid comment id provided!" });
+    }
+
+    const targetComment = await comment.findOne({ _id: new ObjectId(commentId) });
+
+    if (!targetComment) {
+        return res.status(404).json({ error: "comment not found!" });
+    }
+
+    let currentInteractionStatus = undefined;
+
+    if (targetComment.upvotesList.includes(req.body.verifiedUser._id)) {
+        currentInteractionStatus = 1;
+    } else if (targetComment.downvotesList.includes(req.body.verifiedUser._id)) {
+        currentInteractionStatus = 2;
+    } else {
+        currentInteractionStatus = 0;
+    }
+
+    if (interactionStatus == currentInteractionStatus) {
+        return res.status(200).json({ message: "Comment status unchanged" });
+    }
+
+    // define nested comments here
+
+    const upvote = async (targetComment) => {
+        const newUpvoteCount = targetComment.upvoteCount + 1;
+        await targetComment.updateOne({ $push: { upvotesList: req.body.verifiedUser._id } })
+        await targetComment.updateOne({ $set: { upvoteCount: newUpvoteCount } })
+    }
+
+    const downvote = async (targetComment) => {
+        const newDownvoteCount = targetComment.downvoteCount + 1;
+        await targetComment.updateOne({ $push: { downvotesList: req.body.verifiedUser._id } });
+        await targetComment.updateOne({ $set: { downvoteCount: newDownvoteCount } });
+    }
+
+    const unlike = async (targetComment) => {
+        const newUpvoteCount = targetComment.upvoteCount - 1;
+        let targetCommentUpvotesList = targetComment.upvotesList;
+        const userIdx = targetCommentUpvotesList.indexOf(req.body.verifiedUser._id);
+
+        if (userIdx == -1) {
+            return res.status(500).json({ error: "Internal server error - 3" });
+        }
+
+        targetCommentUpvotesList.splice(userIdx, 1);
+
+        await targetComment.updateOne({ $set: { upvoteCount: newUpvoteCount } });
+        await targetComment.updateOne({ $set: { upvotesList: targetCommentUpvotesList } })
+    }
+
+    const undislike = async (targetComment) => {
+        const newDownvoteCount = targetComment.downvoteCount - 1;
+        let targetCommentDownvotesList = targetComment.downvotesList;
+        const userIdx = targetCommentDownvotesList.indexOf(req.body.verifiedUser._id);
+
+        if (userIdx == -1) {
+            return res.status(500).json({ error: "Internal server error - 3" });
+        }
+
+        targetCommentDownvotesList.splice(userIdx, 1);
+
+        await targetComment.updateOne({ $set: { downvoteCount: newDownvoteCount } });
+        await targetComment.updateOne({ $set: { downvotesList: targetCommentDownvotesList } })
+    }
+
+
+    if (currentInteractionStatus == 0) {
+        if (interactionStatus == 1) {
+            await upvote(targetComment);
+        }
+        else if (interactionStatus == 2) {
+            await downvote(targetComment);
+        }
+    }
+    else if (currentInteractionStatus == 1) {
+        if (interactionStatus == 0) {
+            await unlike(targetComment);
+        } else if (interactionStatus == 2) {
+            await unlike(targetComment);
+            await downvote(targetComment);
+        }
+    }
+    else if (currentInteractionStatus == 2) {
+        if (interactionStatus == 0) {
+            await undislike(targetComment);
+        }
+        else if (interactionStatus == 1) {
+            await undislike(targetComment);
+            await upvote(targetComment);
+        }
+    }
+
+    return res.status(200).json({ message: "Comment updated successfully" });
+})
+
 module.exports = router;
