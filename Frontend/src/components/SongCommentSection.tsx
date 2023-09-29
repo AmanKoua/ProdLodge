@@ -24,6 +24,7 @@ const SongCommentSection = ({
     "Write a new comment"
   );
   const [parentCommentId, setParentCommentId] = useState("empty"); // 65171c7247949859ca1500ab parent comment 2, 65171fd147949859ca1501d1 child comment 2-2
+  const [currentHoverTarget, setCurrentHoverTarget] = useState("");
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
 
@@ -202,6 +203,12 @@ const SongCommentSection = ({
                         8 * offset
                       }%` /* Shift comments over based on whether or not it is a reply. Standard is 8% */,
                     }}
+                    onMouseOver={(e) => {
+                      setCurrentHoverTarget(item[0]);
+                    }}
+                    onMouseLeave={(e) => {
+                      setCurrentHoverTarget("");
+                    }}
                   >
                     <div
                       className="w-12/12 h-max  flex justify-center"
@@ -260,18 +267,34 @@ const SongCommentSection = ({
                         </span>
                         <p>delete</p>
                       </div>
-                      {item[1].replyList.length > 0 && (
-                        <div
-                          className="bg-red-200"
-                          onClick={() => {
-                            setParentCommentId(item[0]);
-                          }}
-                        >
-                          MORE
-                        </div>
-                      )}
                     </div>
                   </div>
+                  {item[1].replyList.length > 0 && (
+                    <div
+                      className={
+                        currentHoverTarget == item[0]
+                          ? "bg-prodSecondary h-6 w-3/12 rounded-b-lg flex ml-auto mr-auto justify-center overflow-hidden"
+                          : "bg-prodSecondary h-0 w-3/12 rounded-b-lg flex ml-auto mr-auto justify-center overflow-hidden"
+                      }
+                      style={{ transition: "all 0.3s" }}
+                      onMouseOver={(e) => {
+                        setCurrentHoverTarget(item[0]);
+                      }}
+                      onMouseLeave={(e) => {
+                        setCurrentHoverTarget("");
+                      }}
+                      onClick={() => {
+                        if (parentCommentId == item[0]) {
+                          setParentCommentId(item[1].replyId);
+                        } else {
+                          setParentCommentId(item[0]);
+                        }
+                      }}
+                    >
+                      {parentCommentId == item[0] && "Go back"}
+                      {parentCommentId != item[0] && "Load Replies"}
+                    </div>
+                  )}
                 </>
               );
             })}
