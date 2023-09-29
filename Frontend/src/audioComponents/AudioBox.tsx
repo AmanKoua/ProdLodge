@@ -7,7 +7,7 @@ import AudioSettingsDrawer from "./AudioSettingsDrawer";
 import SongCommentSection from "../components/SongCommentSection";
 import { AuthContext } from "../context/AuthContext";
 
-import { SongData, TrackData, AudioModule } from "../customTypes";
+import { SongData, TrackData, AudioModule, SongComment } from "../customTypes";
 
 /*
 Cannot use hooks imported from another module because variables used can be 
@@ -152,10 +152,10 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
   let setIsCommentsTabHover: (val: boolean) => void;
   let commentInputPlaceholder: string;
   let setCommentInputPlaceholder: (val: string) => void;
-  let commentPayload: Map<string, Object>;
-  let setCommentPayload: (val: Map<string, Object>) => void;
-  let areCommentsFetched: boolean;
-  let setAreCommentsFetched: (val: boolean) => void;
+  let commentPayload: Map<string, SongComment>;
+  let setCommentPayload: (val: Map<string, SongComment>) => void;
+  let areParentCommentsFetched: boolean;
+  let setAreParentCommentsFetched: (val: boolean) => void;
   let isAudioControllerHover: boolean;
   let setIsAudioControllerHover: (val: boolean) => void;
 
@@ -174,8 +174,10 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
   [commentInputPlaceholder, setCommentInputPlaceholder] = useState(
     "Write a new comment"
   );
-  [commentPayload, setCommentPayload] = useState(new Map<string, Object>());
-  [areCommentsFetched, setAreCommentsFetched] = useState(false);
+  [commentPayload, setCommentPayload] = useState(
+    new Map<string, SongComment>()
+  );
+  [areParentCommentsFetched, setAreParentCommentsFetched] = useState(false);
   [isAudioControllerHover, setIsAudioControllerHover] = useState(false);
 
   [audioModules, setAudioModules] = useState(tempModuleData); // Initial module will be the blank module
@@ -1947,13 +1949,14 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
         </div>
         {/* Comments section */}
         <SongCommentSection
+          songData={songData}
           isCommentsSectionDisplayed={isCommentsSectionDisplayed}
           commentInputPlaceholder={commentInputPlaceholder}
           setCommentInputPlaceholder={setCommentInputPlaceholder}
           commentPayload={commentPayload}
           setCommentPayload={setCommentPayload}
-          areCommentsFetched={areCommentsFetched}
-          setAreCommentsFetched={setAreCommentsFetched}
+          areParentCommentsFetched={areParentCommentsFetched}
+          setAreParentCommentsFetched={setAreParentCommentsFetched}
         ></SongCommentSection>
       </div>
     </>

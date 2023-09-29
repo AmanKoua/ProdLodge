@@ -14,6 +14,7 @@ export interface SongData {
   id: string;
   title: string;
   trackIds: string[];
+  commentsList: string[];
 }
 
 // AudioBox types
@@ -87,4 +88,29 @@ export interface FriendProfile {
     instagram?: string;
   };
   pictureId: string;
+}
+
+// Song comment types
+
+export interface CommentRequestResponse {
+  comment: SongComment;
+}
+
+export interface SongComment {
+  songId: string;
+  creationTime: number;
+  creatorId: string;
+  creatorUserName: string;
+  data: string;
+  hasChain: boolean;
+  chain: {
+    data: string;
+    name: string;
+  };
+  downvoteCount: number;
+  upvoteCount: number;
+  hasUserDownvoted: boolean;
+  hasUserUpvoted: boolean;
+  replyId: string;
+  replyList: string[];
 }
