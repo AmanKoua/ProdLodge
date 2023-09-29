@@ -503,10 +503,16 @@ router.delete('/song', verifyTokenAndGetUser, async (req, res) => {
         return res.status(500).json({ error: "Error deleting tracks!" });
     }
 
-    let commentsList = songs[0].commentsList;
+    // let commentsList = songs[0].commentsList;
+
+    // for (let i = 0; i < commentsList.length; i++) {
+    //     await comment.deleteOne({ _id: commentsList[i] })
+    // }
+
+    let commentsList = await comment.find({ songId: songs[0]._id });
 
     for (let i = 0; i < commentsList.length; i++) {
-        await comment.deleteOne({ _id: commentsList[i] })
+        commentsList[i].deleteOne();
     }
 
     let chainsList = songs[0].chainsList;

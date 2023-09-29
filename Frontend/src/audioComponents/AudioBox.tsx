@@ -163,7 +163,7 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
   [hasUserGestured, setHasUserGestured] = useState(false); // Keep track of first gesture required to initialize audioCtx
   [isConfigurationLoading, setIsConfigurationLoading] = useState(false);
   [isSongDataContainerHover, setIsSongDataContainerHover] = useState(false);
-  [isCommentsSectionDisplayed, setIsCommentsSectionDisplayed] = useState(true);
+  [isCommentsSectionDisplayed, setIsCommentsSectionDisplayed] = useState(false);
   [isCommentsTabHover, setIsCommentsTabHover] = useState(false);
   [isAudioControllerHover, setIsAudioControllerHover] = useState(false);
 
