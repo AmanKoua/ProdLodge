@@ -51,6 +51,7 @@ const SongCommentSection = ({
       if (response.ok) {
         const json = (await response.json()) as CommentRequestResponse;
         tempCommentPayload.set(commentsList[i], json.comment);
+        await fetchReplyComments(json.comment.replyList, tempCommentPayload);
         //   console.log(json);
       } else {
         const json = await response.json();
@@ -62,38 +63,37 @@ const SongCommentSection = ({
     setCurrentComments(tempCommentPayload);
   };
 
-  const fetchReplyComments = () => {
+  const fetchReplyComments = async (
+    replyList: string[],
+    tempCurrentComments: Map<string, SongComment>
+  ): Promise<Map<string, SongComment>> => {
     // Fetch the replies for the currentComments if they are not already fetched
     // Must use map.set and map.get. VERY IMPORTANT
 
-    let tempCurrentComments: Map<string, SongComment> = currentComments;
-
-    currentComments.forEach(async (songComment, commentId) => {
-      for (let i = 0; i < songComment.replyList.length; i++) {
-        if (currentComments.get(songComment.replyList[i]) == undefined) {
-          let response = await fetch(
-            `http://localhost:8005/comment/${songComment.replyList[i]}`,
-            {
-              method: "GET",
-              headers: {
-                authorization: `Bearer ${authContext.user.token}`,
-              },
-            }
-          );
-
-          if (response.ok) {
-            const json = (await response.json()) as CommentRequestResponse;
-            tempCurrentComments.set(songComment.replyList[i], json.comment);
-            //   console.log(json);
-          } else {
-            const json = await response.json();
-            console.log("Comment fetching error", json);
+    for (let i = 0; i < replyList.length; i++) {
+      if (currentComments.get(replyList[i]) == undefined) {
+        let response = await fetch(
+          `http://localhost:8005/comment/${replyList[i]}`,
+          {
+            method: "GET",
+            headers: {
+              authorization: `Bearer ${authContext.user.token}`,
+            },
           }
+        );
+
+        if (response.ok) {
+          const json = (await response.json()) as CommentRequestResponse;
+          tempCurrentComments.set(replyList[i], json.comment);
+          //   console.log(json);
+        } else {
+          const json = await response.json();
+          console.log("Comment fetching error", json);
         }
       }
-    });
+    }
 
-    setCurrentComments(tempCurrentComments);
+    return tempCurrentComments;
   };
 
   useEffect(() => {
@@ -105,13 +105,6 @@ const SongCommentSection = ({
       // do nothing
     }
   }, [areParentCommentsFetched]);
-
-  useEffect(() => {
-    if (currentComments.size == 0) {
-      return;
-    }
-    fetchReplyComments();
-  }, [currentComments]);
 
   const generateSongComments = (): JSX.Element => {
     let temp = new Array(3).fill(0);
