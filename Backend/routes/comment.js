@@ -40,6 +40,39 @@ const verifyTokenAndGetUser = async (req, res, next) => {
     next();
 }
 
+const deleteAllChildComments = async (commentId) => {
+
+    // if no replyId is included, remove the item from the commentList for the song
+
+    let targetComment = await comment.findOne({ _id: commentId });
+
+    if (!targetComment) {
+        return;
+    }
+
+    for (let i = 0; i < targetComment.replyList.length; i++) {
+        deleteAllChildComments(targetComment.replyList[i]);
+    }
+
+    if (targetComment.replyId.length != 24) { // it must be a parent level comment if not a reply itself
+        const targetSong = await song.findOne({ _id: targetComment.songId });
+
+        let targetCommentIdx = targetSong.commentsList.indexOf(targetComment._id);
+
+        if (targetCommentIdx > -1) {
+            let tempTargetSongCommentsList = targetSong.commentsList;
+            tempTargetSongCommentsList.splice(targetCommentIdx, 1);
+            await targetSong.updateOne({ $set: { commentsList: tempTargetSongCommentsList } });
+        }
+    }
+    else {
+        // Do nothing
+    }
+
+    comment.deleteOne({ _id: targetComment._id });
+
+}
+
 router.post("/", verifyTokenAndGetUser, async (req, res) => {
 
     if (!req.body) {
@@ -299,6 +332,33 @@ router.get("/:id", verifyTokenAndGetUser, async (req, res) => {
     commentSlice.replyList = targetComment.replyList;
 
     return res.status(200).json({ comment: commentSlice });
+
+})
+
+router.delete("/:id", verifyTokenAndGetUser, async (req, res) => {
+
+    if (!req.params.id) {
+        return res.status(400).json({ error: "Missing requried request params (id)!" });
+    }
+
+    let userId = req.body.verifiedUser._id.valueOf();
+    const commentId = req.params.id;
+
+    if (commentId.length != 24) {
+        return res.status(400).json({ error: "Invalid comment id provided!" });
+    }
+
+    const targetComment = await comment.findOne({ _id: new ObjectId(commentId) });
+
+    if (!targetComment) {
+        return res.status(404).json({ error: "comment not found!" });
+    }
+
+    if (targetComment.creatorId.valueOf() != userId) {
+        return res.status(403).json({ error: "You do not have sufficient permissions to delete this comment" });
+    }
+
+    deleteAllChildComments(targetComment._id);
 
 })
 
