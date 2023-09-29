@@ -324,6 +324,18 @@ const SongCommentSection = ({
       }
       style={{ transition: "all 0.5s" }}
     >
+      {error && (
+        <div className="bg-prodError w-11/12 mt-2 ml-auto mr-auto text-center border-2 border-red-500">
+          {error}
+        </div>
+      )}
+
+      {message && (
+        <div className="bg-prodMessage w-11/12 mt-2 ml-auto mr-auto text-center border-2 border-green-500">
+          {message}
+        </div>
+      )}
+
       <div className="bg-white rounded-lg w-11/12 h-20 ml-auto mr-auto mt-3">
         <div className="w-full h-4/6">
           <input
@@ -349,7 +361,7 @@ const SongCommentSection = ({
             </div>
           )}
 
-          <div className="w-6/12 h-full flex justify-center">
+          <div className=" w-6/12 h-full flex justify-center">
             <div
               style={{
                 position: "absolute",
