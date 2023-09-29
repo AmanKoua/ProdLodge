@@ -207,4 +207,99 @@ router.post("/", verifyTokenAndGetUser, async (req, res) => {
 
 })
 
+router.get("/:id", verifyTokenAndGetUser, async (req, res) => {
+
+    if (!req.params.id) {
+        return res.status(400).json({ error: "Missing requried request params (id)!" });
+    }
+
+    let userId = req.body.verifiedUser._id.valueOf();
+    const commentId = req.params.id;
+
+    if (commentId.length != 24) {
+        return res.status(400).json({ error: "Invalid comment id provided!" });
+    }
+
+    const targetComment = await comment.findOne({ _id: new ObjectId(commentId) });
+
+    if (!targetComment) {
+        return res.status(404).json({ error: "comment not found!" });
+    }
+
+    const targetSong = await song.findOne({ _id: targetComment.songId });
+
+    if (!targetSong) {
+        return res.status(500).json({ error: "Internal server error!" });
+    }
+
+    let targetSongCreator = undefined;
+    let targetSongCreatorProfile = undefined;
+    let targetSongCreatorFriendsList = undefined;
+    let friendsList = undefined;
+
+    if (targetSong.visibility == "public") {
+        // do nothing
+    }
+    else if (targetSong.visibility == "private") {
+        // If owner, allow retrieval of comment. else block
+        if (targetSong.userId.valueOf() != userId) {
+            return res.status(403).json({ error: "Invalid permissions to retrieve comment from specified song!" });
+        }
+
+    }
+    else if (targetSong.visibility == "friendsonly") {
+
+        targetSongCreator = await user.findOne({ _id: targetSong.userId });
+
+        if (!targetSongCreator) {
+            return res.status(500).json({ error: "Internal server error. No song creator found" });
+        }
+
+        if (targetSongCreator._id.valueOf() != userId) { // If comment retriever is not the owner of the song!
+
+            targetSongCreatorProfile = await userProfile.findOne({ userId: targetSongCreator._id })
+
+            if (!targetSongCreatorProfile) {
+                return res.status(500).json({ error: "Internal server error. No song creator profile found" });
+            }
+
+            targetSongCreatorFriendsList = await userFriends.findOne({ _id: targetSongCreatorProfile.friendsListId });
+
+            if (!targetSongCreatorFriendsList) {
+                return res.status(500).json({ error: "Internal server error. No song creator profile friend list found" });
+            }
+
+            friendsList = targetSongCreatorFriendsList.friendsList;
+
+            if (!friendsList.includes(new ObjectId(userId))) {
+                return res.status(403).json({ error: "Invalid permissions to retrieve comment on specified song!" });
+            }
+
+        }
+        else {
+            // do nothing
+        }
+
+    }
+
+    const commentSlice = {};
+
+    commentSlice.songId = targetComment.songId;
+    commentSlice.creatorId = targetComment.creatorId;
+    commentSlice.creatorUserName = targetComment.creatorUserName;
+    commentSlice.creationTime = targetComment.creationTime;
+    commentSlice.data = targetComment.data;
+    commentSlice.hasChain = targetComment.hasChain;
+    commentSlice.chain = targetComment.chain;
+    commentSlice.replyId = targetComment.replyId;
+    commentSlice.upvoteCount = targetComment.upvoteCount;
+    commentSlice.downvoteCount = targetComment.downvoteCount;
+    commentSlice.hasUserUpvoted = targetComment.upvotesList.includes(req.body.verifiedUser._id);
+    commentSlice.hasUserDownvoted = targetComment.downvotesList.includes(req.body.verifiedUser._id);
+    commentSlice.replyList = targetComment.replyList;
+
+    return res.status(200).json({ comment: commentSlice });
+
+})
+
 module.exports = router;
