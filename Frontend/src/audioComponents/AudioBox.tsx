@@ -163,7 +163,7 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
   [hasUserGestured, setHasUserGestured] = useState(false); // Keep track of first gesture required to initialize audioCtx
   [isConfigurationLoading, setIsConfigurationLoading] = useState(false);
   [isSongDataContainerHover, setIsSongDataContainerHover] = useState(false);
-  [isCommentsSectionDisplayed, setIsCommentsSectionDisplayed] = useState(false);
+  [isCommentsSectionDisplayed, setIsCommentsSectionDisplayed] = useState(true);
   [isCommentsTabHover, setIsCommentsTabHover] = useState(false);
   [isAudioControllerHover, setIsAudioControllerHover] = useState(false);
 
@@ -1835,7 +1835,7 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
               </div> */}
               <div className="w-4/6 h-6 ml-auto mr-auto inline-block">
                 <div className="border-b border-gray-400 w-6/12 h-full overflow-hidden inline-block">
-                  <p className="w-max h-max ml-auto mr-auto font-bold">
+                  <p className="w-max h-max ml-auto mr-auto font-bold hover:text-blue-500 hover:cursor-pointer">
                     the gnome zone
                   </p>
                 </div>
@@ -1874,17 +1874,23 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
             </div>
             <div className="w-4/6 h-6 ml-auto mr-auto flex">
               <div className=" border-t border-gray-400 w-3/6 h-6 mt-0 ml-auto mr-auto overflow-hidden flex justify-around">
-                <span className="material-symbols-outlined">arrow_upward</span>
+                <span className="material-symbols-outlined hover:font-bold">
+                  arrow_upward
+                </span>
                 <p>1.4M</p>
-                <span className="material-symbols-outlined">
+                <span className="material-symbols-outlined hover:font-bold">
                   arrow_downward
                 </span>
                 <p>5.5M</p>
               </div>
               <div className="border-t border-gray-400 w-6/12 h-full overflow-hidden flex justify-around">
-                <span className="material-symbols-outlined">reply</span>
+                <span className="material-symbols-outlined hover:font-bold">
+                  reply
+                </span>
                 <p>reply</p>
-                <span className="material-symbols-outlined">delete</span>
+                <span className="material-symbols-outlined hover:font-bold">
+                  delete
+                </span>
                 <p>delete</p>
               </div>
             </div>
