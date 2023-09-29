@@ -40,7 +40,10 @@ const songSchema = new Schema({
         unique: false,
     },
 
-    commentsId: { // Vestigate of old schmea. Kept here to satisfy mongoDBs requirement for a commentsId field. For not, it's just the userId
+    /*
+        Vestigate of old schmea. Kept here to satisfy mongoDBs requirement for a commentsId field. For not, it's just the userId
+    */
+    commentsId: {
         type: ObjectId,
         required: true,
         unique: false,
@@ -73,6 +76,7 @@ const songSchema = new Schema({
 });
 
 songSchema.statics.initialize = async function (userId, title, description, visibility, commentsList, accessList, trackList, chainsList) {
+
     let song = await this.create({ userId: userId, title: title, description: description, visibility: visibility, commentsId: new ObjectId(generateRandomString(24)), commentsList: commentsList, accessList, trackList, chainsList })
     return song;
 }
