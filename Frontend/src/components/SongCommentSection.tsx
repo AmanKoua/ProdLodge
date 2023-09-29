@@ -15,15 +15,15 @@ const SongCommentSection = ({
   const [commentsPayload, setCommentPayload] = useState(
     new Map<string, SongComment>()
   );
-  const [currentComments, setCurrentComments] = useState<
-    Map<string, SongComment>
-  >(new Map<string, SongComment>());
+  //   const [currentComments, setCurrentComments] = useState<
+  //     Map<string, SongComment>
+  //   >(new Map<string, SongComment>());
   const [areParentCommentsFetched, setAreParentCommentsFetched] =
     useState(false);
   const [commentInputPlaceholder, setCommentInputPlaceholder] = useState(
     "Write a new comment"
   );
-  const [parentCommentId, setParentCommentId] = useState("empty"); // 6516113906481f1137dcda74 friendsonly comment part 1
+  const [parentCommentId, setParentCommentId] = useState("empty"); // 65171c7247949859ca1500ab parent comment 2, 65171fd147949859ca1501d1 child comment 2-2
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
 
@@ -32,10 +32,9 @@ const SongCommentSection = ({
   const fetchComments = async (
     commentsList: string[]
   ): Promise<Map<string, SongComment>> => {
-    let tempCommentPayload: Map<string, SongComment> = new Map<
-      string,
-      SongComment
-    >();
+    console.log("-----------");
+
+    let tempCommentPayload: Map<string, SongComment> = commentsPayload;
 
     for (let i = 0; i < commentsList.length; i++) {
       let response = await fetch(
@@ -63,7 +62,6 @@ const SongCommentSection = ({
     }
 
     return tempCommentPayload;
-
     // setCommentPayload(tempCommentPayload);
     // setCurrentComments(tempCommentPayload);
   };
@@ -76,7 +74,9 @@ const SongCommentSection = ({
     // Must use map.set and map.get. VERY IMPORTANT
 
     for (let i = 0; i < replyList.length; i++) {
-      if (currentComments.get(replyList[i]) == undefined) {
+      if (tempCommentPayload.get(replyList[i]) == undefined) {
+        console.log("fetching child comments!");
+
         let response = await fetch(
           `http://localhost:8005/comment/${replyList[i]}`,
           {
@@ -110,7 +110,7 @@ const SongCommentSection = ({
           songData.commentsList
         );
         setCommentPayload(temp);
-        setCurrentComments(temp);
+        // setCurrentComments(temp);
         setAreParentCommentsFetched(true);
       } else {
         // do nothing
@@ -119,6 +119,32 @@ const SongCommentSection = ({
 
     fetchInitialComments();
   }, [areParentCommentsFetched]);
+
+  useEffect(() => {
+    // Fetch new comments when navigating the comment tree structure
+    if (parentCommentId == "empty" || !areParentCommentsFetched) {
+      return;
+    }
+
+    const fetchNewComments = async () => {
+      if (areParentCommentsFetched) {
+        if (commentsPayload.get(parentCommentId) == undefined) {
+          console.log("Invalid parentId error!");
+          return;
+        }
+
+        let temp: Map<string, SongComment> = await fetchComments(
+          commentsPayload.get(parentCommentId)!.replyList
+        );
+        setCommentPayload(temp);
+        // setCurrentComments(temp);
+      } else {
+        // do nothing
+      }
+    };
+
+    fetchNewComments();
+  }, [parentCommentId, areParentCommentsFetched]);
 
   const generateSongComments = (): JSX.Element => {
     let temp = new Array(3).fill(0);
@@ -133,14 +159,28 @@ const SongCommentSection = ({
         </>
       );
     } else {
-      if (currentComments.size == 0) {
+      if (commentsPayload.size == 0) {
         // Render nothing
         return <></>;
       } else {
         return (
           <>
-            {Array.from(currentComments).map((item, idx) => {
-              const isReply = item[1].replyId != "empty";
+            {Array.from(commentsPayload).map((item, idx) => {
+              if (
+                item[1].replyId != parentCommentId &&
+                item[0] != parentCommentId
+              ) {
+                return <></>;
+              }
+
+              let isReply: boolean;
+
+              if (parentCommentId == "empty") {
+                isReply = false;
+              } else {
+                isReply = item[1].replyId == parentCommentId;
+              }
+
               const offset = isReply ? 1.5 : 1;
 
               return (
@@ -220,7 +260,16 @@ const SongCommentSection = ({
                         </span>
                         <p>delete</p>
                       </div>
-                      {/* {item[1].replyList.length > 0 && <div>Expand Replies</div>} */}
+                      {item[1].replyList.length > 0 && (
+                        <div
+                          className="bg-red-200"
+                          onClick={() => {
+                            setParentCommentId(item[0]);
+                          }}
+                        >
+                          MORE
+                        </div>
+                      )}
                     </div>
                   </div>
                 </>
