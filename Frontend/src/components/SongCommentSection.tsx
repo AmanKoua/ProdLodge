@@ -23,6 +23,7 @@ const SongCommentSection = ({
   const [commentInputPlaceholder, setCommentInputPlaceholder] = useState(
     "Write a new comment ..."
   );
+  const [commentData, setCommentData] = useState("");
   const [currentReplyId, setCurrentReplyId] = useState("");
   const [parentCommentId, setParentCommentId] = useState("empty");
   const [currentHoverTarget, setCurrentHoverTarget] = useState("");
@@ -30,6 +31,22 @@ const SongCommentSection = ({
   const [message, setMessage] = useState("");
 
   const authContext = useContext(AuthContext);
+
+  const postComment = async () => {
+    let response = await fetch(`http://localhost:8005/comment/}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        authorization: `Bearer ${authContext.user.token}`,
+      },
+      body: JSON.stringify({
+        songId: songData.id,
+        data: commentData,
+        replyId: currentReplyId,
+        // TODO : Stopped here. Handle attaching and managing chains for comments
+      }),
+    });
+  };
 
   const fetchComments = async (
     commentsList: string[]
@@ -342,6 +359,10 @@ const SongCommentSection = ({
             type="text"
             className="w-full h-full pl-1 pr-1 border-b"
             placeholder={commentInputPlaceholder}
+            value={commentData}
+            onChange={(e) => {
+              setCommentData(e.target.value);
+            }}
           />
         </div>
 
