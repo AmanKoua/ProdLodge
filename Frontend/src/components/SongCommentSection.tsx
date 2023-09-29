@@ -33,8 +33,6 @@ const SongCommentSection = ({
   const fetchComments = async (
     commentsList: string[]
   ): Promise<Map<string, SongComment>> => {
-    console.log("-----------");
-
     let tempCommentPayload: Map<string, SongComment> = commentsPayload;
 
     for (let i = 0; i < commentsList.length; i++) {
@@ -76,8 +74,6 @@ const SongCommentSection = ({
 
     for (let i = 0; i < replyList.length; i++) {
       if (tempCommentPayload.get(replyList[i]) == undefined) {
-        console.log("fetching child comments!");
-
         let response = await fetch(
           `http://localhost:8005/comment/${replyList[i]}`,
           {
@@ -274,7 +270,7 @@ const SongCommentSection = ({
                       className={
                         currentHoverTarget == item[0]
                           ? "bg-prodSecondary h-6 w-3/12 rounded-b-lg flex ml-auto mr-auto justify-center overflow-hidden"
-                          : "bg-prodSecondary h-0 w-3/12 rounded-b-lg flex ml-auto mr-auto justify-center overflow-hidden"
+                          : "bg-prodSecondary h-1 w-3/12 rounded-b-lg flex ml-auto mr-auto justify-center overflow-hidden"
                       }
                       style={{ transition: "all 0.3s" }}
                       onMouseOver={(e) => {
