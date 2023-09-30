@@ -402,7 +402,10 @@ const SongCommentSection = ({
       return (
         <>
           {temp.map((item, idx) => (
-            <div className="bg-gray-200 w-10/12 h-20 ml-auto mr-auto mt-4 pb-1 border border-black animate-pulse"></div>
+            <div
+              className="bg-gray-200 w-10/12 h-20 ml-auto mr-auto mt-4 pb-1 border border-black animate-pulse"
+              key={idx}
+            ></div>
           ))}
           ;
         </>

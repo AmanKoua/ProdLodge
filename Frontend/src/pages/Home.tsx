@@ -15,6 +15,7 @@ const Home = () => {
   const [isSongPayloadSet, setIsSongPayloadSet] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedPage, setSelectedPage] = useState("My Songs");
+  const [isPageSwitched, setIsPageSwitched] = useState(false); // toggle this value back and forth to act as a trigger
   const authContext = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -42,8 +43,6 @@ const Home = () => {
 
       let json = await response.json();
 
-      console.log(json.payload);
-
       let tempUserSongsPayload = [];
       let tempFriendSongPayload = [];
       let tempPublicSongPayload = [];
@@ -68,12 +67,21 @@ const Home = () => {
     getSongPayload();
   }, [isSongPayloadSet, authContext]);
 
+  useEffect(() => {
+    // Add wait time when switching between pages to circumvent audiobox conflation bug
+    setIsLoading(true);
+    let tempTimeout = setTimeout(() => {
+      setIsLoading(false);
+    }, 500);
+  }, [songPayload]);
+
   const generateAudioBoxes = (): JSX.Element => {
     let audioBoxFragment = (
       <>
         {songPayload.map((item, idx) => (
           <AudioBox
             songData={item}
+            isPageSwitched={isPageSwitched}
             setIsSongPayloadSet={setIsSongPayloadSet}
             key={idx}
           ></AudioBox>
@@ -115,7 +123,10 @@ const Home = () => {
               className="hover:font-bold"
               onClick={() => {
                 setSelectedPage("My Songs");
-                setSongPayload(userSongPayload);
+                setIsPageSwitched(!isPageSwitched);
+                setTimeout(() => {
+                  setSongPayload(userSongPayload);
+                }, 50);
               }}
             >
               My Songs
@@ -133,7 +144,10 @@ const Home = () => {
               className="hover:font-bold"
               onClick={() => {
                 setSelectedPage("Friend's Songs");
-                setSongPayload(friendSongPayload);
+                setIsPageSwitched(!isPageSwitched);
+                setTimeout(() => {
+                  setSongPayload(friendSongPayload);
+                }, 50);
               }}
             >
               Friend's Songs
@@ -151,7 +165,10 @@ const Home = () => {
               className="hover:font-bold"
               onClick={() => {
                 setSelectedPage("Public songs");
-                setSongPayload(publicSongPayload);
+                setIsPageSwitched(!isPageSwitched);
+                setTimeout(() => {
+                  setSongPayload(publicSongPayload);
+                }, 50);
               }}
             >
               Public songs
