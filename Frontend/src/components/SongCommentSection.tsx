@@ -60,6 +60,20 @@ const SongCommentSection = ({
     setError("");
     setMessage("");
 
+    let chainBody = undefined;
+
+    if (isChainAttached) {
+      chainBody = JSON.stringify({
+        data: JSON.stringify(chainConfig),
+        name: chainName,
+      });
+    } else {
+      chainBody = JSON.stringify({
+        data: JSON.stringify("N/A"),
+        name: "N/A",
+      });
+    }
+
     let response = await fetch(`http://localhost:8005/comment/`, {
       method: "POST",
       headers: {
@@ -71,17 +85,23 @@ const SongCommentSection = ({
         data: commentData,
         replyId: currentReplyId,
         hasChain: `${isChainAttached}`,
-        chain: JSON.stringify({
-          data: JSON.stringify(chainConfig),
-          name: chainName,
-        }),
+        chain: chainBody,
       }),
     });
 
     if (response.ok) {
       setMessage("comment posted successfully!");
-      setCommentPayload(new Map<string, SongComment>());
-      setAreParentCommentsFetched(false);
+      setCommentData("");
+      setCurrentReplyId("");
+      setIsChainAttached(false);
+      setChainConfig("");
+      setChainName("");
+      setCommentInputPlaceholder("Write a new comment ...");
+
+      setTimeout(() => {
+        setCommentPayload(new Map<string, SongComment>());
+        setAreParentCommentsFetched(false);
+      }, 2000);
     } else {
       let json = await response.json();
       console.log(json);
@@ -334,7 +354,9 @@ const SongCommentSection = ({
                           <div className="w-full h-max flex align-middle justify-center pt-1">
                             <div
                               className={
-                                item[1].hasChain ? "opacity-100" : "opacity-40"
+                                item[1].hasChain
+                                  ? "opacity-100 hover:font-bold"
+                                  : "opacity-40"
                               }
                               style={{
                                 position: "absolute",
@@ -349,17 +371,21 @@ const SongCommentSection = ({
                               onClick={async () => {
                                 if (!hasUserGestured || !isVisualizing) {
                                   setError(
-                                    "Cannot load chain before tracks are fetched!"
+                                    "Cannot load configuration before song is loaded!"
                                   );
                                   return;
                                 }
 
                                 let result = await loadConfiguration(
-                                  JSON.parse(item[1].chain.data)
+                                  JSON.parse(JSON.parse(item[1].chain.data))
                                 );
 
                                 if (!result) {
                                   setError("Chain loading failed!");
+                                } else {
+                                  setMessage(
+                                    "Configuration loaded successfully!"
+                                  );
                                 }
                               }}
                             >
