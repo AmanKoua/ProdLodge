@@ -594,6 +594,23 @@ const UserProfile = () => {
   }, [triggerFriendDataFetch]);
 
   useEffect(() => {
+    // Clear error and message after a set time period of being displayed
+
+    if (!message && !error) {
+      return;
+    }
+
+    let temp = setTimeout(() => {
+      setError("");
+      setMessage("");
+    }, 5000);
+
+    return () => {
+      clearTimeout(temp);
+    };
+  }, [message, error]);
+
+  useEffect(() => {
     // update profle data when profile context changes
     updateProfileData();
   }, [profileContext]);

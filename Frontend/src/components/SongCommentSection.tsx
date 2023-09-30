@@ -347,7 +347,12 @@ const SongCommentSection = ({
                       <div className="w-4/6 h-6 ml-auto mr-auto inline-block">
                         <div className="border-b border-gray-400 w-6/12 h-full overflow-hidden inline-block">
                           <p className="w-max h-max ml-auto mr-auto font-bold hover:text-blue-500 hover:cursor-pointer">
-                            {item[1].creatorUserName}
+                            <a
+                              className="text-black hover:text-blue-500"
+                              href={`/userProfile/${item[1].creatorId}`}
+                            >
+                              {item[1].creatorUserName}
+                            </a>
                           </p>
                         </div>
                         <div className="border-b border-gray-400 w-6/12 h-full overflow-hidden inline-block">
@@ -435,6 +440,14 @@ const SongCommentSection = ({
                               delete
                             </span>
                             <p>delete</p>
+                          </>
+                        )}
+                        {item[1].creatorId != authContext.user.id && (
+                          <>
+                            <span className="material-symbols-outlined opacity-40">
+                              delete
+                            </span>
+                            <p className="opacity-40">delete</p>
                           </>
                         )}
                       </div>

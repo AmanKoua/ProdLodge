@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import CSS from "csstype";
 import AudioSettingsTrack from "./AudioSettingsTrack";
 import "../invisibleScrollbar.css";
@@ -47,6 +47,23 @@ const AudioSettingsDrawer = ({
   const [songChainIdx, setSongChainIdx] = useState(-1);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    // Clear error and message after a set time period of being displayed
+
+    if (!message && !error) {
+      return;
+    }
+
+    let temp = setTimeout(() => {
+      setError("");
+      setMessage("");
+    }, 5000);
+
+    return () => {
+      clearTimeout(temp);
+    };
+  }, [message, error]);
 
   const SettingsDrawerStyle: CSS.Properties = {
     position: "absolute",
