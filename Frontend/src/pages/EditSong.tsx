@@ -357,6 +357,23 @@ const EditSong = () => {
     };
   }, [editSongPage, pageHeight]);
 
+  useEffect(() => {
+    // Clear error and message after a set time period of being displayed
+
+    if (!message && !error) {
+      return;
+    }
+
+    let temp = setTimeout(() => {
+      setError("");
+      setMessage("");
+    }, 5000);
+
+    return () => {
+      clearTimeout(temp);
+    };
+  }, [message, error]);
+
   const editSong = async (
     songId: string,
     title: string,
