@@ -66,6 +66,11 @@ const SongCommentSection = ({
     setError("");
     setMessage("");
 
+    if (!commentData) {
+      setError("cannot post an empty comment!");
+      return;
+    }
+
     let chainBody = undefined;
 
     if (isChainAttached) {
@@ -95,7 +100,20 @@ const SongCommentSection = ({
       }),
     });
 
+    let json = undefined;
+
+    try {
+      json = await response.json();
+    } catch (e) {
+      console.log("Invalid response json!");
+    }
+
     if (response.ok) {
+      if (currentReplyId == "") {
+        // At newly created comment to commentsList in order to allow refresh to retrieve parent level comments
+        songData.commentsList.push(json.commentId);
+      }
+
       setMessage("comment posted successfully!");
       setCommentData("");
       setCurrentReplyId("");
@@ -108,7 +126,6 @@ const SongCommentSection = ({
       //   await refreshComments();
       // }, 2000);
     } else {
-      let json = await response.json();
       console.log(json);
       setError("Comment posting failed!");
     }
@@ -134,6 +151,13 @@ const SongCommentSection = ({
       setMessage("comment deleted started successfully!");
       commentsPayload.delete(commentId);
       setCommentsPayload(commentsPayload);
+
+      let commentIdIdx = songData.commentsList.indexOf(commentId);
+      if (commentIdIdx > -1) {
+        // Remove comment id from parent comments id list upon successful deletion
+        songData.commentsList.splice(commentIdIdx, 1);
+      }
+
       // setTimeout(async () => {
       //   await refreshComments();
       // }, 2000);
