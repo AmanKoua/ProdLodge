@@ -42,6 +42,8 @@ const Home = () => {
 
       let json = await response.json();
 
+      console.log(json.payload);
+
       let tempUserSongsPayload = [];
       let tempFriendSongPayload = [];
       let tempPublicSongPayload = [];

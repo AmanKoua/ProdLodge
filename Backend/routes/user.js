@@ -411,7 +411,7 @@ router.get("/songs", verifyTokenAndGetUser, async (req, res) => {
         payload.push(tempSong);
     }
 
-    for (let n = 0; n < friends.length; n++) {
+    for (let n = 0; n < friends.length; n++) { // Retrieve all songs owned by the friend of the user
 
         const friend = await user.findOne({ _id: friends[n] }).exec();
 
@@ -472,6 +472,67 @@ router.get("/songs", verifyTokenAndGetUser, async (req, res) => {
             payload.push(tempSong);
         }
 
+    }
+
+    const publicSongs = await song.find({ visibility: "public" });
+
+    for (let i = 0; i < publicSongs.length; i++) { // Retrieve all songs that are public
+
+        // Check that song does not belong to user or a friend
+
+        if (publicSongs[i].userId.valueOf() == userId.valueOf()) { // if song is owned by the requestor, continue
+            continue;
+        }
+
+        if (friends.includes(publicSongs[i].userId)) { // if song is owned be a friend of the requestor, continue
+            continue;
+        }
+
+        const songOwner = await user.findOne({ _id: publicSongs[i].userId });
+
+        if (!songOwner) {
+            console.log("Internal server error! A song exists without being attached to an existing user!");
+            continue;
+        }
+
+        let tempSong = {};
+        let tempTrackIds = [];
+        let tempChainsData = [];
+        tempSong.owner = songOwner.userName;
+        tempSong.ownerId = songOwner._id.valueOf();
+        tempSong.title = publicSongs[i].title;
+        tempSong.description = publicSongs[i].description;
+        tempSong.id = publicSongs[i]._id;
+        tempSong.visibility = publicSongs[i].visibility;
+        tempSong.userConnection = "public";
+        tempSong.commentsList = publicSongs[i].commentsList;
+
+        for (let j = 0; j < publicSongs[i].trackList.length; j++) {
+            tempTrackIds.push(publicSongs[i].trackList[j]._id.valueOf());
+        }
+
+        for (let j = 0; j < publicSongs[i].chainsList.length; j++) {
+
+            const tempChains = await chain.find({ _id: publicSongs[i].chainsList[j] }).exec();
+
+            if (tempChains.length === 0) {
+                // Chain is not found OR deleted...
+                continue;
+            }
+            else {
+                let chainSnapShot = {
+                    name: tempChains[0].name,
+                    data: tempChains[0].data,
+                    id: tempChains[0]._id, // send over id for deletion
+                }
+                tempChainsData.push(chainSnapShot);
+            }
+
+        }
+
+        tempSong.chains = tempChainsData;
+        tempSong.trackIds = tempTrackIds;
+        payload.push(tempSong);
     }
 
     return res.status(200).json({ payload })
