@@ -8,8 +8,8 @@ import AudioBox from "../audioComponents/AudioBox";
 import { Chain, SongData } from "../customTypes";
 
 const Home = () => {
-  const [userSongPayload, setUserSongPayload] = useState([]);
-  const [isUserSongPayloadSet, setIsUserSongPayloadSet] = useState(false);
+  const [songPayload, setSongPayload] = useState([]);
+  const [isSongPayloadSet, setIsSongPayloadSet] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedPage, setSelectedPage] = useState("My Songs");
   const authContext = useContext(AuthContext);
@@ -23,11 +23,11 @@ const Home = () => {
       return;
     }
 
-    if (isUserSongPayloadSet) {
+    if (isSongPayloadSet) {
       return;
     }
 
-    let getUserSongPayload = async () => {
+    let getSongPayload = async () => {
       let response = await fetch("http://localhost:8005/user/songs", {
         method: "GET",
         headers: {
@@ -38,20 +38,20 @@ const Home = () => {
       setIsLoading(false);
 
       let json = await response.json();
-      setUserSongPayload(json.payload);
-      setIsUserSongPayloadSet(true);
+      setSongPayload(json.payload);
+      setIsSongPayloadSet(true);
     };
 
-    getUserSongPayload();
-  }, [isUserSongPayloadSet, authContext]);
+    getSongPayload();
+  }, [isSongPayloadSet, authContext]);
 
   const generateAudioBoxes = (): JSX.Element => {
     let audioBoxFragment = (
       <>
-        {userSongPayload.map((item, idx) => (
+        {songPayload.map((item, idx) => (
           <AudioBox
             songData={item}
-            setIsUserSongPayloadSet={setIsUserSongPayloadSet}
+            setIsSongPayloadSet={setIsSongPayloadSet}
             key={idx}
           ></AudioBox>
         ))}
@@ -115,6 +115,23 @@ const Home = () => {
             </p>
           )}
         </div>
+        <div className="w-max h-max inline-block">
+          {selectedPage === "Public songs" && (
+            <p className="hover:font-bold border-b-2 border-black">
+              Public songs
+            </p>
+          )}
+          {selectedPage !== "Public songs" && (
+            <p
+              className="hover:font-bold"
+              onClick={() => {
+                setSelectedPage("Public songs");
+              }}
+            >
+              Public songs
+            </p>
+          )}
+        </div>
       </div>
 
       <div className=" w-full h-max mt-56 bg-prodSecondary rounded-lg z-50 fixed sm:hidden">
@@ -123,8 +140,8 @@ const Home = () => {
         </h3>
       </div>
       <div className="blur-sm sm:blur-none sm:pointer-events-auto pointer-events-none">
-        {!isLoading && userSongPayload.length > 0 && generateAudioBoxes()}
-        {!isLoading && userSongPayload.length == 0 && (
+        {!isLoading && songPayload.length > 0 && generateAudioBoxes()}
+        {!isLoading && songPayload.length == 0 && (
           <div className="w-max h-max ml-auto mr-auto mt-5 border-b-2 border-black ">
             <h3 className="">Sorry, but you have no songs to show.</h3>
           </div>

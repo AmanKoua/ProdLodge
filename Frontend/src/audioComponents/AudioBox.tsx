@@ -37,10 +37,10 @@ import impulse18 from "../assets/impulseResponses/18.wav";
 
 interface Props {
   songData: SongData;
-  setIsUserSongPayloadSet: (val: boolean) => void;
+  setIsSongPayloadSet: (val: boolean) => void;
 }
 
-const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
+const AudioBox = ({ songData, setIsSongPayloadSet }: Props) => {
   // console.log("AudioBox Rerender!");
 
   let impulses: Object = {
@@ -1612,7 +1612,7 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
 
     if (response.ok) {
       // const json = await response.json();
-      setIsUserSongPayloadSet(false); // trigger refetching if user song data from backend
+      setIsSongPayloadSet(false); // trigger refetching if user song data from backend
       return true;
     } else {
       return false;
