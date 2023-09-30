@@ -36,7 +36,7 @@ const SongCommentSection = ({
   getConfiguration,
   loadConfiguration,
 }: Props) => {
-  const [commentsPayload, setCommentPayload] = useState(
+  const [commentsPayload, setCommentsPayload] = useState(
     new Map<string, SongComment>()
   );
   const [areParentCommentsFetched, setAreParentCommentsFetched] =
@@ -53,11 +53,12 @@ const SongCommentSection = ({
   const [currentHoverTarget, setCurrentHoverTarget] = useState("");
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const [triggerRefresh, setTriggerRefresh] = useState(0);
 
   const authContext = useContext(AuthContext);
 
   const refreshComments = async () => {
-    setCommentPayload(new Map<string, SongComment>());
+    // setCommentsPayload(new Map<string, SongComment>());
     setAreParentCommentsFetched(false);
   };
 
@@ -131,6 +132,8 @@ const SongCommentSection = ({
 
     if (response.ok) {
       setMessage("comment deleted started successfully!");
+      commentsPayload.delete(commentId);
+      setCommentsPayload(commentsPayload);
       // setTimeout(async () => {
       //   await refreshComments();
       // }, 2000);
@@ -152,17 +155,51 @@ const SongCommentSection = ({
     setError("");
     setMessage("");
 
+    let userComment = commentsPayload.get(commentId);
+
+    if (!userComment) {
+      console.log("The comment you have interacted with doe not exist!");
+      return;
+    }
+
+    let prevInteractionStatus = {
+      upvoteCount: userComment.upvoteCount,
+      downvoteCount: userComment.downvoteCount,
+      hasUserUpvoted: userComment.hasUserUpvoted,
+      hasUserDownvoted: userComment.hasUserDownvoted,
+    };
+
     let interactionStatus = undefined;
 
     if (isUpvotePressed && !hasUserUpvoted) {
       interactionStatus = 1;
+      userComment.hasUserUpvoted = true;
+      userComment.upvoteCount += 1;
+
+      if (hasUserDownvoted) {
+        userComment.hasUserDownvoted = false;
+        userComment.downvoteCount -= 1;
+      }
     } else if (isUpvotePressed && hasUserUpvoted) {
       interactionStatus = 0;
+      userComment.hasUserUpvoted = false;
+      userComment.upvoteCount -= 1;
     } else if (!isUpvotePressed && !hasUserDownvoted) {
       interactionStatus = 2;
+      userComment.hasUserDownvoted = true;
+      userComment.downvoteCount += 1;
+
+      if (hasUserUpvoted) {
+        userComment.hasUserUpvoted = false;
+        userComment.upvoteCount -= 1;
+      }
     } else if (!isUpvotePressed && hasUserDownvoted) {
       interactionStatus = 0;
+      userComment.hasUserDownvoted = false;
+      userComment.downvoteCount -= 1;
     }
+
+    setCommentsPayload(commentsPayload);
 
     let response = await fetch(
       `http://localhost:8005/comment/${commentId}/interact`,
@@ -184,6 +221,13 @@ const SongCommentSection = ({
       let json = await response.json();
       console.log(json);
       setError("Comment interaction failed!");
+
+      // Reset user comment
+      userComment.upvoteCount = prevInteractionStatus.upvoteCount;
+      userComment.downvoteCount = prevInteractionStatus.downvoteCount;
+      userComment.hasUserUpvoted = prevInteractionStatus.hasUserUpvoted;
+      userComment.hasUserDownvoted = prevInteractionStatus.hasUserDownvoted;
+      setCommentsPayload(commentsPayload);
     }
   };
 
@@ -214,11 +258,12 @@ const SongCommentSection = ({
       } else {
         const json = await response.json();
         console.log("Comment fetching error", json);
+        tempCommentPayload.delete(commentsList[i]);
       }
     }
 
     return tempCommentPayload;
-    // setCommentPayload(tempCommentPayload);
+    // setCommentsPayload(tempCommentPayload);
     // setCurrentComments(tempCommentPayload);
   };
 
@@ -248,6 +293,7 @@ const SongCommentSection = ({
         } else {
           const json = await response.json();
           console.log("Comment fetching error", json);
+          tempCommentPayload.delete(replyList[i]);
         }
       }
     }
@@ -271,7 +317,7 @@ const SongCommentSection = ({
         let temp: Map<string, SongComment> = await fetchComments(
           songData.commentsList
         );
-        setCommentPayload(temp);
+        setCommentsPayload(temp);
         // setCurrentComments(temp);
         setAreParentCommentsFetched(true);
       } else {
@@ -298,7 +344,7 @@ const SongCommentSection = ({
         let temp: Map<string, SongComment> = await fetchComments(
           commentsPayload.get(parentCommentId)!.replyList
         );
-        setCommentPayload(temp);
+        setCommentsPayload(temp);
         // setCurrentComments(temp);
       } else {
         // do nothing
@@ -458,12 +504,12 @@ const SongCommentSection = ({
                     <div className="pt-3 pr-3 pl-3 pb-3 h-max block text-center">
                       {item[1].data}
                     </div>
-                    <div className="w-4/6 h-6 ml-auto mr-auto flex">
+                    <div className=" w-4/6 h-6 ml-auto mr-auto flex">
                       <div className=" border-t border-gray-400 w-3/6 h-6 mt-0 ml-auto mr-auto overflow-hidden flex justify-around">
                         <span
                           className={
                             item[1].hasUserUpvoted
-                              ? "material-symbols-outlined font-bold"
+                              ? "material-symbols-outlined font-bold text-green-500"
                               : "material-symbols-outlined hover:font-bold"
                           }
                           onClick={() => {
@@ -473,6 +519,7 @@ const SongCommentSection = ({
                               item[1].hasUserUpvoted,
                               item[1].hasUserDownvoted
                             );
+                            setTriggerRefresh(triggerRefresh + 1);
                           }}
                         >
                           arrow_upward
@@ -481,7 +528,7 @@ const SongCommentSection = ({
                         <span
                           className={
                             item[1].hasUserDownvoted
-                              ? "material-symbols-outlined font-bold"
+                              ? "material-symbols-outlined font-bold text-red-500"
                               : "material-symbols-outlined hover:font-bold"
                           }
                           onClick={() => {
@@ -491,6 +538,7 @@ const SongCommentSection = ({
                               item[1].hasUserUpvoted,
                               item[1].hasUserDownvoted
                             );
+                            setTriggerRefresh(triggerRefresh + 1);
                           }}
                         >
                           arrow_downward
@@ -498,15 +546,17 @@ const SongCommentSection = ({
                         <p>{item[1].downvoteCount}</p>
                       </div>
                       <div className="border-t border-gray-400 w-6/12 h-full overflow-hidden flex justify-around">
-                        <span
-                          className="material-symbols-outlined hover:font-bold"
-                          onClick={() => {
-                            generateReplyPlaceholderText(item[0]);
-                            setCurrentReplyId(item[0]);
-                          }}
-                        >
-                          reply
-                        </span>
+                        <a href="#comment-input" className="text-black">
+                          <span
+                            className="material-symbols-outlined hover:font-bold"
+                            onClick={() => {
+                              generateReplyPlaceholderText(item[0]);
+                              setCurrentReplyId(item[0]);
+                            }}
+                          >
+                            reply
+                          </span>
+                        </a>
                         <p>reply</p>
                         {item[1].creatorId == authContext.user.id && (
                           <>
@@ -589,7 +639,7 @@ const SongCommentSection = ({
       )}
 
       <div className="bg-white rounded-lg w-11/12 h-20 ml-auto mr-auto mt-3">
-        <div className="w-full h-4/6">
+        <div className="w-full h-4/6" id="comment-input">
           <input
             type="text"
             className="w-full h-full pl-1 pr-1 border-b"

@@ -73,7 +73,7 @@ function App() {
   }, []);
 
   return (
-    <div className="app w-full h-screen">
+    <div className="app w-full h-screen scroll-smooth">
       <BrowserRouter>
         <NavBar />
         <div className="pages">
