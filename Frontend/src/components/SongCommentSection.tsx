@@ -409,8 +409,8 @@ const SongCommentSection = ({
       );
     } else {
       if (commentsPayload.size == 0) {
-        // Render nothing
-        return <></>;
+        // Render nothing except a margin
+        return <div className="pt-2"></div>;
       } else {
         return (
           <>
