@@ -1973,7 +1973,10 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
           songData={songData}
           audioModules={audioModules}
           isCommentsSectionDisplayed={isCommentsSectionDisplayed}
+          hasUserGestured={hasUserGestured}
+          isVisualizing={isVisualizing}
           getConfiguration={getConfiguration}
+          loadConfiguration={loadConfiguration}
         ></SongCommentSection>
       </div>
     </>

@@ -1,3 +1,12 @@
+/*
+  Parent comment 2
+  Child comment 2-1
+  Child comment 2-2
+  Child comment 2-2-1
+  Child comment 2-2-2
+  Child comment 2-2-3
+*/
+
 import { useEffect, useContext, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
 
@@ -12,14 +21,20 @@ interface Props {
   songData: SongData;
   audioModules: AudioModule[][];
   isCommentsSectionDisplayed: boolean;
+  hasUserGestured: boolean;
+  isVisualizing: boolean;
   getConfiguration: () => string;
+  loadConfiguration: (val: string) => Promise<boolean>;
 }
 
 const SongCommentSection = ({
   songData,
   audioModules,
   isCommentsSectionDisplayed,
+  hasUserGestured,
+  isVisualizing,
   getConfiguration,
+  loadConfiguration,
 }: Props) => {
   const [commentsPayload, setCommentPayload] = useState(
     new Map<string, SongComment>()
@@ -65,10 +80,39 @@ const SongCommentSection = ({
 
     if (response.ok) {
       setMessage("comment posted successfully!");
+      setCommentPayload(new Map<string, SongComment>());
+      setAreParentCommentsFetched(false);
     } else {
       let json = await response.json();
       console.log(json);
       setError("Comment posting failed!");
+    }
+  };
+
+  const deleteComment = async (commentId: string) => {
+    setMessage("");
+    setError("");
+
+    if (commentId.length != 24) {
+      setError("Cannot delete with invalid comment id!");
+      return;
+    }
+
+    let response = await fetch(`http://localhost:8005/comment/${commentId}`, {
+      method: "DELETE",
+      headers: {
+        authorization: `Bearer ${authContext.user.token}`,
+      },
+    });
+
+    if (response.ok) {
+      setMessage("comment deleted started successfully!");
+      setCommentPayload(new Map<string, SongComment>());
+      setAreParentCommentsFetched(false);
+    } else {
+      const json = await response.json();
+      console.log(json);
+      setError("Error deleting comment!");
     }
   };
 
@@ -193,6 +237,23 @@ const SongCommentSection = ({
     fetchNewComments();
   }, [parentCommentId, areParentCommentsFetched]);
 
+  useEffect(() => {
+    // Clear error and message after a set time period of being displayed
+
+    if (!message && !error) {
+      return;
+    }
+
+    let temp = setTimeout(() => {
+      setError("");
+      setMessage("");
+    }, 5000);
+
+    return () => {
+      clearTimeout(temp);
+    };
+  }, [message, error]);
+
   const generateSongComments = (): JSX.Element => {
     let temp = new Array(3).fill(0);
 
@@ -285,8 +346,24 @@ const SongCommentSection = ({
                                 textAlign: "center",
                                 overflow: "hidden",
                               }}
+                              onClick={async () => {
+                                if (!hasUserGestured || !isVisualizing) {
+                                  setError(
+                                    "Cannot load chain before tracks are fetched!"
+                                  );
+                                  return;
+                                }
+
+                                let result = await loadConfiguration(
+                                  JSON.parse(item[1].chain.data)
+                                );
+
+                                if (!result) {
+                                  setError("Chain loading failed!");
+                                }
+                              }}
                             >
-                              Load confiuration
+                              Load configuration
                             </div>
                           </div>
                         </div>
@@ -319,7 +396,12 @@ const SongCommentSection = ({
                         <p>reply</p>
                         {item[1].creatorId == authContext.user.id && (
                           <>
-                            <span className="material-symbols-outlined hover:font-bold">
+                            <span
+                              className="material-symbols-outlined hover:font-bold"
+                              onClick={() => {
+                                deleteComment(item[0]);
+                              }}
+                            >
                               delete
                             </span>
                             <p>delete</p>
