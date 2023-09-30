@@ -317,10 +317,14 @@ const SongCommentSection = ({
                           reply
                         </span>
                         <p>reply</p>
-                        <span className="material-symbols-outlined hover:font-bold">
-                          delete
-                        </span>
-                        <p>delete</p>
+                        {item[1].creatorId == authContext.user.id && (
+                          <>
+                            <span className="material-symbols-outlined hover:font-bold">
+                              delete
+                            </span>
+                            <p>delete</p>
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>
