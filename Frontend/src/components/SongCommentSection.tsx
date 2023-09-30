@@ -1,23 +1,29 @@
 import { useEffect, useContext, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
 
-import { SongData, CommentRequestResponse, SongComment } from "../customTypes";
+import {
+  SongData,
+  CommentRequestResponse,
+  SongComment,
+  AudioModule,
+} from "../customTypes";
 
 interface Props {
   songData: SongData;
+  audioModules: AudioModule[][];
   isCommentsSectionDisplayed: boolean;
+  getConfiguration: () => string;
 }
 
 const SongCommentSection = ({
   songData,
+  audioModules,
   isCommentsSectionDisplayed,
+  getConfiguration,
 }: Props) => {
   const [commentsPayload, setCommentPayload] = useState(
     new Map<string, SongComment>()
   );
-  //   const [currentComments, setCurrentComments] = useState<
-  //     Map<string, SongComment>
-  //   >(new Map<string, SongComment>());
   const [areParentCommentsFetched, setAreParentCommentsFetched] =
     useState(false);
   const [commentInputPlaceholder, setCommentInputPlaceholder] = useState(
@@ -25,6 +31,9 @@ const SongCommentSection = ({
   );
   const [commentData, setCommentData] = useState("");
   const [currentReplyId, setCurrentReplyId] = useState("");
+  const [isChainAttached, setIsChainAttached] = useState(false);
+  const [chainConfig, setChainConfig] = useState("");
+  const [chainName, setChainName] = useState("");
   const [parentCommentId, setParentCommentId] = useState("empty");
   const [currentHoverTarget, setCurrentHoverTarget] = useState("");
   const [error, setError] = useState("");
@@ -33,7 +42,10 @@ const SongCommentSection = ({
   const authContext = useContext(AuthContext);
 
   const postComment = async () => {
-    let response = await fetch(`http://localhost:8005/comment/}`, {
+    setError("");
+    setMessage("");
+
+    let response = await fetch(`http://localhost:8005/comment/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -43,9 +55,21 @@ const SongCommentSection = ({
         songId: songData.id,
         data: commentData,
         replyId: currentReplyId,
-        // TODO : Stopped here. Handle attaching and managing chains for comments
+        hasChain: `${isChainAttached}`,
+        chain: JSON.stringify({
+          data: JSON.stringify(chainConfig),
+          name: chainName,
+        }),
       }),
     });
+
+    if (response.ok) {
+      setMessage("comment posted successfully!");
+    } else {
+      let json = await response.json();
+      console.log(json);
+      setError("Comment posting failed!");
+    }
   };
 
   const fetchComments = async (
@@ -248,6 +272,9 @@ const SongCommentSection = ({
                         <div className="border-b border-gray-400 w-6/12 h-full overflow-hidden inline-block">
                           <div className="w-full h-max flex align-middle justify-center pt-1">
                             <div
+                              className={
+                                item[1].hasChain ? "opacity-100" : "opacity-40"
+                              }
                               style={{
                                 position: "absolute",
                                 width: "15%",
@@ -384,6 +411,7 @@ const SongCommentSection = ({
 
           <div className=" w-6/12 h-full flex justify-center">
             <div
+              className="hover:font-bold"
               style={{
                 position: "absolute",
                 width: "max",
@@ -397,6 +425,9 @@ const SongCommentSection = ({
                 textAlign: "center",
                 overflow: "hidden",
                 // background: "purple",
+              }}
+              onClick={() => {
+                postComment();
               }}
             >
               Submit
@@ -404,6 +435,9 @@ const SongCommentSection = ({
           </div>
           <div className="w-6/12 h-full flex justify-center">
             <div
+              className={
+                !isChainAttached ? "opacity-100" : "font-bold opacity-100"
+              }
               style={{
                 position: "absolute",
                 width: "max",
@@ -418,8 +452,35 @@ const SongCommentSection = ({
                 overflow: "hidden",
                 // background: "purple",
               }}
+              onClick={() => {
+                if (!isChainAttached) {
+                  let tempChainName = prompt(
+                    "What would you like to call the chain you are attaching to this comment?"
+                  );
+
+                  if (!tempChainName || tempChainName.length > 25) {
+                    if (!tempChainName) {
+                      alert("Sorry, you cannot have an empty chain name!");
+                    } else {
+                      alert(
+                        "Sorry, you cannot have a chain name that is more than 25 characters!"
+                      );
+                    }
+                    return;
+                  }
+
+                  setChainName(tempChainName);
+                  let configuration = getConfiguration();
+                  console.log(configuration);
+                  setChainConfig(configuration);
+                } else {
+                  // do nothing
+                }
+                setIsChainAttached(!isChainAttached);
+              }}
             >
-              Attach current configuration
+              {isChainAttached && "Remove attached configuration"}
+              {!isChainAttached && "Attach current configuration"}
             </div>
           </div>
         </div>

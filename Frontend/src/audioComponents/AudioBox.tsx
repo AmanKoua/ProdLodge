@@ -1567,8 +1567,6 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
       parse audioModulesJson[index] -> 2d audioModules Object
     */
 
-    // TODO : Remove return statement after testing is completed
-
     audioModulesJSON[currentTrackIdx] = JSON.stringify(audioModules); // save current track's audioModules as JSON
 
     let tempData = [];
@@ -1624,6 +1622,41 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
     example of a saved configuration (make sure to add ` before and after JSON string below)
     {"data":[[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"New"}]],[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"New"}]],[[{"type":"Blank"},{"type":"Highpass","isEnabled":true,"frequency":20,"resonance":0},{"type":"Lowpass","isEnabled":true,"frequency":21000,"resonance":0}],[{"type":"Reverb","isEnabled":true,"impulse":0}]],[[{"type":"Blank"}]],[[{"type":"Blank"}]],[[{"type":"Blank"}]]]}
     */
+  };
+
+  const getConfiguration = (): string => {
+    // For getting the current configuration for comment uploading with chains. Similar to saveConfig, but without uploading
+    // The output of this function, once stringifies again, is ready for uploading to the DB
+
+    audioModulesJSON[currentTrackIdx] = JSON.stringify(audioModules); // save current track's audioModules as JSON
+
+    let tempData = [];
+
+    // remove any "new" type modules before saving.
+    for (let i = 0; i < audioModulesJSON.length; i++) {
+      let tempAudioModules = JSON.parse(audioModulesJSON[i]);
+
+      let lastRow = tempAudioModules.length - 1;
+      let lastColumn = tempAudioModules[lastRow].length - 1;
+
+      if (tempAudioModules[lastRow][lastColumn].type === "New") {
+        tempAudioModules[lastRow].splice(lastColumn, 1);
+
+        if (tempAudioModules[lastRow].length === 0) {
+          tempAudioModules.splice(lastRow, 1);
+        }
+      }
+
+      audioModulesJSON[i] = JSON.stringify(tempAudioModules);
+      tempData.push(JSON.parse(audioModulesJSON[i]));
+    }
+
+    const configuration = {
+      data: tempData,
+    };
+
+    let payload = JSON.stringify(configuration);
+    return payload;
   };
 
   let sleep = (seconds: number): Promise<void> => {
@@ -1938,7 +1971,9 @@ const AudioBox = ({ songData, setIsUserSongPayloadSet }: Props) => {
         {/* Comments section */}
         <SongCommentSection
           songData={songData}
+          audioModules={audioModules}
           isCommentsSectionDisplayed={isCommentsSectionDisplayed}
+          getConfiguration={getConfiguration}
         ></SongCommentSection>
       </div>
     </>
