@@ -354,14 +354,28 @@ router.get('/profileImage', verifyTokenAndGetUser, async (req, res) => {
 
 router.get("/songs", verifyTokenAndGetUser, async (req, res) => {
     const userId = req.body.verifiedUser._id;
+    const tempUserProfile = await userProfile.findOne({ userId: userId });
+
+    if (!tempUserProfile) {
+        return res.status(500).json({ error: "User profile not found!" });
+    }
+
+    const tempUserFriendsList = await userFriends.findOne({ _id: tempUserProfile.friendsListId });
+
+    if (!tempUserFriendsList) {
+        return res.status(500).json({ error: "User friends list not found!" });
+    }
+
+    const friends = tempUserFriendsList.friendsList;
     const songs = await song.find({ userId: userId }).exec();
     let payload = [];
 
-    for (let i = 0; i < songs.length; i++) {
+    for (let i = 0; i < songs.length; i++) { // retrieve all songs owned by the user
         let tempSong = {};
         let tempTrackIds = [];
         let tempChainsData = [];
         tempSong.owner = req.body.verifiedUser.userName;
+        tempSong.ownerId = req.body.verifiedUser._id.valueOf();
         tempSong.title = songs[i].title;
         tempSong.description = songs[i].description;
         tempSong.id = songs[i]._id;
@@ -394,6 +408,68 @@ router.get("/songs", verifyTokenAndGetUser, async (req, res) => {
         tempSong.chains = tempChainsData;
         tempSong.trackIds = tempTrackIds;
         payload.push(tempSong);
+    }
+
+    for (let n = 0; n < friends.length; n++) {
+
+        const friend = await user.findOne({ _id: friends[n] }).exec();
+
+        if (!friend) {
+            continue;
+        }
+
+        const friendSongs = await song.find({ userId: friends[n] }).exec();
+
+        if (!friendSongs || friendSongs.length == 0) {
+            continue;
+        }
+
+        for (let i = 0; i < friendSongs.length; i++) { // retrieve all songs of the owner's friends
+
+            // Check visibility to see if user has access to the song
+            if (friendSongs[i].visibility == "private") {
+                continue;
+            }
+
+            let tempSong = {};
+            let tempTrackIds = [];
+            let tempChainsData = [];
+            tempSong.owner = friend.userName;
+            tempSong.ownerId = friend._id.valueOf();
+            tempSong.title = friendSongs[i].title;
+            tempSong.description = friendSongs[i].description;
+            tempSong.id = friendSongs[i]._id;
+            tempSong.visibility = friendSongs[i].visibility;
+            tempSong.commentsList = friendSongs[i].commentsList;
+
+            for (let j = 0; j < friendSongs[i].trackList.length; j++) {
+                tempTrackIds.push(friendSongs[i].trackList[j]._id.valueOf());
+            }
+
+            for (let j = 0; j < friendSongs[i].chainsList.length; j++) {
+
+                const tempChains = await chain.find({ _id: friendSongs[i].chainsList[j] }).exec();
+
+                if (tempChains.length === 0) {
+                    // Chain is not found OR deleted...
+                    continue;
+                }
+                else {
+                    let chainSnapShot = {
+                        name: tempChains[0].name,
+                        data: tempChains[0].data,
+                        id: tempChains[0]._id, // send over id for deletion
+                    }
+                    tempChainsData.push(chainSnapShot);
+                }
+
+            }
+
+            tempSong.chains = tempChainsData;
+            tempSong.trackIds = tempTrackIds;
+            payload.push(tempSong);
+        }
+
     }
 
     return res.status(200).json({ payload })

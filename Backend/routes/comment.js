@@ -251,8 +251,7 @@ router.post("/", verifyTokenAndGetUser, async (req, res) => {
         await targetComment.updateOne({ $push: { replyList: createdComment._id } });
     }
 
-    return res.status(200).json({ message: "Successfully uploaded comment" });
-
+    return res.status(200).json({ message: "Successfully uploaded comment", commentId: `${createdComment._id.valueOf()}` });
 })
 
 router.get("/:id", verifyTokenAndGetUser, async (req, res) => {
