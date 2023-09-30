@@ -376,6 +376,10 @@ const SongCommentSection = ({
                                   return;
                                 }
 
+                                setMessage(
+                                  `loading configuration : ${item[1].chain.name}`
+                                );
+
                                 let result = await loadConfiguration(
                                   JSON.parse(JSON.parse(item[1].chain.data))
                                 );
