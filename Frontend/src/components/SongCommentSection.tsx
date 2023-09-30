@@ -56,6 +56,11 @@ const SongCommentSection = ({
 
   const authContext = useContext(AuthContext);
 
+  const refreshComments = async () => {
+    setCommentPayload(new Map<string, SongComment>());
+    setAreParentCommentsFetched(false);
+  };
+
   const postComment = async () => {
     setError("");
     setMessage("");
@@ -98,10 +103,9 @@ const SongCommentSection = ({
       setChainName("");
       setCommentInputPlaceholder("Write a new comment ...");
 
-      setTimeout(() => {
-        setCommentPayload(new Map<string, SongComment>());
-        setAreParentCommentsFetched(false);
-      }, 2000);
+      // setTimeout(async () => {
+      //   await refreshComments();
+      // }, 2000);
     } else {
       let json = await response.json();
       console.log(json);
@@ -127,12 +131,59 @@ const SongCommentSection = ({
 
     if (response.ok) {
       setMessage("comment deleted started successfully!");
-      setCommentPayload(new Map<string, SongComment>());
-      setAreParentCommentsFetched(false);
+      // setTimeout(async () => {
+      //   await refreshComments();
+      // }, 2000);
     } else {
       const json = await response.json();
       console.log(json);
       setError("Error deleting comment!");
+    }
+  };
+
+  const interactComment = async (
+    commentId: string,
+    isUpvotePressed: boolean,
+    hasUserUpvoted: boolean,
+    hasUserDownvoted: boolean
+  ) => {
+    // 0 - neither, 1 - upvote, 2 - downvote
+
+    setError("");
+    setMessage("");
+
+    let interactionStatus = undefined;
+
+    if (isUpvotePressed && !hasUserUpvoted) {
+      interactionStatus = 1;
+    } else if (isUpvotePressed && hasUserUpvoted) {
+      interactionStatus = 0;
+    } else if (!isUpvotePressed && !hasUserDownvoted) {
+      interactionStatus = 2;
+    } else if (!isUpvotePressed && hasUserDownvoted) {
+      interactionStatus = 0;
+    }
+
+    let response = await fetch(
+      `http://localhost:8005/comment/${commentId}/interact`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${authContext.user.token}`,
+        },
+        body: JSON.stringify({
+          interactionStatus: `${interactionStatus}`,
+        }),
+      }
+    );
+
+    if (response.ok) {
+      // do nothing
+    } else {
+      let json = await response.json();
+      console.log(json);
+      setError("Comment interaction failed!");
     }
   };
 
@@ -409,11 +460,39 @@ const SongCommentSection = ({
                     </div>
                     <div className="w-4/6 h-6 ml-auto mr-auto flex">
                       <div className=" border-t border-gray-400 w-3/6 h-6 mt-0 ml-auto mr-auto overflow-hidden flex justify-around">
-                        <span className="material-symbols-outlined hover:font-bold">
+                        <span
+                          className={
+                            item[1].hasUserUpvoted
+                              ? "material-symbols-outlined font-bold"
+                              : "material-symbols-outlined hover:font-bold"
+                          }
+                          onClick={() => {
+                            interactComment(
+                              item[0],
+                              true,
+                              item[1].hasUserUpvoted,
+                              item[1].hasUserDownvoted
+                            );
+                          }}
+                        >
                           arrow_upward
                         </span>
                         <p>{item[1].upvoteCount}</p>
-                        <span className="material-symbols-outlined hover:font-bold">
+                        <span
+                          className={
+                            item[1].hasUserDownvoted
+                              ? "material-symbols-outlined font-bold"
+                              : "material-symbols-outlined hover:font-bold"
+                          }
+                          onClick={() => {
+                            interactComment(
+                              item[0],
+                              false,
+                              item[1].hasUserUpvoted,
+                              item[1].hasUserDownvoted
+                            );
+                          }}
+                        >
                           arrow_downward
                         </span>
                         <p>{item[1].downvoteCount}</p>
@@ -613,6 +692,24 @@ const SongCommentSection = ({
             </div>
           </div>
         </div>
+      </div>
+      <div
+        className="mt-2 ml-auto mr-auto hover:font-bold"
+        style={{
+          width: "15%",
+          height: "15px",
+          marginBottom: "-18px",
+          border: "1px solid black",
+          borderRadius: "6px",
+          fontSize: "10px",
+          textAlign: "center",
+          overflow: "hidden",
+        }}
+        onClick={() => {
+          refreshComments();
+        }}
+      >
+        Refresh comments
       </div>
       {generateSongComments()}
     </div>
