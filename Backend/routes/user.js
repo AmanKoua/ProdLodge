@@ -380,6 +380,7 @@ router.get("/songs", verifyTokenAndGetUser, async (req, res) => {
         tempSong.description = songs[i].description;
         tempSong.id = songs[i]._id;
         tempSong.visibility = songs[i].visibility;
+        tempSong.userConnection = "self";
         tempSong.commentsList = songs[i].commentsList;
 
         for (let j = 0; j < songs[i].trackList.length; j++) {
@@ -440,6 +441,7 @@ router.get("/songs", verifyTokenAndGetUser, async (req, res) => {
             tempSong.description = friendSongs[i].description;
             tempSong.id = friendSongs[i]._id;
             tempSong.visibility = friendSongs[i].visibility;
+            tempSong.userConnection = "friend";
             tempSong.commentsList = friendSongs[i].commentsList;
 
             for (let j = 0; j < friendSongs[i].trackList.length; j++) {

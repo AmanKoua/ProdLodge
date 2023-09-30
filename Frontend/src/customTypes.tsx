@@ -8,6 +8,8 @@ export interface Chain {
 
 export interface SongData {
   owner: string;
+  ownerId: string;
+  userConnection: string;
   chains: Chain[];
   description: string;
   visibility: string;

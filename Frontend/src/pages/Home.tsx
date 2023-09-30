@@ -8,7 +8,10 @@ import AudioBox from "../audioComponents/AudioBox";
 import { Chain, SongData } from "../customTypes";
 
 const Home = () => {
-  const [songPayload, setSongPayload] = useState([]);
+  const [songPayload, setSongPayload] = useState<SongData[]>([]);
+  const [userSongPayload, setUserSongPayload] = useState<SongData[]>([]);
+  const [friendSongPayload, setFriendSongPayload] = useState<SongData[]>([]);
+  const [publicSongPayload, setPublicSongPayload] = useState<SongData[]>([]);
   const [isSongPayloadSet, setIsSongPayloadSet] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedPage, setSelectedPage] = useState("My Songs");
@@ -16,7 +19,7 @@ const Home = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Get the list of user songs (and their tracks) upon page load
+    // Get the list of songs visible to the user (and their tracks) upon page load
 
     if (!authContext.user || !authContext.user.token) {
       navigate("/login");
@@ -38,7 +41,25 @@ const Home = () => {
       setIsLoading(false);
 
       let json = await response.json();
-      setSongPayload(json.payload);
+
+      let tempUserSongsPayload = [];
+      let tempFriendSongPayload = [];
+      let tempPublicSongPayload = [];
+
+      for (let i = 0; i < json.payload.length; i++) {
+        if (json.payload[i].userConnection == "self") {
+          tempUserSongsPayload.push(json.payload[i]);
+        } else if (json.payload[i].userConnection == "friend") {
+          tempFriendSongPayload.push(json.payload[i]);
+        } else if (json.payload[i].userConnection == "public") {
+          tempPublicSongPayload.push(json.payload[i]);
+        }
+      }
+
+      setUserSongPayload(tempUserSongsPayload);
+      setFriendSongPayload(tempFriendSongPayload);
+      setPublicSongPayload(tempPublicSongPayload);
+      setSongPayload(tempUserSongsPayload);
       setIsSongPayloadSet(true);
     };
 
@@ -92,6 +113,7 @@ const Home = () => {
               className="hover:font-bold"
               onClick={() => {
                 setSelectedPage("My Songs");
+                setSongPayload(userSongPayload);
               }}
             >
               My Songs
@@ -109,6 +131,7 @@ const Home = () => {
               className="hover:font-bold"
               onClick={() => {
                 setSelectedPage("Friend's Songs");
+                setSongPayload(friendSongPayload);
               }}
             >
               Friend's Songs
@@ -126,6 +149,7 @@ const Home = () => {
               className="hover:font-bold"
               onClick={() => {
                 setSelectedPage("Public songs");
+                setSongPayload(publicSongPayload);
               }}
             >
               Public songs
