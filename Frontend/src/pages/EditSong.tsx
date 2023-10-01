@@ -302,14 +302,17 @@ const EditSong = () => {
     setUserSongPayload([]);
 
     let getUserSongPayload = async () => {
+      console.log("requesting edit!");
       let response = await fetch(`${envContext.backendURL}/user/songs`, {
         method: "GET",
         headers: {
+          isEdit: `true`,
           Authorization: `Bearer ${authContext.user.token}`,
         },
       });
 
       let json = await response.json();
+      console.log(json.payload);
       setUserSongPayload(json.payload);
       setIsUserSongPayloadSet(true);
     };
@@ -377,6 +380,10 @@ const EditSong = () => {
       clearTimeout(temp);
     };
   }, [message, error]);
+
+  // useEffect(() => {
+  //   console.log(userSongPayload);
+  // }, [userSongPayload]);
 
   const editSong = async (
     songId: string,
