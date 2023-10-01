@@ -291,7 +291,7 @@ const downloadProfileImage = (imageId, fileName, requestId) => {
         const db = client.db("ProdCluster");
         const bucket = new GridFSBucket(db);
 
-        fs.mkdirSync(path.join(os.tmpdir(), `/downloads/${requestId}/`));
+        fs.mkdirSync(path.join(os.tmpdir(), `/downloads/${requestId}/`), { recursive: true });
 
         const dlPath = path.join(os.tmpdir(), `/downloads/${requestId}/`, `${fileName}`);
         const dlStream = bucket.openDownloadStream(new ObjectId(imageId));

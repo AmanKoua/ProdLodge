@@ -161,6 +161,7 @@ const uploadImageToGridFSBucket = async (req, res, next) => {
 
 const storage = multer.diskStorage({
     destination: (req, file, callBack) => {
+        fs.mkdirSync(path.join(os.tmpdir(), `/uploads`), { recursive: true });
         callBack(null, path.join(os.tmpdir(), "/uploads"));
     },
     filename: (req, file, callBack) => {
