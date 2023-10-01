@@ -379,10 +379,6 @@ const EditSong = () => {
     };
   }, [message, error]);
 
-  // useEffect(() => {
-  //   console.log(userSongPayload);
-  // }, [userSongPayload]);
-
   const editSong = async (
     songId: string,
     title: string,
