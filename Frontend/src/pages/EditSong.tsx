@@ -268,7 +268,7 @@ const EditSong = () => {
   const [pageClassName, setPageClassName] = useState(
     "bg-prodPrimary w-full h-screen sm:w-8/12 ml-auto mr-auto flex-col jusitfy-items-center hide-scrollbar"
   );
-  const editSongPage = useRef<React.LegacyRef<HTMLDivElement>>(null);
+  const editSongPage = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   let authContext = useContext(AuthContext);
 
@@ -491,22 +491,24 @@ const EditSong = () => {
   };
 
   return (
-    <div className={pageClassName} id="editSongPage" ref={editSongPage}>
-      <h3 className="w-max mr-auto ml-auto p-2 font-bold">
-        Edit an existing song
-      </h3>
-      {isUserSongPayloadSet &&
-        userSongPayload.length > 0 &&
-        generateSongEntries()}
-      {isUserSongPayloadSet && userSongPayload.length == 0 && (
-        <div className="w-max h-max ml-auto mr-auto mt-5 border-b-2 border-black ">
-          <h3 className="">Sorry, but you have no songs to show.</h3>
-        </div>
-      )}
-      {!isUserSongPayloadSet && generatePlaceholderSongEntries()}
-      {error && <div className="error mt-2">{error}</div>}
-      {message && <div className="message mt-2">{message}</div>}
-    </div>
+    <>
+      <div className={pageClassName} id="editSongPage" ref={editSongPage}>
+        <h3 className="w-max mr-auto ml-auto p-2 font-bold">
+          Edit an existing song
+        </h3>
+        {isUserSongPayloadSet &&
+          userSongPayload.length > 0 &&
+          generateSongEntries()}
+        {isUserSongPayloadSet && userSongPayload.length == 0 && (
+          <div className="w-max h-max ml-auto mr-auto mt-5 border-b-2 border-black ">
+            <h3 className="">Sorry, but you have no songs to show.</h3>
+          </div>
+        )}
+        {!isUserSongPayloadSet && generatePlaceholderSongEntries()}
+        {error && <div className="error mt-2">{error}</div>}
+        {message && <div className="message mt-2">{message}</div>}
+      </div>
+    </>
   );
 };
 

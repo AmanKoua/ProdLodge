@@ -1,6 +1,6 @@
 import { createContext, useReducer, ReactNode } from "react";
 
-export const ProfileContext = createContext(Array());
+export const ProfileContext = createContext(Object());
 
 let profileContextReducer = (state: any, action: any) => {
   switch (action.type) {
