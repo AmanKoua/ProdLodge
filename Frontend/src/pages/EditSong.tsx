@@ -297,6 +297,8 @@ const EditSong = () => {
       return;
     }
 
+    setUserSongPayload([]);
+
     let getUserSongPayload = async () => {
       let response = await fetch("http://localhost:8005/user/songs", {
         method: "GET",
