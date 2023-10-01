@@ -16,7 +16,7 @@ const Home = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedPage, setSelectedPage] = useState("My Songs");
   const [startPage, setStartPage] = useState("My Songs");
-  const [pageLoadCount, setPageLoadCount] = useState(0);
+  const [songPayloadSwitchCount, setSongPayloadSwitchCount] = useState(0);
   const [isPageSwitched, setIsPageSwitched] = useState(false); // toggle this value back and forth to act as a trigger
   const authContext = useContext(AuthContext);
   const navigate = useNavigate();
@@ -72,12 +72,15 @@ const Home = () => {
   useEffect(() => {
     // Add wait time when switching between pages to circumvent audiobox conflation bug
 
-    if (!isSongPayloadSet) {
+    if (!isSongPayloadSet || songPayloadSwitchCount == 0) {
       return;
     }
 
+    console.log("-");
+
     setIsLoading(true);
     let tempTimeout = setTimeout(() => {
+      console.log("--");
       setIsLoading(false);
     }, 500);
   }, [songPayload]);
@@ -130,6 +133,7 @@ const Home = () => {
               className="hover:font-bold"
               onClick={() => {
                 setSelectedPage("My Songs");
+                setSongPayloadSwitchCount(1);
                 setIsPageSwitched(!isPageSwitched);
                 setTimeout(() => {
                   setSongPayload(userSongPayload);
@@ -151,6 +155,7 @@ const Home = () => {
               className="hover:font-bold"
               onClick={() => {
                 setSelectedPage("Friend's Songs");
+                setSongPayloadSwitchCount(1);
                 setIsPageSwitched(!isPageSwitched);
                 setTimeout(() => {
                   setSongPayload(friendSongPayload);
@@ -172,6 +177,7 @@ const Home = () => {
               className="hover:font-bold"
               onClick={() => {
                 setSelectedPage("Public songs");
+                setSongPayloadSwitchCount(1);
                 setIsPageSwitched(!isPageSwitched);
                 setTimeout(() => {
                   setSongPayload(publicSongPayload);
