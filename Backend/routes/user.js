@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 const path = require("path");
 const fs = require("fs");
 const Fs = require('fs/promises'); // imported to retrieve file size
+const os = require("os");
 const router = express.Router();
 
 const user = require('../models/userModel');
@@ -290,9 +291,9 @@ const downloadProfileImage = (imageId, fileName, requestId) => {
         const db = client.db("ProdCluster");
         const bucket = new GridFSBucket(db);
 
-        fs.mkdirSync(path.join(__dirname, `../../downloads/${requestId}/`));
+        fs.mkdirSync(path.join(os.tmpdir(), `/downloads/${requestId}/`));
 
-        const dlPath = path.join(__dirname, `../../downloads/${requestId}/`, `${fileName}`);
+        const dlPath = path.join(os.tmpdir(), `/downloads/${requestId}/`, `${fileName}`);
         const dlStream = bucket.openDownloadStream(new ObjectId(imageId));
         const fileStream = fs.createWriteStream(dlPath);
         dlStream.pipe(fileStream);
@@ -328,8 +329,8 @@ router.get('/profileImage', verifyTokenAndGetUser, async (req, res) => {
 
     await downloadProfileImage(imageId, profileImageFileName, req.body.requestId);
 
-    const folderPath = path.join(__dirname, `../../downloads/${req.body.requestId}/`);
-    const filePath = path.join(__dirname, `../../downloads/${req.body.requestId}/`, `${profileImageFileName}`);
+    const folderPath = path.join(os.tmpdir(), `/downloads/${req.body.requestId}/`);
+    const filePath = path.join(os.tmpdir(), `/downloads/${req.body.requestId}/`, `${profileImageFileName}`);
     const stats = await Fs.stat(filePath);
     const fileSize = stats.size;
 
@@ -1116,8 +1117,8 @@ router.get('/friendProfileImage', verifyTokenAndGetUser, async (req, res) => {
 
     await downloadProfileImage(imageId, profileImageFileName, req.body.requestId);
 
-    const folderPath = path.join(__dirname, `../../downloads/${req.body.requestId}/`);
-    const filePath = path.join(__dirname, `../../downloads/${req.body.requestId}/`, `${profileImageFileName}`);
+    const folderPath = path.join(os.tmpdir(), `/downloads/${req.body.requestId}/`);
+    const filePath = path.join(os.tmpdir(), `/downloads/${req.body.requestId}/`, `${profileImageFileName}`);
     const stats = await Fs.stat(filePath);
     const fileSize = stats.size;
 
