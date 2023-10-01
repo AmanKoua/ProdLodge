@@ -76,11 +76,8 @@ const Home = () => {
       return;
     }
 
-    console.log("-");
-
     setIsLoading(true);
     let tempTimeout = setTimeout(() => {
-      console.log("--");
       setIsLoading(false);
     }, 500);
   }, [songPayload]);

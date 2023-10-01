@@ -615,7 +615,7 @@ const AudioBox = ({ songData, isPageSwitched, setIsSongPayloadSet }: Props) => {
         songTimeInterval = setInterval(() => {
           tempSongTime += 0.1;
           setSongTime(tempSongTime);
-        }, 100);
+        }, 100) as unknown as number;
 
         setSongTimeInterval(songTimeInterval);
       } else {
