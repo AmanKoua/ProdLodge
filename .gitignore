@@ -11,6 +11,7 @@ downloads
 uploads
 # Dont upload tailwindcss generated css file
 Frontend/src/styles.css
+Frontend/app.yaml
 routes..
 node_modules
 assets
