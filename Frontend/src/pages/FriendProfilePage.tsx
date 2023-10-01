@@ -2,6 +2,7 @@ import React from "react";
 import { useEffect, useState, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
+import { EnvironmentContext } from "../context/EnvironmentContext";
 
 import { FriendProfile } from "../customTypes";
 
@@ -25,6 +26,7 @@ const FriendProfilePage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const authContext = useContext(AuthContext);
+  const envContext = useContext(EnvironmentContext);
 
   const [isImageLoading, setIsImageLoading] = useState(true);
   const [isProfileLoading, setIsProfileLoading] = useState(true);
@@ -61,7 +63,7 @@ const FriendProfilePage = () => {
     }
 
     const response = await fetch(
-      `http://localhost:8005/user/friendProfile/${id}`,
+      `${envContext.backendURL}/user/friendProfile/${id}`,
       {
         method: "GET",
         headers: { Authorization: `Bearer ${authContext.user.token}` },
@@ -92,7 +94,7 @@ const FriendProfilePage = () => {
     }
 
     const response = await fetch(
-      "http://localhost:8005/user/friendProfileImage",
+      `${envContext.backendURL}/user/friendProfileImage`,
       {
         method: "GET",
         headers: {

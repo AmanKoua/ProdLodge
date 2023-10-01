@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 
 import SongUploadContainer from "../components/SongUploadContainer";
 import { AuthContext } from "../context/AuthContext";
+import { EnvironmentContext } from "../context/EnvironmentContext";
 
 import { SongUploadData } from "../customTypes";
 
@@ -18,6 +19,7 @@ const NewSong = () => {
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
   let authContext = useContext(AuthContext);
+  let envContext = useContext(EnvironmentContext);
 
   const SongNameInputStyle: CSS.Properties = {
     // position: "relative",
@@ -182,7 +184,7 @@ const NewSong = () => {
     let songToken = undefined;
     const payload = { name: songName, description: songDescription };
 
-    let response = await fetch("http://localhost:8005/upload/songInit", {
+    let response = await fetch(`${envContext.backendURL}/upload/songInit`, {
       method: "POST",
       headers: {
         "Content-type": "application/json; charset=UTF-8",
@@ -210,7 +212,7 @@ const NewSong = () => {
         Having header will create "request entity too large" error.
         Workaround implemented to send JWT through body's formData
       */
-      let response = await fetch("http://localhost:8005/upload/track", {
+      let response = await fetch(`${envContext.backendURL}/upload/track`, {
         method: "POST",
         body: formData,
         headers: {

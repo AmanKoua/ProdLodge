@@ -2,6 +2,7 @@ import React from "react";
 import { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
+import { EnvironmentContext } from "../context/EnvironmentContext";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -9,6 +10,7 @@ const Login = () => {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const authContext = useContext(AuthContext); // user and dispatch properties
+  const envContext = useContext(EnvironmentContext);
   const navigate = useNavigate();
 
   const preventPageAccess = () => {
@@ -58,7 +60,7 @@ const Login = () => {
       return;
     }
 
-    const response = await fetch("http://localhost:8005/user/login", {
+    const response = await fetch(`${envContext.backendURL}/user/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

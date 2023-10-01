@@ -2,6 +2,7 @@ import React from "react";
 import { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
+import { EnvironmentContext } from "../context/EnvironmentContext";
 
 import AudioBox from "../audioComponents/AudioBox";
 
@@ -19,6 +20,7 @@ const Home = () => {
   const [songPayloadSwitchCount, setSongPayloadSwitchCount] = useState(0);
   const [isPageSwitched, setIsPageSwitched] = useState(false); // toggle this value back and forth to act as a trigger
   const authContext = useContext(AuthContext);
+  const envContext = useContext(EnvironmentContext);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -34,7 +36,7 @@ const Home = () => {
     }
 
     let getSongPayload = async () => {
-      let response = await fetch("http://localhost:8005/user/songs", {
+      let response = await fetch(`${envContext.backendURL}/user/songs`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${authContext.user.token}`,

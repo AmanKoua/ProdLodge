@@ -4,6 +4,7 @@ import { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { ProfileContext } from "../context/ProfileContext";
+import { EnvironmentContext } from "../context/EnvironmentContext";
 
 import { UserFriend } from "../customTypes";
 
@@ -12,6 +13,7 @@ import ProfilePage from "../components/ProfilePage";
 
 const UserProfile = () => {
   const authContext = useContext(AuthContext); // user and dispatch properties
+  const envContext = useContext(EnvironmentContext);
   let profileContext = useContext(ProfileContext);
 
   const [error, setError] = useState("");
@@ -100,7 +102,7 @@ const UserProfile = () => {
     if (confirmDelete) {
       // send DELETE request to delete the user's profile and all associated data
 
-      let response = await fetch("http://localhost:8005/user/profile", {
+      let response = await fetch(`${envContext.backendURL}/user/profile`, {
         method: "DELETE",
         headers: {
           "Content-type": "application/json; charset=UTF-8", // content type seems to fix CORS errors...
@@ -154,13 +156,16 @@ const UserProfile = () => {
       const formData = new FormData();
       formData.append("profileImage", profileImage);
 
-      let response = await fetch("http://localhost:8005/upload/profileImage", {
-        method: "POST",
-        body: formData,
-        headers: {
-          Authorization: `Bearer ${authContext.user.token}`,
-        },
-      });
+      let response = await fetch(
+        `${envContext.backendURL}/upload/profileImage`,
+        {
+          method: "POST",
+          body: formData,
+          headers: {
+            Authorization: `Bearer ${authContext.user.token}`,
+          },
+        }
+      );
 
       if (response.ok) {
         console.log("image uplading successful!");
@@ -253,7 +258,7 @@ const UserProfile = () => {
         },
       };
 
-      const response = await fetch("http://localhost:8005/user/profile", {
+      const response = await fetch(`${envContext.backendURL}/user/profile`, {
         method: "PATCH",
         headers: {
           "Content-type": "application/json; charset=UTF-8", // content type seems to fix CORS errors...
@@ -312,7 +317,7 @@ const UserProfile = () => {
       return;
     }
 
-    const response = await fetch("http://localhost:8005/user/profile", {
+    const response = await fetch(`${envContext.backendURL}/user/profile`, {
       method: "GET",
       headers: { Authorization: `Bearer ${authContext.user.token}` },
     });
@@ -352,7 +357,7 @@ const UserProfile = () => {
       return;
     }
 
-    const response = await fetch("http://localhost:8005/user/friends", {
+    const response = await fetch(`${envContext.backendURL}/user/friends`, {
       method: "GET",
       headers: { Authorization: `Bearer ${authContext.user.token}` },
     });
@@ -383,7 +388,7 @@ const UserProfile = () => {
 
     if (!isCanceled) {
       const response = await fetch(
-        "http://localhost:8005/user/friendRequests",
+        `${envContext.backendURL}/user/friendRequests`,
         {
           method: "GET",
           headers: { Authorization: `Bearer ${authContext.user.token}` },
@@ -399,7 +404,7 @@ const UserProfile = () => {
 
   const removeRequestNotification = async (id: string) => {
     let response = await fetch(
-      "http://localhost:8005/user/requestNotification",
+      `${envContext.backendURL}/user/requestNotification`,
       {
         method: "DELETE",
         headers: {
@@ -433,7 +438,7 @@ const UserProfile = () => {
       return;
     }
 
-    let response = await fetch("http://localhost:8005/user/addFriend", {
+    let response = await fetch(`${envContext.backendURL}/user/addFriend`, {
       method: "POST",
       headers: {
         "Content-type": "application/json",
@@ -455,7 +460,7 @@ const UserProfile = () => {
   };
 
   const removeFriend = async (id: string) => {
-    let response = await fetch("http://localhost:8005/user/removeFriend", {
+    let response = await fetch(`${envContext.backendURL}/user/removeFriend`, {
       method: "DELETE",
       headers: {
         "Content-type": "application/json",
@@ -477,7 +482,7 @@ const UserProfile = () => {
     let requestResponse = isAccepted ? "accept" : "reject";
 
     let response = await fetch(
-      "http://localhost:8005/user/handleFriendRequest",
+      `${envContext.backendURL}/user/handleFriendRequest`,
       {
         method: "POST",
         headers: {
@@ -504,7 +509,7 @@ const UserProfile = () => {
       return;
     }
 
-    const response = await fetch("http://localhost:8005/user/profileImage", {
+    const response = await fetch(`${envContext.backendURL}/user/profileImage`, {
       method: "GET",
       headers: { Authorization: `Bearer ${authContext.user.token}` },
     });

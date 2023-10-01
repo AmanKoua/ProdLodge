@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 
 import SongUploadContainer from "../components/SongUploadContainer";
 import { AuthContext } from "../context/AuthContext";
+import { EnvironmentContext } from "../context/EnvironmentContext";
 
 import { SongData } from "../customTypes";
 
@@ -271,6 +272,7 @@ const EditSong = () => {
   const editSongPage = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   let authContext = useContext(AuthContext);
+  let envContext = useContext(EnvironmentContext);
 
   const preventPageAccess = () => {
     // DO not allow a user to access the profile page if not logged in OR if profile has yet to be set
@@ -300,7 +302,7 @@ const EditSong = () => {
     setUserSongPayload([]);
 
     let getUserSongPayload = async () => {
-      let response = await fetch("http://localhost:8005/user/songs", {
+      let response = await fetch(`${envContext.backendURL}/user/songs`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${authContext.user.token}`,
@@ -382,7 +384,7 @@ const EditSong = () => {
     description: string,
     visibility: string
   ) => {
-    const response = await fetch("http://localhost:8005/user/song", {
+    const response = await fetch(`${envContext.backendURL}/user/song`, {
       method: "PATCH",
       headers: {
         "Content-type": "Application/json",
@@ -406,7 +408,7 @@ const EditSong = () => {
   };
 
   const deleteSong = async (songId: string) => {
-    const response = await fetch("http://localhost:8005/user/song", {
+    const response = await fetch(`${envContext.backendURL}/user/song`, {
       method: "DELETE",
       headers: {
         "Content-type": "Application/json",

@@ -6,6 +6,7 @@ import AudioModuleContainer from "./AudioModuleContainer";
 import AudioSettingsDrawer from "./AudioSettingsDrawer";
 import SongCommentSection from "../components/SongCommentSection";
 import { AuthContext } from "../context/AuthContext";
+import { EnvironmentContext } from "../context/EnvironmentContext";
 
 import { SongData, TrackData, AudioModule, SongComment } from "../customTypes";
 
@@ -70,6 +71,7 @@ const AudioBox = ({ songData, isPageSwitched, setIsSongPayloadSet }: Props) => {
   let tempModuleData: AudioModule[][] = [[{ type: "Blank" }]];
 
   const authContext = useContext(AuthContext);
+  const envContext = useContext(EnvironmentContext);
 
   // Audio context
   let aCtx: AudioContext | undefined;
@@ -272,7 +274,7 @@ const AudioBox = ({ songData, isPageSwitched, setIsSongPayloadSet }: Props) => {
           console.log("track fetched!");
 
           let response = await fetch(
-            `http://localhost:8005/tracks/${songTrackIds[i]}`,
+            `${envContext.backendURL}/tracks/${songTrackIds[i]}`,
             {
               method: "GET",
               headers: {
@@ -1610,7 +1612,7 @@ const AudioBox = ({ songData, isPageSwitched, setIsSongPayloadSet }: Props) => {
       data: JSON.stringify(configuration),
     };
 
-    let response = await fetch(`http://localhost:8005/chain/`, {
+    let response = await fetch(`${envContext.backendURL}/chain/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json", // Required in order to server to receive req body
@@ -1805,7 +1807,7 @@ const AudioBox = ({ songData, isPageSwitched, setIsSongPayloadSet }: Props) => {
   };
 
   const deleteConfiguration = async (chainId: string): Promise<boolean> => {
-    let response = await fetch(`http://localhost:8005/chain/`, {
+    let response = await fetch(`${envContext.backendURL}/chain/`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json", // Required in order to server to receive req body

@@ -9,6 +9,10 @@
 
 import { useEffect, useContext, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
+import {
+  EnvironmentContext,
+  EnvironmentContextProvider,
+} from "../context/EnvironmentContext";
 
 import {
   SongData,
@@ -56,6 +60,7 @@ const SongCommentSection = ({
   const [triggerRefresh, setTriggerRefresh] = useState(0);
 
   const authContext = useContext(AuthContext);
+  const envContext = useContext(EnvironmentContext);
 
   const refreshComments = async () => {
     // setCommentsPayload(new Map<string, SongComment>());
@@ -85,7 +90,7 @@ const SongCommentSection = ({
       });
     }
 
-    let response = await fetch(`http://localhost:8005/comment/`, {
+    let response = await fetch(`${envContext.backendURL}/comment/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -140,12 +145,15 @@ const SongCommentSection = ({
       return;
     }
 
-    let response = await fetch(`http://localhost:8005/comment/${commentId}`, {
-      method: "DELETE",
-      headers: {
-        authorization: `Bearer ${authContext.user.token}`,
-      },
-    });
+    let response = await fetch(
+      `${envContext.backendURL}/comment/${commentId}`,
+      {
+        method: "DELETE",
+        headers: {
+          authorization: `Bearer ${authContext.user.token}`,
+        },
+      }
+    );
 
     if (response.ok) {
       setMessage("comment deleted started successfully!");
@@ -226,7 +234,7 @@ const SongCommentSection = ({
     setCommentsPayload(commentsPayload);
 
     let response = await fetch(
-      `http://localhost:8005/comment/${commentId}/interact`,
+      `${envContext.backendURL}/comment/${commentId}/interact`,
       {
         method: "POST",
         headers: {
@@ -262,7 +270,7 @@ const SongCommentSection = ({
 
     for (let i = 0; i < commentsList.length; i++) {
       let response = await fetch(
-        `http://localhost:8005/comment/${commentsList[i]}`,
+        `${envContext.backendURL}/comment/${commentsList[i]}`,
         {
           method: "GET",
           headers: {
@@ -301,7 +309,7 @@ const SongCommentSection = ({
     for (let i = 0; i < replyList.length; i++) {
       if (tempCommentPayload.get(replyList[i]) == undefined) {
         let response = await fetch(
-          `http://localhost:8005/comment/${replyList[i]}`,
+          `${envContext.backendURL}/comment/${replyList[i]}`,
           {
             method: "GET",
             headers: {

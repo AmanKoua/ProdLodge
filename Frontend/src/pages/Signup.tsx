@@ -2,6 +2,7 @@ import React from "react";
 import { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
+import { EnvironmentContext } from "../context/EnvironmentContext";
 
 const Signup = () => {
   const [email, setEmail] = useState("");
@@ -11,6 +12,7 @@ const Signup = () => {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const authContext = useContext(AuthContext); // user and dispatch properties
+  const envContext = useContext(EnvironmentContext);
   const navigate = useNavigate();
 
   const preventPageAccess = () => {
@@ -73,7 +75,7 @@ const Signup = () => {
       return;
     }
 
-    const response = await fetch("http://localhost:8005/user/signup", {
+    const response = await fetch(`${envContext.backendURL}/user/signup`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password, userName: userName }),
