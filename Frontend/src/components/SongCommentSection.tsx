@@ -9,10 +9,7 @@
 
 import { useEffect, useContext, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
-import {
-  EnvironmentContext,
-  EnvironmentContextProvider,
-} from "../context/EnvironmentContext";
+import { EnvironmentContext } from "../context/EnvironmentContext";
 
 import {
   SongData,
