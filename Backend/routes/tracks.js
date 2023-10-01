@@ -64,7 +64,7 @@ const downloadTrack = (trackId, requestId) => {
         const db = client.db("ProdCluster");
         const bucket = new GridFSBucket(db);
 
-        fs.mkdirSync(path.join(os.tmpdir(), `/downloads/${requestId}/`));
+        fs.mkdirSync(path.join(os.tmpdir(), `/downloads/${requestId}/`), { recursive: true });
 
         const dlPath = path.join(os.tmpdir(), `/downloads/${requestId}/`, `${trackId}.mp3`);
         const dlStream = bucket.openDownloadStream(new ObjectId(trackId));
