@@ -131,8 +131,6 @@ const AudioBox = ({ songData, isPageSwitched, setIsSongPayloadSet }: Props) => {
   // Page status
   let hasUserGestured: boolean;
   let setHasUserGestured: (val: boolean) => void;
-  let isSelectedPageInitialized: boolean;
-  let setIsSelectedPageInitialized: (val: boolean) => void;
   let areAudioNodesReady: boolean;
   let setAreAudioNodesReady: (val: boolean) => void;
   let isVisualizing: boolean;
@@ -164,7 +162,6 @@ const AudioBox = ({ songData, isPageSwitched, setIsSongPayloadSet }: Props) => {
   [isVisualizing, setIsVisualizing] = useState(false);
   [isPlaying, setIsPlaying] = useState(false); // need to make these global!
   [hasUserGestured, setHasUserGestured] = useState(false); // Keep track of first gesture required to initialize audioCtx
-  [isSelectedPageInitialized, setIsSelectedPageInitialized] = useState(false);
   [isConfigurationLoading, setIsConfigurationLoading] = useState(false);
   [isSongDataContainerHover, setIsSongDataContainerHover] = useState(false);
   [isCommentsSectionDisplayed, setIsCommentsSectionDisplayed] = useState(false);
@@ -811,8 +808,6 @@ const AudioBox = ({ songData, isPageSwitched, setIsSongPayloadSet }: Props) => {
 
   let useStopAudioOnpageSwitch = () => {
     useEffect(() => {
-      console.log("STOPPING AUDIO DUE TO PAGE SWITCH!", songData.title);
-
       setIsPlaying(false);
     }, [isPageSwitched]);
   };

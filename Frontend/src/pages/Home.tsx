@@ -15,6 +15,8 @@ const Home = () => {
   const [isSongPayloadSet, setIsSongPayloadSet] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedPage, setSelectedPage] = useState("My Songs");
+  const [startPage, setStartPage] = useState("My Songs");
+  const [pageLoadCount, setPageLoadCount] = useState(0);
   const [isPageSwitched, setIsPageSwitched] = useState(false); // toggle this value back and forth to act as a trigger
   const authContext = useContext(AuthContext);
   const navigate = useNavigate();
@@ -69,6 +71,11 @@ const Home = () => {
 
   useEffect(() => {
     // Add wait time when switching between pages to circumvent audiobox conflation bug
+
+    if (!isSongPayloadSet) {
+      return;
+    }
+
     setIsLoading(true);
     let tempTimeout = setTimeout(() => {
       setIsLoading(false);
