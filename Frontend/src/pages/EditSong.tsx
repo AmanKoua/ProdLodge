@@ -302,7 +302,6 @@ const EditSong = () => {
     setUserSongPayload([]);
 
     let getUserSongPayload = async () => {
-      console.log("requesting edit!");
       let response = await fetch(`${envContext.backendURL}/user/songs`, {
         method: "GET",
         headers: {
@@ -312,7 +311,6 @@ const EditSong = () => {
       });
 
       let json = await response.json();
-      console.log(json.payload);
       setUserSongPayload(json.payload);
       setIsUserSongPayloadSet(true);
     };
