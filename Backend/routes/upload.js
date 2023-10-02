@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
+const os = require("os");
 const router = express.Router();
 
 const user = require('../models/userModel');
@@ -78,7 +79,7 @@ const verifyTokenAndGetUser = async (req, res, next) => {
 const uploadTrackToGridFSBucket = async (req, res, next) => {
 
     const fileName = req.fileNames[0];
-    const files = fs.readdirSync(path.join(__dirname, "../../uploads"))
+    const files = fs.readdirSync(path.join(os.tmpdir(), "/uploads"))
 
     const client = new MongoClient(process.env.MONGO_URI);
 
@@ -91,7 +92,7 @@ const uploadTrackToGridFSBucket = async (req, res, next) => {
         const fileNameSplit = fileName.split("@");
         const songId = fileNameSplit[1].substr(0, fileNameSplit[1].length - 4);
 
-        const filePath = path.join(__dirname, "../../uploads", fileName);
+        const filePath = path.join(os.tmpdir(), "/uploads", fileName);
         const uploadStream = bucket.openUploadStream(fileName);
         const fileStream = fs.createReadStream(filePath);
         fileStream.pipe(uploadStream);
@@ -101,7 +102,7 @@ const uploadTrackToGridFSBucket = async (req, res, next) => {
             for await (const item of cursor) {
                 await song.updateOne({ _id: new ObjectId(songId) }, { $push: { trackList: item._id } })
             }
-            fs.unlinkSync(path.join(__dirname, "../../uploads", fileName));
+            fs.unlinkSync(path.join(os.tmpdir(), "/uploads", fileName));
             await client.close();
         })
 
@@ -114,7 +115,7 @@ const uploadTrackToGridFSBucket = async (req, res, next) => {
 const uploadImageToGridFSBucket = async (req, res, next) => {
 
     const fileName = req.fileNames[0];
-    const files = fs.readdirSync(path.join(__dirname, "../../uploads"))
+    const files = fs.readdirSync(path.join(os.tmpdir(), "/uploads"))
 
     const client = new MongoClient(process.env.MONGO_URI);
 
@@ -130,7 +131,7 @@ const uploadImageToGridFSBucket = async (req, res, next) => {
         // Delete old user picture if there is one
         const tempUserProfile = await userProfile.findOne({ userId: new ObjectId(userId) });
 
-        const filePath = path.join(__dirname, "../../uploads", fileName);
+        const filePath = path.join(os.tmpdir(), "/uploads", fileName);
         const uploadStream = bucket.openUploadStream(fileName);
         const fileStream = fs.createReadStream(filePath);
         fileStream.pipe(uploadStream);
@@ -148,7 +149,7 @@ const uploadImageToGridFSBucket = async (req, res, next) => {
                 }, { $set: { pictureId: item._id } })
 
             }
-            fs.unlinkSync(path.join(__dirname, "../../uploads", fileName));
+            fs.unlinkSync(path.join(os.tmpdir(), "/uploads", fileName));
             await client.close();
         })
 
@@ -160,7 +161,8 @@ const uploadImageToGridFSBucket = async (req, res, next) => {
 
 const storage = multer.diskStorage({
     destination: (req, file, callBack) => {
-        callBack(null, "../uploads");
+        fs.mkdirSync(path.join(os.tmpdir(), `/uploads`), { recursive: true });
+        callBack(null, path.join(os.tmpdir(), "/uploads"));
     },
     filename: (req, file, callBack) => {
 

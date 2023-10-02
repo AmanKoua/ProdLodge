@@ -63,3 +63,16 @@ How to enable multiple Tracks
       [module, module, module],
       [...]
     ]
+
+---------------------------------------------------------------------------------------------------
+
+Deployment Notes:
+
+Frontend: 
+  
+  Change tailwind config to ensure tree-shaking is enabled. then run npm run build-css.
+  run npm run build and build the react app to the dist folder. Copy the dist folder to
+  the root of the backend folder. Everything should be good to go!
+
+  Note: The app engine instance will fail to create files if you do not use {recursive: true}
+  when creating files / directories. Other than that, it seems to work flawlessly.

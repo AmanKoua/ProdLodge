@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const { MongoClient, GridFSBucket, ObjectId } = require('mongodb');
 const fs = require('fs');
+const path = require("path");
 const cors = require('cors');
 
 const userRouter = require('./routes/user');
@@ -16,6 +17,7 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use(express.static('dist'))
 
 app.use('/user', userRouter);
 app.use('/upload', uploadRouter);
@@ -23,8 +25,9 @@ app.use('/tracks', tracksRouter);
 app.use('/chain', chainsRouter);
 app.use('/comment', commentRouter);
 
-app.get('/', (req, res) => {
-    res.status(200).json({ message: "Hello to prodlodge!" })
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'dist', 'index.html'))
+    // res.status(200).json({ message: "Hello from prodlodge!" })
 })
 
 mongoose.connect(process.env.MONGO_URI).then(async () => {
