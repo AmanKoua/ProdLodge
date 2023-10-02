@@ -354,6 +354,8 @@ router.get('/profileImage', verifyTokenAndGetUser, async (req, res) => {
 })
 
 router.get("/songs", verifyTokenAndGetUser, async (req, res) => {
+
+    const isEditPageRequest = (req.headers.isedit && req.headers.isedit == "true") ? true : false;
     const userId = req.body.verifiedUser._id;
     const tempUserProfile = await userProfile.findOne({ userId: userId });
 
@@ -410,6 +412,10 @@ router.get("/songs", verifyTokenAndGetUser, async (req, res) => {
         tempSong.chains = tempChainsData;
         tempSong.trackIds = tempTrackIds;
         payload.push(tempSong);
+    }
+
+    if (isEditPageRequest) { // Send only the songs that belong the the given user!
+        return res.status(200).json({ payload })
     }
 
     for (let n = 0; n < friends.length; n++) { // Retrieve all songs owned by the friend of the user

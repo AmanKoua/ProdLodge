@@ -7,9 +7,10 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dont upload tailwindcss generated css file
 downloads
 uploads
-# Dont upload tailwindcss generated css file
+notes/private.txt
 Frontend/src/styles.css
 Frontend/app.yaml
 routes..

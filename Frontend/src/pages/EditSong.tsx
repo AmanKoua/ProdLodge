@@ -305,6 +305,7 @@ const EditSong = () => {
       let response = await fetch(`${envContext.backendURL}/user/songs`, {
         method: "GET",
         headers: {
+          isEdit: `true`,
           Authorization: `Bearer ${authContext.user.token}`,
         },
       });
