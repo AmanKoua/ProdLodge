@@ -1,10 +1,11 @@
-import React from "react";
+import React, { LegacyRef, MutableRefObject } from "react";
 import CSS from "csstype";
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
 import SongUploadContainer from "../components/SongUploadContainer";
 import { AuthContext } from "../context/AuthContext";
+import { EnvironmentContext } from "../context/EnvironmentContext";
 
 import { SongData } from "../customTypes";
 
@@ -53,7 +54,7 @@ const SongEntry = ({ songData, authContext, editSong, deleteSong }: Props) => {
   SongEntryStyle.height = isExpanded
     ? songVisibility === "restricted"
       ? "270px"
-      : "175px"
+      : "281px" // This changes overall box height (yes 10ths of a pixel are allowed....)
     : "35px";
 
   const SongTitleContainerStyle: CSS.Properties = {
@@ -85,7 +86,7 @@ const SongEntry = ({ songData, authContext, editSong, deleteSong }: Props) => {
     display: "flex",
     flexDirection: "column",
     width: "100%",
-    height: "300px",
+    height: "350px",
     marginLeft: "0px",
     marginTop: "35px",
     border: "1px solid black",
@@ -101,7 +102,7 @@ const SongEntry = ({ songData, authContext, editSong, deleteSong }: Props) => {
     setSongDescription(e.target.value);
   };
 
-  const handleVisibilityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleVisibilityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSongVisibility(e.target.value);
   };
 
@@ -147,6 +148,18 @@ const SongEntry = ({ songData, authContext, editSong, deleteSong }: Props) => {
         </span>
       </div>
       <div style={SongSettingsContainerStyle}>
+        <p
+          className="bg-prodPrimary font-bold"
+          style={{
+            width: "100%",
+            height: "35px",
+            marginBottom: "0px",
+            border: "1px solid black",
+            padding: "3px",
+          }}
+        >
+          Title
+        </p>
         <input
           type="text"
           value={songTitle}
@@ -159,6 +172,18 @@ const SongEntry = ({ songData, authContext, editSong, deleteSong }: Props) => {
           }}
           onChange={handleTitleChange}
         />
+        <p
+          className="bg-prodPrimary font-bold"
+          style={{
+            width: "100%",
+            height: "35px",
+            marginBottom: "0px",
+            border: "1px solid black",
+            padding: "3px",
+          }}
+        >
+          Description
+        </p>
         <input
           type="text"
           value={songDescription}
@@ -170,6 +195,18 @@ const SongEntry = ({ songData, authContext, editSong, deleteSong }: Props) => {
           }}
           onChange={handleDescriptionChange}
         />
+        <p
+          className="bg-prodPrimary font-bold"
+          style={{
+            width: "100%",
+            height: "35px",
+            marginBottom: "0px",
+            border: "1px solid black",
+            padding: "3px",
+          }}
+        >
+          Visibility
+        </p>
         <select
           style={{
             width: "100%",
@@ -228,8 +265,14 @@ const EditSong = () => {
   const [isUserSongPayloadSet, setIsUserSongPayloadSet] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const [pageHeight, setPageHeight] = useState<number | undefined>(undefined);
+  const [pageClassName, setPageClassName] = useState(
+    "bg-prodPrimary w-full h-screen sm:w-8/12 ml-auto mr-auto flex-col jusitfy-items-center hide-scrollbar"
+  );
+  const editSongPage = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   let authContext = useContext(AuthContext);
+  let envContext = useContext(EnvironmentContext);
 
   const preventPageAccess = () => {
     // DO not allow a user to access the profile page if not logged in OR if profile has yet to be set
@@ -256,10 +299,13 @@ const EditSong = () => {
       return;
     }
 
+    setUserSongPayload([]);
+
     let getUserSongPayload = async () => {
-      let response = await fetch("http://localhost:8005/user/songs", {
+      let response = await fetch(`${envContext.backendURL}/user/songs`, {
         method: "GET",
         headers: {
+          isEdit: `true`,
           Authorization: `Bearer ${authContext.user.token}`,
         },
       });
@@ -272,13 +318,74 @@ const EditSong = () => {
     getUserSongPayload();
   }, [isUserSongPayloadSet, authContext]);
 
+  useEffect(() => {
+    let temp = editSongPage.current as unknown as HTMLDivElement;
+    setPageHeight(temp!.clientHeight);
+  }, []);
+
+  useEffect(() => {
+    /*  
+      Workaround for dynamic page stretching when expanded songs are larger than the screen side
+    */
+
+    let setHeightInterval = setInterval(() => {
+      if (editSongPage && editSongPage.current && pageHeight) {
+        let temp = editSongPage.current as unknown as HTMLDivElement;
+
+        let expandedName =
+          "bg-prodPrimary w-full h-max sm:w-8/12 ml-auto mr-auto pb-3 flex-col jusitfy-items-center hide-scrollbar";
+        let shrunkName =
+          "bg-prodPrimary w-full h-screen sm:w-8/12 ml-auto mr-auto pb-3 flex-col jusitfy-items-center hide-scrollbar";
+
+        if (
+          temp!.scrollHeight > temp!.clientHeight &&
+          pageClassName != expandedName
+        ) {
+          setTimeout(() => {
+            setPageClassName(expandedName);
+          }, 50);
+        } else if (
+          temp!.clientHeight < pageHeight &&
+          pageClassName != shrunkName
+        ) {
+          setTimeout(() => {
+            setPageClassName(shrunkName);
+          }, 50);
+        }
+      } else {
+        console.log(editSongPage.current, pageHeight);
+      }
+    }, 100);
+
+    return () => {
+      clearInterval(setHeightInterval);
+    };
+  }, [editSongPage, pageHeight]);
+
+  useEffect(() => {
+    // Clear error and message after a set time period of being displayed
+
+    if (!message && !error) {
+      return;
+    }
+
+    let temp = setTimeout(() => {
+      setError("");
+      setMessage("");
+    }, 5000);
+
+    return () => {
+      clearTimeout(temp);
+    };
+  }, [message, error]);
+
   const editSong = async (
     songId: string,
     title: string,
     description: string,
     visibility: string
   ) => {
-    const response = await fetch("http://localhost:8005/user/song", {
+    const response = await fetch(`${envContext.backendURL}/user/song`, {
       method: "PATCH",
       headers: {
         "Content-type": "Application/json",
@@ -302,7 +409,7 @@ const EditSong = () => {
   };
 
   const deleteSong = async (songId: string) => {
-    const response = await fetch("http://localhost:8005/user/song", {
+    const response = await fetch(`${envContext.backendURL}/user/song`, {
       method: "DELETE",
       headers: {
         "Content-type": "Application/json",
@@ -355,13 +462,16 @@ const EditSong = () => {
     const tempSongPayloadArr = new Array(5).fill(0);
 
     return (
-      <>
+      <div>
         {tempSongPayloadArr.map((item, idx) => {
           return (
-            <div className="bg-gray-200 w-6/12 h-10 mt-3 ml-auto mr-auto animate-pulse"></div>
+            <div
+              className="bg-gray-200 w-6/12 h-10 mt-3 ml-auto mr-auto animate-pulse"
+              key={idx}
+            ></div>
           );
         })}
-      </>
+      </div>
     );
   };
 
@@ -384,22 +494,24 @@ const EditSong = () => {
   };
 
   return (
-    <div className="bg-prodPrimary overflow-hidden w-full h-screen sm:w-8/12 ml-auto mr-auto flex-col jusitfy-items-center">
-      <h3 className="w-max mr-auto ml-auto p-2 font-bold">
-        Edit an existing song
-      </h3>
-      {isUserSongPayloadSet &&
-        userSongPayload.length > 0 &&
-        generateSongEntries()}
-      {isUserSongPayloadSet && userSongPayload.length == 0 && (
-        <div className="w-max h-max ml-auto mr-auto mt-5 border-b-2 border-black ">
-          <h3 className="">Sorry, but you have no songs to show.</h3>
-        </div>
-      )}
-      {!isUserSongPayloadSet && generatePlaceholderSongEntries()}
-      {error && <div className="error mt-2">{error}</div>}
-      {message && <div className="message mt-2">{message}</div>}
-    </div>
+    <>
+      <div className={pageClassName} id="editSongPage" ref={editSongPage}>
+        <h3 className="w-max mr-auto ml-auto p-2 font-bold">
+          Edit an existing song
+        </h3>
+        {isUserSongPayloadSet &&
+          userSongPayload.length > 0 &&
+          generateSongEntries()}
+        {isUserSongPayloadSet && userSongPayload.length == 0 && (
+          <div className="w-max h-max ml-auto mr-auto mt-5 border-b-2 border-black ">
+            <h3 className="">Sorry, but you have no songs to show.</h3>
+          </div>
+        )}
+        {!isUserSongPayloadSet && generatePlaceholderSongEntries()}
+        {error && <div className="error mt-2">{error}</div>}
+        {message && <div className="message mt-2">{message}</div>}
+      </div>
+    </>
   );
 };
 

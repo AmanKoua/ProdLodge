@@ -5,53 +5,118 @@ const Schema = mongoose.Schema;
 
 const songCommentsSchema = new Schema({
 
-    userId: { // FK to user schema
-        type: ObjectId,
-        required: true,
-        unique: true,
-    },
+    /*
+        comment : {
+            _id: automatically generated
+            songId: ObjectId,
+            creatorId: ObjectId,
+            creatorUserName: string,
+            creationTime: int (unix epoch time),
+            data: string,
+            hasChain: bool,
+            chain: {
+                name: string,
+                data: string,
+            },
+            replyId: (target comment objectId)
+            upvoteCount: int,
+            downvoteCount: int,
+            upvotesList: [ObjectId] (array of user objectIds)
+            downvotesList : [ObjectId] (array of user objectIds)
+            replyList : [ObjectID] // list of comment doc ObjectIds that are replies to this comment
+        }
+    */
 
-    songId: { // FK to song schema
+    songId: {
         type: ObjectId,
         required: true,
         unique: false,
     },
 
-    creationTime: { // Epoch time
+    creatorId: {
+        type: ObjectId,
+        required: true,
+        unique: false,
+    },
+
+    creatorUserName: {
+        type: String,
+        required: true,
+        unique: false
+    },
+
+    creationTime: {
         type: Number,
         required: true,
         unique: false,
     },
 
-    parentId: { // Parent comment (if there is one)
-        type: ObjectId,
-        required: false,
-        unique: false,
-    },
-
-    data: { // Actual comment data
+    data: {
         type: String,
         required: true,
         unique: false,
     },
 
-    interactionData: { // Stores the number of likes, disklikes, and children comments the comment contains
-        // ["likes", "dislikes", "chidren"]
-        likes: { type: Number, required: true, unique: false },
-        dislikes: { type: Number, required: true, unique: false },
-        children: { type: Number, required: true, unique: false },
-    },
-
-    chainId: { // FKs to chain schema
-        type: ObjectId,
+    hasChain: {
+        type: Boolean,
         required: true,
         unique: false,
-    }
+    },
+
+    chain: {
+        name: {
+            type: String,
+            required: true,
+            unique: false,
+        },
+        data: {
+            type: String,
+            required: true,
+            unique: false,
+        }
+    },
+
+    replyId: {
+        type: String,
+        required: true,
+        unique: false,
+    },
+
+    upvoteCount: {
+        type: Number,
+        required: true,
+        unique: false,
+    },
+
+    downvoteCount: {
+        type: Number,
+        required: true,
+        unique: false,
+    },
+
+    upvotesList: {
+        type: [],
+        required: true,
+        unique: false,
+    },
+
+    downvotesList: {
+        type: [],
+        required: true,
+        unique: false,
+    },
+
+    replyList: {
+        type: [],
+        required: true,
+        unique: false,
+    },
+
 
 })
 
-songCommentsSchema.statics.initialize = async function (userId, creationTime, parentId, songId, data, interactionData, chainId) {
-    const songComment = await this.create({ userId: userId, creationTime: creationTime, parentId: parentId, songId: songId, data: data, interactionData: interactionData, chainId: chainId })
+songCommentsSchema.statics.initialize = async function (songId, creatorId, creatorUserName, creationTime, data, hasChain, chain, replyId) {
+    const songComment = await this.create({ songId: songId, creatorId: creatorId, creatorUserName: creatorUserName, creationTime: creationTime, data: data, hasChain: hasChain, chain: chain, replyId: replyId, upvoteCount: 0, downvoteCount: 0, upvotesList: [], downvotesList: [], replyList: [] });
     return songComment;
 }
 

@@ -2,33 +2,41 @@ import React from "react";
 import { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
+import { EnvironmentContext } from "../context/EnvironmentContext";
 
 import AudioBox from "../audioComponents/AudioBox";
 
 import { Chain, SongData } from "../customTypes";
 
 const Home = () => {
-  const [userSongPayload, setUserSongPayload] = useState([]);
-  const [isUserSongPayloadSet, setIsUserSongPayloadSet] = useState(false);
+  const [songPayload, setSongPayload] = useState<SongData[]>([]);
+  const [userSongPayload, setUserSongPayload] = useState<SongData[]>([]);
+  const [friendSongPayload, setFriendSongPayload] = useState<SongData[]>([]);
+  const [publicSongPayload, setPublicSongPayload] = useState<SongData[]>([]);
+  const [isSongPayloadSet, setIsSongPayloadSet] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedPage, setSelectedPage] = useState("My Songs");
+  const [startPage, setStartPage] = useState("My Songs");
+  const [songPayloadSwitchCount, setSongPayloadSwitchCount] = useState(0);
+  const [isPageSwitched, setIsPageSwitched] = useState(false); // toggle this value back and forth to act as a trigger
   const authContext = useContext(AuthContext);
+  const envContext = useContext(EnvironmentContext);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Get the list of user songs (and their tracks) upon page load
+    // Get the list of songs visible to the user (and their tracks) upon page load
 
     if (!authContext.user || !authContext.user.token) {
       navigate("/login");
       return;
     }
 
-    if (isUserSongPayloadSet) {
+    if (isSongPayloadSet) {
       return;
     }
 
-    let getUserSongPayload = async () => {
-      let response = await fetch("http://localhost:8005/user/songs", {
+    let getSongPayload = async () => {
+      let response = await fetch(`${envContext.backendURL}/user/songs`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${authContext.user.token}`,
@@ -38,20 +46,52 @@ const Home = () => {
       setIsLoading(false);
 
       let json = await response.json();
-      setUserSongPayload(json.payload);
-      setIsUserSongPayloadSet(true);
+
+      let tempUserSongsPayload = [];
+      let tempFriendSongPayload = [];
+      let tempPublicSongPayload = [];
+
+      for (let i = 0; i < json.payload.length; i++) {
+        if (json.payload[i].userConnection == "self") {
+          tempUserSongsPayload.push(json.payload[i]);
+        } else if (json.payload[i].userConnection == "friend") {
+          tempFriendSongPayload.push(json.payload[i]);
+        } else if (json.payload[i].userConnection == "public") {
+          tempPublicSongPayload.push(json.payload[i]);
+        }
+      }
+
+      setUserSongPayload(tempUserSongsPayload);
+      setFriendSongPayload(tempFriendSongPayload);
+      setPublicSongPayload(tempPublicSongPayload);
+      setSongPayload(tempUserSongsPayload);
+      setIsSongPayloadSet(true);
     };
 
-    getUserSongPayload();
-  }, [isUserSongPayloadSet, authContext]);
+    getSongPayload();
+  }, [isSongPayloadSet, authContext]);
+
+  useEffect(() => {
+    // Add wait time when switching between pages to circumvent audiobox conflation bug
+
+    if (!isSongPayloadSet || songPayloadSwitchCount == 0) {
+      return;
+    }
+
+    setIsLoading(true);
+    let tempTimeout = setTimeout(() => {
+      setIsLoading(false);
+    }, 500);
+  }, [songPayload]);
 
   const generateAudioBoxes = (): JSX.Element => {
     let audioBoxFragment = (
       <>
-        {userSongPayload.map((item, idx) => (
+        {songPayload.map((item, idx) => (
           <AudioBox
             songData={item}
-            setIsUserSongPayloadSet={setIsUserSongPayloadSet}
+            isPageSwitched={isPageSwitched}
+            setIsSongPayloadSet={setIsSongPayloadSet}
             key={idx}
           ></AudioBox>
         ))}
@@ -79,7 +119,7 @@ const Home = () => {
   };
 
   return (
-    <div className="bg-prodPrimary w-full sm:w-8/12 h-screen mr-auto ml-auto hide-scrollbar overflow-y-scroll">
+    <div className="bg-prodPrimary w-full sm:w-8/12 h-screen mr-auto ml-auto pb-4 hide-scrollbar overflow-y-scroll">
       {/* Do not allow the displaying of audioBoxes on mobile sized screens */}
 
       <div className="w-6/12 h-7 ml-auto mr-auto mt-2 overflow-hidden flex justify-around">
@@ -92,6 +132,11 @@ const Home = () => {
               className="hover:font-bold"
               onClick={() => {
                 setSelectedPage("My Songs");
+                setSongPayloadSwitchCount(1);
+                setIsPageSwitched(!isPageSwitched);
+                setTimeout(() => {
+                  setSongPayload(userSongPayload);
+                }, 50);
               }}
             >
               My Songs
@@ -109,9 +154,36 @@ const Home = () => {
               className="hover:font-bold"
               onClick={() => {
                 setSelectedPage("Friend's Songs");
+                setSongPayloadSwitchCount(1);
+                setIsPageSwitched(!isPageSwitched);
+                setTimeout(() => {
+                  setSongPayload(friendSongPayload);
+                }, 50);
               }}
             >
               Friend's Songs
+            </p>
+          )}
+        </div>
+        <div className="w-max h-max inline-block">
+          {selectedPage === "Public songs" && (
+            <p className="hover:font-bold border-b-2 border-black">
+              Public songs
+            </p>
+          )}
+          {selectedPage !== "Public songs" && (
+            <p
+              className="hover:font-bold"
+              onClick={() => {
+                setSelectedPage("Public songs");
+                setSongPayloadSwitchCount(1);
+                setIsPageSwitched(!isPageSwitched);
+                setTimeout(() => {
+                  setSongPayload(publicSongPayload);
+                }, 50);
+              }}
+            >
+              Public songs
             </p>
           )}
         </div>
@@ -123,8 +195,8 @@ const Home = () => {
         </h3>
       </div>
       <div className="blur-sm sm:blur-none sm:pointer-events-auto pointer-events-none">
-        {!isLoading && userSongPayload.length > 0 && generateAudioBoxes()}
-        {!isLoading && userSongPayload.length == 0 && (
+        {!isLoading && songPayload.length > 0 && generateAudioBoxes()}
+        {!isLoading && songPayload.length == 0 && (
           <div className="w-max h-max ml-auto mr-auto mt-5 border-b-2 border-black ">
             <h3 className="">Sorry, but you have no songs to show.</h3>
           </div>

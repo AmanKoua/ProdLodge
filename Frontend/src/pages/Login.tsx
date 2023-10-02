@@ -2,12 +2,15 @@ import React from "react";
 import { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
+import { EnvironmentContext } from "../context/EnvironmentContext";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
   const authContext = useContext(AuthContext); // user and dispatch properties
+  const envContext = useContext(EnvironmentContext);
   const navigate = useNavigate();
 
   const preventPageAccess = () => {
@@ -22,6 +25,23 @@ const Login = () => {
   useEffect(() => {
     preventPageAccess();
   }, []);
+
+  useEffect(() => {
+    // Clear error and message after a set time period of being displayed
+
+    if (!message && !error) {
+      return;
+    }
+
+    let temp = setTimeout(() => {
+      setError("");
+      setMessage("");
+    }, 5000);
+
+    return () => {
+      clearTimeout(temp);
+    };
+  }, [message, error]);
 
   const updateEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
@@ -40,7 +60,7 @@ const Login = () => {
       return;
     }
 
-    const response = await fetch("http://localhost:8005/user/login", {
+    const response = await fetch(`${envContext.backendURL}/user/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

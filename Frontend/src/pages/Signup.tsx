@@ -2,6 +2,7 @@ import React from "react";
 import { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
+import { EnvironmentContext } from "../context/EnvironmentContext";
 
 const Signup = () => {
   const [email, setEmail] = useState("");
@@ -9,7 +10,9 @@ const Signup = () => {
   const [passwordDup, setPasswordDup] = useState("");
   const [userName, setUserName] = useState("");
   const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
   const authContext = useContext(AuthContext); // user and dispatch properties
+  const envContext = useContext(EnvironmentContext);
   const navigate = useNavigate();
 
   const preventPageAccess = () => {
@@ -24,6 +27,23 @@ const Signup = () => {
   useEffect(() => {
     preventPageAccess();
   }, []);
+
+  useEffect(() => {
+    // Clear error and message after a set time period of being displayed
+
+    if (!message && !error) {
+      return;
+    }
+
+    let temp = setTimeout(() => {
+      setError("");
+      setMessage("");
+    }, 5000);
+
+    return () => {
+      clearTimeout(temp);
+    };
+  }, [message, error]);
 
   const updateEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
@@ -45,7 +65,7 @@ const Signup = () => {
 
     setError("");
 
-    if (!email || !password || !passwordDup) {
+    if (!email || !password || !passwordDup || !userName) {
       setError("Required fields missing!");
       return;
     }
@@ -55,11 +75,7 @@ const Signup = () => {
       return;
     }
 
-    if (!userName) {
-      setUserName("");
-    }
-
-    const response = await fetch("http://localhost:8005/user/signup", {
+    const response = await fetch(`${envContext.backendURL}/user/signup`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password, userName: userName }),
@@ -114,7 +130,7 @@ const Signup = () => {
           </div>
           <div>
             <label className="w-max mr-auto ml-auto p-2 font-bold">
-              User Name (optional)
+              User Name
             </label>
             <input
               type="text"

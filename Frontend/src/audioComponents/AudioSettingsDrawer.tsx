@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import CSS from "csstype";
 import AudioSettingsTrack from "./AudioSettingsTrack";
 import "../invisibleScrollbar.css";
 
-import { Chain } from "../customTypes";
+import { Chain, TrackData } from "../customTypes";
 
 interface Props {
   songChains: Chain[];
@@ -48,6 +48,23 @@ const AudioSettingsDrawer = ({
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
 
+  useEffect(() => {
+    // Clear error and message after a set time period of being displayed
+
+    if (!message && !error) {
+      return;
+    }
+
+    let temp = setTimeout(() => {
+      setError("");
+      setMessage("");
+    }, 5000);
+
+    return () => {
+      clearTimeout(temp);
+    };
+  }, [message, error]);
+
   const SettingsDrawerStyle: CSS.Properties = {
     position: "absolute",
     marginLeft: "95%",
@@ -58,6 +75,7 @@ const AudioSettingsDrawer = ({
     borderRadius: "15px",
     overflow: "scroll",
     overflowX: "hidden",
+    border: "1px solid black",
     // backdropFilter: "blur(64px)", // doesen't work for whatever reason :/
     zIndex: "1",
   };
@@ -321,7 +339,7 @@ const AudioSettingsDrawer = ({
           // CHANGE CODE HERE!
           return (
             <AudioSettingsTrack
-              settingsTracksData={settingsTracksData}
+              settingsTracksData={settingsTracksData as TrackData[]}
               audioModulesJSON={audioModulesJSON}
               audioModules={audioModules}
               idx={idx}

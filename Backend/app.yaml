@@ -1,0 +1,16 @@
+# [START gae_flex_quickstart_yaml]
+service: prodlodge-backend
+runtime: nodejs
+env: flex
+runtime_config:
+  operating_system: ubuntu22
+# https://cloud.google.com/appengine/docs/flexible/nodejs/configuring-your-app-with-app-yaml
+manual_scaling:
+  instances: 1
+resources:
+  cpu: 1
+  memory_gb: 2
+  disk_size_gb: 10
+# env_variables:
+# GCLOUD_STORAGE_BUCKET: prodlodge-bucket
+# [END gae_flex_quickstart_yaml]

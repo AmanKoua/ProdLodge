@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 const path = require("path");
 const fs = require("fs");
 const Fs = require('fs/promises'); // imported to retrieve file size
+const os = require("os");
 const router = express.Router();
 
 const user = require('../models/userModel');
@@ -13,6 +14,7 @@ const userActionItems = require("../models/userActionItemsModel");
 const userFriends = require("../models/userFriendsModel");
 const song = require("../models/songModel");
 const chain = require("../models/chainModel");
+const comment = require("../models/commentsModel");
 
 function generateRandomString(length) { // required to create random requestID
     const charset = "ABCDEF0123456789";
@@ -67,7 +69,7 @@ router.post('/signup', async (req, res) => {
     let createdUser = undefined;
     let token = undefined;
 
-    if (!email || !password) {
+    if (!email || !password || !userName) {
         return res.status(401).json({ error: "Required fields missing!" });
     }
 
@@ -121,7 +123,7 @@ router.post('/login', async (req, res) => {
     }
     else {
         const userName = retrievedUser.userName;
-        return res.status(200).json({ email, userName, token, tokenCreationTime })
+        return res.status(200).json({ email, userName, token, id: retrievedUser._id, tokenCreationTime })
     }
 
 })
@@ -289,9 +291,9 @@ const downloadProfileImage = (imageId, fileName, requestId) => {
         const db = client.db("ProdCluster");
         const bucket = new GridFSBucket(db);
 
-        fs.mkdirSync(path.join(__dirname, `../../downloads/${requestId}/`));
+        fs.mkdirSync(path.join(os.tmpdir(), `/downloads/${requestId}/`), { recursive: true });
 
-        const dlPath = path.join(__dirname, `../../downloads/${requestId}/`, `${fileName}`);
+        const dlPath = path.join(os.tmpdir(), `/downloads/${requestId}/`, `${fileName}`);
         const dlStream = bucket.openDownloadStream(new ObjectId(imageId));
         const fileStream = fs.createWriteStream(dlPath);
         dlStream.pipe(fileStream);
@@ -327,8 +329,8 @@ router.get('/profileImage', verifyTokenAndGetUser, async (req, res) => {
 
     await downloadProfileImage(imageId, profileImageFileName, req.body.requestId);
 
-    const folderPath = path.join(__dirname, `../../downloads/${req.body.requestId}/`);
-    const filePath = path.join(__dirname, `../../downloads/${req.body.requestId}/`, `${profileImageFileName}`);
+    const folderPath = path.join(os.tmpdir(), `/downloads/${req.body.requestId}/`);
+    const filePath = path.join(os.tmpdir(), `/downloads/${req.body.requestId}/`, `${profileImageFileName}`);
     const stats = await Fs.stat(filePath);
     const fileSize = stats.size;
 
@@ -352,18 +354,37 @@ router.get('/profileImage', verifyTokenAndGetUser, async (req, res) => {
 })
 
 router.get("/songs", verifyTokenAndGetUser, async (req, res) => {
+
+    const isEditPageRequest = (req.headers.isedit && req.headers.isedit == "true") ? true : false;
     const userId = req.body.verifiedUser._id;
+    const tempUserProfile = await userProfile.findOne({ userId: userId });
+
+    if (!tempUserProfile) {
+        return res.status(500).json({ error: "User profile not found!" });
+    }
+
+    const tempUserFriendsList = await userFriends.findOne({ _id: tempUserProfile.friendsListId });
+
+    if (!tempUserFriendsList) {
+        return res.status(500).json({ error: "User friends list not found!" });
+    }
+
+    const friends = tempUserFriendsList.friendsList;
     const songs = await song.find({ userId: userId }).exec();
     let payload = [];
 
-    for (let i = 0; i < songs.length; i++) {
+    for (let i = 0; i < songs.length; i++) { // retrieve all songs owned by the user
         let tempSong = {};
         let tempTrackIds = [];
         let tempChainsData = [];
+        tempSong.owner = req.body.verifiedUser.userName;
+        tempSong.ownerId = req.body.verifiedUser._id.valueOf();
         tempSong.title = songs[i].title;
         tempSong.description = songs[i].description;
         tempSong.id = songs[i]._id;
         tempSong.visibility = songs[i].visibility;
+        tempSong.userConnection = "self";
+        tempSong.commentsList = songs[i].commentsList;
 
         for (let j = 0; j < songs[i].trackList.length; j++) {
             tempTrackIds.push(songs[i].trackList[j]._id.valueOf());
@@ -372,6 +393,134 @@ router.get("/songs", verifyTokenAndGetUser, async (req, res) => {
         for (let j = 0; j < songs[i].chainsList.length; j++) {
 
             const tempChains = await chain.find({ _id: songs[i].chainsList[j] }).exec();
+
+            if (tempChains.length === 0) {
+                // Chain is not found OR deleted...
+                continue;
+            }
+            else {
+                let chainSnapShot = {
+                    name: tempChains[0].name,
+                    data: tempChains[0].data,
+                    id: tempChains[0]._id, // send over id for deletion
+                }
+                tempChainsData.push(chainSnapShot);
+            }
+
+        }
+
+        tempSong.chains = tempChainsData;
+        tempSong.trackIds = tempTrackIds;
+        payload.push(tempSong);
+    }
+
+    if (isEditPageRequest) { // Send only the songs that belong the the given user!
+        return res.status(200).json({ payload })
+    }
+
+    for (let n = 0; n < friends.length; n++) { // Retrieve all songs owned by the friend of the user
+
+        const friend = await user.findOne({ _id: friends[n] }).exec();
+
+        if (!friend) {
+            continue;
+        }
+
+        const friendSongs = await song.find({ userId: friends[n] }).exec();
+
+        if (!friendSongs || friendSongs.length == 0) {
+            continue;
+        }
+
+        for (let i = 0; i < friendSongs.length; i++) { // retrieve all songs of the owner's friends
+
+            // Check visibility to see if user has access to the song
+            if (friendSongs[i].visibility == "private") {
+                continue;
+            }
+
+            let tempSong = {};
+            let tempTrackIds = [];
+            let tempChainsData = [];
+            tempSong.owner = friend.userName;
+            tempSong.ownerId = friend._id.valueOf();
+            tempSong.title = friendSongs[i].title;
+            tempSong.description = friendSongs[i].description;
+            tempSong.id = friendSongs[i]._id;
+            tempSong.visibility = friendSongs[i].visibility;
+            tempSong.userConnection = "friend";
+            tempSong.commentsList = friendSongs[i].commentsList;
+
+            for (let j = 0; j < friendSongs[i].trackList.length; j++) {
+                tempTrackIds.push(friendSongs[i].trackList[j]._id.valueOf());
+            }
+
+            for (let j = 0; j < friendSongs[i].chainsList.length; j++) {
+
+                const tempChains = await chain.find({ _id: friendSongs[i].chainsList[j] }).exec();
+
+                if (tempChains.length === 0) {
+                    // Chain is not found OR deleted...
+                    continue;
+                }
+                else {
+                    let chainSnapShot = {
+                        name: tempChains[0].name,
+                        data: tempChains[0].data,
+                        id: tempChains[0]._id, // send over id for deletion
+                    }
+                    tempChainsData.push(chainSnapShot);
+                }
+
+            }
+
+            tempSong.chains = tempChainsData;
+            tempSong.trackIds = tempTrackIds;
+            payload.push(tempSong);
+        }
+
+    }
+
+    const publicSongs = await song.find({ visibility: "public" });
+
+    for (let i = 0; i < publicSongs.length; i++) { // Retrieve all songs that are public
+
+        // Check that song does not belong to user or a friend
+
+        if (publicSongs[i].userId.valueOf() == userId.valueOf()) { // if song is owned by the requestor, continue
+            continue;
+        }
+
+        if (friends.includes(publicSongs[i].userId)) { // if song is owned be a friend of the requestor, continue
+            continue;
+        }
+
+        const songOwner = await user.findOne({ _id: publicSongs[i].userId });
+
+        if (!songOwner) {
+            console.log("Internal server error! A song exists without being attached to an existing user!");
+            continue;
+        }
+
+        let tempSong = {};
+        let tempTrackIds = [];
+        let tempChainsData = [];
+        tempSong.owner = songOwner.userName;
+        tempSong.ownerId = songOwner._id.valueOf();
+        tempSong.title = publicSongs[i].title;
+        tempSong.description = publicSongs[i].description;
+        tempSong.id = publicSongs[i]._id;
+        tempSong.visibility = publicSongs[i].visibility;
+        tempSong.userConnection = "public";
+        tempSong.commentsList = publicSongs[i].commentsList;
+
+        for (let j = 0; j < publicSongs[i].trackList.length; j++) {
+            tempTrackIds.push(publicSongs[i].trackList[j]._id.valueOf());
+        }
+
+        for (let j = 0; j < publicSongs[i].chainsList.length; j++) {
+
+            const tempChains = await chain.find({ _id: publicSongs[i].chainsList[j] }).exec();
 
             if (tempChains.length === 0) {
                 // Chain is not found OR deleted...
@@ -497,7 +646,25 @@ router.delete('/song', verifyTokenAndGetUser, async (req, res) => {
 
     } catch (e) {
         console.log(e);
-        return res.status(500).json({ error: "Error deleting song!" });
+        return res.status(500).json({ error: "Error deleting tracks!" });
+    }
+
+    // let commentsList = songs[0].commentsList;
+
+    // for (let i = 0; i < commentsList.length; i++) {
+    //     await comment.deleteOne({ _id: commentsList[i] })
+    // }
+
+    let commentsList = await comment.find({ songId: songs[0]._id });
+
+    for (let i = 0; i < commentsList.length; i++) {
+        commentsList[i].deleteOne();
+    }
+
+    let chainsList = songs[0].chainsList;
+
+    for (let i = 0; i < chainsList.length; i++) {
+        await chain.deleteOne({ _id: chainsList[i] });
     }
 
     return res.status(200).json({ message: "Song deleted successfully!" })
@@ -552,7 +719,7 @@ router.post('/addFriend', verifyTokenAndGetUser, async (req, res) => {
 
     const tempUserFriendsList = await userFriends.findOne({ _id: tempUserProfile.friendsListId });
 
-    if (tempUserFriendsList.friendsList.includes(friendEmail)) {
+    if (tempUserFriendsList.friendsList.includes(friend._id)) {
         return res.status(400).json({ error: "Cannot add user that's already a friend!" });
     }
 
@@ -783,8 +950,6 @@ router.post("/handleFriendRequest", verifyTokenAndGetUser, async (req, res) => {
 
         // Update handled action item for target
 
-        console.log(currentTargetActionItems);
-
         for (let i = 0; i < currentTargetActionItems.length; i++) {
             if (currentTargetActionItems[i].type != "outgoingFriendRequest") {
                 continue;
@@ -838,6 +1003,148 @@ router.delete("/requestNotification", verifyTokenAndGetUser, async (req, res) =>
     await tempUserActionItems.updateOne({ $set: { items: newUserActionItems } });
 
     return res.status(200).json({ message: "request notification deleted" });
+})
+
+router.get("/friendProfile/:id", verifyTokenAndGetUser, async (req, res) => {
+
+    if (!req.params || !req.params.id) {
+        return res.status(401).json({ error: "Request id parameter missing!" });
+    }
+
+    if (req.params.id.length != 24) {
+        return res.status(400).json({ error: "Invalid friend ID!" });
+    }
+
+    const friendId = new ObjectId(req.params.id);
+    const friend = await user.findOne({ _id: friendId });
+    let friendProfile = undefined;
+    let friendFriends = undefined;
+    let doesUserHaveProfileImage = false;
+
+    if (!friend) {
+        return res.status(404).json({ error: "Friend not found!" });
+    }
+
+    friendProfile = await userProfile.findOne({ userId: friendId });
+
+    if (!friendProfile) {
+        return res.status(500).json({ error: "Internal system error!" });
+    }
+
+    if (friendProfile.visibility == "Private") {
+        return res.status(403).json({ error: "You are not authorized to view this user's profile!" });
+    }
+
+    doesUserHaveProfileImage = friendProfile.pictureId ? true : false;
+    friendFriends = await userFriends.findOne({ _id: friendProfile.friendsListId });
+
+    if (!friendFriends) {
+        return res.status(500).json({ error: "Internal system error!" });
+    }
+
+    let profileSlice = {}
+
+    if (doesUserHaveProfileImage) {
+        profileSlice = { // dont send all profile data to frontend
+            userName: friend.userName,
+            socialMediaHandles: friendProfile.socialMediaHandles ? friendProfile.socialMediaHandles : null,
+            pictureId: friendProfile.pictureId,
+        }
+    }
+    else {
+        profileSlice = { // dont send all profile data to frontend
+            userName: friend.userName,
+            socialMediaHandles: friendProfile.socialMediaHandles ? friendProfile.socialMediaHandles : null,
+        }
+    }
+
+    if (friendProfile.visibility == "Public") {
+        return res.status(200).json({ profile: profileSlice });
+    }
+    else if (friendProfile.visibility == "FriendsOnly") {
+
+        if (friendFriends.friendsList.includes(req.body.verifiedUser._id)) {
+            return res.status(200).json({ profile: profileSlice });
+        }
+        else {
+            return res.status(403).json({ error: "You are not authorized to view this user's profile!" });
+        }
+
+    }
+
+    return res.status(500).json({ error: "Internal system error" });
+
+})
+
+router.get('/friendProfileImage', verifyTokenAndGetUser, async (req, res) => {
+
+    const friendId = req.header("friendId")
+
+    if (!req.headers || !friendId) {
+        return res.status(400).json({ error: "Invalid request headers!" })
+    }
+
+    const requestId = generateRandomString(30).toLowerCase();
+    req.body.requestId = requestId;
+    const friend = await user.findOne({ _id: new ObjectId(friendId) });
+    let friendProfile;
+
+    if (!friend) {
+        return res.status(404).json({ error: "Specified friend not found!" });
+    }
+
+    friendProfile = await userProfile.findOne({ userId: friend._id });
+
+    if (!friendProfile) {
+        return res.status(500).json({ error: "Internal system error!" });
+    }
+
+    if (friendProfile.visibility == "Private") {
+        return res.status(403).json({ error: "Forbidden image download request!" });
+    }
+
+    if (!friendProfile.pictureId) {
+        return res.status(404).json({ error: "User does not have a profile image!" });
+    }
+
+    const imageId = friendProfile.pictureId.valueOf();
+    let profileImageFileName;
+
+    const client = new MongoClient(process.env.MONGO_URI);
+    await client.connect();
+    const db = client.db("ProdCluster");
+    const bucket = new GridFSBucket(db);
+
+    const cursor = bucket.find({ _id: friendProfile.pictureId });
+
+    for await (const item of cursor) {
+        profileImageFileName = item.filename;
+    }
+
+    await downloadProfileImage(imageId, profileImageFileName, req.body.requestId);
+
+    const folderPath = path.join(os.tmpdir(), `/downloads/${req.body.requestId}/`);
+    const filePath = path.join(os.tmpdir(), `/downloads/${req.body.requestId}/`, `${profileImageFileName}`);
+    const stats = await Fs.stat(filePath);
+    const fileSize = stats.size;
+
+    res.setHeader('Content-Length', fileSize);
+
+    return res.status(200).download(filePath, (err) => {
+        if (err) {
+            console.log(err);
+            return res.status(500).json({ error: "Failure in transmitting file to user!" });
+        }
+        else {
+            if (fs.existsSync(filePath)) {
+                fs.unlinkSync(filePath);
+                setTimeout(() => {
+                    fs.rmdirSync(folderPath);
+                }, 1000)
+            }
+        }
+    })
+
 })
 
 module.exports = router;

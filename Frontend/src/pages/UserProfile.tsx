@@ -4,13 +4,17 @@ import { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { ProfileContext } from "../context/ProfileContext";
+import { EnvironmentContext } from "../context/EnvironmentContext";
+
+import { UserFriend } from "../customTypes";
 
 import FriendsPage from "../components/FriendsPage";
 import ProfilePage from "../components/ProfilePage";
 
 const UserProfile = () => {
   const authContext = useContext(AuthContext); // user and dispatch properties
-  const profileContext = useContext(ProfileContext);
+  const envContext = useContext(EnvironmentContext);
+  let profileContext = useContext(ProfileContext);
 
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
@@ -22,8 +26,8 @@ const UserProfile = () => {
   const [selectedPage, setSelectedPage] = useState("profile");
 
   const [profileImage, setProfileImage] = useState<any>();
-  const [friendRequests, setFriendRequests] = useState<Object[]>([]);
-  const [userFriends, setUserFriends] = useState<Object[]>([]);
+  const [friendRequests, setFriendRequests] = useState<Object>({});
+  const [userFriends, setUserFriends] = useState<UserFriend[]>([]);
   const [userName, setUserName] = useState("null");
   const [email, setEmail] = useState("null");
   const [soundcloudURL, setsoundcloudURL] = useState("");
@@ -38,6 +42,25 @@ const UserProfile = () => {
   const [addFriendEmail, setAddFriendEmail] = useState("");
 
   const navigate = useNavigate();
+
+  const sleep = (time: number) => {
+    // sleeping utility function
+    return new Promise((res, rej) => {
+      setTimeout(() => {
+        res("");
+      }, time);
+    });
+  };
+
+  const tryLoginFromToken = () => {
+    const user = localStorage.getItem("user");
+    if (user) {
+      authContext.dispatch({ type: "LOGIN", payload: JSON.parse(user) }); // save returned object to global state
+      return true;
+    } else {
+      return false;
+    }
+  };
 
   const editsoundcloudURL = (event: React.ChangeEvent<HTMLInputElement>) => {
     setsoundcloudURL(event.target.value);
@@ -79,7 +102,7 @@ const UserProfile = () => {
     if (confirmDelete) {
       // send DELETE request to delete the user's profile and all associated data
 
-      let response = await fetch("http://localhost:8005/user/profile", {
+      let response = await fetch(`${envContext.backendURL}/user/profile`, {
         method: "DELETE",
         headers: {
           "Content-type": "application/json; charset=UTF-8", // content type seems to fix CORS errors...
@@ -133,13 +156,16 @@ const UserProfile = () => {
       const formData = new FormData();
       formData.append("profileImage", profileImage);
 
-      let response = await fetch("http://localhost:8005/upload/profileImage", {
-        method: "POST",
-        body: formData,
-        headers: {
-          Authorization: `Bearer ${authContext.user.token}`,
-        },
-      });
+      let response = await fetch(
+        `${envContext.backendURL}/upload/profileImage`,
+        {
+          method: "POST",
+          body: formData,
+          headers: {
+            Authorization: `Bearer ${authContext.user.token}`,
+          },
+        }
+      );
 
       if (response.ok) {
         console.log("image uplading successful!");
@@ -151,9 +177,15 @@ const UserProfile = () => {
     });
   };
 
-  const toggleEditMode = async () => {
+  const toggleEditMode = async (isCancel: boolean) => {
     setError("");
     setMessage("");
+
+    if (isCancel) {
+      setIsInEditMode(!isInEditMode);
+      setTriggerProfileFetch(true); // to reset state built while in edit mode
+      return;
+    }
 
     if (isInEditMode) {
       let temp: any = {};
@@ -216,7 +248,7 @@ const UserProfile = () => {
       }
 
       const wasImageUploaded = await uploadProfileImg();
-      const timeout = wasImageUploaded ? 1500 : 0; // determine timeout based on whether or not image was uploaded
+      const timeout = wasImageUploaded ? 100 : 0; // determine timeout based on whether or not image was uploaded
 
       let updateObject = {
         profile: {
@@ -226,7 +258,7 @@ const UserProfile = () => {
         },
       };
 
-      const response = await fetch("http://localhost:8005/user/profile", {
+      const response = await fetch(`${envContext.backendURL}/user/profile`, {
         method: "PATCH",
         headers: {
           "Content-type": "application/json; charset=UTF-8", // content type seems to fix CORS errors...
@@ -274,11 +306,18 @@ const UserProfile = () => {
   };
 
   const getUserProfile = async () => {
-    if (!authContext || !authContext.user || !authContext.user.token) {
+    if (
+      !authContext ||
+      !authContext.user ||
+      !authContext.user.token ||
+      !profileContext ||
+      !profileContext.dispatch
+    ) {
+      console.log("getUserProfile dependencies missing!");
       return;
     }
 
-    const response = await fetch("http://localhost:8005/user/profile", {
+    const response = await fetch(`${envContext.backendURL}/user/profile`, {
       method: "GET",
       headers: { Authorization: `Bearer ${authContext.user.token}` },
     });
@@ -304,7 +343,21 @@ const UserProfile = () => {
   };
 
   const getUserFriends = async () => {
-    const response = await fetch("http://localhost:8005/user/friends", {
+    if (!authContext || !authContext.user || !authContext.user.token) {
+      if (!tryLoginFromToken()) {
+        return;
+      } else {
+        await sleep(500);
+      }
+    }
+
+    if (!authContext || !authContext.user || !authContext.user.token) {
+      setError("Authentication not present when querying friends!");
+      navigate("/");
+      return;
+    }
+
+    const response = await fetch(`${envContext.backendURL}/user/friends`, {
       method: "GET",
       headers: { Authorization: `Bearer ${authContext.user.token}` },
     });
@@ -316,20 +369,42 @@ const UserProfile = () => {
   };
 
   const getUserFriendRequests = async () => {
-    const response = await fetch("http://localhost:8005/user/friendRequests", {
-      method: "GET",
-      headers: { Authorization: `Bearer ${authContext.user.token}` },
-    });
+    let isCanceled = false;
 
-    if (response.ok) {
-      const payload = await response.json();
-      setFriendRequests(payload);
+    if (!authContext || !authContext.user || !authContext.user.token) {
+      console.log("Cannot fetch friends without a token! ----------");
+
+      if (!tryLoginFromToken()) {
+        console.log("login from token failed!");
+        return;
+      } else {
+        await sleep(1000);
+
+        if (!authContext || !authContext.user || !authContext.user.token) {
+          isCanceled = true;
+        }
+      }
+    }
+
+    if (!isCanceled) {
+      const response = await fetch(
+        `${envContext.backendURL}/user/friendRequests`,
+        {
+          method: "GET",
+          headers: { Authorization: `Bearer ${authContext.user.token}` },
+        }
+      );
+
+      if (response.ok) {
+        const payload = await response.json();
+        setFriendRequests(payload);
+      }
     }
   };
 
   const removeRequestNotification = async (id: string) => {
     let response = await fetch(
-      "http://localhost:8005/user/requestNotification",
+      `${envContext.backendURL}/user/requestNotification`,
       {
         method: "DELETE",
         headers: {
@@ -343,7 +418,7 @@ const UserProfile = () => {
     if (response.ok) {
       setTimeout(() => {
         setTriggerFriendDataFetch(true);
-      }, 1500);
+      }, 100);
     } else {
       setError("Request notification removal failed!");
     }
@@ -363,7 +438,7 @@ const UserProfile = () => {
       return;
     }
 
-    let response = await fetch("http://localhost:8005/user/addFriend", {
+    let response = await fetch(`${envContext.backendURL}/user/addFriend`, {
       method: "POST",
       headers: {
         "Content-type": "application/json",
@@ -376,7 +451,7 @@ const UserProfile = () => {
       setMessage("Friend request sent successfully!");
       setTimeout(() => {
         setTriggerFriendDataFetch(true);
-      }, 1500);
+      }, 100);
       return;
     } else {
       const json = await response.json();
@@ -385,7 +460,7 @@ const UserProfile = () => {
   };
 
   const removeFriend = async (id: string) => {
-    let response = await fetch("http://localhost:8005/user/removeFriend", {
+    let response = await fetch(`${envContext.backendURL}/user/removeFriend`, {
       method: "DELETE",
       headers: {
         "Content-type": "application/json",
@@ -397,7 +472,7 @@ const UserProfile = () => {
     if (response.ok) {
       setTimeout(() => {
         setTriggerFriendDataFetch(true);
-      }, 1500);
+      }, 100);
     } else {
       setError("Friend removal failed!");
     }
@@ -407,7 +482,7 @@ const UserProfile = () => {
     let requestResponse = isAccepted ? "accept" : "reject";
 
     let response = await fetch(
-      "http://localhost:8005/user/handleFriendRequest",
+      `${envContext.backendURL}/user/handleFriendRequest`,
       {
         method: "POST",
         headers: {
@@ -421,7 +496,7 @@ const UserProfile = () => {
     if (response.ok) {
       setTimeout(() => {
         setTriggerFriendDataFetch(true);
-      }, 1500);
+      }, 100);
     } else {
       alert("Friend data fecthing failed!");
       setError("Friend request handling failed!");
@@ -434,7 +509,7 @@ const UserProfile = () => {
       return;
     }
 
-    const response = await fetch("http://localhost:8005/user/profileImage", {
+    const response = await fetch(`${envContext.backendURL}/user/profileImage`, {
       method: "GET",
       headers: { Authorization: `Bearer ${authContext.user.token}` },
     });
@@ -509,7 +584,12 @@ const UserProfile = () => {
 
   useEffect(() => {
     if (triggerFriendDataFetch) {
-      console.log("Fetching friend data!");
+      if (!authContext || !authContext.user || !authContext.user.token) {
+        if (!tryLoginFromToken()) {
+          return;
+        }
+      }
+
       getUserFriendRequests();
       getUserFriends();
       setTriggerFriendDataFetch(false);
@@ -517,6 +597,23 @@ const UserProfile = () => {
       return;
     }
   }, [triggerFriendDataFetch]);
+
+  useEffect(() => {
+    // Clear error and message after a set time period of being displayed
+
+    if (!message && !error) {
+      return;
+    }
+
+    let temp = setTimeout(() => {
+      setError("");
+      setMessage("");
+    }, 5000);
+
+    return () => {
+      clearTimeout(temp);
+    };
+  }, [message, error]);
 
   useEffect(() => {
     // update profle data when profile context changes

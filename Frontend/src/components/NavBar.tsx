@@ -1,26 +1,28 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useContext, useEffect, useRef, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
+import { ProfileContext } from "../context/ProfileContext";
 
 const NavBar = () => {
   const authContext = useContext(AuthContext);
+  const profileContext = useContext(ProfileContext);
   const navigate = useNavigate();
   let [triggerProfileItemsSearch, setTriggerProfileItemsSearch] =
     useState(false);
 
   useEffect(() => {
     let profileName;
-    let profileDropdown;
+    let profileDropdown: HTMLElement;
     let user;
 
     let profileInterval = setInterval(() => {
       profileName = document.getElementById("profileName");
-      profileDropdown = document.getElementById("profileDropdown");
+      profileDropdown = document.getElementById("profileDropdown")!;
       user = localStorage.getItem("user");
 
       if (user) {
         profileName = document.getElementById("profileName");
-        profileDropdown = document.getElementById("profileDropdown");
+        profileDropdown = document.getElementById("profileDropdown")!;
 
         if (profileName && profileDropdown) {
           profileName.addEventListener("mouseenter", () => {
@@ -69,6 +71,7 @@ const NavBar = () => {
 
   const generateUserAuthSection = () => {
     const handleLogoutClick = () => {
+      profileContext.dispatch({ type: "DELETE", payload: undefined });
       authContext.dispatch({ type: "LOGOUT", payload: undefined });
       localStorage.removeItem("user");
       navigate("/login");

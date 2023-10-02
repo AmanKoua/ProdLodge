@@ -1,11 +1,17 @@
 import { useState, useEffect } from "react";
 
+import {
+  FriendRequestData,
+  UserFriend,
+  FriendRequestResponse,
+} from "../customTypes";
+
 interface FriendsProps {
   error: string;
   message: string;
   addFriendEmail: string;
-  friendRequests: Object[];
-  userFriends: Object[];
+  friendRequests: Object;
+  userFriends: UserFriend[];
   setAddFriendEmail: (val: any) => void;
   addFriend: () => Promise<void>;
   removeFriend: (id: string) => Promise<void>;
@@ -27,8 +33,12 @@ const FriendsPage = ({
   removeRequestNotification,
   setTriggerFriendDataFetch,
 }: FriendsProps) => {
-  const [incommingRequests, setIncommingRequests] = useState<Object[]>([]);
-  const [outgoingRequests, setOutgoingRequests] = useState<Object[]>([]);
+  const [incommingRequests, setIncommingRequests] = useState<
+    FriendRequestData[]
+  >([]);
+  const [outgoingRequests, setOutgoingRequests] = useState<FriendRequestData[]>(
+    []
+  );
 
   const generateIncommingRequestCards = (): JSX.Element => {
     let temp = (
@@ -122,10 +132,13 @@ const FriendsPage = ({
       <>
         {userFriends.map((item, idx) => (
           <div key={idx} className="mt-2 shadow-md  flex">
-            <p className="text-lg w-5/6 mt-auto mb-auto overflow-hidden">
+            <a
+              href={`/userProfile/${item.id}`}
+              className="text-lg w-5/6 mt-auto mb-auto overflow-hidden text-black decoration-transparent"
+            >
               {item.userName && `user name : ${item.userName}`}
               {item.email && !item.userName && `email : ${item.email}`}
-            </p>
+            </a>
             <div className="w-1/6 h-max mt-auto mb-auto overflow-hidden">
               <div className="flex">
                 <span
@@ -159,7 +172,8 @@ const FriendsPage = ({
 
   useEffect(() => {
     const partitionRequests = () => {
-      const requests = friendRequests.payload;
+      let temp = friendRequests as FriendRequestResponse;
+      const requests = temp.payload;
 
       if (!requests) {
         return;
@@ -177,7 +191,7 @@ const FriendsPage = ({
     };
 
     partitionRequests();
-  }, []);
+  }, [friendRequests]);
 
   return (
     <div className="w-12/12 h-screen mt-2">

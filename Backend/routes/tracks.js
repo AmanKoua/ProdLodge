@@ -5,6 +5,7 @@ const path = require("path");
 const jwt = require("jsonwebtoken");
 const fs = require("fs");
 const Fs = require('fs/promises'); // imported to retrieve file size
+const os = require("os");
 const router = express.Router();
 
 const user = require('../models/userModel');
@@ -63,9 +64,9 @@ const downloadTrack = (trackId, requestId) => {
         const db = client.db("ProdCluster");
         const bucket = new GridFSBucket(db);
 
-        fs.mkdirSync(path.join(__dirname, `../../downloads/${requestId}/`));
+        fs.mkdirSync(path.join(os.tmpdir(), `/downloads/${requestId}/`), { recursive: true });
 
-        const dlPath = path.join(__dirname, `../../downloads/${requestId}/`, `${trackId}.mp3`);
+        const dlPath = path.join(os.tmpdir(), `/downloads/${requestId}/`, `${trackId}.mp3`);
         const dlStream = bucket.openDownloadStream(new ObjectId(trackId));
         const fileStream = fs.createWriteStream(dlPath);
         dlStream.pipe(fileStream);
@@ -109,8 +110,8 @@ router.get('/:id', verifyTokenAndGetUser, async (req, res) => {
     await client.close();
     await downloadTrack(trackId, requestId);
 
-    const folderPath = path.join(__dirname, `../../downloads/${requestId}/`);
-    const filePath = path.join(__dirname, `../../downloads/${requestId}/`, `${trackId}.mp3`);
+    const folderPath = path.join(os.tmpdir(), `/downloads/${requestId}/`);
+    const filePath = path.join(os.tmpdir(), `/downloads/${requestId}/`, `${trackId}.mp3`);
     const stats = await Fs.stat(filePath);
     const fileSize = stats.size;
 
