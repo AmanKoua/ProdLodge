@@ -27,7 +27,6 @@ app.use('/comment', commentRouter);
 
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'dist', 'index.html'))
-    console.log("running locally!");
     // res.status(200).json({ message: "Hello from prodlodge!" })
 })
 
