@@ -1,5 +1,5 @@
 # [START gae_flex_quickstart_yaml]
-service: prodlodge-backend
+service: default
 runtime: nodejs
 env: flex
 runtime_config:

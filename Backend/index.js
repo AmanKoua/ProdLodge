@@ -26,6 +26,7 @@ app.use('/chain', chainsRouter);
 app.use('/comment', commentRouter);
 
 app.get('*', (req, res) => {
+    res.setHeader("Content-Type", "application/javascript");
     res.sendFile(path.join(__dirname, 'dist', 'index.html'))
     // res.status(200).json({ message: "Hello from prodlodge!" })
 })
