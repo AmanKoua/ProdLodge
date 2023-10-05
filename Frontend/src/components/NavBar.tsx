@@ -110,6 +110,16 @@ const NavBar = () => {
                   </p>
                 </center>
               </Link>
+              <Link
+                to="/about"
+                className="bg-slate-400 text-black no-underline text-xl"
+              >
+                <center>
+                  <p className="w-max h-max mt-2 p-2 shadow-sm text-black border-b-2 border-t-0 border-l-0 border-prodSecondary rounded-sm font-semibold hover:font-bold">
+                    About
+                  </p>
+                </center>
+              </Link>
             </div>
             <button
               onClick={handleLogoutClick}

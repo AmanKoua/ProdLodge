@@ -1870,27 +1870,41 @@ const AudioBox = ({ songData, isPageSwitched, setIsSongPayloadSet }: Props) => {
             setIsSongDataContainerHover(false);
           }}
         >
-          <div className="w-6/12 h-9 overflow-y-scroll mb-auto inline-block hide-scrollbar">
-            <h1
-              style={{
-                fontSize: "15px",
-                marginTop: "8px",
-                textAlign: "center",
-              }}
+          <div className="w-full h-max flex justify-around">
+            <div
+              className={
+                isSongDataContainerHover
+                  ? "w-max h-9 overflow-y-scroll mb-auto inline-block border-b border-black hide-scrollbar"
+                  : "w-max h-9 overflow-y-scroll mb-auto inline-block hide-scrollbar"
+              }
             >
-              Creator: {songData.owner}
-            </h1>
-          </div>
-          <div className="w-6/12 h-9 overflow-y-scroll mb-auto inline-block hide-scrollbar">
-            <h1
-              style={{
-                fontSize: "15px",
-                marginTop: "8px",
-                textAlign: "center",
-              }}
+              <h1
+                style={{
+                  fontSize: "15px",
+                  marginTop: "8px",
+                  textAlign: "center",
+                }}
+              >
+                Creator: {songData.owner}
+              </h1>
+            </div>
+            <div
+              className={
+                isSongDataContainerHover
+                  ? "w-max h-9 overflow-y-scroll mb-auto inline-block border-b border-black hide-scrollbar"
+                  : "w-max h-9 overflow-y-scroll mb-auto inline-block hide-scrollbar"
+              }
             >
-              Title: {songData.title}
-            </h1>
+              <h1
+                style={{
+                  fontSize: "15px",
+                  marginTop: "8px",
+                  textAlign: "center",
+                }}
+              >
+                Title: {songData.title}
+              </h1>
+            </div>
           </div>
           <div className="w-12/12 h-16 overflow-y-scroll mb-auto block hide-scrollbar">
             <h1
