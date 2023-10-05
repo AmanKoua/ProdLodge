@@ -16,6 +16,7 @@ import UserProfile from "./pages/UserProfile";
 import FriendProfilePage from "./pages/FriendProfilePage";
 import NewSong from "./pages/NewSong";
 import EditSong from "./pages/EditSong";
+import About from "./pages/About";
 import InvalidRoute from "./pages/InvalidRoute";
 
 import { AuthContext } from "./context/AuthContext";
@@ -88,6 +89,7 @@ function App() {
             ></Route>
             <Route path="/newSong" element={<NewSong />} />
             <Route path="/editSong" element={<EditSong />} />
+            <Route path="/about" element={<About />} />
             <Route path="/404" element={<InvalidRoute />} />
             <Route path="*" element={<Navigate to="/404" />} />{" "}
             {/* Catch all for unregistered routes */}

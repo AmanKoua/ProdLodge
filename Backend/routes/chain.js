@@ -50,7 +50,6 @@ router.post('/', async (req, res) => {
     const targetSong = targetSongs[0];
 
     if (targetSong.userId.valueOf() != verifiedUser._id.valueOf()) {
-        // TODO : Implement logic such that a chain can be added if track is public, user is friend of owner, or user is on access list
         return res.status(401).json({ error: "You are not authorized to create a chain for this song!" });
     }
 

@@ -1874,7 +1874,7 @@ const AudioBox = ({ songData, isPageSwitched, setIsSongPayloadSet }: Props) => {
             <div
               className={
                 isSongDataContainerHover
-                  ? "w-max h-9 overflow-y-scroll mb-auto inline-block border hide-scrollbar"
+                  ? "w-max h-9 overflow-y-scroll mb-auto inline-block border-b border-black hide-scrollbar"
                   : "w-max h-9 overflow-y-scroll mb-auto inline-block hide-scrollbar"
               }
             >
@@ -1888,7 +1888,13 @@ const AudioBox = ({ songData, isPageSwitched, setIsSongPayloadSet }: Props) => {
                 Creator: {songData.owner}
               </h1>
             </div>
-            <div className="w-max h-9 overflow-y-scroll mb-auto inline-block hide-scrollbar">
+            <div
+              className={
+                isSongDataContainerHover
+                  ? "w-max h-9 overflow-y-scroll mb-auto inline-block border-b border-black hide-scrollbar"
+                  : "w-max h-9 overflow-y-scroll mb-auto inline-block hide-scrollbar"
+              }
+            >
               <h1
                 style={{
                   fontSize: "15px",
