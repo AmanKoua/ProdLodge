@@ -912,8 +912,8 @@ const AudioBox = ({ songData, isPageSwitched, setIsSongPayloadSet }: Props) => {
   };
 
   const SongDataContainerClassName = !isSongDataContainerHover
-    ? "w-full h-9 overflow-hidden bg-prodSecondary"
-    : "w-full h-24 overflow-hidden bg-prodSecondary"; // toggle height with tailwind
+    ? "w-full h-9 overflow-hidden bg-gradient-to-b from-prodSecondary to-prodPrimary"
+    : "w-full h-24 overflow-hidden bg-gradient-to-b from-prodSecondary to-prodPrimary"; // toggle height with tailwind
 
   // SongDataContainerStyle.height = isExpanded ? "100px" : "40px";
 
