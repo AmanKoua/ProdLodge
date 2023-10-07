@@ -1,8 +1,9 @@
 import { createContext, useReducer, ReactNode } from "react";
 
 // const backendURL = "http://localhost:8005";
-const backendURL =
-  "https://prodlodge-backend-dot-prodlodge-183.uk.r.appspot.com";
+// const backendURL =
+//   "https://prodlodge-backend-dot-prodlodge-183.uk.r.appspot.com"; // old backend URL
+const backendURL = "https://www.prodlodge.com";
 
 export const EnvironmentContext = createContext({
   backendURL: backendURL, // dev backend URL
