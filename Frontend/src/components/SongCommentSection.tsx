@@ -8,6 +8,7 @@
 */
 
 import { useEffect, useContext, useState } from "react";
+import { Link } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { EnvironmentContext } from "../context/EnvironmentContext";
 
@@ -476,12 +477,12 @@ const SongCommentSection = ({
                       <div className="w-4/6 h-6 ml-auto mr-auto inline-block">
                         <div className="border-b border-gray-400 w-6/12 h-full overflow-hidden inline-block">
                           <p className="w-max h-max ml-auto mr-auto font-bold hover:text-blue-500 hover:cursor-pointer">
-                            <a
+                            <Link
                               className="text-black hover:text-blue-500"
-                              href={`/userProfile/${item[1].creatorId}`}
+                              to={`/userProfile/${item[1].creatorId}`}
                             >
                               {item[1].creatorUserName}
-                            </a>
+                            </Link>
                           </p>
                         </div>
                         <div className="border-b border-gray-400 w-6/12 h-full overflow-hidden inline-block">
