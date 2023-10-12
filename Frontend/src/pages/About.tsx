@@ -3,7 +3,7 @@ import React from "react";
 const About = () => {
   return (
     <div className="bg-prodPrimary w-full sm:w-8/12 h-max mr-auto ml-auto pb-4 hide-scrollbar overflow-y-scroll hide-scrollbar">
-      <div className="w-8/12 h-full mr-auto ml-auto pb-2 pt-2 flex-col">
+      <div className=" w-full h-full mr-auto ml-auto pb-2 pt-2 flex-col">
         <h1 className="w-max ml-auto mr-auto p-2 border-b border-black">
           About
         </h1>
