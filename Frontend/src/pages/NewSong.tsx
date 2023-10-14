@@ -15,6 +15,7 @@ const NewSong = () => {
   ]); // [{trackName: string, file: FileList}]
   const [songName, setSongName] = useState("");
   const [songDescription, setSongDescription] = useState("");
+  const [songVisibility, setSongVisibility] = useState("invalid");
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
@@ -146,6 +147,11 @@ const NewSong = () => {
       setSongDescription(""); // ensure songDescription is empty
     }
 
+    if (!songVisibility || songVisibility == "invalid") {
+      setError("Please select a song visibility!");
+      return;
+    }
+
     if (songUploadData.length === 0) {
       setError("No tracks to upload!");
       return;
@@ -182,7 +188,11 @@ const NewSong = () => {
     */
 
     let songToken = undefined;
-    const payload = { name: songName, description: songDescription };
+    const payload = {
+      name: songName,
+      description: songDescription,
+      visibility: songVisibility,
+    };
 
     let response = await fetch(`${envContext.backendURL}/upload/songInit`, {
       method: "POST",
@@ -275,6 +285,24 @@ const NewSong = () => {
         value={songDescription}
         style={SongDescInputStyle}
       />
+      <div className="w-6/12 h-9 ml-auto mr-auto mt-3 border border-black ">
+        <select
+          value={songVisibility}
+          onChange={(e) => {
+            setSongVisibility(e.target.value);
+          }}
+          className={
+            songVisibility == "invalid"
+              ? "w-full h-full bg-transparent opacity-50 p-1 ml-auto mr-auto"
+              : "w-full h-full bg-transparent p-1 ml-auto mr-auto"
+          }
+        >
+          <option value="invalid">Select song visibility</option>
+          <option value="public">Public</option>
+          <option value="private">Private</option>
+          <option value="friendsonly">Friends Only</option>
+        </select>
+      </div>
       {generateSongUploadContainers()}
       <div className="ml-auto mr-auto mt-3 w-max">
         <button className="btn" onClick={initSongAndUploadTracks}>
