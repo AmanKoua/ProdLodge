@@ -1836,9 +1836,10 @@ const AudioBox = ({ songData, isPageSwitched, setIsSongPayloadSet }: Props) => {
         {audioModules.map((item, idx) => {
           return (
             <AudioModuleContainer
+              key={idx}
               containerIndex={idx}
               modules={item}
-              key={idx}
+              isSettingsExpanded={isSettingsExpanded}
               addModule={addModule}
               deleteAudioModuleAndNode={deleteAudioModuleAndNode}
               setModuleType={setModuleType}

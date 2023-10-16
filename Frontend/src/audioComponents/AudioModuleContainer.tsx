@@ -15,6 +15,7 @@ import { AudioModule } from "../customTypes";
 interface Props {
   containerIndex: number;
   modules: Object[]; // pass in data required to reconstruct module interfaces
+  isSettingsExpanded: boolean;
   addModule: () => void;
   deleteAudioModuleAndNode: (position: number[]) => void;
   setModuleType: (type: string, index: number[]) => void;
@@ -26,6 +27,7 @@ interface Props {
 const AudioModuleContainer = ({
   containerIndex,
   modules,
+  isSettingsExpanded,
   addModule,
   deleteAudioModuleAndNode,
   setModuleType,
@@ -42,8 +44,15 @@ const AudioModuleContainer = ({
     width: "98%",
     height: "200px",
     // backgroundColor: "#3d8bf2",
+    // filter: "blur(4px)",
     opacity: "75%",
+    // pointerEvents: "none",
   };
+
+  AudioModuleContainerStyle.filter = isSettingsExpanded ? "blur(3px)" : "";
+  AudioModuleContainerStyle.pointerEvents = isSettingsExpanded
+    ? "none"
+    : "auto";
 
   const generateModuleFromData = (
     data: AudioModule,
