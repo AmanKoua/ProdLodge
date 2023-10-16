@@ -109,7 +109,7 @@ const Home = () => {
         {placeHolderArr.map((item, idx) => (
           <div
             key={idx}
-            className="bg-gray-300 w-12/12 lg:w-9/12 h-20 mr-auto ml-auto mt-3 pt-3 animate-pulse"
+            className="bg-blue-100 w-12/12 lg:w-9/12 h-20 mr-auto ml-auto mt-3 pt-3 animate-pulse"
           ></div>
         ))}
       </>
@@ -119,7 +119,7 @@ const Home = () => {
   };
 
   return (
-    <div className="bg-prodPrimary w-full sm:w-8/12 h-screen mr-auto ml-auto pb-4 hide-scrollbar overflow-y-scroll">
+    <div className="bg-gradient-to-b from-prodPrimary to-prodSecondary shadow-xl shadow-blue-200 w-full sm:w-8/12 h-screen mr-auto ml-auto pb-4 hide-scrollbar overflow-y-scroll">
       {/* Do not allow the displaying of audioBoxes on mobile sized screens */}
 
       <div className="w-10/12 h-7 ml-auto mr-auto mt-2 overflow-hidden flex justify-around">

@@ -912,8 +912,8 @@ const AudioBox = ({ songData, isPageSwitched, setIsSongPayloadSet }: Props) => {
   };
 
   const SongDataContainerClassName = !isSongDataContainerHover
-    ? "w-full h-9 overflow-hidden bg-gradient-to-b from-prodSecondary to-blue-100"
-    : "w-full h-24 overflow-hidden bg-gradient-to-b from-prodSecondary to-blue-100"; // toggle height with tailwind
+    ? "w-full h-9 overflow-hidden bg-gradient-to-b from-prodSecondary to-blue-50"
+    : "w-full h-24 overflow-hidden bg-gradient-to-b from-prodSecondary to-blue-50"; // toggle height with tailwind
 
   // SongDataContainerStyle.height = isExpanded ? "100px" : "40px";
 
@@ -932,7 +932,7 @@ const AudioBox = ({ songData, isPageSwitched, setIsSongPayloadSet }: Props) => {
     marginTop: "0%",
     width: "100%",
     height: "300px",
-    border: "1px solid black",
+    // border: "1px solid black",
     transition: "all 0.3s",
     overflow: "hidden",
     // background: "red",
@@ -963,7 +963,7 @@ const AudioBox = ({ songData, isPageSwitched, setIsSongPayloadSet }: Props) => {
     borderRadius: "6px",
     fontSize: "10px",
     textAlign: "center",
-    backgroundColor: "lavender",
+    // backgroundColor: "lavender",
     opacity: isSettingsHover ? "100%" : "45%",
     overflow: "hidden",
     zIndex: "10",
@@ -1879,6 +1879,7 @@ const AudioBox = ({ songData, isPageSwitched, setIsSongPayloadSet }: Props) => {
               }
             >
               <h1
+                className="border border-black shadow-md rounded-lg pl-1 pr-1 backdrop-blur-sm font-light"
                 style={{
                   fontSize: "15px",
                   marginTop: "8px",
@@ -1896,6 +1897,7 @@ const AudioBox = ({ songData, isPageSwitched, setIsSongPayloadSet }: Props) => {
               }
             >
               <h1
+                className="border border-black shadow-md rounded-lg pl-1 pr-1 backdrop-blur-sm font-light"
                 style={{
                   fontSize: "15px",
                   marginTop: "8px",
@@ -1913,13 +1915,17 @@ const AudioBox = ({ songData, isPageSwitched, setIsSongPayloadSet }: Props) => {
                 marginTop: "8px",
                 textAlign: "center",
               }}
-              className="ml-1"
+              className="ml-1 pl-1 pr-1 backdrop-blur-sm font-normal"
             >
               Description: {songData.description}
             </h1>
           </div>
         </div>
-        <div style={AudioBoxStyle} onClick={handleUserGesture}>
+        <div
+          className="bg-blue-50 shadow-md shadow-gray-400"
+          style={AudioBoxStyle}
+          onClick={handleUserGesture}
+        >
           <div
             style={SettingButtonStyle}
             onMouseEnter={handleMouseEnterSettingsButton}
@@ -1971,8 +1977,8 @@ const AudioBox = ({ songData, isPageSwitched, setIsSongPayloadSet }: Props) => {
         <div
           className={
             isAudioControllerHover || isCommentsTabHover
-              ? "bg-prodSecondary h-6 w-3/12 rounded-b-lg flex ml-auto mr-auto justify-center overflow-hidden"
-              : "bg-prodSecondary h-0 w-3/12 flex ml-auto mr-auto justify-center overflow-hidden"
+              ? "shadow-sm h-6 w-3/12 rounded-b-lg flex ml-auto mr-auto justify-center overflow-hidden"
+              : "shadow-sm h-0 w-3/12 flex ml-auto mr-auto justify-center overflow-hidden"
           }
           style={{ transition: "all 0.3s" }}
           onMouseEnter={() => {

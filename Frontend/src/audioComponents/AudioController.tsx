@@ -76,7 +76,7 @@ const AudioController = ({
     bottom: "0px",
     width: "100%",
     height: "40px",
-    border: "1px solid black",
+    borderBottom: "1px solid #add0f7",
     transition: "all 0.3s", // for expansion and contraction
     zIndex: "2",
   };
@@ -104,7 +104,7 @@ const AudioController = ({
     borderRadius: "6px",
     fontSize: "10px",
     textAlign: "center",
-    backgroundColor: "lavender",
+    // backgroundColor: "lavender",
     opacity: isHover ? "100%" : "45%",
   };
 

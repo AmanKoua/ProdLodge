@@ -76,7 +76,8 @@ const AudioSettingsDrawer = ({
     overflow: "scroll",
     overflowX: "hidden",
     border: "1px solid black",
-    // backdropFilter: "blur(64px)", // doesen't work for whatever reason :/
+    // backdropFilter: "blur(10px)", // wont work :(
+    // WebkitBackdropFilter: "blur(13px)",
     zIndex: "1",
   };
 
@@ -361,7 +362,7 @@ const AudioSettingsDrawer = ({
   };
 
   return (
-    <div style={SettingsDrawerStyle} className="hide-scrollbar">
+    <div style={SettingsDrawerStyle} className=" hide-scrollbar">
       <div style={ConfigurationsDivStyle}>
         <div
           style={ConfigurationButtonStyle}
