@@ -21,6 +21,7 @@ module.exports = {
         prodPrimary: "#edf4fc",
         prodSecondary: "#add0f7",
         prodMainArea: "#c5d2e0",
+        prodBackground: "#F8FBFF",
         prodError: "#f59a9a",
         prodMessage: "#c4ffc4",
         prodWarning: "#fe5d5d",
