@@ -1922,7 +1922,7 @@ const AudioBox = ({ songData, isPageSwitched, setIsSongPayloadSet }: Props) => {
           </div>
         </div>
         <div
-          className="shadow-md shadow-gray-400"
+          className="bg-blue-50 shadow-md shadow-gray-400"
           style={AudioBoxStyle}
           onClick={handleUserGesture}
         >

@@ -445,7 +445,7 @@ const SongCommentSection = ({
                 <>
                   {isReply && (
                     <div
-                      className="bg-gray-200 w-1 h-28 absolute"
+                      className="bg-gray-400 w-1 h-28 absolute"
                       style={{
                         marginLeft: `${6}%` /* Shift comments over based on whether or not it is a reply. Standard is 8% */,
                         marginTop: "2.4%",
