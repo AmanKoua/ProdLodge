@@ -454,7 +454,7 @@ const SongCommentSection = ({
                   )}
 
                   <div
-                    className="bg-blue-100 w-10/12 h-max ml-auto mr-auto mt-4 pb-1 border border-black"
+                    className="w-10/12 h-max ml-auto mr-auto mt-4 pb-1 shadow-md"
                     style={{
                       marginLeft: `${
                         8 * offset
@@ -619,8 +619,8 @@ const SongCommentSection = ({
                     <div
                       className={
                         currentHoverTarget == item[0]
-                          ? "bg-prodSecondary h-6 w-3/12 rounded-b-lg flex ml-auto mr-auto justify-center overflow-hidden"
-                          : "bg-prodSecondary h-1 w-3/12 rounded-b-lg flex ml-auto mr-auto justify-center overflow-hidden"
+                          ? "bg-cyan-400 shadow-sm h-6 w-3/12 rounded-b-lg flex ml-auto mr-auto justify-center overflow-hidden"
+                          : "bg-cyan-400 shadow-sm h-1 w-3/12 rounded-b-lg flex ml-auto mr-auto justify-center overflow-hidden"
                       }
                       style={{ transition: "all 0.3s" }}
                       onMouseOver={(e) => {
@@ -654,7 +654,7 @@ const SongCommentSection = ({
     <div
       className={
         isCommentsSectionDisplayed
-          ? "bg-prodPrimary shadow-lg w-12/12 h-max pt-1 pb-3"
+          ? " shadow-lg w-12/12 h-max pt-1 pb-3"
           : "bg-prodPrimary shadow-lg w-12/12 h-0 pt-1 pb-3 hidden"
       }
       style={{ transition: "all 0.5s" }}
@@ -671,11 +671,11 @@ const SongCommentSection = ({
         </div>
       )}
 
-      <div className="bg-white rounded-lg w-11/12 h-20 ml-auto mr-auto mt-3">
+      <div className="shadow-md rounded-lg w-11/12 h-20 ml-auto mr-auto mt-3">
         <div className="w-full h-4/6" id="comment-input">
           <input
             type="text"
-            className="w-full h-full pl-1 pr-1 border-b"
+            className="rounded-t-lg bg-transparent w-full h-full pl-1 pr-1"
             placeholder={commentInputPlaceholder}
             value={commentData}
             onChange={(e) => {

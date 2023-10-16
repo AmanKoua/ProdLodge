@@ -104,7 +104,7 @@ const AudioController = ({
     borderRadius: "6px",
     fontSize: "10px",
     textAlign: "center",
-    backgroundColor: "lavender",
+    // backgroundColor: "lavender",
     opacity: isHover ? "100%" : "45%",
   };
 

@@ -963,7 +963,7 @@ const AudioBox = ({ songData, isPageSwitched, setIsSongPayloadSet }: Props) => {
     borderRadius: "6px",
     fontSize: "10px",
     textAlign: "center",
-    backgroundColor: "lavender",
+    // backgroundColor: "lavender",
     opacity: isSettingsHover ? "100%" : "45%",
     overflow: "hidden",
     zIndex: "10",
@@ -1879,6 +1879,7 @@ const AudioBox = ({ songData, isPageSwitched, setIsSongPayloadSet }: Props) => {
               }
             >
               <h1
+                className="border border-black shadow-md rounded-lg pl-1 pr-1 backdrop-blur-sm font-light"
                 style={{
                   fontSize: "15px",
                   marginTop: "8px",
@@ -1896,6 +1897,7 @@ const AudioBox = ({ songData, isPageSwitched, setIsSongPayloadSet }: Props) => {
               }
             >
               <h1
+                className="border border-black shadow-md rounded-lg pl-1 pr-1 backdrop-blur-sm font-light"
                 style={{
                   fontSize: "15px",
                   marginTop: "8px",
@@ -1913,7 +1915,7 @@ const AudioBox = ({ songData, isPageSwitched, setIsSongPayloadSet }: Props) => {
                 marginTop: "8px",
                 textAlign: "center",
               }}
-              className="ml-1"
+              className="ml-1 pl-1 pr-1 backdrop-blur-sm font-normal"
             >
               Description: {songData.description}
             </h1>
@@ -1975,8 +1977,8 @@ const AudioBox = ({ songData, isPageSwitched, setIsSongPayloadSet }: Props) => {
         <div
           className={
             isAudioControllerHover || isCommentsTabHover
-              ? "bg-prodSecondary h-6 w-3/12 rounded-b-lg flex ml-auto mr-auto justify-center overflow-hidden"
-              : "bg-prodSecondary h-0 w-3/12 flex ml-auto mr-auto justify-center overflow-hidden"
+              ? "shadow-sm h-6 w-3/12 rounded-b-lg flex ml-auto mr-auto justify-center overflow-hidden"
+              : "shadow-sm h-0 w-3/12 flex ml-auto mr-auto justify-center overflow-hidden"
           }
           style={{ transition: "all 0.3s" }}
           onMouseEnter={() => {
