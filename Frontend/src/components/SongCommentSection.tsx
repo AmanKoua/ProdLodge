@@ -619,7 +619,7 @@ const SongCommentSection = ({
                     <div
                       className={
                         currentHoverTarget == item[0]
-                          ? "bg-cyan-400 shadow-sm h-6 w-3/12 rounded-b-lg flex ml-auto mr-auto justify-center overflow-hidden"
+                          ? "shadow-sm h-6 w-3/12 rounded-b-lg flex ml-auto mr-auto justify-center overflow-hidden"
                           : "bg-cyan-400 shadow-sm h-1 w-3/12 rounded-b-lg flex ml-auto mr-auto justify-center overflow-hidden"
                       }
                       style={{ transition: "all 0.3s" }}
