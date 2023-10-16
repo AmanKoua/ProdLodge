@@ -932,7 +932,7 @@ const AudioBox = ({ songData, isPageSwitched, setIsSongPayloadSet }: Props) => {
     marginTop: "0%",
     width: "100%",
     height: "300px",
-    border: "1px solid black",
+    // border: "1px solid black",
     transition: "all 0.3s",
     overflow: "hidden",
     // background: "red",
@@ -1919,7 +1919,11 @@ const AudioBox = ({ songData, isPageSwitched, setIsSongPayloadSet }: Props) => {
             </h1>
           </div>
         </div>
-        <div style={AudioBoxStyle} onClick={handleUserGesture}>
+        <div
+          className="shadow-md shadow-gray-400"
+          style={AudioBoxStyle}
+          onClick={handleUserGesture}
+        >
           <div
             style={SettingButtonStyle}
             onMouseEnter={handleMouseEnterSettingsButton}
