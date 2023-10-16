@@ -93,7 +93,7 @@ const Signup = () => {
   };
 
   return (
-    <div className="bg-prodPrimary w-full sm:w-8/12 h-screen mr-auto ml-auto ">
+    <div className="bg-gradient-to-b from-prodPrimary to-prodSecondary w-full sm:w-8/12 h-screen mr-auto ml-auto ">
       <div className="w-7/12 mr-auto ml-auto">
         <form
           onSubmit={handleSubmit}
