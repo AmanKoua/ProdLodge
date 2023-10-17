@@ -18,6 +18,7 @@ interface Props {
   songTime: number;
   songDuration: number;
   areAudioNodesReady: boolean;
+  isSettingsButtonClicked: boolean;
   setIsPlaying: (val: boolean) => void;
   setIsExpanded: (val: boolean) => void;
   setIsSettingsExpanded: (val: boolean) => void;
@@ -43,6 +44,7 @@ const AudioController = ({
   songTime,
   songDuration,
   areAudioNodesReady,
+  isSettingsButtonClicked,
   setIsPlaying,
   setIsExpanded,
   setIsSettingsExpanded,
@@ -175,7 +177,9 @@ const AudioController = ({
             className="w-full h-3/6 absolute z-0 pointer-events-none"
           >
             <p className="w-max ml-auto mr-auto text-2xl animate-pulse relative">
-              Please wait, tracks are loading...
+              {isSettingsButtonClicked
+                ? "Please wait to open settings ..."
+                : "Please wait, tracks are loading..."}
             </p>
           </div>
         )}
