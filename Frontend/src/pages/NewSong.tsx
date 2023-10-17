@@ -26,7 +26,7 @@ const NewSong = () => {
     // position: "relative",
     display: "block",
     padding: "10px",
-    backgroundColor: "#edf4fc",
+    backgroundColor: "transparent",
     marginLeft: "auto",
     marginRight: "auto",
     width: "50%",
@@ -38,7 +38,7 @@ const NewSong = () => {
     // position: "relative",
     display: "block",
     padding: "10px",
-    backgroundColor: "#edf4fc",
+    backgroundColor: "transparent",
     marginTop: "15px",
     marginLeft: "auto",
     marginRight: "auto",
@@ -277,6 +277,7 @@ const NewSong = () => {
         onChange={editSongName}
         value={songName}
         style={SongNameInputStyle}
+        className="shadow-sm"
       />
       <input
         type="text"
@@ -284,6 +285,7 @@ const NewSong = () => {
         onChange={editSongDescription}
         value={songDescription}
         style={SongDescInputStyle}
+        className="shadow-sm"
       />
       <div className="w-6/12 h-9 ml-auto mr-auto mt-3 border border-black ">
         <select
@@ -293,8 +295,8 @@ const NewSong = () => {
           }}
           className={
             songVisibility == "invalid"
-              ? "w-full h-full bg-transparent opacity-50 p-1 ml-auto mr-auto"
-              : "w-full h-full bg-transparent p-1 ml-auto mr-auto"
+              ? "shadow-sm w-full h-full bg-transparent opacity-50 p-1 ml-auto mr-auto"
+              : "shadow-sm w-full h-full bg-transparent p-1 ml-auto mr-auto"
           }
         >
           <option value="invalid">Select song visibility</option>

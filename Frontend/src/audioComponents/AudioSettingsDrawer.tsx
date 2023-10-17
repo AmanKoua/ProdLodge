@@ -94,7 +94,11 @@ const AudioSettingsDrawer = ({
     zIndex: "1",
   };
 
-  ConfigurationsDivStyle.height = isConfigSettingOpen ? "180px" : "30px";
+  ConfigurationsDivStyle.height = isConfigSettingOpen
+    ? error || message
+      ? "180px"
+      : "100px"
+    : "30px";
 
   const calcConfigDivHeight = () => {
     if (isConfigSettingOpen && !error && !message) {

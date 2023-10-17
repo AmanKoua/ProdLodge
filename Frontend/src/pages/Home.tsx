@@ -109,7 +109,7 @@ const Home = () => {
         {placeHolderArr.map((item, idx) => (
           <div
             key={idx}
-            className="bg-blue-100 w-12/12 lg:w-9/12 h-20 mr-auto ml-auto mt-3 pt-3 animate-pulse"
+            className="bg-gray-500 w-12/12 lg:w-9/12 h-20 mr-auto ml-auto mt-3 pt-3 animate-pulse"
           ></div>
         ))}
       </>

@@ -112,8 +112,9 @@ router.delete('/', async (req, res) => {
 
     if (chains[0].creatorId.valueOf() === verifiedUser._id.valueOf()) { // if user is the creator of the chain, delete it
 
+
         /*
-        Todo : Delete the object ID from the song document
+            Chains are pruned from user songs upon login
         */
 
         await chains[0].deleteOne({ _id: chains[0]._id });

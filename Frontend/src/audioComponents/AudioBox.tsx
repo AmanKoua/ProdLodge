@@ -145,6 +145,8 @@ const AudioBox = ({ songData, isPageSwitched, setIsSongPayloadSet }: Props) => {
   let setIsSettingsHover: (val: boolean) => void;
   let isSettingsExpanded: boolean;
   let setIsSettingsExpanded: (val: boolean) => void;
+  let isSettingsButtonClicked: boolean;
+  let setIsSettingsButtonClicked: (val: boolean) => void;
   let isConfigurationLoading: boolean;
   let setIsConfigurationLoading: (val: boolean) => void;
   let isSongDataContainerHover: boolean;
@@ -161,6 +163,7 @@ const AudioBox = ({ songData, isPageSwitched, setIsSongPayloadSet }: Props) => {
   [isExpanded, setIsExpanded] = useState(false);
   [isSettingsHover, setIsSettingsHover] = useState(false);
   [isSettingsExpanded, setIsSettingsExpanded] = useState(false);
+  [isSettingsButtonClicked, setIsSettingsButtonClicked] = useState(false);
   [isVisualizing, setIsVisualizing] = useState(false);
   [isPlaying, setIsPlaying] = useState(false); // need to make these global!
   [hasUserGestured, setHasUserGestured] = useState(false); // Keep track of first gesture required to initialize audioCtx
@@ -995,6 +998,17 @@ const AudioBox = ({ songData, isPageSwitched, setIsSongPayloadSet }: Props) => {
   };
 
   const handleUserClickSettingsButton = () => {
+    if (!areAudioNodesReady) {
+      setIsSettingsExpanded(false);
+      setIsSettingsButtonClicked(true);
+
+      const clearSettingsButtonClickedTimeout = setTimeout(() => {
+        setIsSettingsButtonClicked(false);
+      }, 3000);
+
+      return;
+    }
+
     setIsSettingsExpanded(!isSettingsExpanded);
   };
 
@@ -1836,9 +1850,10 @@ const AudioBox = ({ songData, isPageSwitched, setIsSongPayloadSet }: Props) => {
         {audioModules.map((item, idx) => {
           return (
             <AudioModuleContainer
+              key={idx}
               containerIndex={idx}
               modules={item}
-              key={idx}
+              isSettingsExpanded={isSettingsExpanded}
               addModule={addModule}
               deleteAudioModuleAndNode={deleteAudioModuleAndNode}
               setModuleType={setModuleType}
@@ -1962,6 +1977,7 @@ const AudioBox = ({ songData, isPageSwitched, setIsSongPayloadSet }: Props) => {
             songTime={songTime}
             songDuration={songDuration}
             areAudioNodesReady={areAudioNodesReady}
+            isSettingsButtonClicked={isSettingsButtonClicked}
             setIsPlaying={setIsPlaying}
             setIsExpanded={setIsExpanded}
             setIsSettingsExpanded={setIsSettingsExpanded}
