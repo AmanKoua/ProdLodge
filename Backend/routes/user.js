@@ -97,6 +97,42 @@ router.post('/signup', async (req, res) => {
 
 })
 
+const pruneUserChains = async (retrievedUser) => {
+
+    if (!retrievedUser) {
+        return;
+    }
+
+    const userId = retrievedUser._id;
+    const songs = await song.find({ userId: userId });
+
+    if (!songs || songs.length == 0) {
+        return;
+    }
+
+    for (let i = 0; i < songs.length; i++) {
+
+        const songChains = songs[i].chainsList;
+        let newChainsList = [];
+
+        for (let j = 0; j < songChains.length; j++) {
+            const tempChain = await chain.findOne({ _id: songChains[j] });
+
+            if (tempChain) {
+                newChainsList.push(tempChain._id);
+            }
+            else {
+                continue;
+            }
+
+        }
+
+        await songs[i].updateOne({ $set: { chainsList: newChainsList } });
+
+    }
+
+}
+
 router.post('/login', async (req, res) => {
 
     const email = req.body.email;
@@ -123,6 +159,7 @@ router.post('/login', async (req, res) => {
     }
     else {
         const userName = retrievedUser.userName;
+        pruneUserChains(retrievedUser);
         return res.status(200).json({ email, userName, token, id: retrievedUser._id, tokenCreationTime })
     }
 

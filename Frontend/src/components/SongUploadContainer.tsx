@@ -143,11 +143,10 @@ const SongUploadContainer = ({
       <input
         type="text"
         placeholder="track name"
-        className="track-name-input"
         onChange={editTrackName}
         value={trackName}
         style={TrackNameInputStyle}
-        className="border-black border-l border-r"
+        className="track-name-input border-black border-l border-r"
       ></input>
       <div style={AddCircleContainerStyle} onClick={addTrack}>
         <span className="material-symbols-outlined">add_circle</span>
