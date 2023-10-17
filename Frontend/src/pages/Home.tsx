@@ -109,7 +109,7 @@ const Home = () => {
         {placeHolderArr.map((item, idx) => (
           <div
             key={idx}
-            className="bg-gray-300 w-12/12 lg:w-9/12 h-20 mr-auto ml-auto mt-3 pt-3 animate-pulse"
+            className="bg-gray-500 w-12/12 lg:w-9/12 h-20 mr-auto ml-auto mt-3 pt-3 animate-pulse"
           ></div>
         ))}
       </>
@@ -119,10 +119,10 @@ const Home = () => {
   };
 
   return (
-    <div className="bg-prodPrimary w-full sm:w-8/12 h-screen mr-auto ml-auto pb-4 hide-scrollbar overflow-y-scroll">
+    <div className="bg-gradient-to-b from-prodPrimary to-prodSecondary shadow-xl shadow-blue-200 w-full sm:w-8/12 h-screen mr-auto ml-auto pb-4 hide-scrollbar overflow-y-scroll">
       {/* Do not allow the displaying of audioBoxes on mobile sized screens */}
 
-      <div className="w-6/12 h-7 ml-auto mr-auto mt-2 overflow-hidden flex justify-around">
+      <div className="w-10/12 h-7 ml-auto mr-auto mt-2 overflow-hidden flex justify-around">
         <div className="w-max h-max inline-block">
           {selectedPage === "My Songs" && (
             <p className="hover:font-bold border-b-2 border-black">My Songs</p>
@@ -189,7 +189,7 @@ const Home = () => {
         </div>
       </div>
 
-      <div className=" w-full h-max mt-56 bg-prodSecondary rounded-lg z-50 fixed sm:hidden">
+      <div className="w-full h-max mt-10 bg-prodSecondary rounded-lg z-50 fixed sm:hidden">
         <h3 className="ml-auto mr-auto p-5 font-bold text-4xl">
           We're sorry, but we cannot support mobile devices!
         </h3>

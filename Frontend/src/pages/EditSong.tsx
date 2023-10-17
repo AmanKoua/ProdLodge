@@ -46,7 +46,7 @@ const SongEntry = ({ songData, authContext, editSong, deleteSong }: Props) => {
     marginLeft: "auto",
     marginRight: "auto",
     marginTop: "15px",
-    backgroundColor: "#add0f7",
+    // backgroundColor: "#add0f7",
     transition: "all 0.3s",
     overflow: "hidden",
   };
@@ -89,7 +89,7 @@ const SongEntry = ({ songData, authContext, editSong, deleteSong }: Props) => {
     height: "350px",
     marginLeft: "0px",
     marginTop: "35px",
-    border: "1px solid black",
+    // border: "1px solid black",
     // backgroundColor: "green",
     overflow: "hidden",
   };
@@ -149,7 +149,7 @@ const SongEntry = ({ songData, authContext, editSong, deleteSong }: Props) => {
       </div>
       <div style={SongSettingsContainerStyle}>
         <p
-          className="bg-prodPrimary font-bold"
+          className="font-bold"
           style={{
             width: "100%",
             height: "35px",
@@ -173,7 +173,7 @@ const SongEntry = ({ songData, authContext, editSong, deleteSong }: Props) => {
           onChange={handleTitleChange}
         />
         <p
-          className="bg-prodPrimary font-bold"
+          className="font-bold"
           style={{
             width: "100%",
             height: "35px",
@@ -196,7 +196,7 @@ const SongEntry = ({ songData, authContext, editSong, deleteSong }: Props) => {
           onChange={handleDescriptionChange}
         />
         <p
-          className="bg-prodPrimary font-bold"
+          className="font-bold"
           style={{
             width: "100%",
             height: "35px",
@@ -267,7 +267,7 @@ const EditSong = () => {
   const [message, setMessage] = useState("");
   const [pageHeight, setPageHeight] = useState<number | undefined>(undefined);
   const [pageClassName, setPageClassName] = useState(
-    "bg-prodPrimary w-full h-screen sm:w-8/12 ml-auto mr-auto flex-col jusitfy-items-center hide-scrollbar"
+    "bg-gradient-to-b from-prodPrimary to-prodSecondary w-full h-screen sm:w-8/12 ml-auto mr-auto flex-col jusitfy-items-center hide-scrollbar"
   );
   const editSongPage = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
@@ -333,9 +333,9 @@ const EditSong = () => {
         let temp = editSongPage.current as unknown as HTMLDivElement;
 
         let expandedName =
-          "bg-prodPrimary w-full h-max sm:w-8/12 ml-auto mr-auto pb-3 flex-col jusitfy-items-center hide-scrollbar";
+          "bg-gradient-to-b from-prodPrimary to-prodSecondary w-full h-max sm:w-8/12 ml-auto mr-auto pb-3 flex-col jusitfy-items-center hide-scrollbar";
         let shrunkName =
-          "bg-prodPrimary w-full h-screen sm:w-8/12 ml-auto mr-auto pb-3 flex-col jusitfy-items-center hide-scrollbar";
+          "bg-gradient-to-b from-prodPrimary to-prodSecondary w-full h-screen sm:w-8/12 ml-auto mr-auto pb-3 flex-col jusitfy-items-center hide-scrollbar";
 
         if (
           temp!.scrollHeight > temp!.clientHeight &&
@@ -466,7 +466,7 @@ const EditSong = () => {
         {tempSongPayloadArr.map((item, idx) => {
           return (
             <div
-              className="bg-gray-200 w-6/12 h-10 mt-3 ml-auto mr-auto animate-pulse"
+              className="bg-gray-500 w-6/12 h-10 mt-3 ml-auto mr-auto animate-pulse"
               key={idx}
             ></div>
           );

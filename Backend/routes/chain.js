@@ -50,7 +50,6 @@ router.post('/', async (req, res) => {
     const targetSong = targetSongs[0];
 
     if (targetSong.userId.valueOf() != verifiedUser._id.valueOf()) {
-        // TODO : Implement logic such that a chain can be added if track is public, user is friend of owner, or user is on access list
         return res.status(401).json({ error: "You are not authorized to create a chain for this song!" });
     }
 
@@ -113,8 +112,9 @@ router.delete('/', async (req, res) => {
 
     if (chains[0].creatorId.valueOf() === verifiedUser._id.valueOf()) { // if user is the creator of the chain, delete it
 
+
         /*
-        Todo : Delete the object ID from the song document
+            Chains are pruned from user songs upon login
         */
 
         await chains[0].deleteOne({ _id: chains[0]._id });

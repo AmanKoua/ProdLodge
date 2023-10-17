@@ -76,7 +76,8 @@ const AudioSettingsDrawer = ({
     overflow: "scroll",
     overflowX: "hidden",
     border: "1px solid black",
-    // backdropFilter: "blur(64px)", // doesen't work for whatever reason :/
+    // backdropFilter: "blur(10px)", // wont work :(
+    // WebkitBackdropFilter: "blur(13px)",
     zIndex: "1",
   };
 
@@ -93,7 +94,11 @@ const AudioSettingsDrawer = ({
     zIndex: "1",
   };
 
-  ConfigurationsDivStyle.height = isConfigSettingOpen ? "180px" : "30px";
+  ConfigurationsDivStyle.height = isConfigSettingOpen
+    ? error || message
+      ? "180px"
+      : "100px"
+    : "30px";
 
   const calcConfigDivHeight = () => {
     if (isConfigSettingOpen && !error && !message) {
@@ -361,7 +366,7 @@ const AudioSettingsDrawer = ({
   };
 
   return (
-    <div style={SettingsDrawerStyle} className="hide-scrollbar">
+    <div style={SettingsDrawerStyle} className=" hide-scrollbar">
       <div style={ConfigurationsDivStyle}>
         <div
           style={ConfigurationButtonStyle}

@@ -15,6 +15,7 @@ const NewSong = () => {
   ]); // [{trackName: string, file: FileList}]
   const [songName, setSongName] = useState("");
   const [songDescription, setSongDescription] = useState("");
+  const [songVisibility, setSongVisibility] = useState("invalid");
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
@@ -25,7 +26,7 @@ const NewSong = () => {
     // position: "relative",
     display: "block",
     padding: "10px",
-    backgroundColor: "#edf4fc",
+    backgroundColor: "transparent",
     marginLeft: "auto",
     marginRight: "auto",
     width: "50%",
@@ -37,7 +38,7 @@ const NewSong = () => {
     // position: "relative",
     display: "block",
     padding: "10px",
-    backgroundColor: "#edf4fc",
+    backgroundColor: "transparent",
     marginTop: "15px",
     marginLeft: "auto",
     marginRight: "auto",
@@ -146,6 +147,11 @@ const NewSong = () => {
       setSongDescription(""); // ensure songDescription is empty
     }
 
+    if (!songVisibility || songVisibility == "invalid") {
+      setError("Please select a song visibility!");
+      return;
+    }
+
     if (songUploadData.length === 0) {
       setError("No tracks to upload!");
       return;
@@ -182,7 +188,11 @@ const NewSong = () => {
     */
 
     let songToken = undefined;
-    const payload = { name: songName, description: songDescription };
+    const payload = {
+      name: songName,
+      description: songDescription,
+      visibility: songVisibility,
+    };
 
     let response = await fetch(`${envContext.backendURL}/upload/songInit`, {
       method: "POST",
@@ -259,16 +269,15 @@ const NewSong = () => {
   };
 
   return (
-    <div className="bg-prodPrimary overflow-hidden w-full h-screen sm:w-8/12 ml-auto mr-auto flex-col jusitfy-items-center">
-      <h3 className="w-max mr-auto ml-auto p-2 font-bold">
-        Upload a new song!
-      </h3>
+    <div className="bg-gradient-to-b from-prodPrimary to-prodSecondary overflow-hidden w-full h-screen sm:w-8/12 ml-auto mr-auto flex-col jusitfy-items-center">
+      <h3 className="w-max mr-auto ml-auto p-2 font-bold">Upload a new song</h3>
       <input
         type="text"
         placeholder="Song Name"
         onChange={editSongName}
         value={songName}
         style={SongNameInputStyle}
+        className="shadow-sm"
       />
       <input
         type="text"
@@ -276,7 +285,26 @@ const NewSong = () => {
         onChange={editSongDescription}
         value={songDescription}
         style={SongDescInputStyle}
+        className="shadow-sm"
       />
+      <div className="w-6/12 h-9 ml-auto mr-auto mt-3 border border-black ">
+        <select
+          value={songVisibility}
+          onChange={(e) => {
+            setSongVisibility(e.target.value);
+          }}
+          className={
+            songVisibility == "invalid"
+              ? "shadow-sm w-full h-full bg-transparent opacity-50 p-1 ml-auto mr-auto"
+              : "shadow-sm w-full h-full bg-transparent p-1 ml-auto mr-auto"
+          }
+        >
+          <option value="invalid">Select song visibility</option>
+          <option value="public">Public</option>
+          <option value="private">Private</option>
+          <option value="friendsonly">Friends Only</option>
+        </select>
+      </div>
       {generateSongUploadContainers()}
       <div className="ml-auto mr-auto mt-3 w-max">
         <button className="btn" onClick={initSongAndUploadTracks}>

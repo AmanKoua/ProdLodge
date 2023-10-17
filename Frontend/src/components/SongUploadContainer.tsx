@@ -26,7 +26,8 @@ const SongUploadContainer = ({
     marginTop: "15px",
     width: "50%",
     height: "35px",
-    backgroundColor: "#add0f7",
+    border: "1px solid black",
+    // backgroundColor: "#add0f7",
   };
 
   const UploadFileContainerStyle: CSS.Properties = {
@@ -57,11 +58,11 @@ const SongUploadContainer = ({
   const TrackNameInputStyle: CSS.Properties = {
     // position: "relative",
     padding: "10px",
-    backgroundColor: "#edf4fc",
+    backgroundColor: "transparent",
     marginLeft: "3%",
     width: "79%",
     height: "100%",
-    border: "1px solid black",
+    // border: "1px solid black",
   };
 
   const TrackUploadInputStyle: CSS.Properties = {
@@ -126,7 +127,7 @@ const SongUploadContainer = ({
   };
 
   return (
-    <div style={SonguploadContainerStyle}>
+    <div style={SonguploadContainerStyle} className="shadow-sm">
       <div style={UploadFileContainerStyle}>
         <span className="material-symbols-outlined">
           <input
@@ -142,10 +143,10 @@ const SongUploadContainer = ({
       <input
         type="text"
         placeholder="track name"
-        className="track-name-input"
         onChange={editTrackName}
         value={trackName}
         style={TrackNameInputStyle}
+        className="track-name-input border-black border-l border-r"
       ></input>
       <div style={AddCircleContainerStyle} onClick={addTrack}>
         <span className="material-symbols-outlined">add_circle</span>

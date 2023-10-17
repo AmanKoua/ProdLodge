@@ -145,6 +145,8 @@ const AudioBox = ({ songData, isPageSwitched, setIsSongPayloadSet }: Props) => {
   let setIsSettingsHover: (val: boolean) => void;
   let isSettingsExpanded: boolean;
   let setIsSettingsExpanded: (val: boolean) => void;
+  let isSettingsButtonClicked: boolean;
+  let setIsSettingsButtonClicked: (val: boolean) => void;
   let isConfigurationLoading: boolean;
   let setIsConfigurationLoading: (val: boolean) => void;
   let isSongDataContainerHover: boolean;
@@ -161,6 +163,7 @@ const AudioBox = ({ songData, isPageSwitched, setIsSongPayloadSet }: Props) => {
   [isExpanded, setIsExpanded] = useState(false);
   [isSettingsHover, setIsSettingsHover] = useState(false);
   [isSettingsExpanded, setIsSettingsExpanded] = useState(false);
+  [isSettingsButtonClicked, setIsSettingsButtonClicked] = useState(false);
   [isVisualizing, setIsVisualizing] = useState(false);
   [isPlaying, setIsPlaying] = useState(false); // need to make these global!
   [hasUserGestured, setHasUserGestured] = useState(false); // Keep track of first gesture required to initialize audioCtx
@@ -912,8 +915,8 @@ const AudioBox = ({ songData, isPageSwitched, setIsSongPayloadSet }: Props) => {
   };
 
   const SongDataContainerClassName = !isSongDataContainerHover
-    ? "w-full h-9 overflow-hidden bg-prodSecondary"
-    : "w-full h-24 overflow-hidden bg-prodSecondary"; // toggle height with tailwind
+    ? "w-full h-9 overflow-hidden bg-gradient-to-b from-prodSecondary to-blue-50"
+    : "w-full h-24 overflow-hidden bg-gradient-to-b from-prodSecondary to-blue-50"; // toggle height with tailwind
 
   // SongDataContainerStyle.height = isExpanded ? "100px" : "40px";
 
@@ -932,7 +935,7 @@ const AudioBox = ({ songData, isPageSwitched, setIsSongPayloadSet }: Props) => {
     marginTop: "0%",
     width: "100%",
     height: "300px",
-    border: "1px solid black",
+    // border: "1px solid black",
     transition: "all 0.3s",
     overflow: "hidden",
     // background: "red",
@@ -963,7 +966,7 @@ const AudioBox = ({ songData, isPageSwitched, setIsSongPayloadSet }: Props) => {
     borderRadius: "6px",
     fontSize: "10px",
     textAlign: "center",
-    backgroundColor: "lavender",
+    // backgroundColor: "lavender",
     opacity: isSettingsHover ? "100%" : "45%",
     overflow: "hidden",
     zIndex: "10",
@@ -995,6 +998,17 @@ const AudioBox = ({ songData, isPageSwitched, setIsSongPayloadSet }: Props) => {
   };
 
   const handleUserClickSettingsButton = () => {
+    if (!areAudioNodesReady) {
+      setIsSettingsExpanded(false);
+      setIsSettingsButtonClicked(true);
+
+      const clearSettingsButtonClickedTimeout = setTimeout(() => {
+        setIsSettingsButtonClicked(false);
+      }, 3000);
+
+      return;
+    }
+
     setIsSettingsExpanded(!isSettingsExpanded);
   };
 
@@ -1836,9 +1850,10 @@ const AudioBox = ({ songData, isPageSwitched, setIsSongPayloadSet }: Props) => {
         {audioModules.map((item, idx) => {
           return (
             <AudioModuleContainer
+              key={idx}
               containerIndex={idx}
               modules={item}
-              key={idx}
+              isSettingsExpanded={isSettingsExpanded}
               addModule={addModule}
               deleteAudioModuleAndNode={deleteAudioModuleAndNode}
               setModuleType={setModuleType}
@@ -1870,27 +1885,43 @@ const AudioBox = ({ songData, isPageSwitched, setIsSongPayloadSet }: Props) => {
             setIsSongDataContainerHover(false);
           }}
         >
-          <div className="w-6/12 h-9 overflow-y-scroll mb-auto inline-block hide-scrollbar">
-            <h1
-              style={{
-                fontSize: "15px",
-                marginTop: "8px",
-                textAlign: "center",
-              }}
+          <div className="w-full h-max flex justify-around">
+            <div
+              className={
+                isSongDataContainerHover
+                  ? "w-max h-9 overflow-y-scroll mb-auto inline-block border-b border-black hide-scrollbar"
+                  : "w-max h-9 overflow-y-scroll mb-auto inline-block hide-scrollbar"
+              }
             >
-              Creator: {songData.owner}
-            </h1>
-          </div>
-          <div className="w-6/12 h-9 overflow-y-scroll mb-auto inline-block hide-scrollbar">
-            <h1
-              style={{
-                fontSize: "15px",
-                marginTop: "8px",
-                textAlign: "center",
-              }}
+              <h1
+                className="border border-black shadow-md rounded-lg pl-1 pr-1 backdrop-blur-sm font-light"
+                style={{
+                  fontSize: "15px",
+                  marginTop: "8px",
+                  textAlign: "center",
+                }}
+              >
+                Creator: {songData.owner}
+              </h1>
+            </div>
+            <div
+              className={
+                isSongDataContainerHover
+                  ? "w-max h-9 overflow-y-scroll mb-auto inline-block border-b border-black hide-scrollbar"
+                  : "w-max h-9 overflow-y-scroll mb-auto inline-block hide-scrollbar"
+              }
             >
-              Title: {songData.title}
-            </h1>
+              <h1
+                className="border border-black shadow-md rounded-lg pl-1 pr-1 backdrop-blur-sm font-light"
+                style={{
+                  fontSize: "15px",
+                  marginTop: "8px",
+                  textAlign: "center",
+                }}
+              >
+                Title: {songData.title}
+              </h1>
+            </div>
           </div>
           <div className="w-12/12 h-16 overflow-y-scroll mb-auto block hide-scrollbar">
             <h1
@@ -1899,13 +1930,17 @@ const AudioBox = ({ songData, isPageSwitched, setIsSongPayloadSet }: Props) => {
                 marginTop: "8px",
                 textAlign: "center",
               }}
-              className="ml-1"
+              className="ml-1 pl-1 pr-1 backdrop-blur-sm font-normal"
             >
               Description: {songData.description}
             </h1>
           </div>
         </div>
-        <div style={AudioBoxStyle} onClick={handleUserGesture}>
+        <div
+          className="bg-blue-50 shadow-md shadow-gray-400"
+          style={AudioBoxStyle}
+          onClick={handleUserGesture}
+        >
           <div
             style={SettingButtonStyle}
             onMouseEnter={handleMouseEnterSettingsButton}
@@ -1942,6 +1977,7 @@ const AudioBox = ({ songData, isPageSwitched, setIsSongPayloadSet }: Props) => {
             songTime={songTime}
             songDuration={songDuration}
             areAudioNodesReady={areAudioNodesReady}
+            isSettingsButtonClicked={isSettingsButtonClicked}
             setIsPlaying={setIsPlaying}
             setIsExpanded={setIsExpanded}
             setIsSettingsExpanded={setIsSettingsExpanded}
@@ -1957,8 +1993,8 @@ const AudioBox = ({ songData, isPageSwitched, setIsSongPayloadSet }: Props) => {
         <div
           className={
             isAudioControllerHover || isCommentsTabHover
-              ? "bg-prodSecondary h-6 w-3/12 rounded-b-lg flex ml-auto mr-auto justify-center overflow-hidden"
-              : "bg-prodSecondary h-0 w-3/12 flex ml-auto mr-auto justify-center overflow-hidden"
+              ? "shadow-sm h-6 w-3/12 rounded-b-lg flex ml-auto mr-auto justify-center overflow-hidden"
+              : "shadow-sm h-0 w-3/12 flex ml-auto mr-auto justify-center overflow-hidden"
           }
           style={{ transition: "all 0.3s" }}
           onMouseEnter={() => {

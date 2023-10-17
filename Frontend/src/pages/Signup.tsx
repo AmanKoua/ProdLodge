@@ -93,12 +93,17 @@ const Signup = () => {
   };
 
   return (
-    <div className="bg-prodPrimary w-full sm:w-8/12 h-screen mr-auto ml-auto ">
+    <div className="bg-gradient-to-b from-prodPrimary to-prodSecondary w-full sm:w-8/12 h-screen mr-auto ml-auto ">
       <div className="w-7/12 mr-auto ml-auto">
-        <form onSubmit={handleSubmit}>
-          <h3 className="w-max mr-auto ml-auto p-2 font-bold">Sign up</h3>
+        <form
+          onSubmit={handleSubmit}
+          className="ml-auto mr-auto border-b border-black pb-2"
+        >
+          <h3 className=" w-max mr-auto ml-auto p-2 font-bold">Sign up</h3>
           <div>
-            <label className="w-max mr-auto ml-auto p-2 font-bold">Email</label>
+            <label className="w-full mr-auto ml-auto p-2 font-bold">
+              Email
+            </label>
             <input
               type="email"
               value={email}
@@ -107,7 +112,7 @@ const Signup = () => {
             />
           </div>
           <div>
-            <label className="w-max mr-auto ml-auto p-2 font-bold">
+            <label className="w-full mr-auto ml-auto p-2 font-bold">
               Password
             </label>
             <input
@@ -118,7 +123,7 @@ const Signup = () => {
             />
           </div>
           <div>
-            <label className="w-max mr-auto ml-auto p-2 font-bold">
+            <label className="w-full mr-auto ml-auto p-2 font-bold">
               Password (re-enter)
             </label>
             <input
@@ -129,7 +134,7 @@ const Signup = () => {
             />
           </div>
           <div>
-            <label className="w-max mr-auto ml-auto p-2 font-bold">
+            <label className="w-full mr-auto ml-auto p-2 font-bold">
               User Name
             </label>
             <input
@@ -142,8 +147,24 @@ const Signup = () => {
           <div className="w-max mr-auto ml-auto p-2 mt-4">
             <button className="btn">Sign up</button>
           </div>
+
           {error && <div className="error">{error}</div>}
         </form>
+        <div className="w-11/12 h-max ml-auto mr-auto mt-3 flex-col">
+          <p className="w-12/12 break-words text-center ml-auto mr-auto font-bold justify-self-start block ">
+            New here? Check out the about page
+          </p>
+          <div className="w-max ml-auto mr-auto">
+            <button
+              className="btn"
+              onClick={() => {
+                navigate("/about");
+              }}
+            >
+              about
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

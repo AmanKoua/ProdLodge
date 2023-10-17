@@ -8,6 +8,7 @@
 */
 
 import { useEffect, useContext, useState } from "react";
+import { Link } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { EnvironmentContext } from "../context/EnvironmentContext";
 
@@ -444,7 +445,7 @@ const SongCommentSection = ({
                 <>
                   {isReply && (
                     <div
-                      className="bg-gray-200 w-1 h-28 absolute"
+                      className="bg-gray-400 w-1 h-28 absolute"
                       style={{
                         marginLeft: `${6}%` /* Shift comments over based on whether or not it is a reply. Standard is 8% */,
                         marginTop: "2.4%",
@@ -453,7 +454,7 @@ const SongCommentSection = ({
                   )}
 
                   <div
-                    className="bg-blue-100 w-10/12 h-max ml-auto mr-auto mt-4 pb-1 border border-black"
+                    className="w-10/12 h-max ml-auto mr-auto mt-4 pb-1 shadow-md"
                     style={{
                       marginLeft: `${
                         8 * offset
@@ -476,12 +477,12 @@ const SongCommentSection = ({
                       <div className="w-4/6 h-6 ml-auto mr-auto inline-block">
                         <div className="border-b border-gray-400 w-6/12 h-full overflow-hidden inline-block">
                           <p className="w-max h-max ml-auto mr-auto font-bold hover:text-blue-500 hover:cursor-pointer">
-                            <a
+                            <Link
                               className="text-black hover:text-blue-500"
-                              href={`/userProfile/${item[1].creatorId}`}
+                              to={`/userProfile/${item[1].creatorId}`}
                             >
                               {item[1].creatorUserName}
-                            </a>
+                            </Link>
                           </p>
                         </div>
                         <div className="border-b border-gray-400 w-6/12 h-full overflow-hidden inline-block">
@@ -618,8 +619,8 @@ const SongCommentSection = ({
                     <div
                       className={
                         currentHoverTarget == item[0]
-                          ? "bg-prodSecondary h-6 w-3/12 rounded-b-lg flex ml-auto mr-auto justify-center overflow-hidden"
-                          : "bg-prodSecondary h-1 w-3/12 rounded-b-lg flex ml-auto mr-auto justify-center overflow-hidden"
+                          ? "shadow-sm h-6 w-3/12 rounded-b-lg flex ml-auto mr-auto justify-center overflow-hidden"
+                          : "bg-cyan-400 shadow-sm h-1 w-3/12 rounded-b-lg flex ml-auto mr-auto justify-center overflow-hidden"
                       }
                       style={{ transition: "all 0.3s" }}
                       onMouseOver={(e) => {
@@ -653,7 +654,7 @@ const SongCommentSection = ({
     <div
       className={
         isCommentsSectionDisplayed
-          ? "bg-prodPrimary shadow-lg w-12/12 h-max pt-1 pb-3"
+          ? " shadow-lg w-12/12 h-max pt-1 pb-3"
           : "bg-prodPrimary shadow-lg w-12/12 h-0 pt-1 pb-3 hidden"
       }
       style={{ transition: "all 0.5s" }}
@@ -670,11 +671,11 @@ const SongCommentSection = ({
         </div>
       )}
 
-      <div className="bg-white rounded-lg w-11/12 h-20 ml-auto mr-auto mt-3">
+      <div className="shadow-md rounded-lg w-11/12 h-20 ml-auto mr-auto mt-3">
         <div className="w-full h-4/6" id="comment-input">
           <input
             type="text"
-            className="w-full h-full pl-1 pr-1 border-b"
+            className="rounded-t-lg bg-transparent w-full h-full pl-1 pr-1"
             placeholder={commentInputPlaceholder}
             value={commentData}
             onChange={(e) => {

@@ -194,6 +194,16 @@ router.post("/songInit", async (req, res) => {
         return res.status(401).json({ error: "Invalid request header!" });
     }
 
+    if (!req.body.name || !req.body.description || !req.body.visibility) {
+        return res.status(400).json({ error: "Invalid request body!" });
+    }
+
+    const allowedVisibilities = ["private", "public", "friendsonly"];
+
+    if (!allowedVisibilities.includes(req.body.visibility)) {
+        return res.status(400).json({ error: "Invalid visibility type!" });
+    }
+
     const token = req.headers.authorization.split(" ")[1];
     let decodedToken;
 
@@ -209,7 +219,7 @@ router.post("/songInit", async (req, res) => {
         return res.status(404).json({ error: "No user found!" });
     }
 
-    let tempSong = await song.initialize(decodedToken._id, req.body.name, req.body.description, "public", [], [], [], []);
+    let tempSong = await song.initialize(decodedToken._id, req.body.name, req.body.description, req.body.visibility, [], [], [], []);
     const songToken = createToken(tempSong._id);
 
     return res.status(200).json({ message: "Song initialized!", token: songToken });

@@ -81,7 +81,7 @@ const NavBar = () => {
       triggerProfileItemsSearch = !triggerProfileItemsSearch;
       return (
         <>
-          <div className="bg-prodPrimary h-6 ml-auto mr-5 mt-auto mb-auto relative prodDropdown">
+          <div className="w-max h-6 ml-auto mr-auto sm:mr-5 mt-auto mb-auto relative">
             <Link to="/myProfile" className="no-underline p-2" id="profileName">
               <span className="m-1 text-black border border-prodSecondary rounded-sm p-1 shadow-sm hover:shadow-lg">
                 {authContext.user.userName === ""
@@ -110,6 +110,16 @@ const NavBar = () => {
                   </p>
                 </center>
               </Link>
+              <Link
+                to="/about"
+                className="bg-slate-400 text-black no-underline text-xl"
+              >
+                <center>
+                  <p className="w-max h-max mt-2 p-2 shadow-sm text-black border-b-2 border-t-0 border-l-0 border-prodSecondary rounded-sm font-semibold hover:font-bold">
+                    About
+                  </p>
+                </center>
+              </Link>
             </div>
             <button
               onClick={handleLogoutClick}
@@ -124,7 +134,7 @@ const NavBar = () => {
       triggerProfileItemsSearch = !triggerProfileItemsSearch;
       return (
         <>
-          <div className="w-max h-7 ml-auto mt-auto mb-auto mr-5">
+          <div className="w-max h-7 ml-auto mr-auto sm:mr-5 mt-auto mb-auto">
             <Link
               to="/login"
               className="m-1 text-black border border-prodSecondary rounded-sm p-1 shadow-md hover:shadow-lg"
@@ -144,10 +154,10 @@ const NavBar = () => {
   };
 
   return (
-    <div className="bg-prodPrimary h-16 mb-2 relative flex">
+    <div className="bg-prodPrimary h-max mb-2 pb-2 sm:pb-0 sm:flex justify-center">
       <Link
         to="/"
-        className="no-underline hover:underline decoration-prodSecondary block p-1"
+        className="ml-auto mr-auto sm:ml-0 sm:mr-0 w-max no-underline hover:underline decoration-prodSecondary block p-1"
       >
         <h1 className="text-black mt-auto mb-auto text-4xl p-1"> ProdLodge </h1>
       </Link>

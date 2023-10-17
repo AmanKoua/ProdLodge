@@ -621,7 +621,7 @@ const UserProfile = () => {
   }, [profileContext]);
 
   return (
-    <div className="bg-prodPrimary overflow-hidden w-full sm:w-8/12 ml-auto mr-auto flex-col jusitfy-items-center">
+    <div className="bg-gradient-to-b from-prodPrimary to-prodSecondary overflow-hidden w-full sm:w-8/12 ml-auto mr-auto flex-col jusitfy-items-center">
       <div className="w-6/12 h-7 ml-auto mr-auto mt-2 overflow-hidden flex justify-around">
         <div className="w-max h-max inline-block">
           {selectedPage === "profile" && (

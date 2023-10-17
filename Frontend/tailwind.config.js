@@ -7,13 +7,13 @@ module.exports = {
       './src/components/*.{tsx,ts}',
       './src/pages/*.{tsx,ts}',
     ],
-    // enabled: false, // Disable tree shaking
+    enabled: false, // Disable tree shaking
   },
-  // safelist: [
-  //   {
-  //     pattern: /^.*$/, // Match any class pattern during development
-  //   },
-  // ],
+  safelist: [
+    {
+      pattern: /^.*$/, // Match any class pattern during development
+    },
+  ],
   content: [],
   theme: {
     extend: {
@@ -21,6 +21,7 @@ module.exports = {
         prodPrimary: "#edf4fc",
         prodSecondary: "#add0f7",
         prodMainArea: "#c5d2e0",
+        prodBackground: "#F8FBFF",
         prodError: "#f59a9a",
         prodMessage: "#c4ffc4",
         prodWarning: "#fe5d5d",

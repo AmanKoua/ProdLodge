@@ -143,7 +143,7 @@ const FriendProfilePage = () => {
 
   if (isProfileLoading) {
     return (
-      <div className="bg-gray-500 animate-pulse overflow-hidden w-full sm:w-8/12 ml-auto mr-auto flex-col jusitfy-items-center">
+      <div className="bg-blue-100 animate-pulse overflow-hidden w-full sm:w-8/12 ml-auto mr-auto flex-col jusitfy-items-center">
         <h3 className="text-6xl opacity-0">
           This is some sample text This is some sample textThis is some sample
           textThis is some sample text
@@ -152,7 +152,7 @@ const FriendProfilePage = () => {
     );
   } else if (!isProfileLoading && isForbidden) {
     return (
-      <div className="bg-prodPrimary overflow-hidden w-full sm:w-8/12 ml-auto mr-auto flex-col jusitfy-items-center">
+      <div className="bg-gradient-to-b from-prodPrimary to-prodSecondary overflow-hidden w-full sm:w-8/12 ml-auto mr-auto flex-col jusitfy-items-center">
         <div className="bg-prodPrimary w-full h-screen pt-40">
           <div className=" w-7/12 h-max ml-auto mr-auto bg-prodSecondary rounded-lg z-50">
             <h3 className="ml-auto mr-auto p-5 font-bold text-4xl">
@@ -164,7 +164,7 @@ const FriendProfilePage = () => {
     );
   } else {
     return (
-      <div className="bg-prodPrimary overflow-hidden w-full sm:w-8/12 ml-auto mr-auto flex-col jusitfy-items-center">
+      <div className="bg-gradient-to-b from-prodPrimary to-prodSecondary overflow-hidden w-full h-screen sm:w-8/12 ml-auto mr-auto flex-col jusitfy-items-center">
         <div className="w-6/12 h-max ml-auto mr-auto">
           <h3 className="w-max ml-auto mr-auto p-2 text-4xl font-bold">{`${
             userProfile!.userName
