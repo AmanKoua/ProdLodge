@@ -466,7 +466,7 @@ const EditSong = () => {
         {tempSongPayloadArr.map((item, idx) => {
           return (
             <div
-              className="bg-blue-100 w-6/12 h-10 mt-3 ml-auto mr-auto animate-pulse"
+              className="bg-gray-500 w-6/12 h-10 mt-3 ml-auto mr-auto animate-pulse"
               key={idx}
             ></div>
           );
