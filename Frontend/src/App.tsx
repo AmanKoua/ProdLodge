@@ -1,3 +1,4 @@
+import { useContext, useEffect, useRef } from "react";
 import {
   BrowserRouter,
   Routes,
@@ -5,7 +6,8 @@ import {
   Navigate,
   useNavigate,
 } from "react-router-dom";
-import { useContext, useEffect } from "react";
+import { LocomotiveScrollProvider } from "react-locomotive-scroll";
+import "locomotive-scroll/dist/locomotive-scroll.css";
 
 import AudioBox from "./audioComponents/AudioBox";
 import NavBar from "./components/NavBar";
@@ -22,7 +24,7 @@ import InvalidRoute from "./pages/InvalidRoute";
 import { AuthContext } from "./context/AuthContext";
 
 // import "./index.css"; // old pre-tailwind css
-import "./invisibleScrollbar.css";
+// import "./invisibleScrollbar.css";
 import "./styles.css"; // tailwindcss styles
 
 const useAuthContext = () => {
@@ -38,6 +40,7 @@ const useAuthContext = () => {
 };
 
 function App() {
+  const containerRef = useRef(null);
   let authContext = useAuthContext();
 
   useEffect(() => {
@@ -77,24 +80,41 @@ function App() {
     <div className="app w-full h-screen scroll-smooth">
       <BrowserRouter>
         <NavBar />
-        <div className="pages">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/myProfile" element={<UserProfile />} />
-            <Route
-              path="/userProfile/:id"
-              element={<FriendProfilePage />}
-            ></Route>
-            <Route path="/newSong" element={<NewSong />} />
-            <Route path="/editSong" element={<EditSong />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/404" element={<InvalidRoute />} />
-            <Route path="*" element={<Navigate to="/404" />} />{" "}
-            {/* Catch all for unregistered routes */}
-          </Routes>
-        </div>
+        <LocomotiveScrollProvider
+          options={{
+            smooth: true,
+            // ... all available Locomotive Scroll instance options
+          }}
+          watch={
+            [
+              //..all the dependencies you want to watch to update the scroll.
+              //  Basicaly, you would want to watch page/location changes
+              //  For exemple, on Next.js you would want to watch properties like `router.asPath` (you may want to add more criterias if the instance should be update on locations with query parameters)
+            ]
+          }
+          containerRef={containerRef}
+        >
+          <main data-scroll-container ref={containerRef}>
+            <div className="pages" style={{ minHeight: "105vh" }}>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/signup" element={<Signup />} />
+                <Route path="/myProfile" element={<UserProfile />} />
+                <Route
+                  path="/userProfile/:id"
+                  element={<FriendProfilePage />}
+                ></Route>
+                <Route path="/newSong" element={<NewSong />} />
+                <Route path="/editSong" element={<EditSong />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/404" element={<InvalidRoute />} />
+                <Route path="*" element={<Navigate to="/404" />} />{" "}
+                {/* Catch all for unregistered routes */}
+              </Routes>
+            </div>
+          </main>
+        </LocomotiveScrollProvider>
       </BrowserRouter>
     </div>
   );
