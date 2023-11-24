@@ -1,10 +1,13 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
   LocomotiveScrollProvider,
   useLocomotiveScroll,
 } from "react-locomotive-scroll";
 import "locomotive-scroll/dist/locomotive-scroll.css";
+
+import studio from "../assets/img/studio.jpg";
+import dive from "../assets/img/dive.jpg";
 
 const Landing = () => {
   const location = useLocation();
@@ -80,10 +83,10 @@ const Landing = () => {
           className="bg-gradient-to-b from-prodPrimary to-prodSecondary shadow-xl shadow-blue-200 w-full mr-auto ml-auto pb-4 hide-scrollbar overflow-y-hidden flex flex-col"
           style={{ minHeight: "200vh" }}
         >
-          <div className="h-max w-max ml-auto mr-auto mt-12 flex flex-row">
+          <div className="h-14 w-max ml-auto mr-auto mt-12 flex flex-row">
             {generateFXText("Welcome to ProdLodge!")}
           </div>
-          <div className="w-11/12 h-1 border-b-2 border-gray-400 ml-auto mr-auto"></div>
+          <div className="w-11/12 h-1 border-b-2 border-gray-400 ml-auto mr-auto mb-2"></div>
           <Section1></Section1>
           <button
             onClick={() => {
@@ -99,17 +102,64 @@ const Landing = () => {
 };
 
 const Section1 = (): JSX.Element => {
+  const img1 = useRef<HTMLImageElement>(null);
+  const img2 = useRef<HTMLImageElement>(null);
+  const text1Ref = useRef<HTMLHeadingElement>(null);
+  const text2Ref = useRef<HTMLHeadingElement>(null);
+  const [overlayOffset, setOverlayOffset] = useState(0);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!img1 || !img1.current) {
+      return;
+    }
+
+    setOverlayOffset(img1.current.height / 100);
+  }, []);
 
   return (
     <div
       className="w-11/12 ml-auto mr-auto flex flex-row justify-around"
-      style={{ minHeight: "70vh" }}
+      style={{ minHeight: "70vh", maxHeight: "70vh" }}
     >
       <div
-        className="hover:shadow-xl w-6/12 mr-auto flex flex-col"
+        className="hover:shadow-xl w-6/12 mr-auto flex flex-col justify-around overflow-y-hidden"
         style={{ transition: "all 0.8s" }}
+        onMouseEnter={() => {
+          img1.current!.style.opacity = "0%";
+          img1.current!.style.zIndex = "-10";
+          text1Ref.current!.style.opacity = "0%";
+          text1Ref.current!.style.zIndex = "-10";
+        }}
+        onMouseLeave={() => {
+          img1.current!.style.opacity = "100%";
+          img1.current!.style.zIndex = "10";
+          text1Ref.current!.style.opacity = "100%";
+          text1Ref.current!.style.zIndex = "11";
+        }}
       >
+        <h1
+          className="text-white h-max z-20 absolute text-center"
+          style={{
+            width: "45.83%",
+            marginTop: overlayOffset,
+            transition: "all .1s",
+          }}
+          ref={text1Ref}
+        >
+          New Here?
+        </h1>
+        <img
+          className="w-full absolute z-10"
+          style={{
+            width: "45.83%",
+            height: "70vh",
+            objectFit: "cover",
+            transition: "all 0.1s",
+          }}
+          ref={img1}
+          src={studio}
+        />
         <h1 className="w-max ml-auto mr-auto text-4xl pt-3 font-light">
           New Here?
         </h1>
@@ -124,7 +174,7 @@ const Section1 = (): JSX.Element => {
           <br></br>
           To learn more, click the link below!
         </h1>
-        <div className="w-5/12 h-2/6 ml-auto mr-auto flex flex-row">
+        <div className="w-10/12 h-max mb-10 ml-auto mr-auto flex flex-row">
           <div
             className="border border-blue-300 rounded-sm p-2 w-max h-max shadow-md hover:shadow-lg ml-auto mr-auto mt-auto mb-auto"
             onClick={() => {
@@ -136,14 +186,49 @@ const Section1 = (): JSX.Element => {
         </div>
       </div>
       <div
-        className="w-0 border-l-2 border-gray-400 ml-auto mr-auto mt-auto mb-auto rounded-xl"
+        // className="w-2 border-l-2 border-gray-400 ml-auto mr-auto mt-auto mb-auto rounded-xl"
+        className="w-2 ml-auto mr-auto mt-auto mb-auto rounded-xl"
         style={{ height: "65vh" }}
         // vertical divider
       ></div>
       <div
-        className="hover:shadow-xl w-6/12 ml-auto flex flex-col"
+        className="hover:shadow-xl w-6/12 mr-auto flex flex-col justify-around overflow-y-hidden"
         style={{ transition: "all 0.8s" }}
+        onMouseEnter={() => {
+          img2.current!.style.opacity = "0%";
+          img2.current!.style.zIndex = "-10";
+          text2Ref.current!.style.opacity = "0%";
+          text2Ref.current!.style.zIndex = "-10";
+        }}
+        onMouseLeave={() => {
+          img2.current!.style.opacity = "100%";
+          img2.current!.style.zIndex = "10";
+          text2Ref.current!.style.opacity = "100%";
+          text2Ref.current!.style.zIndex = "11";
+        }}
       >
+        <h1
+          className="text-white h-max z-20 absolute text-center"
+          style={{
+            width: "45.83%",
+            marginTop: overlayOffset,
+            transition: "all .1s",
+          }}
+          ref={text2Ref}
+        >
+          Dive In
+        </h1>
+        <img
+          className="w-full absolute z-10"
+          style={{
+            width: "45.83%",
+            height: "70vh",
+            objectFit: "cover",
+            transition: "all 0.1s",
+          }}
+          ref={img2}
+          src={dive}
+        />
         <h1 className="w-max ml-auto mr-auto text-4xl pt-3 font-light">
           Dive in
         </h1>
@@ -162,7 +247,7 @@ const Section1 = (): JSX.Element => {
           <div
             className="border border-blue-300 rounded-sm p-2 w-max h-max shadow-md hover:shadow-lg mt-auto mb-auto ml-auto mr-auto"
             onClick={() => {
-              navigate("/about");
+              navigate("/login");
             }}
           >
             Log In
@@ -170,7 +255,7 @@ const Section1 = (): JSX.Element => {
           <div
             className="border border-blue-300 rounded-sm p-2 w-max h-max shadow-md hover:shadow-lg mt-auto mb-auto ml-auto mr-auto"
             onClick={() => {
-              navigate("/about");
+              navigate("/signup");
             }}
           >
             Sign Up
