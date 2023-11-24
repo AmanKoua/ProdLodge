@@ -146,6 +146,8 @@ const Section1 = (): JSX.Element => {
             transition: "all .1s",
           }}
           ref={text1Ref}
+          data-scroll
+          data-scroll-speed="1.3"
         >
           New Here?
         </h1>
@@ -215,6 +217,8 @@ const Section1 = (): JSX.Element => {
             transition: "all .1s",
           }}
           ref={text2Ref}
+          data-scroll
+          data-scroll-speed="1.3"
         >
           Dive In
         </h1>
