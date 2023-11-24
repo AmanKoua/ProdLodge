@@ -89,5 +89,8 @@ Frontend:
 
   Ensure that the scrollable element has "data-scroll-container" within it's attributes.
 
+  It seems that one needs to manually refresh the page in order for locomotive-scroll changes
+  to take effect.
+
   Lastly, ensure that the minimum height of the element is large enough to require a scrollbar (otherwise
   no scrollbar will appear!)
