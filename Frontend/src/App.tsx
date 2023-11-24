@@ -6,11 +6,10 @@ import {
   Navigate,
   useNavigate,
 } from "react-router-dom";
-import { LocomotiveScrollProvider } from "react-locomotive-scroll";
-import "locomotive-scroll/dist/locomotive-scroll.css";
 
 import AudioBox from "./audioComponents/AudioBox";
 import NavBar from "./components/NavBar";
+import Landing from "./pages/Landing";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -80,40 +79,27 @@ function App() {
     <div className="app w-full h-screen scroll-smooth">
       <BrowserRouter>
         <NavBar />
-        <LocomotiveScrollProvider
-          options={{
-            smooth: true,
-            // ... all available Locomotive Scroll instance options
-          }}
-          watch={[
-            "router.asPath",
-            //..all the dependencies you want to watch to update the scroll.
-            //  Basicaly, you would want to watch page/location changes
-            //  For exemple, on Next.js you would want to watch properties like `router.asPath` (you may want to add more criterias if the instance should be update on locations with query parameters)
-          ]}
-          containerRef={containerRef}
-        >
-          <main data-scroll-container ref={containerRef}>
-            <div className="pages" style={{ minHeight: "115vh" }}>
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/signup" element={<Signup />} />
-                <Route path="/myProfile" element={<UserProfile />} />
-                <Route
-                  path="/userProfile/:id"
-                  element={<FriendProfilePage />}
-                ></Route>
-                <Route path="/newSong" element={<NewSong />} />
-                <Route path="/editSong" element={<EditSong />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/404" element={<InvalidRoute />} />
-                <Route path="*" element={<Navigate to="/404" />} />{" "}
-                {/* Catch all for unregistered routes */}
-              </Routes>
-            </div>
-          </main>
-        </LocomotiveScrollProvider>
+        <main>
+          <div className="pages" style={{ minHeight: "115vh" }}>
+            <Routes>
+              <Route path="/" element={<Landing />} />
+              <Route path="/home" element={<Home />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
+              <Route path="/myProfile" element={<UserProfile />} />
+              <Route
+                path="/userProfile/:id"
+                element={<FriendProfilePage />}
+              ></Route>
+              <Route path="/newSong" element={<NewSong />} />
+              <Route path="/editSong" element={<EditSong />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/404" element={<InvalidRoute />} />
+              <Route path="*" element={<Navigate to="/404" />} />
+              {/* Catch all for unregistered routes */}
+            </Routes>
+          </div>
+        </main>
       </BrowserRouter>
     </div>
   );
