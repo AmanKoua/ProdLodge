@@ -76,3 +76,18 @@ Frontend:
 
   Note: The app engine instance will fail to create files if you do not use {recursive: true}
   when creating files / directories. Other than that, it seems to work flawlessly.
+
+  --------------------------------------------------------------------------------------------------
+
+  Implementing react-locomotive-scroll
+
+  the locomotive-scroll and react-locomotive-scroll dependencies need to be specified in the frontend's 
+  package.json. 
+
+  make sure to inclide "import "locomotive-scroll/dist/locomotive-scroll.css";" at the top level of the 
+  component where locomotiveScrollProvider is used.
+
+  Ensure that the scrollable element has "data-scroll-container" within it's attributes.
+
+  Lastly, ensure that the minimum height of the element is large enough to require a scrollbar (otherwise
+  no scrollbar will appear!)
