@@ -24,10 +24,10 @@ const Landing = () => {
       <div
         data-scroll-container="true"
         ref={containerRef}
-        className="bg-gradient-to-b from-prodPrimary to-prodSecondary shadow-xl shadow-blue-200 w-full mr-auto ml-auto pb-4 hide-scrollbar overflow-y-scroll"
-        style={{ minHeight: "200vh" }}
+        className="bg-gradient-to-b from-prodPrimary to-prodSecondary shadow-xl shadow-blue-200 w-full mr-auto ml-auto pb-4 hide-scrollbar overflow-y-hidden"
+        style={{ minHeight: "115vh" }}
       >
-        <h1 className="bg-red-500 w-max border-2 ml-auto mr-auto">
+        <h1 className="w-max border-2 ml-auto mr-auto">
           Welcome to ProdLodge!
         </h1>
         <button
