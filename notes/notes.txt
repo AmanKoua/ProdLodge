@@ -92,5 +92,8 @@ Frontend:
   It seems that one needs to manually refresh the page in order for locomotive-scroll changes
   to take effect.
 
+  Using <React.StrictMode> will cause locomotive scroll to glitch out and create multiple scroll bars
+  when navigating betweeen different pages!
+
   Lastly, ensure that the minimum height of the element is large enough to require a scrollbar (otherwise
   no scrollbar will appear!)
