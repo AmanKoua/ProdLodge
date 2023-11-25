@@ -78,7 +78,7 @@ const Landing = () => {
         <div
           data-scroll-section
           className="bg-gradient-to-b from-prodPrimary to-prodSecondary shadow-xl shadow-blue-200 w-full mr-auto ml-auto pb-4 hide-scrollbar overflow-y-hidden flex flex-col"
-          style={{ minHeight: "240vh" }}
+          style={{ minHeight: "280vh" }}
         >
           <div className="h-14 w-max ml-auto mr-auto mt-12 flex flex-row">
             {generateFXText("Welcome to ProdLodge!")}
@@ -308,17 +308,17 @@ const Section1 = (): JSX.Element => {
 const Section2 = (): JSX.Element => {
   return (
     <div
-      className=" w-11/12 ml-auto mr-auto flex flex-col sm:flex-row justify-around"
+      className="w-11/12 ml-auto mr-auto flex flex-col sm:flex-row justify-around"
       style={{ minHeight: "70vh", maxHeight: "140vh" }}
     >
       <div
-        className="hover:shadow-xl w-12/12 sm:w-6/12 h-6/6 mr-auto flex flex-col justify-center overflow-y-hidden"
+        className="hover:shadow-xl w-12/12 sm:w-6/12 h-6/6 mr-auto flex flex-col justify-around overflow-y-hidden"
         style={{ transition: "all 0.8s" }}
       >
-        <h1 className="w-max ml-auto mr-auto text-4xl font-light mb-5">
+        <h1 className="w-max ml-auto mr-auto mt-5 text-4xl pt-3 font-light">
           How to get started
         </h1>
-        <h1 className="w-11/12 ml-auto mr-auto text-xl font-light text-center">
+        <h1 className="w-11/12 ml-auto mr-auto text-xl pt-3 font-light text-center">
           Log in or sign up, and add all of your friends via their email
           accounts.
           <br></br>
@@ -330,6 +330,11 @@ const Section2 = (): JSX.Element => {
           Use the provided audio modules to create different configurations and
           share them with your friends or the public!
         </h1>
+        <div className="w-10/12 h-max ml-auto mr-auto flex flex-row opacity-0">
+          <div className="border border-blue-300 rounded-sm p-2 w-max h-max shadow-md hover:shadow-lg ml-auto mr-auto mt-auto mb-auto">
+            Learn More
+          </div>
+        </div>
       </div>
       <div
         className="w-2 ml-auto mr-auto mt-auto mb-auto rounded-xl hidden"
@@ -337,9 +342,23 @@ const Section2 = (): JSX.Element => {
         // vertical divider
       ></div>
       <div
-        className="hover:shadow-xl w-12/12 sm:w-6/12 h-6/6 ml-auto flex flex-col justify-around overflow-y-hidden"
+        className=" hover:shadow-xl w-full sm:w-6/12 h-6/6 mr-auto flex flex-row overflow-hidden"
         style={{ transition: "all 0.8s" }}
-      ></div>
+      >
+        <div className="bg-red-900 w-4/6 h-full mr-auto">a</div>
+        <div className="bg-blue-500 w-2/6 h-full ml-auto flex flex-col">
+          <h1 className="w-max ml-auto mr-auto text-3xl font-light mt-2">
+            Modules
+          </h1>
+          <div className="bg-purple-200 w-full h-12 mb-2"></div>
+          <div className="bg-purple-200 w-full h-12 mb-2"></div>
+          <div className="bg-purple-200 w-full h-12 mb-2"></div>
+          <div className="bg-purple-200 w-full h-12 mb-2"></div>
+          <div className="bg-purple-200 w-full h-12 mb-2"></div>
+          <div className="bg-purple-200 w-full h-12 mb-2"></div>
+          <div className="bg-purple-200 w-full h-12 mb-2"></div>
+        </div>
+      </div>
     </div>
   );
 };
