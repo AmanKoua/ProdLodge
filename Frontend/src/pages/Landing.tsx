@@ -119,6 +119,178 @@ const Section1 = (): JSX.Element => {
 
   return (
     <div
+      // className="w-11/12 ml-auto mr-auto flex flex-row justify-around"
+      className="w-11/12 ml-auto mr-auto flex flex-col sm:flex-row justify-around"
+      style={{ minHeight: "70vh", maxHeight: "140vh" }}
+    >
+      <div
+        // className="hover:shadow-xl w-6/12 h-6/6 mr-auto flex flex-col justify-around overflow-y-hidden"
+        className="hover:shadow-xl w-12/12 sm:w-6/12 h-6/6 mr-auto flex flex-col justify-around overflow-y-hidden"
+        style={{ transition: "all 0.8s" }}
+        onMouseEnter={() => {
+          img1.current!.style.opacity = "0%";
+          img1.current!.style.zIndex = "-10";
+          text1Ref.current!.style.opacity = "0%";
+          text1Ref.current!.style.zIndex = "-10";
+        }}
+        onMouseLeave={() => {
+          img1.current!.style.opacity = "100%";
+          img1.current!.style.zIndex = "10";
+          text1Ref.current!.style.opacity = "100%";
+          text1Ref.current!.style.zIndex = "11";
+        }}
+      >
+        {/* <h1
+          className="text-white h-max z-20 absolute text-center"
+          style={{
+            width: "45.83%",
+            marginTop: overlayOffset,
+            transition: "all .1s",
+          }}
+          ref={text1Ref}
+          data-scroll
+          data-scroll-speed="1.3"
+        >
+          New Here?
+        </h1>
+        <img
+          className="w-full absolute z-10"
+          style={{
+            width: "45.83%",
+            height: "70vh",
+            objectFit: "cover",
+            transition: "all 0.1s",
+          }}
+          ref={img1}
+          src={studio}
+        /> */}
+        <h1 className="w-max ml-auto mr-auto text-4xl pt-3 font-light">
+          New Here?
+        </h1>
+        <h1 className="w-11/12 ml-auto mr-auto text-xl pt-3 font-light text-center">
+          ProdLodge is a place where a community of music producers, sound
+          designers, and audio engineers share their ideas.
+          <br></br>
+          <br></br>
+          It utilizes the web audio API to provide users with a rich and
+          powerful audio editing experience, all from within the web browser!
+          <br></br>
+          <br></br>
+          To learn more, click the link below!
+        </h1>
+        <div className="w-10/12 h-max mb-10 ml-auto mr-auto flex flex-row">
+          <div
+            className="border border-blue-300 rounded-sm p-2 w-max h-max shadow-md hover:shadow-lg ml-auto mr-auto mt-auto mb-auto"
+            onClick={() => {
+              navigate("/about");
+            }}
+          >
+            Learn More
+          </div>
+        </div>
+      </div>
+      <div
+        // className="w-2 ml-auto mr-auto mt-auto mb-auto rounded-xl"
+        className="w-2 ml-auto mr-auto mt-auto mb-auto rounded-xl hidden"
+        style={{ height: "65vh" }}
+        // vertical divider
+      ></div>
+      <div
+        // className="hover:shadow-xl w-6/12 mr-auto flex flex-col justify-around overflow-y-hidden"
+        className="hover:shadow-xl w-12/12 sm:w-6/12 h-6/6 ml-auto flex flex-col justify-around overflow-y-hidden"
+        style={{ transition: "all 0.8s" }}
+        onMouseEnter={() => {
+          img2.current!.style.opacity = "0%";
+          img2.current!.style.zIndex = "-10";
+          text2Ref.current!.style.opacity = "0%";
+          text2Ref.current!.style.zIndex = "-10";
+        }}
+        onMouseLeave={() => {
+          img2.current!.style.opacity = "100%";
+          img2.current!.style.zIndex = "10";
+          text2Ref.current!.style.opacity = "100%";
+          text2Ref.current!.style.zIndex = "11";
+        }}
+      >
+        {/* <h1
+          className="text-white h-max z-20 absolute text-center"
+          style={{
+            width: "45.83%",
+            marginTop: overlayOffset,
+            transition: "all .1s",
+          }}
+          ref={text2Ref}
+          data-scroll
+          data-scroll-speed="1.3"
+        >
+          Dive In
+        </h1>
+        <img
+          className="w-full absolute z-10"
+          style={{
+            width: "45.83%",
+            height: "70vh",
+            objectFit: "cover",
+            transition: "all 0.1s",
+          }}
+          ref={img2}
+          src={dive}
+        /> */}
+        <h1 className="w-max ml-auto mr-auto text-4xl pt-3 font-light">
+          Dive in
+        </h1>
+        <h1 className="w-11/12 ml-auto mr-auto text-xl pt-3 font-light text-center">
+          If you're an experienced ProdLodge user, or are simply ready to get
+          right into it, click the buttons below to sign up or log in.
+          <br></br>
+          <br></br>
+          After signing up or logging in, you will have full reign to explore
+          and play with the functionalities of ProdLodge!
+          <br></br>
+          <br></br>
+          Get going now!
+        </h1>
+        <div className="w-8/12 h-2/6 ml-auto mr-auto mb-10 flex flex-row">
+          <div
+            className="border border-blue-300 rounded-sm p-2 w-max h-max shadow-md hover:shadow-lg mt-auto mb-auto ml-auto mr-auto"
+            onClick={() => {
+              navigate("/login");
+            }}
+          >
+            Log In
+          </div>
+          <div
+            className="border border-blue-300 rounded-sm p-2 w-max h-max shadow-md hover:shadow-lg mt-auto mb-auto ml-auto mr-auto"
+            onClick={() => {
+              navigate("/signup");
+            }}
+          >
+            Sign Up
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const Section2 = (): JSX.Element => {
+  const img1 = useRef<HTMLImageElement>(null);
+  const img2 = useRef<HTMLImageElement>(null);
+  const text1Ref = useRef<HTMLHeadingElement>(null);
+  const text2Ref = useRef<HTMLHeadingElement>(null);
+  const [overlayOffset, setOverlayOffset] = useState(0);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!img1 || !img1.current) {
+      return;
+    }
+
+    setOverlayOffset(img1.current.height / 100);
+  }, []);
+
+  return (
+    <div
       className="w-11/12 ml-auto mr-auto flex flex-row justify-around"
       style={{ minHeight: "70vh", maxHeight: "70vh" }}
     >
@@ -247,7 +419,7 @@ const Section1 = (): JSX.Element => {
           <br></br>
           Get going now!
         </h1>
-        <div className="w-5/12 h-2/6 ml-auto mr-auto flex flex-row">
+        <div className="w-8/12 h-2/6 ml-auto mr-auto flex flex-row">
           <div
             className="border border-blue-300 rounded-sm p-2 w-max h-max shadow-md hover:shadow-lg mt-auto mb-auto ml-auto mr-auto"
             onClick={() => {
