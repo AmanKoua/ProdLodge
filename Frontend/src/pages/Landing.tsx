@@ -81,7 +81,7 @@ const Landing = () => {
       containerRef={containerRef}
     >
       <ScrollTriggerProxy />
-      <main data-scroll-container ref={containerRef}>
+      <main className="ScrollApp" data-scroll-container ref={containerRef}>
         <div
           data-scroll-section
           className="bg-gradient-to-b from-prodPrimary to-prodSecondary shadow-xl shadow-blue-200 w-full mr-auto ml-auto pb-4 hide-scrollbar overflow-y-hidden flex flex-col"
@@ -94,6 +94,7 @@ const Landing = () => {
           <Section1></Section1>
           <div className="w-11/12 h-1 border-b-2 border-gray-400 ml-auto mr-auto mt-2 mb-2"></div>
           <Section2></Section2>
+
           <button
             onClick={() => {
               navigate("/home");
@@ -331,6 +332,7 @@ const Section2 = (): JSX.Element => {
           trigger: element,
           start: "top top",
           end: pinWrapWidth,
+          scroller: ".ScrollApp",
           scrub: true,
           pin: true,
           markers: true,
@@ -338,19 +340,58 @@ const Section2 = (): JSX.Element => {
         height: `${scrollingElement!.scrollWidth}px`,
         ease: "none",
       });
+      t1.to(scrollingElement, {
+        scrollTrigger: {
+          trigger: scrollingElement,
+          start: "top top",
+          end: pinWrapWidth,
+          scroller: ".ScrollApp",
+          scrub: true,
+          markers: true,
+        },
+        x: pinWrapWidth,
+        ease: "none",
+      });
+      ScrollTrigger.refresh();
     }, 1000);
   }, []);
 
   return (
     <div
       className="bg-red-200 w-11/12 ml-auto mr-auto flex flex-row"
-      style={{ minHeight: "70vh", maxHeight: "70vh" }}
+      style={{ minHeight: "100vh", maxHeight: "70vh" }}
       data-scroll
       data-scroll-direction="horizontal"
       ref={ref}
     >
-      <div className="w-full h-full bg-red-500" ref={horizontalRef}>
-        <div className="bg-blue-500 w-96 h-2/3 ml-5 mr-5">a</div>
+      <div
+        className="w-full h-full bg-red-500 flex flex-row"
+        ref={horizontalRef}
+      >
+        <div className="bg-blue-500 h-2/3 ml-5 mr-5" style={{ width: "500px" }}>
+          a
+        </div>
+        <div className="bg-blue-500 h-2/3 ml-5 mr-5" style={{ width: "500px" }}>
+          a
+        </div>{" "}
+        <div className="bg-blue-500 h-2/3 ml-5 mr-5" style={{ width: "500px" }}>
+          a
+        </div>{" "}
+        <div className="bg-blue-500 h-2/3 ml-5 mr-5" style={{ width: "500px" }}>
+          a
+        </div>
+        <div className="bg-blue-500 h-2/3 ml-5 mr-5" style={{ width: "500px" }}>
+          a
+        </div>{" "}
+        <div className="bg-blue-500 h-2/3 ml-5 mr-5" style={{ width: "500px" }}>
+          a
+        </div>{" "}
+        <div className="bg-blue-500 h-2/3 ml-5 mr-5" style={{ width: "500px" }}>
+          a
+        </div>{" "}
+        <div className="bg-blue-500 h-2/3 ml-5 mr-5" style={{ width: "500px" }}>
+          a
+        </div>
       </div>
     </div>
   );
