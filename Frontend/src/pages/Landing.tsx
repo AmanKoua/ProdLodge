@@ -522,7 +522,7 @@ const Section2 = (): JSX.Element => {
             Modules
           </h1>
           <div
-            className="shadow-md w-full h-12 mb-2 hover:text-white"
+            className="shadow-md w-full h-12 mb-2 hover:text-white flex"
             style={{ transition: "all 0.2s" }}
             onMouseEnter={() => {
               setModuleText1(highPassText1);
@@ -533,10 +533,12 @@ const Section2 = (): JSX.Element => {
               setModuleText2("");
             }}
           >
-            <h2 className="w-max h-max font-light ml-auto mr-auto">HighPass</h2>
+            <h2 className="w-max h-max font-light text-lg sm:text-lg md:text-2xl ml-auto mr-auto mt-auto mb-auto">
+              HighPass
+            </h2>
           </div>
           <div
-            className="shadow-md w-full h-12 mb-2 hover:text-white"
+            className="shadow-md w-full h-12 mb-2 hover:text-white flex"
             style={{ transition: "all 0.2s" }}
             onMouseEnter={() => {
               setModuleText1(lowPassText1);
@@ -547,10 +549,12 @@ const Section2 = (): JSX.Element => {
               setModuleText2("");
             }}
           >
-            <h2 className="w-max h-max font-light ml-auto mr-auto">LowPass</h2>
+            <h2 className="w-max h-max font-light text-lg sm:text-lg md:text-2xl ml-auto mr-auto mt-auto mb-auto">
+              LowPass
+            </h2>
           </div>
           <div
-            className="shadow-md w-full h-12 mb-2 hover:text-white"
+            className="shadow-md w-full h-12 mb-2 hover:text-white flex"
             style={{ transition: "all 0.2s" }}
             onMouseEnter={() => {
               setModuleText1(peakText1);
@@ -561,10 +565,12 @@ const Section2 = (): JSX.Element => {
               setModuleText2("");
             }}
           >
-            <h2 className="w-max h-max font-light ml-auto mr-auto">Peak</h2>
+            <h2 className="w-max h-max font-light text-lg sm:text-lg md:text-2xl ml-auto mr-auto mt-auto mb-auto">
+              Peak
+            </h2>
           </div>
           <div
-            className="shadow-md w-full h-12 mb-2 hover:text-white"
+            className="shadow-md w-full h-12 mb-2 hover:text-white flex"
             style={{ transition: "all 0.2s" }}
             onMouseEnter={() => {
               setModuleText1(reverbText1);
@@ -575,10 +581,12 @@ const Section2 = (): JSX.Element => {
               setModuleText2("");
             }}
           >
-            <h2 className="w-max h-max font-light ml-auto mr-auto">Reverb</h2>
+            <h2 className="w-max h-max font-light text-lg sm:text-lg md:text-2xl ml-auto mr-auto mt-auto mb-auto">
+              Reverb
+            </h2>
           </div>
           <div
-            className="shadow-md w-full h-12 mb-2 hover:text-white"
+            className="shadow-md w-full h-12 mb-2 hover:text-white flex"
             style={{ transition: "all 0.2s" }}
             onMouseEnter={() => {
               setModuleText1(waveshaperText1);
@@ -589,12 +597,12 @@ const Section2 = (): JSX.Element => {
               setModuleText2("");
             }}
           >
-            <h2 className="w-max h-max font-light ml-auto mr-auto">
+            <h2 className="w-max h-max font-light text-lg sm:text-lg md:text-2xl ml-auto mr-auto mt-auto mb-auto">
               Waveshaper
             </h2>
           </div>
           <div
-            className="shadow-md w-full h-12 mb-2 hover:text-white"
+            className="shadow-md w-full h-12 mb-2 hover:text-white flex"
             style={{ transition: "all 0.2s" }}
             onMouseEnter={() => {
               setModuleText1(gainText1);
@@ -605,10 +613,12 @@ const Section2 = (): JSX.Element => {
               setModuleText2("");
             }}
           >
-            <h2 className="w-max h-max font-light ml-auto mr-auto">Gain</h2>
+            <h2 className="w-max h-max font-light text-lg sm:text-lg md:text-2xl ml-auto mr-auto mt-auto mb-auto">
+              Gain
+            </h2>
           </div>
           <div
-            className="shadow-md w-full h-12 mb-2 hover:text-white"
+            className="shadow-md w-full h-12 mb-2 hover:text-white flex"
             style={{ transition: "all 0.2s" }}
             onMouseEnter={() => {
               setModuleText1(compressorText1);
@@ -619,7 +629,7 @@ const Section2 = (): JSX.Element => {
               setModuleText2("");
             }}
           >
-            <h2 className="w-max h-max font-light ml-auto mr-auto">
+            <h2 className="w-max h-max font-light text-lg sm:text-lg md:text-2xl ml-auto mr-auto mt-auto mb-auto">
               Compressor
             </h2>
           </div>
