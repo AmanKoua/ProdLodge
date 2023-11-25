@@ -5,6 +5,8 @@ import "locomotive-scroll/dist/locomotive-scroll.css";
 
 import studio from "../assets/img/studio.jpg";
 import dive from "../assets/img/dive.jpg";
+import started from "../assets/img/started.jpg";
+import modules from "../assets/img/modules.jpg";
 
 const Landing = () => {
   const location = useLocation();
@@ -306,8 +308,23 @@ const Section1 = (): JSX.Element => {
 };
 
 const Section2 = (): JSX.Element => {
-  const [moduleText1, setModuleText1] = useState("");
+  const tempText =
+    "Hover over a module, on the right hand side, to learn more about it!";
+  const [moduleText1, setModuleText1] = useState(tempText);
   const [moduleText2, setModuleText2] = useState("");
+  const img1 = useRef<HTMLImageElement>(null);
+  const img2 = useRef<HTMLImageElement>(null);
+  const text1Ref = useRef<HTMLHeadingElement>(null);
+  const text2Ref = useRef<HTMLHeadingElement>(null);
+  const mainDivRef = useRef<HTMLDivElement>(null);
+  const [imageStyle, setImageStyle] = useState<Object>({
+    width: "45.83%",
+    height: "70vh",
+    objectFit: "cover",
+    transition: "all 0.1s",
+  });
+  const [overlayOffset, setOverlayOffset] = useState(0);
+  const navigate = useNavigate();
 
   const highPassText1 =
     'The highpass filter serves to "roll off" the low end of a signal, allowing only the higher frequencies to pass through.';
@@ -337,18 +354,95 @@ const Section2 = (): JSX.Element => {
     "The compressor module allows you to have fine-grained control over the dynamics of the audio.";
   const compressorText2 =
     "To use the compressor, tweak the threshold, knee, ratio, etc, until you find the sweet spot that works for you!";
-  const tempText =
-    "Hover over a module, on the right hand side, to learn more about it!";
+
+  useEffect(() => {
+    if (!img1 || !img1.current) {
+      return;
+    }
+
+    setOverlayOffset(img1.current.height / 100);
+  }, []);
+
+  useEffect(() => {
+    const observer = new ResizeObserver((e) => {
+      for (const entry of e) {
+        // console.log(entry.devicePixelContentBoxSize[0].inlineSize);
+        // console.log(entry.contentRect.height);
+
+        if (entry.contentRect.height > 540) {
+          // small screen image style
+          setImageStyle({
+            width: "91.6%",
+            // height: "53.5vh",
+            height: `${entry.contentRect.height / 2}px`,
+            objectFit: "cover",
+            transition: "all 0.1s",
+          });
+        } else {
+          setImageStyle({
+            // large screen image style
+            width: "45.83%",
+            // height: "70vh",
+            height: `${entry.contentRect.height}px`,
+            objectFit: "cover",
+            transition: "all 0.1s",
+          });
+        }
+      }
+    });
+
+    if (mainDivRef && mainDivRef.current) {
+      observer.observe(mainDivRef.current);
+    }
+
+    return () => {
+      if (mainDivRef && mainDivRef.current) {
+        observer.unobserve(mainDivRef.current);
+      }
+    };
+  }, [mainDivRef]);
 
   return (
     <div
       className="w-11/12 ml-auto mr-auto flex flex-col sm:flex-row justify-around"
       style={{ minHeight: "70vh", maxHeight: "140vh" }}
+      ref={mainDivRef}
     >
       <div
         className="hover:shadow-xl w-12/12 sm:w-6/12 h-6/6 mr-auto flex flex-col justify-around overflow-y-hidden"
         style={{ transition: "all 0.8s" }}
+        onMouseEnter={() => {
+          img1.current!.style.opacity = "0%";
+          img1.current!.style.zIndex = "-10";
+          text1Ref.current!.style.opacity = "0%";
+          text1Ref.current!.style.zIndex = "-10";
+        }}
+        onMouseLeave={() => {
+          img1.current!.style.opacity = "100%";
+          img1.current!.style.zIndex = "10";
+          text1Ref.current!.style.opacity = "100%";
+          text1Ref.current!.style.zIndex = "11";
+        }}
       >
+        <h1
+          className="text-white h-max z-20 absolute text-center"
+          style={{
+            width: "45.83%",
+            marginTop: overlayOffset,
+            transition: "all .1s",
+          }}
+          ref={text1Ref}
+          data-scroll
+          data-scroll-speed="1.3"
+        >
+          How to get started
+        </h1>
+        <img
+          className="absolute z-10"
+          style={imageStyle}
+          ref={img1}
+          src={started}
+        />
         <h1 className="w-max ml-auto mr-auto mt-5 text-4xl pt-3 font-light">
           How to get started
         </h1>
@@ -378,13 +472,44 @@ const Section2 = (): JSX.Element => {
       <div
         className="hover:shadow-xl w-full sm:w-6/12 h-6/6 mr-auto flex flex-row overflow-hidden"
         style={{ transition: "all 0.8s" }}
+        onMouseEnter={() => {
+          img2.current!.style.opacity = "0%";
+          img2.current!.style.zIndex = "-10";
+          text2Ref.current!.style.opacity = "0%";
+          text2Ref.current!.style.zIndex = "-10";
+        }}
+        onMouseLeave={() => {
+          img2.current!.style.opacity = "100%";
+          img2.current!.style.zIndex = "10";
+          text2Ref.current!.style.opacity = "100%";
+          text2Ref.current!.style.zIndex = "11";
+        }}
       >
+        <h1
+          className="text-white h-max z-20 absolute text-center"
+          style={{
+            width: "45.83%",
+            marginTop: overlayOffset + 238,
+            transition: "all .1s",
+          }}
+          ref={text2Ref}
+          data-scroll
+          data-scroll-speed="1.3"
+        >
+          Modules
+        </h1>
+        <img
+          className="w-full absolute z-10"
+          style={imageStyle}
+          ref={img2}
+          src={modules}
+        />
         <div
           className="w-4/6 mr-auto flex flex-col"
           style={{ minHeight: "1%" }}
         >
           <div className="w-full h-max ml-auto mr-auto mt-auto mb-auto">
-            <h1 className="w-full h-max ml-auto mr-aut0 text-2xl p-3 font-light text-center">
+            <h1 className="w-full h-max ml-auto mr-aut0 text-xl p-3 font-light text-center">
               {moduleText1}
               <br></br>
               <br></br>
