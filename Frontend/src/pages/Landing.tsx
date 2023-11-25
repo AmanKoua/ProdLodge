@@ -306,6 +306,40 @@ const Section1 = (): JSX.Element => {
 };
 
 const Section2 = (): JSX.Element => {
+  const [moduleText1, setModuleText1] = useState("");
+  const [moduleText2, setModuleText2] = useState("");
+
+  const highPassText1 =
+    'The highpass filter serves to "roll off" the low end of a signal, allowing only the higher frequencies to pass through.';
+  const highPassText2 =
+    "To use the highpass filter, simply select the frequency and resonance values that best suit your needs!";
+  const lowPassText1 =
+    'The lowpass filter serves to "roll off" the high end of a signal, allowing only the lower frequencies to pass through.';
+  const lowPassText2 =
+    "To use the lowpass filter, simply select the frequency and resonance values that best suit your needs!";
+  const peakText1 =
+    'The peak filter adds a standard "peak" to the audio spectrum of the signal, allowing one to shape the frequency spectrum of a signal with a high level of detail.';
+  const peakText2 =
+    "To use the peak filter, use the frequency, width, and gain sliders to find the perfect filter!";
+  const reverbText1 =
+    "The reverb module allows one to utilize ProdLodge's convolution reverb in order to shape the space of a sound.";
+  const reverbText2 =
+    "To use the reverb module, simply select one of the hand crafted impulse responses, created specifically for ProdLodge!";
+  const waveshaperText1 =
+    "The waveshaper allows for some good old fashioned distortion, giving you the extra crunch you need.";
+  const waveshaperText2 =
+    'To use the waveshaper module, control the "amount" slider to add the amount of distortion that\'s right for you!';
+  const gainText1 =
+    "The gain module allows one to, very simply, control the volume level (gain) of the audio.";
+  const gainText2 =
+    'To use the gain module, move the "amount" slider until you\'re satisfied with the volume!';
+  const compressorText1 =
+    "The compressor module allows you to have fine-grained control over the dynamics of the audio.";
+  const compressorText2 =
+    "To use the compressor, tweak the threshold, knee, ratio, etc, until you find the sweet spot that works for you!";
+  const tempText =
+    "Hover over a module, on the right hand side, to learn more about it!";
+
   return (
     <div
       className="w-11/12 ml-auto mr-auto flex flex-col sm:flex-row justify-around"
@@ -342,28 +376,128 @@ const Section2 = (): JSX.Element => {
         // vertical divider
       ></div>
       <div
-        className="bg-red-200 hover:shadow-xl w-full sm:w-6/12 h-6/6 mr-auto flex flex-row overflow-hidden"
+        className="hover:shadow-xl w-full sm:w-6/12 h-6/6 mr-auto flex flex-row overflow-hidden"
         style={{ transition: "all 0.8s" }}
       >
         <div
-          className="bg-red-900 w-4/6 mr-auto flex flex-col"
+          className="w-4/6 mr-auto flex flex-col"
           style={{ minHeight: "1%" }}
         >
-          <div className="w-max h-max ml-auto mr-auto mt-auto mb-auto bg-slate-500">
-            <h1 className="w-max h-max ml-auto mr-auto">test</h1>
+          <div className="w-full h-max ml-auto mr-auto mt-auto mb-auto">
+            <h1 className="w-full h-max ml-auto mr-aut0 text-2xl p-3 font-light text-center">
+              {moduleText1}
+              <br></br>
+              <br></br>
+              {moduleText2}
+            </h1>
           </div>
         </div>
-        <div className="bg-blue-500 w-2/6 h-full ml-auto flex flex-col">
-          <h1 className="w-max ml-auto mr-auto text-3xl font-light mt-2">
+        <div className="w-2/6 h-full ml-auto flex flex-col justify-around">
+          <h1 className="w-max ml-auto mr-auto text-3xl font-light mt-2 border-b border-black">
             Modules
           </h1>
-          <div className="bg-purple-200 w-full h-12 mb-2"></div>
-          <div className="bg-purple-200 w-full h-12 mb-2"></div>
-          <div className="bg-purple-200 w-full h-12 mb-2"></div>
-          <div className="bg-purple-200 w-full h-12 mb-2"></div>
-          <div className="bg-purple-200 w-full h-12 mb-2"></div>
-          <div className="bg-purple-200 w-full h-12 mb-2"></div>
-          <div className="bg-purple-200 w-full h-12 mb-2"></div>
+          <div
+            className="shadow-md w-full h-12 mb-2 hover:text-white"
+            style={{ transition: "all 0.2s" }}
+            onMouseEnter={() => {
+              setModuleText1(highPassText1);
+              setModuleText2(highPassText2);
+            }}
+            onMouseLeave={() => {
+              setModuleText1(tempText);
+              setModuleText2("");
+            }}
+          >
+            <h2 className="w-max h-max font-light ml-auto mr-auto">HighPass</h2>
+          </div>
+          <div
+            className="shadow-md w-full h-12 mb-2 hover:text-white"
+            style={{ transition: "all 0.2s" }}
+            onMouseEnter={() => {
+              setModuleText1(lowPassText1);
+              setModuleText2(lowPassText2);
+            }}
+            onMouseLeave={() => {
+              setModuleText1(tempText);
+              setModuleText2("");
+            }}
+          >
+            <h2 className="w-max h-max font-light ml-auto mr-auto">LowPass</h2>
+          </div>
+          <div
+            className="shadow-md w-full h-12 mb-2 hover:text-white"
+            style={{ transition: "all 0.2s" }}
+            onMouseEnter={() => {
+              setModuleText1(peakText1);
+              setModuleText2(peakText2);
+            }}
+            onMouseLeave={() => {
+              setModuleText1(tempText);
+              setModuleText2("");
+            }}
+          >
+            <h2 className="w-max h-max font-light ml-auto mr-auto">Peak</h2>
+          </div>
+          <div
+            className="shadow-md w-full h-12 mb-2 hover:text-white"
+            style={{ transition: "all 0.2s" }}
+            onMouseEnter={() => {
+              setModuleText1(reverbText1);
+              setModuleText2(reverbText2);
+            }}
+            onMouseLeave={() => {
+              setModuleText1(tempText);
+              setModuleText2("");
+            }}
+          >
+            <h2 className="w-max h-max font-light ml-auto mr-auto">Reverb</h2>
+          </div>
+          <div
+            className="shadow-md w-full h-12 mb-2 hover:text-white"
+            style={{ transition: "all 0.2s" }}
+            onMouseEnter={() => {
+              setModuleText1(waveshaperText1);
+              setModuleText2(waveshaperText2);
+            }}
+            onMouseLeave={() => {
+              setModuleText1(tempText);
+              setModuleText2("");
+            }}
+          >
+            <h2 className="w-max h-max font-light ml-auto mr-auto">
+              Waveshaper
+            </h2>
+          </div>
+          <div
+            className="shadow-md w-full h-12 mb-2 hover:text-white"
+            style={{ transition: "all 0.2s" }}
+            onMouseEnter={() => {
+              setModuleText1(gainText1);
+              setModuleText2(gainText2);
+            }}
+            onMouseLeave={() => {
+              setModuleText1(tempText);
+              setModuleText2("");
+            }}
+          >
+            <h2 className="w-max h-max font-light ml-auto mr-auto">Gain</h2>
+          </div>
+          <div
+            className="shadow-md w-full h-12 mb-2 hover:text-white"
+            style={{ transition: "all 0.2s" }}
+            onMouseEnter={() => {
+              setModuleText1(compressorText1);
+              setModuleText2(compressorText2);
+            }}
+            onMouseLeave={() => {
+              setModuleText1(tempText);
+              setModuleText2("");
+            }}
+          >
+            <h2 className="w-max h-max font-light ml-auto mr-auto">
+              Compressor
+            </h2>
+          </div>
         </div>
       </div>
     </div>
