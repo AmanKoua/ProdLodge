@@ -85,7 +85,7 @@ const Landing = () => {
         <div
           data-scroll-section
           className="bg-gradient-to-b from-prodPrimary to-prodSecondary shadow-xl shadow-blue-200 w-full mr-auto ml-auto pb-4 hide-scrollbar overflow-y-hidden flex flex-col"
-          style={{ minHeight: "200vh" }}
+          style={{ minHeight: "240vh" }}
         >
           <div className="h-14 w-max ml-auto mr-auto mt-12 flex flex-row">
             {generateFXText("Welcome to ProdLodge!")}
@@ -94,14 +94,13 @@ const Landing = () => {
           <Section1></Section1>
           <div className="w-11/12 h-1 border-b-2 border-gray-400 ml-auto mr-auto mt-2 mb-2"></div>
           <Section2></Section2>
-
-          <button
+          {/* <button
             onClick={() => {
               navigate("/home");
             }}
           >
             Navigate to home!
-          </button>
+          </button> */}
         </div>
       </main>
     </LocomotiveScrollProvider>
@@ -333,7 +332,7 @@ const Section2 = (): JSX.Element => {
           start: "top top",
           end: pinWrapWidth,
           scroller: ".ScrollApp",
-          scrub: true,
+          scrub: 1,
           pin: true,
           markers: true,
         },
@@ -359,39 +358,27 @@ const Section2 = (): JSX.Element => {
   return (
     <div
       className="bg-red-200 w-11/12 ml-auto mr-auto flex flex-row"
-      style={{ minHeight: "100vh", maxHeight: "70vh" }}
-      data-scroll
-      data-scroll-direction="horizontal"
+      style={{ minHeight: "100vh", maxHeight: "70vh", overflow: "hidden" }}
+      // data-scroll
+      // data-scroll-direction="horizontal"
       ref={ref}
     >
       <div
         className="w-full h-full bg-red-500 flex flex-row"
         ref={horizontalRef}
       >
-        <div className="bg-blue-500 h-2/3 ml-5 mr-5" style={{ width: "500px" }}>
-          a
-        </div>
-        <div className="bg-blue-500 h-2/3 ml-5 mr-5" style={{ width: "500px" }}>
-          a
-        </div>{" "}
-        <div className="bg-blue-500 h-2/3 ml-5 mr-5" style={{ width: "500px" }}>
-          a
-        </div>{" "}
-        <div className="bg-blue-500 h-2/3 ml-5 mr-5" style={{ width: "500px" }}>
-          a
-        </div>
-        <div className="bg-blue-500 h-2/3 ml-5 mr-5" style={{ width: "500px" }}>
-          a
-        </div>{" "}
-        <div className="bg-blue-500 h-2/3 ml-5 mr-5" style={{ width: "500px" }}>
-          a
-        </div>{" "}
-        <div className="bg-blue-500 h-2/3 ml-5 mr-5" style={{ width: "500px" }}>
-          a
-        </div>{" "}
-        <div className="bg-blue-500 h-2/3 ml-5 mr-5" style={{ width: "500px" }}>
-          a
-        </div>
+        <div
+          className="bg-blue-500 h-1/6 ml-5 mr-5 block"
+          style={{ width: "90%" }}
+        ></div>
+        <div
+          className="bg-blue-500 h-1/6 ml-5 mr-5 block"
+          style={{ width: "90%" }}
+        ></div>{" "}
+        <div
+          className="bg-blue-500 h-1/6 ml-5 mr-5 block"
+          style={{ width: "90%" }}
+        ></div>
       </div>
     </div>
   );
