@@ -106,6 +106,13 @@ const Section1 = (): JSX.Element => {
   const img2 = useRef<HTMLImageElement>(null);
   const text1Ref = useRef<HTMLHeadingElement>(null);
   const text2Ref = useRef<HTMLHeadingElement>(null);
+  const mainDivRef = useRef<HTMLDivElement>(null);
+  const [imageStyle, setImageStyle] = useState<Object>({
+    width: "45.83%",
+    height: "70vh",
+    objectFit: "cover",
+    transition: "all 0.1s",
+  });
   const [overlayOffset, setOverlayOffset] = useState(0);
   const navigate = useNavigate();
 
@@ -117,14 +124,52 @@ const Section1 = (): JSX.Element => {
     setOverlayOffset(img1.current.height / 100);
   }, []);
 
+  useEffect(() => {
+    const observer = new ResizeObserver((e) => {
+      for (const entry of e) {
+        // console.log(entry.devicePixelContentBoxSize[0].inlineSize);
+        // console.log(entry.contentRect.height);
+
+        if (entry.contentRect.height > 540) {
+          // small screen image style
+          setImageStyle({
+            width: "91.6%",
+            // height: "53.5vh",
+            height: `${entry.contentRect.height / 2}px`,
+            objectFit: "cover",
+            transition: "all 0.1s",
+          });
+        } else {
+          setImageStyle({
+            // large screen image style
+            width: "45.83%",
+            // height: "70vh",
+            height: `${entry.contentRect.height}px`,
+            objectFit: "cover",
+            transition: "all 0.1s",
+          });
+        }
+      }
+    });
+
+    if (mainDivRef && mainDivRef.current) {
+      observer.observe(mainDivRef.current);
+    }
+
+    return () => {
+      if (mainDivRef && mainDivRef.current) {
+        observer.unobserve(mainDivRef.current);
+      }
+    };
+  }, [mainDivRef]);
+
   return (
     <div
-      // className="w-11/12 ml-auto mr-auto flex flex-row justify-around"
       className="w-11/12 ml-auto mr-auto flex flex-col sm:flex-row justify-around"
       style={{ minHeight: "70vh", maxHeight: "140vh" }}
+      ref={mainDivRef}
     >
       <div
-        // className="hover:shadow-xl w-6/12 h-6/6 mr-auto flex flex-col justify-around overflow-y-hidden"
         className="hover:shadow-xl w-12/12 sm:w-6/12 h-6/6 mr-auto flex flex-col justify-around overflow-y-hidden"
         style={{ transition: "all 0.8s" }}
         onMouseEnter={() => {
@@ -140,7 +185,7 @@ const Section1 = (): JSX.Element => {
           text1Ref.current!.style.zIndex = "11";
         }}
       >
-        {/* <h1
+        <h1
           className="text-white h-max z-20 absolute text-center"
           style={{
             width: "45.83%",
@@ -154,16 +199,11 @@ const Section1 = (): JSX.Element => {
           New Here?
         </h1>
         <img
-          className="w-full absolute z-10"
-          style={{
-            width: "45.83%",
-            height: "70vh",
-            objectFit: "cover",
-            transition: "all 0.1s",
-          }}
+          className="absolute z-10"
+          style={imageStyle}
           ref={img1}
           src={studio}
-        /> */}
+        />
         <h1 className="w-max ml-auto mr-auto text-4xl pt-3 font-light">
           New Here?
         </h1>
@@ -190,13 +230,11 @@ const Section1 = (): JSX.Element => {
         </div>
       </div>
       <div
-        // className="w-2 ml-auto mr-auto mt-auto mb-auto rounded-xl"
         className="w-2 ml-auto mr-auto mt-auto mb-auto rounded-xl hidden"
         style={{ height: "65vh" }}
         // vertical divider
       ></div>
       <div
-        // className="hover:shadow-xl w-6/12 mr-auto flex flex-col justify-around overflow-y-hidden"
         className="hover:shadow-xl w-12/12 sm:w-6/12 h-6/6 ml-auto flex flex-col justify-around overflow-y-hidden"
         style={{ transition: "all 0.8s" }}
         onMouseEnter={() => {
@@ -212,7 +250,7 @@ const Section1 = (): JSX.Element => {
           text2Ref.current!.style.zIndex = "11";
         }}
       >
-        {/* <h1
+        <h1
           className="text-white h-max z-20 absolute text-center"
           style={{
             width: "45.83%",
@@ -227,15 +265,10 @@ const Section1 = (): JSX.Element => {
         </h1>
         <img
           className="w-full absolute z-10"
-          style={{
-            width: "45.83%",
-            height: "70vh",
-            objectFit: "cover",
-            transition: "all 0.1s",
-          }}
+          style={imageStyle}
           ref={img2}
           src={dive}
-        /> */}
+        />
         <h1 className="w-max ml-auto mr-auto text-4xl pt-3 font-light">
           Dive in
         </h1>
@@ -250,7 +283,7 @@ const Section1 = (): JSX.Element => {
           <br></br>
           Get going now!
         </h1>
-        <div className="w-8/12 h-2/6 ml-auto mr-auto mb-10 flex flex-row">
+        <div className="w-8/12 h-max ml-auto mr-auto mb-10 flex flex-row">
           <div
             className="border border-blue-300 rounded-sm p-2 w-max h-max shadow-md hover:shadow-lg mt-auto mb-auto ml-auto mr-auto"
             onClick={() => {
