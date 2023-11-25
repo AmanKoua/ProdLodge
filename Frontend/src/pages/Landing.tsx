@@ -5,7 +5,6 @@ import "locomotive-scroll/dist/locomotive-scroll.css";
 
 import studio from "../assets/img/studio.jpg";
 import dive from "../assets/img/dive.jpg";
-import ScrollTriggerProxy from "../components/ScrollTriggerProxy";
 
 const Landing = () => {
   const location = useLocation();
@@ -309,23 +308,38 @@ const Section1 = (): JSX.Element => {
 const Section2 = (): JSX.Element => {
   return (
     <div
-      className="bg-red-200 w-11/12 ml-auto mr-auto flex flex-row"
+      className=" w-11/12 ml-auto mr-auto flex flex-col sm:flex-row justify-around"
       style={{ minHeight: "70vh", maxHeight: "140vh" }}
     >
-      <div className="w-full h-full bg-red-500 flex flex-row">
-        <div
-          className="bg-blue-500 h-1/6 ml-5 mr-5 block"
-          style={{ width: "90%" }}
-        ></div>
-        <div
-          className="bg-blue-500 h-1/6 ml-5 mr-5 block"
-          style={{ width: "90%" }}
-        ></div>{" "}
-        <div
-          className="bg-blue-500 h-1/6 ml-5 mr-5 block"
-          style={{ width: "90%" }}
-        ></div>
+      <div
+        className="hover:shadow-xl w-12/12 sm:w-6/12 h-6/6 mr-auto flex flex-col justify-center overflow-y-hidden"
+        style={{ transition: "all 0.8s" }}
+      >
+        <h1 className="w-max ml-auto mr-auto text-4xl font-light mb-5">
+          How to get started
+        </h1>
+        <h1 className="w-11/12 ml-auto mr-auto text-xl font-light text-center">
+          Log in or sign up, and add all of your friends via their email
+          accounts.
+          <br></br>
+          <br></br>
+          Upload a song and set it's visibility to public, private, or friends
+          only.
+          <br></br>
+          <br></br>
+          Use the provided audio modules to create different configurations and
+          share them with your friends or the public!
+        </h1>
       </div>
+      <div
+        className="w-2 ml-auto mr-auto mt-auto mb-auto rounded-xl hidden"
+        style={{ height: "65vh" }}
+        // vertical divider
+      ></div>
+      <div
+        className="hover:shadow-xl w-12/12 sm:w-6/12 h-6/6 ml-auto flex flex-col justify-around overflow-y-hidden"
+        style={{ transition: "all 0.8s" }}
+      ></div>
     </div>
   );
 };
