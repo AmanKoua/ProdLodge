@@ -35,9 +35,9 @@ const Landing = () => {
             return (
               <h1
                 data-scroll
-                data-scroll-delay={0.25 - idx / 80}
+                // data-scroll-delay={0.25 - idx / 80}
                 data-scroll-speed={1}
-                className="text-7xl"
+                className="sm:text-5xl lg:text-7xl"
                 key={idx}
               >
                 {item}
@@ -47,9 +47,9 @@ const Landing = () => {
             return (
               <h1
                 data-scroll
-                data-scroll-delay={idx / 70}
+                // data-scroll-delay={idx / 70}
                 data-scroll-speed={1}
-                className="text-6xl opacity-0"
+                className="sm:text-5xl lg:text-7xl opacity-0"
                 key={idx}
               >
                 {"i"}
