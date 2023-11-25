@@ -1,11 +1,6 @@
 import { useRef, useEffect, useState, useLayoutEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import gsap from "gsap";
-import ScrollTrigger from "gsap/ScrollTrigger";
-import {
-  LocomotiveScrollProvider,
-  useLocomotiveScroll,
-} from "react-locomotive-scroll";
+import { LocomotiveScrollProvider } from "react-locomotive-scroll";
 import "locomotive-scroll/dist/locomotive-scroll.css";
 
 import studio from "../assets/img/studio.jpg";
@@ -80,7 +75,6 @@ const Landing = () => {
       ]}
       containerRef={containerRef}
     >
-      <ScrollTriggerProxy />
       <main className="ScrollApp" data-scroll-container ref={containerRef}>
         <div
           data-scroll-section
@@ -313,60 +307,12 @@ const Section1 = (): JSX.Element => {
 };
 
 const Section2 = (): JSX.Element => {
-  gsap.registerPlugin(ScrollTrigger);
-
-  const ref = useRef(null);
-  const horizontalRef = useRef(null);
-  const navigate = useNavigate();
-
-  useLayoutEffect(() => {
-    let element = ref.current;
-    let scrollingElement = horizontalRef.current;
-    let pinWrapWidth = scrollingElement!.offsetWidth;
-    let t1 = gsap.timeline();
-
-    setTimeout(() => {
-      t1.to(element, {
-        scrollTrigger: {
-          trigger: element,
-          start: "top top",
-          end: pinWrapWidth,
-          scroller: ".ScrollApp",
-          scrub: 1,
-          pin: true,
-          markers: true,
-        },
-        height: `${scrollingElement!.scrollWidth}px`,
-        ease: "none",
-      });
-      t1.to(scrollingElement, {
-        scrollTrigger: {
-          trigger: scrollingElement,
-          start: "top top",
-          end: pinWrapWidth,
-          scroller: ".ScrollApp",
-          scrub: true,
-          markers: true,
-        },
-        x: pinWrapWidth,
-        ease: "none",
-      });
-      ScrollTrigger.refresh();
-    }, 1000);
-  }, []);
-
   return (
     <div
       className="bg-red-200 w-11/12 ml-auto mr-auto flex flex-row"
-      style={{ minHeight: "100vh", maxHeight: "70vh", overflow: "hidden" }}
-      // data-scroll
-      // data-scroll-direction="horizontal"
-      ref={ref}
+      style={{ minHeight: "70vh", maxHeight: "140vh" }}
     >
-      <div
-        className="w-full h-full bg-red-500 flex flex-row"
-        ref={horizontalRef}
-      >
+      <div className="w-full h-full bg-red-500 flex flex-row">
         <div
           className="bg-blue-500 h-1/6 ml-5 mr-5 block"
           style={{ width: "90%" }}
