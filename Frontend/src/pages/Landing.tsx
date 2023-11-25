@@ -342,10 +342,17 @@ const Section2 = (): JSX.Element => {
         // vertical divider
       ></div>
       <div
-        className=" hover:shadow-xl w-full sm:w-6/12 h-6/6 mr-auto flex flex-row overflow-hidden"
+        className="bg-red-200 hover:shadow-xl w-full sm:w-6/12 h-6/6 mr-auto flex flex-row overflow-hidden"
         style={{ transition: "all 0.8s" }}
       >
-        <div className="bg-red-900 w-4/6 h-full mr-auto">a</div>
+        <div
+          className="bg-red-900 w-4/6 mr-auto flex flex-col"
+          style={{ minHeight: "1%" }}
+        >
+          <div className="w-max h-max ml-auto mr-auto mt-auto mb-auto bg-slate-500">
+            <h1 className="w-max h-max ml-auto mr-auto">test</h1>
+          </div>
+        </div>
         <div className="bg-blue-500 w-2/6 h-full ml-auto flex flex-col">
           <h1 className="w-max ml-auto mr-auto text-3xl font-light mt-2">
             Modules
