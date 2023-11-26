@@ -23,7 +23,7 @@ import InvalidRoute from "./pages/InvalidRoute";
 import { AuthContext } from "./context/AuthContext";
 
 // import "./index.css"; // old pre-tailwind css
-// import "./invisibleScrollbar.css";
+import "./invisibleScrollbar.css";
 import "./styles.css"; // tailwindcss styles
 
 const useAuthContext = () => {
@@ -80,7 +80,7 @@ function App() {
       <BrowserRouter>
         <NavBar />
         <main>
-          <div className="pages" style={{ minHeight: "115vh" }}>
+          <div className="pages" style={{ minHeight: "102vh" }}>
             <Routes>
               <Route path="/" element={<Landing />} />
               <Route path="/home" element={<Home />} />
