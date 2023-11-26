@@ -7,6 +7,7 @@ import studio from "../assets/img/studio.jpg";
 import dive from "../assets/img/dive.jpg";
 import started from "../assets/img/started.jpg";
 import modules from "../assets/img/modules.jpg";
+import aman from "../assets/img/aman.jpg";
 
 const Landing = () => {
   const location = useLocation();
@@ -89,6 +90,10 @@ const Landing = () => {
           <Section1></Section1>
           <div className="w-11/12 h-1 border-b-2 border-gray-400 ml-auto mr-auto mt-2 mb-2"></div>
           <Section2></Section2>
+          <div className="w-11/12 h-1 border-b-2 border-gray-400 ml-auto mr-auto mt-2 mb-2"></div>
+          <Section3></Section3>
+          <div className="w-11/12 h-1 border-b-2 border-gray-400 ml-auto mr-auto mt-2 mb-2"></div>
+
           {/* <button
             onClick={() => {
               navigate("/home");
@@ -634,6 +639,110 @@ const Section2 = (): JSX.Element => {
             </h2>
           </div>
         </div>
+      </div>
+    </div>
+  );
+};
+
+const Section3 = (): JSX.Element => {
+  const creatorText =
+    "One of the main things I learned, from my years in the music production community, is the importance of feedback. Being able to have others provide meaningful feedback is one of the main ways that people improve and grow.";
+  const creatorText2 =
+    "I created ProdLodge as a way to, give back to the music production community, and develop my web development skills. ProdLodge's unique audio module system makes it unlike any other service I've seen or used.";
+  const creatorText3 =
+    "I plan on supporting ProdLodge indefinitely, adding features and expanding it's capabilities for all future users!";
+
+  const img1 = useRef<HTMLImageElement>(null);
+  const img2 = useRef<HTMLImageElement>(null);
+  const text1Ref = useRef<HTMLHeadingElement>(null);
+  const text2Ref = useRef<HTMLHeadingElement>(null);
+  const mainDivRef = useRef<HTMLDivElement>(null);
+  const [imageStyle, setImageStyle] = useState<Object>({
+    width: "45.83%",
+    height: "70vh",
+    objectFit: "cover",
+    transition: "all 0.1s",
+  });
+  const [overlayOffset, setOverlayOffset] = useState(0);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!img1 || !img1.current) {
+      return;
+    }
+
+    setOverlayOffset(img1.current.height / 100);
+  }, []);
+
+  useEffect(() => {
+    const observer = new ResizeObserver((e) => {
+      for (const entry of e) {
+        // console.log(entry.devicePixelContentBoxSize[0].inlineSize);
+        // console.log(entry.contentRect.height);
+
+        if (entry.contentRect.height > 540) {
+          // small screen image style
+          setImageStyle({
+            width: "91.6%",
+            // height: "53.5vh",
+            height: `${entry.contentRect.height / 2}px`,
+            objectFit: "cover",
+            transition: "all 0.1s",
+          });
+        } else {
+          setImageStyle({
+            // large screen image style
+            width: "45.83%",
+            // height: "70vh",
+            height: `${entry.contentRect.height}px`,
+            objectFit: "cover",
+            transition: "all 0.1s",
+          });
+        }
+      }
+    });
+
+    if (mainDivRef && mainDivRef.current) {
+      observer.observe(mainDivRef.current);
+    }
+
+    return () => {
+      if (mainDivRef && mainDivRef.current) {
+        observer.unobserve(mainDivRef.current);
+      }
+    };
+  }, [mainDivRef]);
+
+  return (
+    <div
+      className="hover:shadow-xl w-11/12 ml-auto mr-auto flex flex-col"
+      style={{ minHeight: "70vh", maxHeight: "140vh", transition: "all 0.8s" }}
+      ref={mainDivRef}
+    >
+      <div className="w-full h-1/6 mb-auto flex pt-2">
+        <h1 className="w-max ml-auto mr-auto mt-auto mb-auto font-light">
+          Message From the Creator
+        </h1>
+      </div>
+      <div className="w-11/12 h-max mb-auto ml-auto mr-auto flex flex-col md:flex-row">
+        <img
+          className="rounded-full shadow-2xl w-2/6 h-1/2 mt-8 md:mt-auto mb-auto ml-auto md:ml-auto mr-auto object-cover"
+          src={aman}
+          data-scroll
+          data-scroll-speed="1.5"
+        />
+        <h1 className="h-max mt-auto mb-auto font-light text-xl pl-10 pt-5 pb-5 ">
+          {creatorText}
+          <br></br>
+          <br></br>
+          {creatorText2}
+          <br></br>
+          <br></br>
+          {creatorText3}
+          <br></br>
+          <br></br>
+          <strong> - Aman Koua</strong>
+        </h1>
       </div>
     </div>
   );
