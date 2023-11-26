@@ -7,7 +7,7 @@ module.exports = {
       './src/components/*.{tsx,ts}',
       './src/pages/*.{tsx,ts}',
     ],
-    // enabled: false, // Disable tree shaking
+    enabled: true, // Disable tree shaking
   },
   // safelist: [
   //   {
