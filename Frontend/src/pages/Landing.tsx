@@ -135,8 +135,9 @@ const Section1 = (): JSX.Element => {
       for (const entry of e) {
         // console.log(entry.devicePixelContentBoxSize[0].inlineSize);
         // console.log(entry.contentRect.height);
+        // console.log(window.innerWidth);
 
-        if (entry.contentRect.height > 540) {
+        if (window.innerWidth < 640) {
           // small screen image style
           setImageStyle({
             width: "91.6%",
@@ -329,6 +330,8 @@ const Section2 = (): JSX.Element => {
     transition: "all 0.1s",
   });
   const [overlayOffset, setOverlayOffset] = useState(0);
+  const [customOverlayOffset, setCustomOverlayOffset] = useState(0);
+  const [img2Height, setImg2Height] = useState(0);
   const navigate = useNavigate();
 
   const highPassText1 =
@@ -365,6 +368,8 @@ const Section2 = (): JSX.Element => {
       return;
     }
 
+    // console.log(img1.current.height);
+
     setOverlayOffset(img1.current.height / 100);
   }, []);
 
@@ -373,25 +378,31 @@ const Section2 = (): JSX.Element => {
       for (const entry of e) {
         // console.log(entry.devicePixelContentBoxSize[0].inlineSize);
         // console.log(entry.contentRect.height);
-
-        if (entry.contentRect.height > 540) {
-          // small screen image style
-          setImageStyle({
-            width: "91.6%",
-            // height: "53.5vh",
-            height: `${entry.contentRect.height / 2}px`,
-            objectFit: "cover",
-            transition: "all 0.1s",
-          });
+        if (entry.target.tagName == "DIV") {
+          if (window.innerWidth < 640) {
+            // small screen image style
+            setImageStyle({
+              width: "91.6%",
+              // height: "53.5vh",
+              height: `${entry.contentRect.height / 2}px`,
+              objectFit: "cover",
+              transition: "all 0.1s",
+            });
+          } else {
+            setImageStyle({
+              // large screen image style
+              width: "45.83%",
+              // height: "70vh",
+              height: `${entry.contentRect.height}px`,
+              objectFit: "cover",
+              transition: "all 0.1s",
+            });
+          }
+        } else if (entry.target.tagName == "IMG") {
+          // console.log(entry.contentRect.height);
+          setCustomOverlayOffset(entry.contentRect.height / 2);
         } else {
-          setImageStyle({
-            // large screen image style
-            width: "45.83%",
-            // height: "70vh",
-            height: `${entry.contentRect.height}px`,
-            objectFit: "cover",
-            transition: "all 0.1s",
-          });
+          console.error("Resize oversrver error!");
         }
       }
     });
@@ -400,9 +411,16 @@ const Section2 = (): JSX.Element => {
       observer.observe(mainDivRef.current);
     }
 
+    if (img2 && img2.current) {
+      observer.observe(img2.current);
+    }
+
     return () => {
       if (mainDivRef && mainDivRef.current) {
         observer.unobserve(mainDivRef.current);
+      }
+      if (img2 && img2.current) {
+        observer.unobserve(img2.current);
       }
     };
   }, [mainDivRef]);
@@ -494,7 +512,8 @@ const Section2 = (): JSX.Element => {
           className="text-white h-max z-20 absolute text-center"
           style={{
             width: "45.83%",
-            marginTop: overlayOffset + 238,
+            // marginTop: overlayOffset + 238,
+            marginTop: customOverlayOffset - 15,
             transition: "all .1s",
           }}
           ref={text2Ref}
