@@ -97,3 +97,13 @@ Frontend:
 
   Lastly, ensure that the minimum height of the element is large enough to require a scrollbar (otherwise
   no scrollbar will appear!)
+
+
+  ----------------------------------------------------------------------------------------------------
+
+  Landing page deployment issues:
+
+    - Desktop, 125% zoom, vertical layout (small width). Some cards titles get cut off. Most importantly,
+      the "Message from the creator" section is cut off at the bottom.
+
+    - Mobile, horizontal, non-desktop mode. Has very similar issues to the point made above.
