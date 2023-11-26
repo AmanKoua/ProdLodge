@@ -81,7 +81,7 @@ const Landing = () => {
         <div
           data-scroll-section
           className="bg-gradient-to-b from-prodPrimary to-prodSecondary shadow-xl shadow-blue-200 w-full h-max mr-auto ml-auto pb-20 hide-scrollbar overflow-y-hidden flex flex-col"
-          style={{ minHeight: "175vh" }}
+          style={{ minHeight: "250vh" }}
         >
           <div className="h-14 w-max ml-auto mr-auto mt-12 flex flex-row">
             {generateFXText("Welcome to ProdLodge!")}
