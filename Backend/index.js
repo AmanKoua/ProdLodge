@@ -28,8 +28,7 @@ app.use('/comment', commentRouter);
 app.get('*', (req, res) => {
     res.setHeader("Content-Type", "application/javascript");
     res.sendFile(path.join(__dirname, 'dist', 'index.html'))
-    // res.status(200).json({ message: "Hello from prodlodge!" })
-})
+});
 
 mongoose.connect(process.env.MONGO_URI).then(async () => {
     app.listen(process.env.PORT, () => {

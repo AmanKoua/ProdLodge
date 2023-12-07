@@ -107,3 +107,14 @@ Frontend:
       the "Message from the creator" section is cut off at the bottom.
 
     - Mobile, horizontal, non-desktop mode. Has very similar issues to the point made above.
+
+----------------------------------------------------------------------------------------------------
+
+Current bugs to fix:
+  -Refreshing a page that is not the home results in error.
+  -Clicking on a friend's profile that is not yet set.
+  -Locomotive scroll messing up scrolling accross the entire application.
+      
+        Locomotive scroll is messing up the scrolling on other routes, because
+        when accessed the web page, it goes to the landing page, before switching
+        routes to the home route, for instance.

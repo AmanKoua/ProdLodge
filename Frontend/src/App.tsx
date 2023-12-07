@@ -77,30 +77,30 @@ function App() {
 
   return (
     <div className="app w-full h-screen scroll-smooth">
-      <BrowserRouter>
-        <NavBar />
-        <main>
-          <div className="pages" style={{ minHeight: "102vh" }}>
-            <Routes>
-              <Route path="/" element={<Landing />} />
-              <Route path="/home" element={<Home />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<Signup />} />
-              <Route path="/myProfile" element={<UserProfile />} />
-              <Route
-                path="/userProfile/:id"
-                element={<FriendProfilePage />}
-              ></Route>
-              <Route path="/newSong" element={<NewSong />} />
-              <Route path="/editSong" element={<EditSong />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/404" element={<InvalidRoute />} />
-              <Route path="*" element={<Navigate to="/404" />} />
-              {/* Catch all for unregistered routes */}
-            </Routes>
-          </div>
-        </main>
-      </BrowserRouter>
+      {/* <BrowserRouter> */}
+      <NavBar />
+      <main>
+        <div className="pages" style={{ minHeight: "102vh" }}>
+          <Routes>
+            <Route path="/" element={<Landing />} />
+            <Route path="/home" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/myProfile" element={<UserProfile />} />
+            <Route
+              path="/userProfile/:id"
+              element={<FriendProfilePage />}
+            ></Route>
+            <Route path="/newSong" element={<NewSong />} />
+            <Route path="/editSong" element={<EditSong />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/404" element={<InvalidRoute />} />
+            <Route path="*" element={<Navigate to="/404" />} />
+            {/* Catch all for unregistered routes */}
+          </Routes>
+        </div>
+      </main>
+      {/* </BrowserRouter> */}
     </div>
   );
 }
