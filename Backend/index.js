@@ -19,6 +19,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static('dist'));
 
+app.use("/home/", express.static('dist')); // to prevent refreshing home page bug
 app.use('/user', userRouter);
 app.use('/upload', uploadRouter);
 app.use('/tracks', tracksRouter);
