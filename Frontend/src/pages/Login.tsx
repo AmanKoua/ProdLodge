@@ -18,7 +18,7 @@ const Login = () => {
     const item = localStorage.getItem("user");
 
     if (item) {
-      navigate("/");
+      navigate("/home");
     }
   };
 
@@ -77,7 +77,7 @@ const Login = () => {
     } else {
       authContext.dispatch({ type: "LOGIN", payload: json }); // save returned object to global state
       localStorage.setItem("user", JSON.stringify(json));
-      navigate("/");
+      navigate("/home");
     }
   };
 
