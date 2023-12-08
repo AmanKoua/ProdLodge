@@ -72,6 +72,11 @@ const FriendProfilePage = () => {
 
     if (response.ok) {
       const json = await response.json();
+
+      console.log("-------------------------");
+      console.log(json);
+      console.log("------------------------");
+
       setUserProfile(json.profile);
       setIsProfileLoading(false);
     } else if (response.status == 403) {
@@ -191,86 +196,110 @@ const FriendProfilePage = () => {
             <div className="w-max  mr-auto ">
               <h1 className="text-xl">User Name: {userProfile!.userName}</h1>
             </div>
-            <div className="w-max  mr-auto ">
-              <h1 className="text-xl">
-                soundcloud URL:{" "}
-                {userProfile!.socialMediaHandles.soundcloud && (
-                  <a
-                    href={`http://${
-                      userProfile!.socialMediaHandles.soundcloud
-                    }`}
-                  >
-                    {userProfile!.socialMediaHandles.soundcloud}
-                  </a>
-                )}
-              </h1>
-            </div>
-            <div className="w-max  mr-auto ">
-              <h1 className="text-xl">
-                Bandcamp URL:{" "}
-                {userProfile!.socialMediaHandles.bandcamp && (
-                  <a
-                    href={`http://${userProfile!.socialMediaHandles.bandcamp}`}
-                  >
-                    {userProfile!.socialMediaHandles.bandcamp}
-                  </a>
-                )}
-              </h1>
-            </div>
-            <div className="w-max  mr-auto ">
-              <h1 className="text-xl">
-                Spotify URL:{" "}
-                {userProfile!.socialMediaHandles.spotify && (
-                  <a href={`http://${userProfile!.socialMediaHandles.spotify}`}>
-                    {userProfile!.socialMediaHandles.spotify}
-                  </a>
-                )}
-              </h1>
-            </div>
-            <div className="w-max  mr-auto ">
-              <h1 className="text-xl">
-                Youtube URL:{" "}
-                {userProfile!.socialMediaHandles.youtube && (
-                  <a href={`http://${userProfile!.socialMediaHandles.youtube}`}>
-                    {userProfile!.socialMediaHandles.youtube}
-                  </a>
-                )}
-              </h1>
-            </div>
-            <div className="w-max  mr-auto ">
-              <h1 className="text-xl">
-                Twitter URL:{" "}
-                {userProfile!.socialMediaHandles.twitter && (
-                  <a href={`http://${userProfile!.socialMediaHandles.twitter}`}>
-                    {userProfile!.socialMediaHandles.twitter}
-                  </a>
-                )}
-              </h1>
-            </div>
-            <div className="w-max  mr-auto ">
-              <h1 className="text-xl">
-                Facebook URL:{" "}
-                {userProfile!.socialMediaHandles.facebook && (
-                  <a
-                    href={`http://${userProfile!.socialMediaHandles.facebook}`}
-                  >
-                    {userProfile!.socialMediaHandles.facebook}
-                  </a>
-                )}
-              </h1>
-            </div>
-            <div className="w-max  mr-auto ">
-              <h1 className="text-xl">
-                Instagram URL:{" "}
-                {userProfile!.socialMediaHandles.instagram && (
-                  <a
-                    href={`http://${userProfile!.socialMediaHandles.instagram}`}
-                  >
-                    {userProfile!.socialMediaHandles.instagram}
-                  </a>
-                )}
-              </h1>
-            </div>
+
+            {userProfile!.socialMediaHandles == null && <></>}
+            {userProfile!.socialMediaHandles != null && (
+              <>
+                <div className="w-max  mr-auto ">
+                  <h1 className="text-xl">
+                    soundcloud URL:{" "}
+                    {userProfile!.socialMediaHandles.soundcloud && (
+                      <a
+                        href={`http://${
+                          userProfile!.socialMediaHandles.soundcloud
+                        }`}
+                      >
+                        {userProfile!.socialMediaHandles.soundcloud}
+                      </a>
+                    )}
+                  </h1>
+                </div>
+                <div className="w-max  mr-auto ">
+                  <h1 className="text-xl">
+                    Bandcamp URL:{" "}
+                    {userProfile!.socialMediaHandles.bandcamp && (
+                      <a
+                        href={`http://${
+                          userProfile!.socialMediaHandles.bandcamp
+                        }`}
+                      >
+                        {userProfile!.socialMediaHandles.bandcamp}
+                      </a>
+                    )}
+                  </h1>
+                </div>
+                <div className="w-max  mr-auto ">
+                  <h1 className="text-xl">
+                    Spotify URL:{" "}
+                    {userProfile!.socialMediaHandles.spotify && (
+                      <a
+                        href={`http://${
+                          userProfile!.socialMediaHandles.spotify
+                        }`}
+                      >
+                        {userProfile!.socialMediaHandles.spotify}
+                      </a>
+                    )}
+                  </h1>
+                </div>
+                <div className="w-max  mr-auto ">
+                  <h1 className="text-xl">
+                    Youtube URL:{" "}
+                    {userProfile!.socialMediaHandles.youtube && (
+                      <a
+                        href={`http://${
+                          userProfile!.socialMediaHandles.youtube
+                        }`}
+                      >
+                        {userProfile!.socialMediaHandles.youtube}
+                      </a>
+                    )}
+                  </h1>
+                </div>
+                <div className="w-max  mr-auto ">
+                  <h1 className="text-xl">
+                    Twitter URL:{" "}
+                    {userProfile!.socialMediaHandles.twitter && (
+                      <a
+                        href={`http://${
+                          userProfile!.socialMediaHandles.twitter
+                        }`}
+                      >
+                        {userProfile!.socialMediaHandles.twitter}
+                      </a>
+                    )}
+                  </h1>
+                </div>
+                <div className="w-max  mr-auto ">
+                  <h1 className="text-xl">
+                    Facebook URL:{" "}
+                    {userProfile!.socialMediaHandles.facebook && (
+                      <a
+                        href={`http://${
+                          userProfile!.socialMediaHandles.facebook
+                        }`}
+                      >
+                        {userProfile!.socialMediaHandles.facebook}
+                      </a>
+                    )}
+                  </h1>
+                </div>
+                <div className="w-max  mr-auto ">
+                  <h1 className="text-xl">
+                    Instagram URL:{" "}
+                    {userProfile!.socialMediaHandles.instagram && (
+                      <a
+                        href={`http://${
+                          userProfile!.socialMediaHandles.instagram
+                        }`}
+                      >
+                        {userProfile!.socialMediaHandles.instagram}
+                      </a>
+                    )}
+                  </h1>
+                </div>
+              </>
+            )}
           </div>
         </div>
 

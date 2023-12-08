@@ -112,9 +112,17 @@ Frontend:
 
 Current bugs to fix:
   -Refreshing a page that is not the home results in error.
+      The problem was with how express was serving the static files.
+
+      The BrowserRouter component was lifted up a level in an attempt
+      to resolve the problem originally. The application still works, 
+      and this should not be an issue.
+
   -Clicking on a friend's profile that is not yet set.
   -Locomotive scroll messing up scrolling accross the entire application.
       
         Locomotive scroll is messing up the scrolling on other routes, because
         when accessed the web page, it goes to the landing page, before switching
         routes to the home route, for instance.
+
+        Try using the prevent routing code outside of the useEffect hook
