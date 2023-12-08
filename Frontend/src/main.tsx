@@ -9,15 +9,15 @@ import "bootstrap/dist/css/bootstrap.css"; // styles will only work if imported 
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   // Remove Strict mode to prevent useEffect hooks from running 2 times!
-  <React.StrictMode>
-    <EnvironmentContextProvider>
-      <AuthContextProvider>
-        <ProfileContextProvider>
-          <BrowserRouter>
-            <App />
-          </BrowserRouter>
-        </ProfileContextProvider>
-      </AuthContextProvider>
-    </EnvironmentContextProvider>
-  </React.StrictMode>
+  // <React.StrictMode>
+  <EnvironmentContextProvider>
+    <AuthContextProvider>
+      <ProfileContextProvider>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </ProfileContextProvider>
+    </AuthContextProvider>
+  </EnvironmentContextProvider>
+  // </React.StrictMode>
 );
