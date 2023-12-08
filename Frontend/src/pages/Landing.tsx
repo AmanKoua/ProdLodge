@@ -1,7 +1,6 @@
-import { useRef, useEffect, useState, useLayoutEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { LocomotiveScrollProvider } from "react-locomotive-scroll";
-import "locomotive-scroll/dist/locomotive-scroll.css";
 
 import studio from "../assets/img/studio.jpg";
 import dive from "../assets/img/dive.jpg";
