@@ -20,7 +20,7 @@ const Signup = () => {
     const item = localStorage.getItem("user");
 
     if (item) {
-      navigate("/");
+      navigate("/home");
     }
   };
 
@@ -86,7 +86,7 @@ const Signup = () => {
     if (response.ok) {
       authContext.dispatch({ type: "LOGIN", payload: json }); // save returned object to global state
       localStorage.setItem("user", JSON.stringify(json));
-      navigate("/");
+      navigate("/home");
     } else {
       setError(json.error);
     }
