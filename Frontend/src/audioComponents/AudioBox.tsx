@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useContext } from "react";
+import fs from "fs";
 import CSS from "csstype";
 
 import AudioController from "./AudioController";
@@ -133,6 +134,10 @@ const AudioBox = ({ songData, isPageSwitched, setIsSongPayloadSet }: Props) => {
   // Page status
   let hasUserGestured: boolean;
   let setHasUserGestured: (val: boolean) => void;
+  let isFDNReverbImporting: boolean;
+  let setIsFDNReverbImporting: (val: boolean) => void;
+  let isFDNReverbReady: boolean;
+  let setIsFDNReverbReady: (val: boolean) => void;
   let areAudioNodesReady: boolean;
   let setAreAudioNodesReady: (val: boolean) => void;
   let isVisualizing: boolean;
@@ -167,6 +172,8 @@ const AudioBox = ({ songData, isPageSwitched, setIsSongPayloadSet }: Props) => {
   [isVisualizing, setIsVisualizing] = useState(false);
   [isPlaying, setIsPlaying] = useState(false); // need to make these global!
   [hasUserGestured, setHasUserGestured] = useState(false); // Keep track of first gesture required to initialize audioCtx
+  [isFDNReverbImporting, setIsFDNReverbImporting] = useState(false);
+  [isFDNReverbReady, setIsFDNReverbReady] = useState(false);
   [isConfigurationLoading, setIsConfigurationLoading] = useState(false);
   [isSongDataContainerHover, setIsSongDataContainerHover] = useState(false);
   [isCommentsSectionDisplayed, setIsCommentsSectionDisplayed] = useState(false);
@@ -215,6 +222,37 @@ const AudioBox = ({ songData, isPageSwitched, setIsSongPayloadSet }: Props) => {
       console.log("audio context init!");
       setACtx(new AudioContext());
     }, [hasUserGestured]);
+  };
+
+  let useImportFDNReverbWorklet = (
+    isFDNReverbImporting: boolean,
+    setIsFDNReverbImporting: (val: boolean) => void,
+    isFDNReverbReady: boolean,
+    setIsFDNReverbReady: (val: boolean) => void
+  ) => {
+    useEffect(() => {
+      if (!aCtx || isFDNReverbImporting || isFDNReverbReady) {
+        return;
+      }
+
+      setIsFDNReverbImporting(true);
+
+      (async () => {
+        try {
+          await aCtx.audioWorklet.addModule(
+            "src/audioWorklets/FDNReverbWorklet.js"
+          );
+        } catch (e) {
+          console.error("Error importing FDN reverb audio worklet!");
+          console.error(e);
+          setIsFDNReverbImporting(false);
+          return;
+        }
+
+        setIsFDNReverbImporting(false);
+        setIsFDNReverbReady(true);
+      })();
+    }, [aCtx]);
   };
 
   let useFetchAudioAndInitNodes = (
@@ -819,6 +857,13 @@ const AudioBox = ({ songData, isPageSwitched, setIsSongPayloadSet }: Props) => {
 
   useInitAudioCtx(hasUserGestured, setACtx);
 
+  useImportFDNReverbWorklet(
+    isFDNReverbImporting,
+    setIsFDNReverbImporting,
+    isFDNReverbReady,
+    setIsFDNReverbReady
+  );
+
   useFetchAudioAndInitNodes(
     aCtx,
     impulsesJSON,
@@ -1228,6 +1273,33 @@ const AudioBox = ({ songData, isPageSwitched, setIsSongPayloadSet }: Props) => {
           setAudioNodesChanged(true);
         }, 10);
         break;
+      case "FDNReverb":
+        if (!isFDNReverbReady) {
+          console.warn(
+            "Cannot add FDN reverb audio node until it's been imported!"
+          );
+        }
+
+        tempAudioNode = new AudioWorkletNode(aCtx!, "FDNReverb");
+
+        tempAudioNode.parameters
+          .get("WetPercent")
+          ?.setValueAtTime(data.wetPercent!, aCtx!.currentTime);
+
+        tempAudioNode.parameters
+          .get("MsDelaySize")
+          ?.setValueAtTime(data.msDelaySize!, aCtx!.currentTime);
+
+        tempAudioNode.parameters
+          .get("DiffuserCount")
+          ?.setValueAtTime(data.diffuserCount!, aCtx!.currentTime);
+
+        insertAudioNode(audioNodes, tempAudioNode, currentTrackIdx);
+        setAudioNodes(audioNodes);
+        setTimeout(() => {
+          setAudioNodesChanged(true);
+        }, 10);
+        break;
       case "Waveshaper":
         tempAudioNode = aCtx!.createWaveShaper();
         tempAudioNode.curve = generateDistcurve(data.amount!);
@@ -1543,11 +1615,6 @@ const AudioBox = ({ songData, isPageSwitched, setIsSongPayloadSet }: Props) => {
     tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].isEnabled = true;
 
     // module specific settings
-    /*
-      AudioModule freq and resonance are initially set here,
-      but then their values are set from the audioNodes that
-      they represent.
-    */
     if (type === "Highpass") {
       tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].frequency = 20;
       tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].resonance = 0;
@@ -1560,6 +1627,17 @@ const AudioBox = ({ songData, isPageSwitched, setIsSongPayloadSet }: Props) => {
       tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].gain = 15;
     } else if (type === "Reverb") {
       tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].impulse = 1;
+    } else if (type === "FDNReverb") {
+      if (!isFDNReverbReady || isFDNReverbImporting) {
+        console.warn(
+          "Cannot set module type to FDN reverb beacuase it's still importing OR it's not ready!"
+        );
+        return;
+      }
+
+      tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].wetPercent = 100;
+      tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].msDelaySize = 25;
+      tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].diffuserCount = 10;
     } else if (type === "Waveshaper") {
       tempAudioModulesData[moduleIndex[0]][moduleIndex[1]].amount = 1;
     } else if (type === "Gain") {
