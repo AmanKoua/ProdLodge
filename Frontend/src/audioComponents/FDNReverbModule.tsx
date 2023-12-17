@@ -121,9 +121,21 @@ const FDNReverbModule = ({
     setAudioNodesChanged(true);
   };
 
-  const handleImpulseSliderChange = (event: any) => {
+  const handleWetPercentSliderChange = (event: any) => {
     let tempData = data;
-    tempData.impulse = event.target.value;
+    tempData.wetPercent = event.target.value;
+    editAudioNodeData(data, position);
+  };
+
+  const handleMsDelaySizeSliderChange = (event: any) => {
+    let tempData = data;
+    tempData.msDelaySize = event.target.value;
+    editAudioNodeData(data, position);
+  };
+
+  const handleDiffuserCountSliderChange = (event: any) => {
+    let tempData = data;
+    tempData.diffuserCount = event.target.value;
     editAudioNodeData(data, position);
   };
 
@@ -152,15 +164,39 @@ const FDNReverbModule = ({
         </div>
         <h1 className="text-xl w-max mr-auto ml-auto">FDN Reverb</h1>
         <div className="w-max mr-auto ml-auto">
-          <p>size : {data.impulse}</p>
+          <p>Dry / Wet : {data.wetPercent}</p>
         </div>
         <div className="w-max mr-auto ml-auto">
           <input
             type={"range"}
             min={0}
-            max={17}
-            value={data.impulse}
-            onChange={handleImpulseSliderChange}
+            max={100}
+            value={data.wetPercent}
+            onChange={handleWetPercentSliderChange}
+          ></input>
+        </div>
+        <div className="w-max mr-auto ml-auto">
+          <p>Size (ms): {data.msDelaySize}</p>
+        </div>
+        <div className="w-max mr-auto ml-auto">
+          <input
+            type={"range"}
+            min={5}
+            max={1500}
+            value={data.msDelaySize}
+            onChange={handleMsDelaySizeSliderChange}
+          ></input>
+        </div>
+        <div className="w-max mr-auto ml-auto">
+          <p>Quality: {data.diffuserCount}</p>
+        </div>
+        <div className="w-max mr-auto ml-auto">
+          <input
+            type={"range"}
+            min={2}
+            max={25}
+            value={data.diffuserCount}
+            onChange={handleDiffuserCountSliderChange}
           ></input>
         </div>
         <br></br>

@@ -1558,6 +1558,20 @@ const AudioBox = ({ songData, isPageSwitched, setIsSongPayloadSet }: Props) => {
     } else if (data.type === "Reverb") {
       let temp = tempAudioNodesSubArr![row][column] as ConvolverNode;
       temp.buffer = impulseBuffers![data.impulse!];
+    } else if (data.type === "FDNReverb") {
+      let temp = tempAudioNodesSubArr![row][column] as AudioWorkletNode;
+
+      temp.parameters
+        .get("WetPercent")!
+        .setValueAtTime(data.wetPercent!, aCtx!.currentTime);
+
+      temp.parameters
+        .get("MsDelaySize")!
+        .setValueAtTime(data.msDelaySize!, aCtx!.currentTime);
+
+      temp.parameters
+        .get("DiffuserCount")!
+        .setValueAtTime(data.diffuserCount!, aCtx!.currentTime);
     } else if (data.type === "Waveshaper") {
       let temp = tempAudioNodesSubArr![row][column] as WaveShaperNode;
       temp.curve = generateDistcurve(data.amount!);

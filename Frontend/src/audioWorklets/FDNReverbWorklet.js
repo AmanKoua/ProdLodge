@@ -313,9 +313,7 @@ class Processor {
         const dryPercent = 100 - wetPercent;
 
         if (this.diffusionMs != parameters.MsDelaySize[0] || this.diffuserCount != parameters.DiffuserCount[0]) {
-
-            console.log("Param change!");
-
+            // console.log("Param change!");
             this.isReady = false; // lock the process function until done configuring
 
             if (this.diffuserCount != parameters.DiffuserCount[0]) {
@@ -334,16 +332,16 @@ class Processor {
 
 
         if (input[0].length != output[0].length) {
-            if (this.errorCount % 5000 == 0) {
-                console.error("Input and output are not of the same channel length!"); // expecting each to be 2 channels
+            if (this.errorCount % 10000 == 0) {
+                console.warn("Input and output are not of the same channel length!"); // expecting each to be 2 channels
                 this.errorCount = 0;
             }
             return;
         }
 
         if (input[0][0].length != input[0][1].length) {
-            if (this.errorCount % 5000 == 0) {
-                console.error("left and right channel sample buffers are not of the same length!");
+            if (this.errorCount % 10000 == 0) {
+                console.warn("left and right channel sample buffers are not of the same length!");
                 this.errorCount = 0;
             }
             return;
