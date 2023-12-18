@@ -126,3 +126,12 @@ Current bugs to fix:
         routes to the home route, for instance.
 
         Try using the prevent routing code outside of the useEffect hook
+
+---------------------------------------------------------------------------------------------------
+
+in order to fix audioworklets not working in deployment bug, perform the following steps:
+
+  - Go into the genrated js file in the dist/assets directoy. ctrl + F and search for `${audio-worklet-name}.js`.
+    change path to "/assets/audio-worklet-name.js".
+
+  - Copy the audio worklet source code and paste directly into the assets folder
