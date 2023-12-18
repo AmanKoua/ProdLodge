@@ -1,4 +1,5 @@
 import CSS from "csstype";
+import { useState } from "react";
 import deleteButton from "../assets/delete.png";
 import moveLeftButton from "../assets/moveLeft.png";
 import moveRightButton from "../assets/moveRight.png";
@@ -23,6 +24,13 @@ const FDNReverbModule = ({
   moveAudioModuleAndNode,
 }: Props) => {
   // console.log(data);
+
+  let [qualityClassName, setQualityClassName] = useState<string>(
+    "w-max ml-auto mr-auto"
+  );
+  let [toolTipClassName, setToolTipClassName] = useState<string>(
+    "w-full border-2 border-gray-400 pl-1 shadow-xl rounded-xl"
+  );
 
   const AudioModuleStyle: CSS.Properties = {
     position: "relative",
@@ -136,6 +144,17 @@ const FDNReverbModule = ({
   const handleDiffuserCountSliderChange = (event: any) => {
     let tempData = data;
     tempData.diffuserCount = event.target.value;
+
+    if (event.target.value < 5) {
+      setQualityClassName("w-max ml-auto mr-auto");
+    } else if (event.target.value >= 5 && event.target.value < 10) {
+      setQualityClassName("w-max ml-auto mr-auto text-orange-600");
+    } else if (event.target.value >= 10) {
+      setQualityClassName(
+        "w-max ml-auto mr-auto text-red-600 font-bold animate-pulse"
+      );
+    }
+
     editAudioNodeData(data, position);
   };
 
@@ -155,7 +174,7 @@ const FDNReverbModule = ({
 
   return (
     <div className=" w-4/12 h-full ml-1 mr-1 rounded-md border-gray-400 border-r-2 border-l-2 border-t-2 border-b-2 shadow-sm">
-      <div className=" w-10/12 h-full ml-auto mr-auto pt-1 overflow-y-scroll hide-scrollbar ">
+      <div className="w-10/12 h-full ml-auto mr-auto pt-1 overflow-y-scroll hide-scrollbar ">
         <div className="flex justify-between">
           <img
             src={moveLeftButton}
@@ -193,8 +212,37 @@ const FDNReverbModule = ({
             onChange={handleMsDelaySizeSliderChange}
           ></input>
         </div>
-        <div className="w-max mr-auto ml-auto">
-          <p>Quality: {data.diffuserCount}</p>
+        <div className="w-full mr-auto ml-auto">
+          <p
+            className={qualityClassName}
+            onMouseEnter={(e) => {
+              if (data.diffuserCount! > 4) {
+                setToolTipClassName(
+                  "w-full border-2 border-gray-400 pl-1 shadow-xl rounded-xl"
+                );
+              }
+            }}
+            onMouseLeave={(e) => {
+              setToolTipClassName("hidden");
+            }}
+          >
+            Quality: {data.diffuserCount}
+          </p>
+          <div
+            className={toolTipClassName}
+            onMouseEnter={(e) => {
+              if (data.diffuserCount! > 4) {
+                setToolTipClassName(
+                  "w-full border-2 border-gray-400 pl-1 shadow-xl rounded-xl"
+                );
+              }
+            }}
+            onMouseLeave={(e) => {
+              setToolTipClassName("hidden");
+            }}
+          >
+            <p>Higher quality values may cause your device to slow down!</p>
+          </div>
         </div>
         <div className="w-max mr-auto ml-auto">
           <input
