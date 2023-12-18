@@ -410,7 +410,7 @@ const SongCommentSection = ({
           {temp.map((item, idx) => (
             <div
               className="bg-gray-200 w-10/12 h-20 ml-auto mr-auto mt-4 pb-1 border border-black animate-pulse"
-              key={idx}
+              key={idx + 100 * 4}
             ></div>
           ))}
           ;
@@ -446,6 +446,7 @@ const SongCommentSection = ({
                   {isReply && (
                     <div
                       className="bg-gray-400 w-1 h-28 absolute"
+                      key={idx + 100}
                       style={{
                         marginLeft: `${6}%` /* Shift comments over based on whether or not it is a reply. Standard is 8% */,
                         marginTop: "2.4%",
@@ -454,6 +455,7 @@ const SongCommentSection = ({
                   )}
 
                   <div
+                    key={idx + 100 * 2}
                     className="w-10/12 h-max ml-auto mr-auto mt-4 pb-1 shadow-md"
                     style={{
                       marginLeft: `${
@@ -617,6 +619,7 @@ const SongCommentSection = ({
                   </div>
                   {item[1].replyList.length > 0 && (
                     <div
+                      key={idx + 100 * 3}
                       className={
                         currentHoverTarget == item[0]
                           ? "shadow-sm h-6 w-3/12 rounded-b-lg flex ml-auto mr-auto justify-center overflow-hidden"
