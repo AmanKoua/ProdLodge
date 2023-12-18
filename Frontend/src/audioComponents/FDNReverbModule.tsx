@@ -26,7 +26,7 @@ const FDNReverbModule = ({
   // console.log(data);
 
   let [qualityClassName, setQualityClassName] = useState<string>(
-    "w-max ml-auto mr-auto"
+    "w-max ml-auto mr-auto text-orange-600"
   );
   let [toolTipClassName, setToolTipClassName] = useState<string>(
     "w-full border-2 border-gray-400 pl-1 shadow-xl rounded-xl"
