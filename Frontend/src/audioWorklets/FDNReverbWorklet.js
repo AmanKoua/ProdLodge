@@ -212,9 +212,9 @@ class Diffuser {
         this.sampleBuffer = new Float32Array(channelCount).fill(0);
         this.delayedChannels = new Array(channelCount); // Array of delays, 1 for each channel
         this.polarity = new Array(channelCount);
-        this.prevTemp = 0;
+        // this.prevTemp = 0;
 
-        console.log("\n");
+        // console.log("\n");
 
         for (let i = 0; i < channelCount; i++) {
             // const temp = Math.floor(Math.random() * maxMsDelay); // Distribute delay times out randomly
@@ -250,10 +250,14 @@ class Diffuser {
 
     }
 
+    /*
+        Distribute MS times out in such a way that they are grouped
+        more closely near the lower range, and more less so at the 
+        higher range.
+    */
     static distribute(index, maxChannelCount, maxMsDelay) {
         const dist = -(index - maxChannelCount);
-        // exponent determines how tightly values are distributed near 0 ms. 2.0 is too tight, 1.0 is too loose
-        return maxMsDelay / Math.pow(dist, 1.1);
+        return maxMsDelay / Math.pow(dist, 1.1); // 2.0 is too tight, 1.0 is too loose
     }
 
 }
@@ -333,7 +337,7 @@ class Processor {
 
         if (input[0].length != output[0].length) {
             if (this.errorCount % 10000 == 0) {
-                console.warn("Input and output are not of the same channel length!"); // expecting each to be 2 channels
+                // console.warn("Input and output are not of the same channel length!"); // expecting each to be 2 channels
                 this.errorCount = 0;
             }
             return;
@@ -341,7 +345,7 @@ class Processor {
 
         if (input[0][0].length != input[0][1].length) {
             if (this.errorCount % 10000 == 0) {
-                console.warn("left and right channel sample buffers are not of the same length!");
+                // console.warn("left and right channel sample buffers are not of the same length!");
                 this.errorCount = 0;
             }
             return;
@@ -390,7 +394,7 @@ class FDNReverb extends AudioWorkletProcessor {
 
     process(inputList, outputList, parameters) {
         this.processor.process(inputList, outputList, parameters);
-        return true;
+        return parameters.IsKill[0] == 1 ? false : true;
     }
 
     static get parameterDescriptors() {
@@ -412,6 +416,12 @@ class FDNReverb extends AudioWorkletProcessor {
                 defaultValue: 10,
                 minValue: 2,
                 maxValue: 25,
+            },
+            {
+                name: "IsKill",
+                defaultValue: 0,
+                minValue: 0, // dont kill
+                maxValue: 1, // kill
             }
         ];
     }

@@ -38,6 +38,7 @@ export interface AudioModule {
   wetPercent?: number; // FDN reverb
   msDelaySize?: number; // FDN reverb
   diffuserCount?: number; // FDN reverb
+  isKill?: number;
   amount?: number;
   threshold?: number;
   knee?: number;

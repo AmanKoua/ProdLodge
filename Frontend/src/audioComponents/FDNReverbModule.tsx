@@ -139,6 +139,12 @@ const FDNReverbModule = ({
     editAudioNodeData(data, position);
   };
 
+  const killAudioNode = () => {
+    let tempData = data;
+    tempData.isKill = 1;
+    editAudioNodeData(data, position);
+  };
+
   const handleLeftButtonClick = () => {
     moveAudioModuleAndNode(position, true);
   };
@@ -162,7 +168,7 @@ const FDNReverbModule = ({
             className="w-2/12"
           ></img>
         </div>
-        <h1 className="text-xl w-max mr-auto ml-auto">FDN Reverb</h1>
+        <h1 className="text-xl w-max mr-auto ml-auto">Reverb</h1>
         <div className="w-max mr-auto ml-auto">
           <p>Dry / Wet : {data.wetPercent}</p>
         </div>
@@ -208,7 +214,10 @@ const FDNReverbModule = ({
           ></div>
           <img
             src={deleteButton}
-            onClick={handleDeleteIconClick}
+            onClick={(e) => {
+              killAudioNode();
+              handleDeleteIconClick(e);
+            }}
             className="w-2/12"
           ></img>
         </div>

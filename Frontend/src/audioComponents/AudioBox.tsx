@@ -1561,17 +1561,23 @@ const AudioBox = ({ songData, isPageSwitched, setIsSongPayloadSet }: Props) => {
     } else if (data.type === "FDNReverb") {
       let temp = tempAudioNodesSubArr![row][column] as AudioWorkletNode;
 
-      temp.parameters
-        .get("WetPercent")!
-        .setValueAtTime(data.wetPercent!, aCtx!.currentTime);
+      if (data.isKill == 1) {
+        temp.parameters
+          .get("IsKill")!
+          .setValueAtTime(data.isKill!, aCtx!.currentTime);
+      } else {
+        temp.parameters
+          .get("WetPercent")!
+          .setValueAtTime(data.wetPercent!, aCtx!.currentTime);
 
-      temp.parameters
-        .get("MsDelaySize")!
-        .setValueAtTime(data.msDelaySize!, aCtx!.currentTime);
+        temp.parameters
+          .get("MsDelaySize")!
+          .setValueAtTime(data.msDelaySize!, aCtx!.currentTime);
 
-      temp.parameters
-        .get("DiffuserCount")!
-        .setValueAtTime(data.diffuserCount!, aCtx!.currentTime);
+        temp.parameters
+          .get("DiffuserCount")!
+          .setValueAtTime(data.diffuserCount!, aCtx!.currentTime);
+      }
     } else if (data.type === "Waveshaper") {
       let temp = tempAudioNodesSubArr![row][column] as WaveShaperNode;
       temp.curve = generateDistcurve(data.amount!);
