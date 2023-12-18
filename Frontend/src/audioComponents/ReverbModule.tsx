@@ -150,7 +150,7 @@ const ReverbModule = ({
             className="w-2/12"
           ></img>
         </div>
-        <h1 className="text-xl w-max mr-auto ml-auto">Reverb</h1>
+        <h1 className="text-xl w-max mr-auto ml-auto">Convolver</h1>
         <div className="w-max mr-auto ml-auto">
           <p>size : {data.impulse}</p>
         </div>

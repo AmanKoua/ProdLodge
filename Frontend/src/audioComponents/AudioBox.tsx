@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect, useContext } from "react";
-import fs from "fs";
 import CSS from "csstype";
 
 import AudioController from "./AudioController";

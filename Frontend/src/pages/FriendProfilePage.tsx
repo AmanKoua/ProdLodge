@@ -73,9 +73,9 @@ const FriendProfilePage = () => {
     if (response.ok) {
       const json = await response.json();
 
-      console.log("-------------------------");
-      console.log(json);
-      console.log("------------------------");
+      // console.log("-------------------------");
+      // console.log(json);
+      // console.log("------------------------");
 
       setUserProfile(json.profile);
       setIsProfileLoading(false);
