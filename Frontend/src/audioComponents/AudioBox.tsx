@@ -2024,12 +2024,12 @@ const AudioBox = ({ songData, isPageSwitched, setIsSongPayloadSet }: Props) => {
             <h1
               style={{
                 fontSize: "15px",
-                marginTop: "8px",
+                marginTop: "15px",
                 textAlign: "center",
               }}
               className="ml-1 pl-1 pr-1 backdrop-blur-sm font-normal"
             >
-              Description: {songData.description}
+              {songData.description}
             </h1>
           </div>
         </div>
@@ -2103,6 +2103,7 @@ const AudioBox = ({ songData, isPageSwitched, setIsSongPayloadSet }: Props) => {
         >
           <p
             className="hover:font-bold"
+            style={{ transition: "all .1s" }}
             onClick={() => {
               setIsCommentsSectionDisplayed(!isCommentsSectionDisplayed);
             }}
