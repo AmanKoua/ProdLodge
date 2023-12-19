@@ -10,7 +10,7 @@ const Login = () => {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [parentDivHeight, setParentDivHeight] = useState<number>(0);
-  const [marginTopHeight, setMarginTopHeight] = useState<any>(undefined);
+  const [marginTopHeight, setMarginTopHeight] = useState<any>(0);
   const authContext = useContext(AuthContext); // user and dispatch properties
   const envContext = useContext(EnvironmentContext);
   const navigate = useNavigate();
@@ -46,7 +46,7 @@ const Login = () => {
   }, [message, error]);
 
   useEffect(() => {
-    if (marginTopHeight != undefined) {
+    if (marginTopHeight != 0) {
       return;
     }
 
