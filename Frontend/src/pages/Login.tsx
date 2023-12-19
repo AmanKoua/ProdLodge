@@ -9,6 +9,8 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const [parentDivHeight, setParentDivHeight] = useState<number>(0);
+  const [marginTopHeight, setMarginTopHeight] = useState<any>(undefined);
   const authContext = useContext(AuthContext); // user and dispatch properties
   const envContext = useContext(EnvironmentContext);
   const navigate = useNavigate();
@@ -42,6 +44,21 @@ const Login = () => {
       clearTimeout(temp);
     };
   }, [message, error]);
+
+  useEffect(() => {
+    if (marginTopHeight != undefined) {
+      return;
+    }
+
+    let parentDiv = document.getElementById("ProdLodgePagesDiv");
+    let navbarDiv = document.getElementById("ProdLodgeNavbarDiv");
+
+    if (!parentDiv || !navbarDiv) {
+      return;
+    }
+
+    setMarginTopHeight(parentDiv.clientHeight / 2 - navbarDiv.clientHeight);
+  }, []);
 
   const updateEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
@@ -82,8 +99,12 @@ const Login = () => {
   };
 
   return (
-    <div className="bg-gradient-to-b from-prodPrimary to-prodSecondary w-full sm:w-8/12 h-screen mr-auto ml-auto ">
-      <div className="w-7/12 mr-auto ml-auto">
+    // <div className="bg-gradient-to-b from-prodPrimary to-prodSecondary w-10/12 sm:w-8/12 h-screen mr-auto ml-auto ">
+    <div
+      className="bg-gradient-to-b from-prodPrimary to-prodSecondary shadow-md rounded-lg w-7/12 sm:w-4/12 h-max pt-3 pb-3 mr-auto ml-auto"
+      style={{ marginTop: marginTopHeight / 2 }}
+    >
+      <div className="w-10/12 mr-auto ml-auto">
         <form onSubmit={handleSubmit}>
           <h3 className="w-max mr-auto ml-auto p-2 font-bold">Log In</h3>
           <div className="mr-auto ml-auto w-10/12">
