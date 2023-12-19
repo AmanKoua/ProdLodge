@@ -81,7 +81,11 @@ function App() {
       {/* <BrowserRouter> */}
       <NavBar />
       <main>
-        <div className="pages" style={{ minHeight: "102vh" }}>
+        <div
+          id="ProdLodgePagesDiv"
+          className="flex"
+          style={{ minHeight: "102vh" }}
+        >
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/home" element={<Home />} />

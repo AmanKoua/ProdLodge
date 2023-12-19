@@ -180,7 +180,10 @@ const NavBar = () => {
   };
 
   return (
-    <div className="bg-prodPrimary h-max mb-2 pb-2 sm:pb-0 sm:flex justify-center">
+    <div
+      id="ProdLodgeNavbarDiv"
+      className="bg-prodPrimary h-max mb-2 pb-2 sm:pb-0 sm:flex justify-center"
+    >
       {generateProdlodgeBanner()}
       {generateUserAuthSection()}
     </div>

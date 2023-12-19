@@ -959,8 +959,8 @@ const AudioBox = ({ songData, isPageSwitched, setIsSongPayloadSet }: Props) => {
   };
 
   const SongDataContainerClassName = !isSongDataContainerHover
-    ? "w-full h-9 overflow-hidden bg-gradient-to-b from-prodSecondary to-blue-50"
-    : "w-full h-24 overflow-hidden bg-gradient-to-b from-prodSecondary to-blue-50"; // toggle height with tailwind
+    ? "w-full h-9 rounded-t-xl overflow-hidden bg-gradient-to-b from-prodSecondary to-blue-50"
+    : "w-full h-24 rounded-t-xl overflow-hidden bg-gradient-to-b from-prodSecondary to-blue-50"; // toggle height with tailwind
 
   // SongDataContainerStyle.height = isExpanded ? "100px" : "40px";
 
@@ -2024,12 +2024,12 @@ const AudioBox = ({ songData, isPageSwitched, setIsSongPayloadSet }: Props) => {
             <h1
               style={{
                 fontSize: "15px",
-                marginTop: "8px",
+                marginTop: "15px",
                 textAlign: "center",
               }}
               className="ml-1 pl-1 pr-1 backdrop-blur-sm font-normal"
             >
-              Description: {songData.description}
+              {songData.description}
             </h1>
           </div>
         </div>
@@ -2103,6 +2103,7 @@ const AudioBox = ({ songData, isPageSwitched, setIsSongPayloadSet }: Props) => {
         >
           <p
             className="hover:font-bold"
+            style={{ transition: "all .1s" }}
             onClick={() => {
               setIsCommentsSectionDisplayed(!isCommentsSectionDisplayed);
             }}
