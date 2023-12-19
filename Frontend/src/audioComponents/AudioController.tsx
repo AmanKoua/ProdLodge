@@ -57,6 +57,7 @@ const AudioController = ({
 }: Props) => {
   // const [songTimeWidth, setSongTimeWidth] = useState(0);
   const [isHover, setIsHover] = useState(false);
+  const [isHoverPlayButton, setIsHoverPlayButton] = useState(false);
   const [isEventHandlerAttached, setIsEventHandlerAttached] = useState(false);
   audioControllerRef = useRef(null);
   audioControllerElement = audioControllerRef.current;
@@ -95,6 +96,8 @@ const AudioController = ({
     marginTop: "5px",
     marginLeft: "5px",
     zIndex: "5",
+    opacity: isHoverPlayButton ? "100%" : "40%",
+    transition: "all .2s",
   };
 
   const ExpandButtonStyle: CSS.Properties = {
@@ -159,6 +162,14 @@ const AudioController = ({
     setIsHover(false);
   };
 
+  const handleMouseEnterPlayButton = () => {
+    setIsHoverPlayButton(true);
+  };
+
+  const handleMouseLeavePlayButton = () => {
+    setIsHoverPlayButton(false);
+  };
+
   return (
     <>
       <div
@@ -202,6 +213,12 @@ const AudioController = ({
           src={imgSrc}
           style={imgStyle}
           onClick={handleImageClick}
+          onMouseEnter={() => {
+            handleMouseEnterPlayButton();
+          }}
+          onMouseLeave={() => {
+            handleMouseLeavePlayButton();
+          }}
         />
       </div>
     </>
