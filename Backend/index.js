@@ -17,19 +17,21 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static('dist'))
+app.use(express.static('dist'));
 
+app.use("/home/", express.static('dist')); // to prevent refreshing home page bug
 app.use('/user', userRouter);
 app.use('/upload', uploadRouter);
 app.use('/tracks', tracksRouter);
 app.use('/chain', chainsRouter);
 app.use('/comment', commentRouter);
 
-app.get('*', (req, res) => {
-    res.setHeader("Content-Type", "application/javascript");
-    res.sendFile(path.join(__dirname, 'dist', 'index.html'))
-    // res.status(200).json({ message: "Hello from prodlodge!" })
-})
+app.use("*", express.static('dist'));
+
+// app.get('*', (req, res) => {
+//     res.setHeader("Content-Type", "application/javascript");
+//     res.sendFile(path.join(__dirname, 'dist', 'index.html'))
+// });
 
 mongoose.connect(process.env.MONGO_URI).then(async () => {
     app.listen(process.env.PORT, () => {

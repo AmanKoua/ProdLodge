@@ -5,6 +5,7 @@ import HighPassModule from "./HighPassModule";
 import LowPassModule from "./LowPassModule";
 import PeakModule from "./PeakModule";
 import ReverbModule from "./ReverbModule";
+import FDNReverbModule from "./FDNReverbModule";
 import WaveShaperModule from "./WaveShaperModule";
 import GainModule from "./GainModule";
 import CompressionModule from "./CompressionModule";
@@ -120,6 +121,18 @@ const AudioModuleContainer = ({
             moveAudioModuleAndNode={moveAudioModuleAndNode}
             key={idx}
           ></ReverbModule>
+        );
+      case "FDNReverb":
+        return (
+          <FDNReverbModule
+            data={data}
+            position={[containerIdx, idx]}
+            editAudioNodeData={editAudioNodeData}
+            setAudioNodesChanged={setAudioNodesChanged}
+            deleteAudioModuleAndNode={deleteAudioModuleAndNode}
+            moveAudioModuleAndNode={moveAudioModuleAndNode}
+            key={idx}
+          ></FDNReverbModule>
         );
       case "Waveshaper":
         return (

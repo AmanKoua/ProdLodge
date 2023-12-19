@@ -34,7 +34,11 @@ export interface AudioModule {
   frequency?: number;
   resonance?: number;
   gain?: number;
-  impulse?: number;
+  impulse?: number; // convolver
+  wetPercent?: number; // FDN reverb
+  msDelaySize?: number; // FDN reverb
+  diffuserCount?: number; // FDN reverb
+  isKill?: number;
   amount?: number;
   threshold?: number;
   knee?: number;

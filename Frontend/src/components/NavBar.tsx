@@ -153,14 +153,35 @@ const NavBar = () => {
     }
   };
 
+  const generateProdlodgeBanner = (): JSX.Element => {
+    const token = localStorage.getItem("user");
+
+    if (token) {
+      return (
+        <Link
+          to="/home"
+          className="ml-auto mr-auto sm:ml-0 sm:mr-0 w-max no-underline hover:underline decoration-prodSecondary block p-1"
+        >
+          <h1 className="text-black mt-auto mb-auto text-4xl p-1">ProdLodge</h1>
+        </Link>
+      );
+    } else {
+      return (
+        <Link
+          to="/"
+          className="ml-auto mr-auto sm:ml-0 sm:mr-0 w-max no-underline hover:underline decoration-prodSecondary block p-1"
+        >
+          <h1 className="text-black mt-auto mb-auto text-4xl p-1">ProdLodge</h1>
+        </Link>
+      );
+    }
+
+    return <></>;
+  };
+
   return (
     <div className="bg-prodPrimary h-max mb-2 pb-2 sm:pb-0 sm:flex justify-center">
-      <Link
-        to="/"
-        className="ml-auto mr-auto sm:ml-0 sm:mr-0 w-max no-underline hover:underline decoration-prodSecondary block p-1"
-      >
-        <h1 className="text-black mt-auto mb-auto text-4xl p-1"> ProdLodge </h1>
-      </Link>
+      {generateProdlodgeBanner()}
       {generateUserAuthSection()}
     </div>
   );
