@@ -11,6 +11,8 @@ const Signup = () => {
   const [userName, setUserName] = useState("");
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const [parentDivHeight, setParentDivHeight] = useState<number>(0);
+  const [marginTopHeight, setMarginTopHeight] = useState<any>(0);
   const authContext = useContext(AuthContext); // user and dispatch properties
   const envContext = useContext(EnvironmentContext);
   const navigate = useNavigate();
@@ -44,6 +46,21 @@ const Signup = () => {
       clearTimeout(temp);
     };
   }, [message, error]);
+
+  useEffect(() => {
+    if (marginTopHeight != 0) {
+      return;
+    }
+
+    let parentDiv = document.getElementById("ProdLodgePagesDiv");
+    let navbarDiv = document.getElementById("ProdLodgeNavbarDiv");
+
+    if (!parentDiv || !navbarDiv) {
+      return;
+    }
+
+    setMarginTopHeight(parentDiv.clientHeight / 2 - navbarDiv.clientHeight);
+  }, []);
 
   const updateEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
@@ -93,80 +110,92 @@ const Signup = () => {
   };
 
   return (
-    <div className="bg-gradient-to-b from-prodPrimary to-prodSecondary w-full sm:w-8/12 h-screen mr-auto ml-auto ">
-      <div className="w-7/12 mr-auto ml-auto">
-        <form
-          onSubmit={handleSubmit}
-          className="ml-auto mr-auto border-b border-black pb-2"
+    <>
+      <div className="w-full h-full">
+        <div
+          // className="bg-gradient-to-b from-prodPrimary to-prodSecondary w-full sm:w-8/12 h-screen mr-auto ml-auto "
+          className="bg-gradient-to-b from-prodPrimary to-prodSecondary shadow-md rounded-lg w-7/12 sm:w-4/12 h-max pt-3 pb-3 mt-1 mr-auto ml-auto"
         >
-          <h3 className=" w-max mr-auto ml-auto p-2 font-bold">Sign up</h3>
-          <div>
-            <label className="w-full mr-auto ml-auto p-2 font-bold">
-              Email
-            </label>
-            <input
-              type="email"
-              value={email}
-              onChange={updateEmail}
-              className="w-full mr-auto ml-auto p-2"
-            />
-          </div>
-          <div>
-            <label className="w-full mr-auto ml-auto p-2 font-bold">
-              Password
-            </label>
-            <input
-              type="password"
-              value={password}
-              onChange={updatePassword}
-              className="w-full mr-auto ml-auto p-2"
-            />
-          </div>
-          <div>
-            <label className="w-full mr-auto ml-auto p-2 font-bold">
-              Password (re-enter)
-            </label>
-            <input
-              type="password"
-              value={passwordDup}
-              onChange={updatePasswordDup}
-              className="w-full mr-auto ml-auto p-2"
-            />
-          </div>
-          <div>
-            <label className="w-full mr-auto ml-auto p-2 font-bold">
-              User Name
-            </label>
-            <input
-              type="text"
-              value={userName}
-              onChange={updateUserName}
-              className="w-full mr-auto ml-auto p-2"
-            />
-          </div>
-          <div className="w-max mr-auto ml-auto p-2 mt-4">
-            <button className="btn">Sign up</button>
-          </div>
+          <div className="w-9/12 mr-auto ml-auto">
+            <form onSubmit={handleSubmit} className="ml-auto mr-auto">
+              <h3 className=" w-max mr-auto ml-auto p-2 font-bold">Sign up</h3>
+              <div>
+                <label className="w-full mr-auto ml-auto p-2 font-bold">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={updateEmail}
+                  className="w-full mr-auto ml-auto p-2"
+                />
+              </div>
+              <div>
+                <label className="w-full mr-auto ml-auto p-2 font-bold">
+                  Password
+                </label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={updatePassword}
+                  className="w-full mr-auto ml-auto p-2"
+                />
+              </div>
+              <div>
+                <label className="w-full mr-auto ml-auto p-2 font-bold">
+                  Password (re-enter)
+                </label>
+                <input
+                  type="password"
+                  value={passwordDup}
+                  onChange={updatePasswordDup}
+                  className="w-full mr-auto ml-auto p-2"
+                />
+              </div>
+              <div>
+                <label className="w-full mr-auto ml-auto p-2 font-bold">
+                  User Name
+                </label>
+                <input
+                  type="text"
+                  value={userName}
+                  onChange={updateUserName}
+                  className="w-full mr-auto ml-auto p-2"
+                />
+              </div>
+              <div className="w-max mr-auto ml-auto p-2 mt-4">
+                <button className="btn">Sign up</button>
+              </div>
 
-          {error && <div className="error">{error}</div>}
-        </form>
-        <div className="w-11/12 h-max ml-auto mr-auto mt-3 flex-col">
-          <p className="w-12/12 break-words text-center ml-auto mr-auto font-bold justify-self-start block ">
-            New here? Check out the about page
-          </p>
-          <div className="w-max ml-auto mr-auto">
-            <button
-              className="btn"
-              onClick={() => {
-                navigate("/about");
-              }}
-            >
-              about
-            </button>
+              {error && <div className="error">{error}</div>}
+            </form>
+          </div>
+        </div>
+        <div
+          // className="bg-gradient-to-b from-prodPrimary to-prodSecondary w-full sm:w-8/12 h-screen mr-auto ml-auto "
+          className="rounded-lg w-7/12 sm:w-4/12 h-max pt-3 pb-3 mr-auto ml-auto"
+        >
+          <div
+            // className="w-11/12 h-max ml-auto mr-auto mt-3 flex-col"
+            className="bg-gradient-to-b from-prodSecondary to-prodPrimary shadow-md rounded-lg w-full h-max pt-3 pb-3 mr-auto ml-auto"
+          >
+            <p className="w-12/12 break-words text-center ml-auto mr-auto font-bold justify-self-start block ">
+              New here? Check out the about page
+            </p>
+            <div className="w-max ml-auto mr-auto">
+              <button
+                className="btn"
+                onClick={() => {
+                  navigate("/about");
+                }}
+              >
+                about
+              </button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
