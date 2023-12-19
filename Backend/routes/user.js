@@ -1153,6 +1153,11 @@ router.get('/friendProfileImage', verifyTokenAndGetUser, async (req, res) => {
     const bucket = new GridFSBucket(db);
 
     const cursor = bucket.find({ _id: friendProfile.pictureId });
+    const hasNext = await cursor.hasNext();
+
+    if (!hasNext) {
+        return res.status(404).json({ error: "The provided image file for your friend does not exist!" });
+    }
 
     for await (const item of cursor) {
         profileImageFileName = item.filename;
