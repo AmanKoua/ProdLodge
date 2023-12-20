@@ -349,8 +349,8 @@ class Processor {
 
         if (input[0][0].length != input[0][1].length) {
             // if (this.errorCount % 10000 == 0) {
-            console.warn("left and right channel sample buffers are not of the same length!");
-            this.errorCount = 0;
+            // console.warn("left and right channel sample buffers are not of the same length!");
+            // this.errorCount = 0;
             // }
             return;
         }
