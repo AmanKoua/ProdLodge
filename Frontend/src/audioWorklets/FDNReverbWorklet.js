@@ -313,6 +313,10 @@ class Processor {
             return;
         }
 
+        if (input[0].length < 2) {
+            return;
+        }
+
         const wetPercent = parameters.WetPercent[0];
         const dryPercent = 100 - wetPercent;
 
@@ -344,10 +348,10 @@ class Processor {
         }
 
         if (input[0][0].length != input[0][1].length) {
-            if (this.errorCount % 10000 == 0) {
-                // console.warn("left and right channel sample buffers are not of the same length!");
-                this.errorCount = 0;
-            }
+            // if (this.errorCount % 10000 == 0) {
+            // console.warn("left and right channel sample buffers are not of the same length!");
+            // this.errorCount = 0;
+            // }
             return;
         }
 
