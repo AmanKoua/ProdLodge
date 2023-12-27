@@ -959,8 +959,8 @@ const AudioBox = ({ songData, isPageSwitched, setIsSongPayloadSet }: Props) => {
   };
 
   const SongDataContainerClassName = !isSongDataContainerHover
-    ? "w-full h-9 rounded-t-xl overflow-hidden bg-gradient-to-b from-prodSecondary to-blue-50"
-    : "w-full h-24 rounded-t-xl overflow-hidden bg-gradient-to-b from-prodSecondary to-blue-50"; // toggle height with tailwind
+    ? "w-full h-9 rounded-t-xl overflow-hidden bg-gradient-to-b from-blue-300 to-blue-50"
+    : "w-full h-24 rounded-t-xl overflow-hidden bg-gradient-to-b from-blue-300 to-blue-50"; // toggle height with tailwind
 
   // SongDataContainerStyle.height = isExpanded ? "100px" : "40px";
 
