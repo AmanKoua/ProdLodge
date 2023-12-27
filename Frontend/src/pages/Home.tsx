@@ -104,11 +104,14 @@ const Home = () => {
   };
 
   const generatePlaceholderAudioBoxes = (): JSX.Element => {
+    let totalHeight = undefined;
+
     if (!mainDivRef || !mainDivRef.current) {
-      return <></>;
+      totalHeight = 750;
+    } else {
+      totalHeight = mainDivRef.current.clientHeight;
     }
 
-    let totalHeight = mainDivRef.current.clientHeight;
     const tempCardHeight = 80; // when tested, the card height is 80
     const cardCount = Math.floor(totalHeight / tempCardHeight) - 1;
 
@@ -208,13 +211,13 @@ const Home = () => {
         </h3>
       </div>
       <div className="blur-sm sm:blur-none sm:pointer-events-auto pointer-events-none">
+        {isLoading && generatePlaceholderAudioBoxes()}
         {!isLoading && songPayload.length > 0 && generateAudioBoxes()}
         {!isLoading && songPayload.length == 0 && (
           <div className="w-max h-max ml-auto mr-auto mt-5 border-b-2 border-black ">
             <h3 className="">Sorry, but you have no songs to show.</h3>
           </div>
         )}
-        {isLoading && generatePlaceholderAudioBoxes()}
       </div>
     </div>
   );
