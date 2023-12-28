@@ -114,7 +114,10 @@ const Signup = () => {
       <div className="w-full h-full">
         <div
           // className="bg-gradient-to-b from-prodPrimary to-prodSecondary w-full sm:w-8/12 h-screen mr-auto ml-auto "
-          className="bg-gradient-to-b from-prodPrimary to-prodSecondary shadow-md rounded-lg w-7/12 sm:w-4/12 h-max pt-3 pb-3 mt-1 mr-auto ml-auto"
+          className="bg-gradient-to-b from-prodPrimary to-prodSecondary shadow-md rounded-lg w-7/12 sm:w-4/12 h-max pt-3 pb-3 mr-auto ml-auto"
+          style={{
+            marginTop: marginTopHeight / 3,
+          }}
         >
           <div className="w-9/12 mr-auto ml-auto">
             <form onSubmit={handleSubmit} className="ml-auto mr-auto">
@@ -177,7 +180,7 @@ const Signup = () => {
         >
           <div
             // className="w-11/12 h-max ml-auto mr-auto mt-3 flex-col"
-            className="bg-gradient-to-b from-prodSecondary to-prodPrimary shadow-md rounded-lg w-full h-max pt-3 pb-3 mr-auto ml-auto"
+            className="bg-prodSecondary shadow-md rounded-lg w-full h-max pt-3 pb-3 mr-auto ml-auto"
           >
             <p className="w-12/12 break-words text-center ml-auto mr-auto font-bold justify-self-start block ">
               New here? Check out the about page
