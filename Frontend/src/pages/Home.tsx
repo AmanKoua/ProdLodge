@@ -1,5 +1,5 @@
 import React from "react";
-import { useState, useContext, useEffect } from "react";
+import { useState, useContext, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { EnvironmentContext } from "../context/EnvironmentContext";
@@ -19,6 +19,8 @@ const Home = () => {
   const [startPage, setStartPage] = useState("My Songs");
   const [songPayloadSwitchCount, setSongPayloadSwitchCount] = useState(0);
   const [isPageSwitched, setIsPageSwitched] = useState(false); // toggle this value back and forth to act as a trigger
+  const [mainDivHeight, setMainDivHeight] = useState(0);
+  const mainDivRef = useRef<HTMLDivElement>(null);
   const authContext = useContext(AuthContext);
   const envContext = useContext(EnvironmentContext);
   const navigate = useNavigate();
@@ -102,14 +104,25 @@ const Home = () => {
   };
 
   const generatePlaceholderAudioBoxes = (): JSX.Element => {
-    let placeHolderArr = new Array(5).fill(0);
+    let totalHeight = undefined;
+
+    if (!mainDivRef || !mainDivRef.current) {
+      totalHeight = 750;
+    } else {
+      totalHeight = mainDivRef.current.clientHeight;
+    }
+
+    const tempCardHeight = 80; // when tested, the card height is 80
+    const cardCount = Math.floor(totalHeight / tempCardHeight) - 1;
+
+    let placeHolderArr = new Array(cardCount).fill(0);
 
     let audioBoxFragment = (
       <>
         {placeHolderArr.map((item, idx) => (
           <div
             key={idx}
-            className="bg-gray-500 w-12/12 lg:w-9/12 h-20 mr-auto ml-auto mt-3 pt-3 animate-pulse"
+            className="bg-gray-500 w-12/12 lg:w-9/12 h-20 rounded-t-xl mr-auto ml-auto mt-3 pt-3 animate-pulse"
           ></div>
         ))}
       </>
@@ -119,7 +132,10 @@ const Home = () => {
   };
 
   return (
-    <div className="bg-gradient-to-b from-prodPrimary to-prodSecondary shadow-xl shadow-blue-200 w-full sm:w-8/12 h-screen mr-auto ml-auto pb-4 hide-scrollbar overflow-y-scroll">
+    <div
+      className="bg-gradient-to-b from-prodPrimary to-prodSecondary shadow-xl shadow-blue-200 w-full sm:w-8/12 h-screen mr-auto ml-auto pb-4 hide-scrollbar overflow-y-scroll"
+      ref={mainDivRef}
+    >
       {/* Do not allow the displaying of audioBoxes on mobile sized screens */}
 
       <div className="w-10/12 h-7 ml-auto mr-auto mt-2 overflow-hidden flex justify-around">
@@ -195,13 +211,13 @@ const Home = () => {
         </h3>
       </div>
       <div className="blur-sm sm:blur-none sm:pointer-events-auto pointer-events-none">
+        {isLoading && generatePlaceholderAudioBoxes()}
         {!isLoading && songPayload.length > 0 && generateAudioBoxes()}
         {!isLoading && songPayload.length == 0 && (
           <div className="w-max h-max ml-auto mr-auto mt-5 border-b-2 border-black ">
             <h3 className="">Sorry, but you have no songs to show.</h3>
           </div>
         )}
-        {isLoading && generatePlaceholderAudioBoxes()}
       </div>
     </div>
   );
