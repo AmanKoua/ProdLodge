@@ -402,14 +402,14 @@ const SongCommentSection = ({
   }, [message, error]);
 
   const generateSongComments = (): JSX.Element => {
-    let temp = new Array(3).fill(0);
+    let temp = new Array(1).fill(0);
 
     if (!areParentCommentsFetched) {
       return (
         <>
           {temp.map((item, idx) => (
             <div
-              className="bg-gray-200 w-10/12 h-20 ml-auto mr-auto mt-4 pb-1 border border-black animate-pulse"
+              className="bg-gray-500 w-10/12 h-20 ml-auto mr-auto mt-4 pb-1 border border-black animate-pulse"
               key={idx + 100 * 4}
             ></div>
           ))}
