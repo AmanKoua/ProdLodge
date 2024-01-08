@@ -269,7 +269,7 @@ const NewSong = () => {
   };
 
   return (
-    <div className="bg-gradient-to-b from-prodPrimary to-prodSecondary overflow-hidden w-full h-screen sm:w-8/12 ml-auto mr-auto flex-col jusitfy-items-center">
+    <div className="bg-gradient-to-b from-prodPrimary to-prodSecondary shadow-xl shadow-blue-200 overflow-hidden w-full h-screen sm:w-8/12 ml-auto mr-auto flex-col jusitfy-items-center">
       <h3 className="w-max mr-auto ml-auto p-2 font-bold">Upload a new song</h3>
       <input
         type="text"

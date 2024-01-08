@@ -2,7 +2,7 @@ import React from "react";
 
 const About = () => {
   return (
-    <div className="bg-gradient-to-b from-prodPrimary to-prodSecondary w-full sm:w-8/12 h-max mr-auto ml-auto pb-4 hide-scrollbar overflow-y-scroll hide-scrollbar">
+    <div className="bg-gradient-to-b from-prodPrimary to-prodSecondary shadow-xl shadow-blue-200 w-full sm:w-8/12 h-max mr-auto ml-auto pb-4 hide-scrollbar overflow-y-scroll hide-scrollbar">
       <div className=" w-full h-full mr-auto ml-auto pb-2 pt-2 flex-col">
         <h1 className="w-max ml-auto mr-auto p-2 border-b border-black">
           About

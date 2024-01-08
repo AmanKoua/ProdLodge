@@ -267,7 +267,7 @@ const EditSong = () => {
   const [message, setMessage] = useState("");
   const [pageHeight, setPageHeight] = useState<number | undefined>(undefined);
   const [pageClassName, setPageClassName] = useState(
-    "bg-gradient-to-b from-prodPrimary to-prodSecondary w-full h-screen sm:w-8/12 ml-auto mr-auto flex-col jusitfy-items-center hide-scrollbar"
+    "bg-gradient-to-b from-prodPrimary to-prodSecondary shadow-xl shadow-blue-200 w-full h-screen sm:w-8/12 ml-auto mr-auto flex-col jusitfy-items-center hide-scrollbar"
   );
   const editSongPage = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
@@ -333,9 +333,9 @@ const EditSong = () => {
         let temp = editSongPage.current as unknown as HTMLDivElement;
 
         let expandedName =
-          "bg-gradient-to-b from-prodPrimary to-prodSecondary w-full h-max sm:w-8/12 ml-auto mr-auto pb-3 flex-col jusitfy-items-center hide-scrollbar";
+          "bg-gradient-to-b from-prodPrimary to-prodSecondary shadow-xl shadow-blue-200 w-full h-max sm:w-8/12 ml-auto mr-auto pb-3 flex-col jusitfy-items-center hide-scrollbar";
         let shrunkName =
-          "bg-gradient-to-b from-prodPrimary to-prodSecondary w-full h-screen sm:w-8/12 ml-auto mr-auto pb-3 flex-col jusitfy-items-center hide-scrollbar";
+          "bg-gradient-to-b from-prodPrimary to-prodSecondary shadow-xl shadow-blue-200 w-full h-screen sm:w-8/12 ml-auto mr-auto pb-3 flex-col jusitfy-items-center hide-scrollbar";
 
         if (
           temp!.scrollHeight > temp!.clientHeight &&
@@ -459,7 +459,7 @@ const EditSong = () => {
   };
 
   const generatePlaceholderSongEntries = (): JSX.Element => {
-    const tempSongPayloadArr = new Array(5).fill(0);
+    const tempSongPayloadArr = new Array(3).fill(0);
 
     return (
       <div>
