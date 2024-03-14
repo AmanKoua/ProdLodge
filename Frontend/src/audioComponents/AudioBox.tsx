@@ -117,6 +117,8 @@ const AudioBox = ({ songData, isPageSwitched, setIsSongPayloadSet }: Props) => {
   let animationFrameHandler: number | undefined; // value is used in effects hooks
   let setAnimationFrameHandler: (val: any) => void;
   let canvasRef: any;
+  let animationStyle: number;
+  let setAnimationStyle: (val: number) => void;
 
   // Visualizer data and properties
   let bufferLength: number | undefined;
@@ -204,6 +206,7 @@ const AudioBox = ({ songData, isPageSwitched, setIsSongPayloadSet }: Props) => {
   [canvas, setCanvas] = useState(undefined);
   [canvasCtx, setCanvasCtx] = useState(undefined);
   [animationFrameHandler, setAnimationFrameHandler] = useState(undefined);
+  [animationStyle, setAnimationStyle] = useState(2);
   [bufferLength, setBufferLength] = useState(undefined);
 
   /////////////////////////////////// Web audio Api effects! ////////////////////////////////////////////////////
@@ -758,7 +761,6 @@ const AudioBox = ({ songData, isPageSwitched, setIsSongPayloadSet }: Props) => {
 
       let draw = () => {
         setAnimationFrameHandler(requestAnimationFrame(draw));
-        analyserNode.getByteTimeDomainData(dataArr);
 
         canvasCtx!.fillStyle = "rgb(255, 255, 255)";
         canvasCtx!.fillRect(0, 0, canvas!.width, canvas!.height);
@@ -766,27 +768,46 @@ const AudioBox = ({ songData, isPageSwitched, setIsSongPayloadSet }: Props) => {
         canvasCtx!.lineWidth = 1;
         canvasCtx!.strokeStyle = "rgb(0, 0, 0)";
 
+        const sliceWidth = (canvas!.width * 1.0) / bufferLength!;
+        const barSliceWidth = canvas!.width / (bufferLength - 350);
+
         // oscilloscope
 
-        canvasCtx!.beginPath();
-        const sliceWidth = (canvas!.width * 1.0) / bufferLength!;
-        let x = 0;
+        if (animationStyle == 1) {
+          analyserNode.getByteTimeDomainData(dataArr);
+          canvasCtx!.beginPath();
 
-        for (let i = 0; i < bufferLength!; i++) {
-          const v = dataArr![i] / 128.0;
-          const y = (v * canvas!.height) / 2;
+          let x = 0;
 
-          if (i === 0) {
-            canvasCtx!.moveTo(x, y);
-          } else {
-            canvasCtx!.lineTo(x, y);
+          for (let i = 0; i < bufferLength!; i++) {
+            const v = dataArr![i] / 128.0;
+            const y = (v * canvas!.height) / 2;
+
+            if (i === 0) {
+              canvasCtx!.moveTo(x, y);
+            } else {
+              canvasCtx!.lineTo(x, y);
+            }
+
+            x += sliceWidth;
           }
 
-          x += sliceWidth;
-        }
+          canvasCtx!.lineTo(canvas!.width, canvas!.height / 2);
+          canvasCtx!.stroke();
+        } else if (animationStyle == 2) {
+          analyserNode.getByteFrequencyData(dataArr);
 
-        canvasCtx!.lineTo(canvas!.width, canvas!.height / 2);
-        canvasCtx!.stroke();
+          for (let i = 0; i < dataArr.length; i += 3) {
+            canvasCtx.beginPath();
+            canvasCtx.moveTo(i * barSliceWidth, canvas!.height);
+            canvasCtx.lineTo(
+              i * barSliceWidth,
+              canvas!.height - dataArr[i] / 2
+            );
+            canvasCtx.closePath();
+            canvasCtx.stroke();
+          }
+        }
       };
 
       draw(); // call draw once!
